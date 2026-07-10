@@ -1,0 +1,151 @@
+{
+  "header": {
+    "subtitle": "AI model price-rate calculator",
+    "toggleTheme": "Toggle theme",
+    "switchToLight": "Switch to light",
+    "switchToDark": "Switch to dark"
+  },
+  "footer": {
+    "tagline": "Zero tracking · Pure frontend · MIT License ·",
+    "disclaimer": "Exchange rates and pricing are for reference only; actual platform charges prevail"
+  },
+  "glossary": {
+    "title": "Glossary",
+    "explanation": "Why compute the final effective rate? — The group rate shown by the platform is amplified or reduced by the recharge ratio (FX markup). Only after converting it to a 1:1 equivalent rate can it be compared directly with official pricing to judge whether it is a good deal.",
+    "terms": {
+      "rechargeAmount": { "term": "Recharge amount", "desc": "The actual CNY amount you spend" },
+      "arrivedAmount": { "term": "Credited amount", "desc": "The USD balance received after recharging" },
+      "groupRate": { "term": "Group rate", "desc": "Billing multiplier the platform sets for a model group; lower means less is charged" },
+      "rechargeRatio": { "term": "Recharge ratio", "desc": "Recharge ÷ credited amount, i.e. the actual cost per 1 USD" },
+      "officialCostRatio": { "term": "Of official cost", "desc": "Actual cost as a percentage of the official price" },
+      "inputOutput": { "term": "Input / Output", "desc": "Input = what you send to the model; output = the model reply. Output is usually more expensive" },
+      "cacheWriteRead": { "term": "Cache write / read", "desc": "Write = storing reusable content; read = reusing content. Reads are cheaper" },
+      "tokens": { "term": "1M tokens", "desc": "Billing usage unit, about one million text pieces" }
+    }
+  },
+  "mode": {
+    "forward": "Forward rate",
+    "reverse": "Reverse infer",
+    "ariaLabel": "Calculation mode"
+  },
+  "steps": {
+    "forward": {
+      "one": "Enter recharge amount, credited amount and group rate",
+      "two": "Convert recharge ratio and 1:1 equivalent rate",
+      "three": "Compare against official cost, view the price table"
+    },
+    "reverse": {
+      "one": "Pick a reference model and enter actual paid prices",
+      "two": "Infer the real group rate and equivalent rate",
+      "three": "Decide if it is cheaper / pricier / on par with official"
+    }
+  },
+  "funding": {
+    "recharge": "Recharge amount",
+    "cnyUnit": "(¥)",
+    "arrived": "Credited amount",
+    "usdUnit": "($)",
+    "placeholder": "e.g. 100"
+  },
+  "forwardCalc": {
+    "groupRate": "Group rate",
+    "placeholder": "e.g. 1.1",
+    "groupRateHint": "Billing multiplier the platform sets for a model group"
+  },
+  "forwardResult": {
+    "rechargeRatio": "Recharge ratio",
+    "rechargeRatioHint": "Actual cost per 1 USD",
+    "equivalentRate": "1:1 equivalent group rate",
+    "equivalentRateHint": "Directly comparable with official",
+    "officialCost": "Of official cost",
+    "officialCostHint": "Lower is a better deal"
+  },
+  "conclusion": {
+    "title": "Conclusion",
+    "empty": "Fill in recharge amount, credited amount, group rate and exchange rate to see the conclusion",
+    "currentEquiv": "The current 1:1 equivalent rate is",
+    "officialCost": ", which is",
+    "comma": ", ",
+    "period": ".",
+    "tableHint": "The price table compares each model paid ¥ vs official ¥ line by line."
+  },
+  "verdict": {
+    "cheaper": "{{pct}}% cheaper",
+    "expensive": "{{pct}}% pricier",
+    "flat": "On par with official",
+    "na": "N/A"
+  },
+  "exchange": {
+    "sourceAuto": "Auto",
+    "sourceManual": "Manual",
+    "sourceDefault": "Default (offline)",
+    "realtime": "Live rate",
+    "confirm": "Confirm",
+    "edit": "Edit rate",
+    "refetch": "Refresh"
+  },
+  "preset": {
+    "recharge100arrived100": "Recharge 100 → 100",
+    "recharge100arrived50": "Recharge 100 → 50",
+    "rate0.6": "Rate 0.6",
+    "rate1.1": "Rate 1.1"
+  },
+  "provider": {
+    "ariaLabel": "Model category"
+  },
+  "priceTable": {
+    "title": "Price table · Paid ¥ comparison",
+    "fillHint": "Fill the inputs above to show paid prices",
+    "colModel": "Model",
+    "colContext": "Context",
+    "colInput": "Input",
+    "colCacheWrite": "Cache write",
+    "colCacheRead": "Cache read",
+    "colOutput": "Output",
+    "billedAsInput": "Billed as input",
+    "pending": "Pending input",
+    "official": "Official"
+  },
+  "reverse": {
+    "referenceModel": "Reference model",
+    "selectModel": "Select reference model",
+    "paidInput": "Input paid",
+    "paidOutput": "Output paid",
+    "phInput": "e.g. 5",
+    "phOutput": "e.g. 25",
+    "cacheWrite": "Cache write paid",
+    "cacheRead": "Cache read paid",
+    "phCacheWrite": "e.g. 6.25",
+    "phCacheRead": "e.g. 0.5",
+    "cnyPerM": "(¥/1M)",
+    "cacheToggle": "Cache paid"
+  },
+  "reverseResult": {
+    "paid": " paid",
+    "notApplicable": "This model has no such item; not applicable",
+    "realGroupRate": "Real group rate",
+    "equivalentRate": "1:1 equivalent rate",
+    "officialCost": "Of official cost",
+    "rateWord": "rate",
+    "selectModelHint": "Select a reference model and fill in paid prices to see the inferred result",
+    "fillPaidHint": "Fill in at least one paid price (input / output / cache)",
+    "summary": "Summary",
+    "avgRate": "Avg inferred rate",
+    "best": "Best deal",
+    "worst": "Priciest",
+    "kind": {
+      "input": "Input",
+      "output": "Output",
+      "cacheWrite": "Cache write",
+      "cacheRead": "Cache read"
+    }
+  },
+  "errorBoundary": {
+    "title": "Error",
+    "description": "The app hit an unexpected error. Try resetting to continue.",
+    "reset": "Reset"
+  },
+  "app": {
+    "clearPaid": "Clear paid inputs"
+  }
+}

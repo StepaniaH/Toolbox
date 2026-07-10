@@ -1,0 +1,24 @@
+# deploy/Caddyfile.example
+# Append to VPS Caddyfile, then restart Docker Caddy
+# VPS: {{CADDY_DIR}}/Caddyfile
+# Container maps ~/www → /srv/www, so root paths use /srv/www/
+
+tools.s-ark.xyz {
+    root * /srv/www/toolbox
+    file_server
+    encode gzip zstd
+
+    handle /rate-lens/* {
+        try_files {path} /rate-lens/index.html
+    }
+    handle /chrono-sphere/* {
+        try_files {path} /chrono-sphere/index.html
+    }
+    handle /sane-units/* {
+        try_files {path} /sane-units/index.html
+    }
+
+    handle {
+        file_server
+    }
+}

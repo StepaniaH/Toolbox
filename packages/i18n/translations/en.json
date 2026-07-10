@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "home": "Home",
+    "theme": "Theme",
+    "lang": "Language",
+    "about": "About",
+    "menu": "Menu"
+  },
+  "action": {
+    "toggleTheme": "Toggle theme",
+    "toggleLang": "Switch language",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "cancel": "Cancel",
+    "confirm": "OK"
+  },
+  "common": {
+    "greeting": "Hello, {{name}}!",
+    "loading": "Loading…",
+    "error": "Error",
+    "notFound": "Not found"
+  }
+}

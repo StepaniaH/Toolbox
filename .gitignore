@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+*.local
+.DS_Store
+.turbo/
+deploy/.env
+.hermes/
+docs/ISSUES.md
+.git.old.bak/

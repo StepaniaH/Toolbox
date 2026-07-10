@@ -1,0 +1,127 @@
+/* ==========================================================================
+   Layout — page structure, header, main grid, footer
+   ========================================================================== */
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 32px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Header ---- */
+.site-header {
+  text-align: center;
+  padding: 32px 0 48px;
+}
+
+.site-logo {
+  font-size: 40px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.site-title {
+  font-size: 32px;
+  font-weight: 650;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.site-tagline {
+  font-size: 16px;
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Header controls ---- */
+.header-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.header-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-muted);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 550;
+  letter-spacing: 0.02em;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.header-controls button:hover {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+.header-controls .btn-icon {
+  width: 36px;
+  padding: 0;
+  font-size: 16px;
+}
+
+/* ---- Main grid ---- */
+.tools-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  padding-bottom: 48px;
+}
+
+@media (min-width: 640px) {
+  .tools-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .tools-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    max-width: 960px;
+    margin: 0 auto;
+  }
+}
+
+/* Last row centering: if a row has fewer items, they stay left-aligned
+   but don't stretch. auto-fill with max-width handles this naturally. */
+@supports (grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))) {
+  .tools-grid {
+    justify-content: center;
+  }
+}
+
+/* ---- Footer ---- */
+.site-footer {
+  text-align: center;
+  padding: 24px 0 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  opacity: 0.6;
+  letter-spacing: 0.03em;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.site-footer a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.site-footer a:hover {
+  color: var(--text-secondary);
+}

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="RateLens — AI 模型价格倍率计算器。支持倍率正算与扣费反推，实时换算充值比例、等效倍率与占官方成本，覆盖 Claude 与 GPT/Codex 系列定价。纯前端，零追踪。"
+    />
+    <meta name="theme-color" content="#303446" />
+    <meta property="og:title" content="RateLens · AI 模型价格倍率计算器" />
+    <meta
+      property="og:description"
+      content="倍率正算与扣费反推，实时换算 AI 模型实付价格与官方成本对比。"
+    />
+    <meta property="og:type" content="website" />
+    <title>RateLens · AI 模型价格倍率计算器</title>
+    <script>
+      // Apply stored theme before paint to avoid flash.
+      // Priority: stored choice → system preference → dark (default).
+      (function () {
+        try {
+          var t = localStorage.getItem('ratelens-theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: light)').matches
+              ? 'light' : 'dark';
+          }
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

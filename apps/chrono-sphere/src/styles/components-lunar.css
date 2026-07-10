@@ -1,0 +1,178 @@
+/* --- Lunar Calculator --- */
+
+.lunar-picker-box {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 15px;
+  background: var(--surface-raised);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lunar-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lunar-picker-grid .form-label {
+  font-size: 0.75rem;
+}
+
+.lunar-picker-grid .form-input {
+  padding-left: 12px;
+}
+
+.lunar-leap-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.lunar-leap-checkbox {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-primary);
+}
+
+.lunar-leap-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.lunar-solar-preview {
+  background: var(--surface-raised);
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px dashed var(--border-subtle);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.lunar-result-display {
+  text-align: center;
+  margin: 12px 0;
+}
+
+.lunar-result-str {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent-primary);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+}
+
+.lunar-result-pills {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.lunar-almanac-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 15px;
+}
+
+.lunar-almanac-box {
+  background: var(--surface-raised);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+}
+
+.lunar-almanac-box.auspicious {
+  border: 1px solid color-mix(in srgb, var(--color-success) 18%, var(--border-subtle));
+}
+
+.lunar-almanac-box.inauspicious {
+  border: 1px solid color-mix(in srgb, var(--color-error) 18%, var(--border-subtle));
+}
+
+.lunar-almanac-heading {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid;
+}
+
+.lunar-almanac-heading.auspicious {
+  color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 18%, var(--border-subtle));
+}
+
+.lunar-almanac-heading.inauspicious {
+  color: var(--color-error);
+  border-color: color-mix(in srgb, var(--color-error) 18%, var(--border-subtle));
+}
+
+.lunar-almanac-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.lunar-almanac-tag {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.lunar-almanac-tag.auspicious {
+  background: color-mix(in srgb, var(--color-success) 12%, var(--surface-raised));
+  color: var(--color-success);
+}
+
+.lunar-almanac-tag.inauspicious {
+  background: color-mix(in srgb, var(--color-error) 12%, var(--surface-raised));
+  color: var(--color-error);
+}
+
+.lunar-almanac-empty {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* --- Offset Calculator lunar display --- */
+
+.offset-lunar-display {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px dashed var(--border-subtle);
+  padding-top: 12px;
+}
+
+.offset-lunar-title {
+  font-size: 1.25rem;
+  color: var(--accent-primary);
+  font-weight: 700;
+}
+
+.offset-lunar-pills {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.meta-pill.jieqi {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 5%, transparent);
+}
+
+.meta-pill.festival {
+  border-color: var(--accent-secondary);
+  color: var(--accent-secondary);
+  background: color-mix(in srgb, var(--accent-secondary) 5%, transparent);
+}

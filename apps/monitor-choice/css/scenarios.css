@@ -1,0 +1,218 @@
+/* =====================================================================
+   Tab 4 — Scenarios
+   Filterable card grid with recommended params & apply buttons
+   ===================================================================== */
+
+.scenario-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* ---------------------------------------------------------------------
+   Filters
+   --------------------------------------------------------------------- */
+.scenario-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.scenario-filters .filter-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-right: var(--space-xs);
+}
+
+.scenario-filters .filter-pill {
+  padding: var(--space-xs) var(--space-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease,
+              border-color 0.15s ease, transform 0.1s ease;
+}
+
+.scenario-filters .filter-pill:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-blue);
+}
+
+.scenario-filters .filter-pill.active {
+  color: #07111f;
+  background: var(--gradient-accent);
+  border-color: transparent;
+}
+
+.scenario-filters .filter-pill:active {
+  transform: scale(0.96);
+}
+
+/* ---------------------------------------------------------------------
+   Scenario grid
+   --------------------------------------------------------------------- */
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+/* ---------------------------------------------------------------------
+   Scenario card
+   --------------------------------------------------------------------- */
+.scenario-card {
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  transition: transform 0.2s ease, border-color 0.2s ease,
+              background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scenario-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-blue);
+  background: var(--glass-bg-strong);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+
+.scenario-card.hidden {
+  display: none;
+}
+
+/* Tag pill */
+.scenario-card .tag {
+  width: fit-content;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-pill);
+  color: #07111f;
+  background: var(--gradient-accent);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+/* Title */
+.scenario-card h3 {
+  font-size: clamp(18px, 2.5vw, 22px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+/* Meta info */
+.scenario-card .meta {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.65;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.scenario-card .meta .meta-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.scenario-card .meta .meta-icon {
+  flex-shrink: 0;
+  color: var(--accent-blue);
+}
+
+/* Choice box */
+.scenario-card .choice {
+  margin-top: auto;
+  padding: var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-hover);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.scenario-card .choice b {
+  color: var(--good-green);
+  font-weight: 700;
+}
+
+.scenario-card .choice .caution {
+  color: var(--warn-yellow);
+  font-weight: 600;
+}
+
+.scenario-card .choice .avoid {
+  color: var(--bad-red);
+  font-weight: 600;
+}
+
+/* Apply button */
+.scenario-card .apply-btn {
+  width: fit-content;
+  padding: var(--space-xs) var(--space-lg);
+  font-size: 13px;
+  font-weight: 700;
+  color: #07111f;
+  background: var(--gradient-accent);
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow: 0 6px 18px var(--accent-shadow);
+}
+
+.scenario-card .apply-btn:hover {
+  opacity: 0.9;
+  box-shadow: 0 8px 24px var(--accent-shadow);
+}
+
+.scenario-card .apply-btn:active {
+  transform: scale(0.96);
+}
+
+/* Related-tab link */
+.scenario-card .related-link {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.scenario-card .related-link a {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.scenario-card .related-link a:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------- */
+@media (max-width: 920px) {
+  .scenario-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .scenario-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-card {
+    padding: var(--space-md);
+  }
+}

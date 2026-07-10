@@ -1,0 +1,30 @@
+{
+  "name": "@toolbox/i18n",
+  "version": "1.0.0",
+  "description": "Framework-agnostic i18n core + React wrapper hook — shared across Toolbox apps",
+  "main": "./core.ts",
+  "types": "./core.ts",
+  "exports": {
+    ".": "./core.ts",
+    "./core": "./core.ts",
+    "./react": "./react.ts",
+    "./translations/zh.json": "./translations/zh.json",
+    "./translations/en.json": "./translations/en.json",
+    "./README.md": "./README.md"
+  },
+  "files": [
+    "core.ts",
+    "react.ts",
+    "translations",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "react": "^19.2.7",
+    "typescript": "^5.9.3"
+  }
+}

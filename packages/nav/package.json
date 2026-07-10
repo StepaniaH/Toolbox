@@ -1,0 +1,30 @@
+{
+  "name": "@toolbox/nav",
+  "version": "1.0.0",
+  "description": "Shared navigation bar for all Toolbox apps — vanilla JS + React, themed via @toolbox/theme",
+  "main": "./NavBar.tsx",
+  "types": "./NavBar.tsx",
+  "exports": {
+    ".": "./NavBar.tsx",
+    "./nav-bar.js": "./nav-bar.js",
+    "./nav-bar.css": "./nav-bar.css",
+    "./NavBar.tsx": "./NavBar.tsx",
+    "./README.md": "./README.md"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "@toolbox/i18n": "workspace:*"
+  },
+  "files": [
+    "nav-bar.js",
+    "nav-bar.css",
+    "NavBar.tsx",
+    "README.md"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@toolbox/i18n": "workspace:*",
+    "@types/react": "^19.2.17",
+    "react": "^19.2.7"
+  }
+}

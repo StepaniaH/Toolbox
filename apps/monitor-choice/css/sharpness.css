@@ -1,0 +1,267 @@
+/* =====================================================================
+   Tab 1 — Sharpness Lab
+   PPI / PPD / Retina distance stats + canvas text-rendering comparison
+   ===================================================================== */
+
+.sharpness-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* ---------------------------------------------------------------------
+   Stats row
+   --------------------------------------------------------------------- */
+.sharp-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.sharp-stat {
+  padding: var(--space-lg);
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  text-align: center;
+}
+
+.sharp-stat .value {
+  display: block;
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--accent-blue);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.sharp-stat .value .unit {
+  font-size: 0.5em;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+.sharp-stat .label {
+  display: block;
+  margin-top: var(--space-xs);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---------------------------------------------------------------------
+   PPD meter
+   --------------------------------------------------------------------- */
+.sharp-ppd-meter-wrap {
+  padding: var(--space-lg);
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.sharp-ppd-meter-wrap .meter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-sm);
+}
+
+.sharp-ppd-meter-wrap .meter-header .ppd-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sharp-ppd-meter-wrap .meter-header .ppd-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent-blue);
+  font-variant-numeric: tabular-nums;
+}
+
+.sharp-ppd-meter-wrap .meter-header .ppd-target {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+#sharp-ppd-meter {
+  width: 100%;
+  height: 16px;
+}
+
+.sharp-ppd-meter-wrap .ppd-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-xs);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sharp-ppd-meter-wrap .ppd-scale span {
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------
+   Retina distance callout
+   --------------------------------------------------------------------- */
+.sharp-retina-callout {
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(143, 240, 178, 0.25);
+  background: rgba(143, 240, 178, 0.06);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.sharp-retina-callout .retina-status {
+  font-weight: 700;
+  color: var(--good-green);
+}
+
+.sharp-retina-callout .retina-status.below {
+  color: var(--warn-yellow);
+}
+
+.sharp-retina-callout .retina-status.poor {
+  color: var(--bad-red);
+}
+
+/* ---------------------------------------------------------------------
+   Canvas comparison grid
+   --------------------------------------------------------------------- */
+.sharp-comparison {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.sharp-canvas-card {
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.sharp-canvas-card:hover {
+  border-color: var(--accent-blue);
+  transform: translateY(-2px);
+}
+
+.sharp-canvas-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.sharp-canvas-card .card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sharp-canvas-card .card-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.sharp-canvas-card .canvas-container {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-canvas);
+  border: 1px solid var(--bg-hover);
+}
+
+.sharp-canvas-card canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---------------------------------------------------------------------
+   Add-comparison control
+   --------------------------------------------------------------------- */
+.sharp-add-comparison {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+  padding: var(--space-md);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+.sharp-add-comparison label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.sharp-add-comparison input,
+.sharp-add-comparison select {
+  padding: var(--space-xs) var(--space-sm);
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.sharp-add-comparison button {
+  padding: var(--space-xs) var(--space-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: #07111f;
+  background: var(--gradient-accent);
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.sharp-add-comparison button:hover {
+  opacity: 0.9;
+}
+
+.sharp-add-comparison button:active {
+  transform: scale(0.97);
+}
+
+/* ---------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------- */
+@media (max-width: 920px) {
+  .sharp-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .sharp-comparison {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .sharp-stat {
+    padding: var(--space-md);
+  }
+
+  .sharp-canvas-card {
+    padding: var(--space-sm);
+  }
+}

@@ -1,0 +1,121 @@
+/* --- Interval Calculator --- */
+
+.interval-config-box {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 15px;
+  background: var(--surface-raised);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.interval-config-box .form-group {
+  margin-bottom: 0;
+}
+
+.interval-section-heading {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.interval-section-heading.start {
+  color: var(--accent-primary);
+}
+
+.interval-section-heading.end {
+  color: var(--accent-secondary);
+}
+
+.interval-sub-label {
+  font-size: 0.8rem;
+}
+
+.interval-lunar-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding-left: 4px;
+  margin-top: 2px;
+}
+
+.inclusion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  background: var(--surface-muted);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+}
+
+.inclusion-grid .segmented-btn {
+  font-size: 0.8rem;
+}
+
+.inclusion-help {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding-left: 4px;
+  margin-top: 4px;
+}
+
+.absolute-time-block {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.absolute-time-label {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.absolute-time-value {
+  text-align: center;
+  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--accent-secondary);
+}
+
+.interval-lunar-block {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.interval-lunar-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.interval-lunar-label {
+  color: var(--text-secondary);
+}
+
+.interval-lunar-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.negative-note {
+  font-size: 0.8rem;
+  color: var(--color-error);
+  font-weight: 600;
+  margin-top: 4px;
+  text-align: center;
+}

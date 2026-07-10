@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="app.title">显示器参数实验室</title>
+  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="nav-bar.css" />
+  <script>(function(){try{var k="toolbox-theme",t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+</head>
+<body>
+  <div id="toolbox-nav"></div>
+  <div class="page">
+    <!-- ===== App Header ===== -->
+    <header class="app-header">
+      <div class="logo">🖥</div>
+      <div class="header-text">
+        <h1 data-i18n="app.title">显示器参数实验室</h1>
+        <p class="subtitle" data-i18n="app.subtitle">理解每个参数的意义，做出自己的选择</p>
+      </div>
+      <div class="header-actions">
+      </div>
+    </header>
+
+    <!-- ===== Input Panel (sticky, always visible) ===== -->
+    <div class="input-panel">
+      <div class="input-row">
+        <div class="input-group">
+          <label for="distanceRange"><span data-i18n="input.distance">观看距离</span> <span class="value-display"><span id="distanceValue">80</span>cm</span></label>
+          <input type="range" id="distanceRange" min="40" max="260" value="80">
+        </div>
+        <div class="input-group">
+          <label for="sizeRange"><span data-i18n="input.size">屏幕尺寸</span> <span class="value-display"><span id="sizeValue">32</span>″</span></label>
+          <input type="range" id="sizeRange" min="24" max="75" value="32">
+        </div>
+        <div class="input-group">
+          <label for="resolutionSelect"><span data-i18n="input.resolution">分辨率</span></label>
+          <select id="resolutionSelect"></select>
+        </div>
+        <div class="input-group">
+          <label for="deskDepthRange"><span data-i18n="input.deskDepth">桌深</span> <span class="value-display"><span id="deskDepthValue">80</span>cm</span></label>
+          <input type="range" id="deskDepthRange" min="50" max="120" value="80">
+        </div>
+        <button class="more-params-toggle" id="moreParamsToggle" data-i18n="input.moreParams">更多参数</button>
+      </div>
+      <div class="more-params" id="moreParams">
+        <div class="input-group">
+          <label for="workRange"><span data-i18n="input.workPct">工作占比</span> <span class="value-display"><span id="workValue">70</span>%</span></label>
+          <input type="range" id="workRange" min="0" max="100" value="70">
+        </div>
+        <div class="input-group">
+          <label for="mediaRange"><span data-i18n="input.mediaPct">影音占比</span> <span class="value-display"><span id="mediaValue">30</span>%</span></label>
+          <input type="range" id="mediaRange" min="0" max="100" value="30">
+        </div>
+      </div>
+      <div class="settings-row">
+        <button class="settings-btn" id="saveBtn" data-i18n="input.save">记住设置</button>
+        <button class="settings-btn danger" id="clearBtn" data-i18n="input.clear">清除数据</button>
+        <span class="storage-hint" data-i18n="input.storageHint">数据保存在本地浏览器</span>
+      </div>
+    </div>
+
+    <!-- ===== Tab Navigation ===== -->
+    <nav class="tab-nav">
+      <button class="tab-nav-btn active" data-tab="sharpness" data-i18n="tab.sharpness">清晰度实验室</button>
+      <button class="tab-nav-btn" data-tab="sizeView" data-i18n="tab.sizeView">尺寸与距离</button>
+      <button class="tab-nav-btn" data-tab="colorLab" data-i18n="tab.colorLab">色彩空间</button>
+      <button class="tab-nav-btn" data-tab="scenarios" data-i18n="tab.scenarios">场景参考</button>
+      <button class="tab-nav-btn" data-tab="panelGuide" data-i18n="tab.panelGuide">面板百科</button>
+    </nav>
+
+    <!-- ===== Sharpness Tab ===== -->
+    <section class="tab-content active" data-tab="sharpness">
+      <div class="sharpness-panel">
+        <div class="sharp-stats">
+          <div class="sharp-stat">
+            <span class="value" id="sharp-ppi">—</span>
+            <span class="label"><span data-tooltip-i18n="tooltip.ppi">PPI</span> <span data-i18n="sharp.ppi.label">像素密度</span></span>
+          </div>
+          <div class="sharp-stat">
+            <span class="value" id="sharp-ppd">—</span>
+            <span class="label"><span data-tooltip-i18n="tooltip.ppd">PPD</span> <span data-i18n="sharp.ppd.label">每度像素</span></span>
+          </div>
+          <div class="sharp-stat">
+            <span class="value" id="sharp-retina">—</span>
+            <span class="label"><span data-tooltip-i18n="tooltip.retina" data-i18n="sharp.retina">视网膜距离</span></span>
+          </div>
+        </div>
+        <div class="sharp-ppd-meter-wrap">
+          <div class="meter-header">
+            <span class="ppd-label" data-i18n="sharp.quality">清晰度等级</span>
+            <span class="ppd-target" data-i18n="sharp.target">目标 PPD ≥ 60</span>
+          </div>
+          <canvas id="sharp-ppd-meter"></canvas>
+          <div class="ppd-scale">
+            <span data-i18n="sharp.scale.poor">差</span><span data-i18n="sharp.scale.fair">一般</span><span data-i18n="sharp.scale.good">良好</span><span data-i18n="sharp.scale.excellent">优秀</span><span data-i18n="sharp.scale.retina">视网膜</span>
+          </div>
+        </div>
+        <div class="sharp-retina-callout" id="sharp-retina-callout"></div>
+        <div class="sharp-comparison">
+          <div class="sharp-canvas-card" id="sharp-card-0">
+            <div class="card-header">
+              <span class="card-title">—</span>
+              <span class="card-subtitle">—</span>
+            </div>
+            <div class="canvas-container">
+              <canvas id="sharp-canvas-0" height="180"></canvas>
+            </div>
+          </div>
+          <div class="sharp-canvas-card" id="sharp-card-1">
+            <div class="card-header">
+              <span class="card-title">—</span>
+              <span class="card-subtitle">—</span>
+            </div>
+            <div class="canvas-container">
+              <canvas id="sharp-canvas-1" height="180"></canvas>
+            </div>
+          </div>
+          <div class="sharp-canvas-card" id="sharp-card-2">
+            <div class="card-header">
+              <span class="card-title">—</span>
+              <span class="card-subtitle">—</span>
+            </div>
+            <div class="canvas-container">
+              <canvas id="sharp-canvas-2" height="180"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Size View Tab ===== -->
+    <section class="tab-content" data-tab="sizeView">
+      <div class="size-panel">
+        <div class="size-stats">
+          <div class="size-stat">
+            <span class="stat-label"><span data-tooltip-i18n="tooltip.dimensions" data-i18n="size.dimensions">屏幕尺寸</span></span>
+            <span class="stat-value" id="size-dimensions">—</span>
+          </div>
+          <div class="size-stat">
+            <span class="stat-label"><span data-tooltip-i18n="tooltip.fov" data-i18n="size.fov">水平视野角</span></span>
+            <span class="stat-value" id="size-fov">—</span>
+          </div>
+          <div class="size-stat">
+            <span class="stat-label"><span data-tooltip-i18n="tooltip.thx" data-i18n="size.thx">THX 推荐距离</span></span>
+            <span class="stat-value" id="size-thx">—</span>
+          </div>
+          <div class="size-stat">
+            <span class="stat-label"><span data-tooltip-i18n="tooltip.smpte" data-i18n="size.smpte">SMPTE 推荐范围</span></span>
+            <span class="stat-value" id="size-smpte">—</span>
+          </div>
+          <div class="size-stat" id="size-desk-stat">
+            <span class="stat-label"><span data-tooltip-i18n="tooltip.desk" data-i18n="size.desk">桌深限制</span></span>
+            <span class="stat-value" id="size-desk">—</span>
+          </div>
+        </div>
+        <div class="size-canvas-container scene3d-container">
+          <div class="canvas-header">
+            <h3><span data-i18n="size.3d.title">3D 实景模拟</span> <span class="canvas-hint" data-i18n="size.3d.hint">（拖拽旋转视角）</span></h3>
+          </div>
+          <div class="canvas-wrap scene3d-wrap">
+            <canvas id="scene3dCanvas" height="360"></canvas>
+            <div class="scene3d-hint" data-i18n="size.3d.dragHint">🖱️ 拖拽旋转 · 上下限制±30°</div>
+          </div>
+        </div>
+
+        <div class="size-canvas-container compare-container">
+          <div class="canvas-header">
+            <h3><span data-i18n="size.compare.title">屏幕比例对比</span> <span class="canvas-hint" data-i18n="size.compare.hint">（真实尺寸比例）</span></h3>
+          </div>
+          <div class="canvas-wrap compare-wrap">
+            <canvas id="sizeCanvas" height="200"></canvas>
+          </div>
+        </div>
+
+        <div class="size-controls" id="sizeSelector"></div>
+        <div class="size-legend">
+          <div class="legend-item"><span class="legend-dot solid" style="color:#8bd3ff;"></span><span data-i18n="size.legend.current">当前尺寸</span></div>
+          <div class="legend-item"><span class="legend-dot" style="color:rgba(200,200,200,0.5);"></span><span data-i18n="size.legend.compare">对比尺寸</span></div>
+          <div class="legend-item"><span class="legend-dot" style="color:#ff9a3c;"></span><span data-i18n="size.legend.distance">观看距离</span></div>
+          <div class="legend-item"><span class="legend-dot" style="color:rgba(100,200,100,0.5);"></span><span data-i18n="size.legend.fov">视野范围</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Color Lab Tab ===== -->
+    <section class="tab-content" data-tab="colorLab">
+      <div class="color-panel">
+        <div class="color-controls" id="gamutSelector"></div>
+        <div class="color-canvas-container">
+          <div class="canvas-header">
+            <h3><span data-tooltip-i18n="tooltip.cie" data-i18n="color.cieTitle">CIE 1931 色度图</span></h3>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="colorCanvas" height="480"></canvas>
+          </div>
+        </div>
+        <div class="panel-comparison">
+          <h3 data-i18n="color.panelCompare">面板色彩对比</h3>
+          <div class="table-wrap" id="panelTable"></div>
+        </div>
+        <div class="gamut-needs">
+          <h3><span data-tooltip-i18n="tooltip.gamutNeeds" data-i18n="color.sceneNeeds">场景色域需求</span></h3>
+          <ul id="gamutNeeds"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Scenarios Tab ===== -->
+    <section class="tab-content" data-tab="scenarios">
+      <div class="scenario-panel">
+        <div class="scenario-filters" id="scenarioFilters"></div>
+        <div class="scenario-grid" id="scenarioGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== Panel Guide Tab ===== -->
+    <section class="tab-content" data-tab="panelGuide">
+      <div class="panel-guide">
+        <div class="panel-accordion" id="panelAccordion"></div>
+
+        <div class="glass-card" style="padding:var(--space-lg);">
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:var(--space-md);" data-i18n="panel.burnIn.title">残影与烧屏</h3>
+          <div id="burnInInfo"></div>
+        </div>
+
+        <div class="glass-card" style="padding:var(--space-lg);">
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:var(--space-md);" data-i18n="panel.refresh.title">刷新率对比</h3>
+          <div id="refreshInfo"></div>
+        </div>
+
+        <div class="interface-calculator">
+          <h3 data-i18n="panel.bw.title">接口带宽计算器</h3>
+          <p class="calc-description" data-i18n="panel.bw.desc">输入目标分辨率、刷新率和色深，计算所需带宽并查看哪些接口可以支持。</p>
+          <div class="calc-inputs">
+            <div class="calc-input-group">
+              <label for="bwWidth" data-i18n="panel.bw.width">分辨率宽 (px)</label>
+              <input type="number" id="bwWidth" value="3840" min="640" max="7680">
+            </div>
+            <div class="calc-input-group">
+              <label for="bwHeight" data-i18n="panel.bw.height">分辨率高 (px)</label>
+              <input type="number" id="bwHeight" value="2160" min="480" max="4320">
+            </div>
+            <div class="calc-input-group">
+              <label for="bwRefresh" data-i18n="panel.bw.refresh">刷新率 (Hz)</label>
+              <input type="number" id="bwRefresh" value="60" min="24" max="240">
+            </div>
+            <div class="calc-input-group">
+              <label for="bwDepth" data-i18n="panel.bw.depth">色深 (bit)</label>
+              <input type="number" id="bwDepth" value="8" min="6" max="16">
+            </div>
+          </div>
+          <div class="calc-result" id="bwResult"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer class="page-footer">
+      <div class="privacy-notice">
+        <span class="lock">🔒</span>
+        <span data-i18n="footer.privacy">所有数据在本地浏览器中计算处理，不上传任何信息，不使用第三方追踪。</span>
+      </div>
+      <div class="footer-meta">
+        <a href="https://github.com/StepaniaH/Toolbox" rel="noopener noreferrer">GitHub</a>
+        <span class="footer-sep">·</span>
+        <a href="https://opensource.org/license/mit" rel="noopener noreferrer">MIT License</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ===== Scripts (order matters) ===== -->
+  <script src="toggle.js"></script>
+  <script src="nav-bar.js"></script>
+  <script src="js/theme.js?v=10"></script>
+  <script src="js/i18n.js?v=10"></script>
+  <script src="js/i18n-zh.js?v=10"></script>
+  <script src="js/i18n-en.js?v=10"></script>
+  <script src="js/constants.js?v=10"></script>
+  <script src="js/calc.js?v=10"></script>
+  <script src="js/state.js?v=10"></script>
+  <script src="js/data-scenarios.js?v=10"></script>
+  <script src="js/data-panels.js?v=10"></script>
+  <script src="js/tab-sharpness.js?v=10"></script>
+  <script src="js/tab-size-view.js?v=10"></script>
+  <script src="js/tab-color-lab.js?v=10"></script>
+  <script src="js/tab-scenarios.js?v=10"></script>
+  <script src="js/tab-panel-guide.js?v=10"></script>
+  <script src="script.js?v=10"></script>
+</body>
+</html>

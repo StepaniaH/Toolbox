@@ -1,0 +1,151 @@
+{
+  "header": {
+    "subtitle": "AI 模型价格倍率计算器",
+    "toggleTheme": "切换主题",
+    "switchToLight": "切换到浅色",
+    "switchToDark": "切换到深色"
+  },
+  "footer": {
+    "tagline": "零追踪 · 纯前端 · MIT License ·",
+    "disclaimer": "汇率与定价数据仅供参考，以各平台实际扣费为准"
+  },
+  "glossary": {
+    "title": "名词解释",
+    "explanation": "为什么要算最终使用倍率？—— 平台显示的分组倍率会因充值比例（汇率加价）而被放大或缩小，换算成 1:1 等效倍率后才能与官方定价直接对比，判断是否划算。",
+    "terms": {
+      "rechargeAmount": { "term": "充值金额", "desc": "实际花费的人民币金额" },
+      "arrivedAmount": { "term": "到账金额", "desc": "充值后到账的美元余额" },
+      "groupRate": { "term": "分组倍率", "desc": "平台对模型分组设置的计费倍数，越低扣费越少" },
+      "rechargeRatio": { "term": "充值比例", "desc": "充值金额 ÷ 到账金额，即每 1 美元实际成本" },
+      "officialCostRatio": { "term": "占官方成本", "desc": "实际成本相对于官网价的百分比" },
+      "inputOutput": { "term": "输入 / 输出", "desc": "输入 = 发给模型的内容，输出 = 模型回复，通常输出更贵" },
+      "cacheWriteRead": { "term": "缓存写入 / 读取", "desc": "写入 = 存储可复用内容，读取 = 复用内容，读取更便宜" },
+      "tokens": { "term": "1M tokens", "desc": "计费用量单位，约一百万个文本片段" }
+    }
+  },
+  "mode": {
+    "forward": "倍率正算",
+    "reverse": "扣费反推",
+    "ariaLabel": "计算模式"
+  },
+  "steps": {
+    "forward": {
+      "one": "输入充值金额、到账金额与分组倍率",
+      "two": "换算充值比例与 1:1 等效倍率",
+      "three": "对比官方成本，查看价格表"
+    },
+    "reverse": {
+      "one": "选择参照模型，输入实付价格",
+      "two": "反推真实分组倍率与等效倍率",
+      "three": "判定比官方便宜 / 贵 / 持平"
+    }
+  },
+  "funding": {
+    "recharge": "充值金额",
+    "cnyUnit": "（¥）",
+    "arrived": "到账金额",
+    "usdUnit": "（$）",
+    "placeholder": "例如 100"
+  },
+  "forwardCalc": {
+    "groupRate": "分组倍率",
+    "placeholder": "例如 1.1",
+    "groupRateHint": "平台对模型分组设置的计费倍数"
+  },
+  "forwardResult": {
+    "rechargeRatio": "充值比例",
+    "rechargeRatioHint": "每 1 美元实际成本",
+    "equivalentRate": "1:1 等效分组倍率",
+    "equivalentRateHint": "可与官方直接对比",
+    "officialCost": "占官方成本",
+    "officialCostHint": "越低越划算"
+  },
+  "conclusion": {
+    "title": "结论",
+    "empty": "请填写充值金额、到账金额、分组倍率与汇率以查看结论",
+    "currentEquiv": "当前 1:1 等效倍率为",
+    "officialCost": "，占官方成本",
+    "comma": "，",
+    "period": "。",
+    "tableHint": "价格表展示各模型实付 ¥ 与官方 ¥ 的逐项对比。"
+  },
+  "verdict": {
+    "cheaper": "比官方便宜 {{pct}}%",
+    "expensive": "比官方贵 {{pct}}%",
+    "flat": "与官方持平",
+    "na": "不适用"
+  },
+  "exchange": {
+    "sourceAuto": "自动获取",
+    "sourceManual": "手动",
+    "sourceDefault": "默认（离线）",
+    "realtime": "实时汇率",
+    "confirm": "确认",
+    "edit": "编辑汇率",
+    "refetch": "重新获取"
+  },
+  "preset": {
+    "recharge100arrived100": "充值100到账100",
+    "recharge100arrived50": "充值100到账50",
+    "rate0.6": "倍率 0.6",
+    "rate1.1": "倍率 1.1"
+  },
+  "provider": {
+    "ariaLabel": "模型分类"
+  },
+  "priceTable": {
+    "title": "价格表 · 实付 ¥ 对比",
+    "fillHint": "填写上方输入后显示实付价",
+    "colModel": "模型",
+    "colContext": "上下文",
+    "colInput": "输入价",
+    "colCacheWrite": "缓存写入",
+    "colCacheRead": "缓存读取",
+    "colOutput": "输出价",
+    "billedAsInput": "按输入价计费",
+    "pending": "待输入",
+    "official": "官方"
+  },
+  "reverse": {
+    "referenceModel": "参照模型",
+    "selectModel": "选择参照模型",
+    "paidInput": "输入实付",
+    "paidOutput": "输出实付",
+    "phInput": "例如 5",
+    "phOutput": "例如 25",
+    "cacheWrite": "缓存写入实付",
+    "cacheRead": "缓存读取实付",
+    "phCacheWrite": "例如 6.25",
+    "phCacheRead": "例如 0.5",
+    "cnyPerM": "（¥/1M）",
+    "cacheToggle": "缓存项实付"
+  },
+  "reverseResult": {
+    "paid": "实付",
+    "notApplicable": "该模型无此项，不适用",
+    "realGroupRate": "真实分组倍率",
+    "equivalentRate": "1:1 等效倍率",
+    "officialCost": "占官方成本",
+    "rateWord": "倍率",
+    "selectModelHint": "请选择参照模型并填写实付价格以查看反推结果",
+    "fillPaidHint": "请至少填写一项实付价格（输入 / 输出 / 缓存）",
+    "summary": "汇总",
+    "avgRate": "平均反推倍率",
+    "best": "最划算",
+    "worst": "最贵",
+    "kind": {
+      "input": "输入",
+      "output": "输出",
+      "cacheWrite": "缓存写入",
+      "cacheRead": "缓存读取"
+    }
+  },
+  "errorBoundary": {
+    "title": "出错了",
+    "description": "应用遇到意外错误。可以尝试重置后继续使用。",
+    "reset": "重置"
+  },
+  "app": {
+    "clearPaid": "清空实付输入"
+  }
+}

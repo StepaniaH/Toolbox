@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="site.title">工具箱</title>
+  <meta name="description" content="Stepania's privacy-first web tools — ChronoSphere, Monitor Choice, SaneUnits">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/cards.css">
+  <link rel="stylesheet" href="nav-bar.css" />
+  <script>(function(){try{var k="toolbox-theme",t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+</head>
+<body>
+  <div id="toolbox-nav"></div>
+  <div class="page">
+
+    <!-- ===== Header ===== -->
+    <header class="site-header">
+      <span class="site-logo" aria-hidden="true">🧰</span>
+      <h1 class="site-title" data-i18n="site.title">工具箱</h1>
+      <p class="site-tagline" data-i18n="site.tagline">隐私优先的网页工具集</p>
+      <div class="header-controls">
+      </div>
+    </header>
+
+    <!-- ===== Tool Cards (rendered by JS) ===== -->
+    <main class="tools-grid" id="tools-grid"></main>
+
+    <!-- ===== Footer ===== -->
+    <footer class="site-footer">
+      <span data-i18n="footer.privacy">零追踪 · 零 Cookie · 系统字体</span>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/StepaniaH/Toolbox" target="_blank" rel="noopener" data-i18n="footer.source">源码</a>
+      &nbsp;·&nbsp;
+      MIT © Stepania H
+    </footer>
+
+  </div>
+
+  <script src="toggle.js"></script>
+  <script src="nav-bar.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

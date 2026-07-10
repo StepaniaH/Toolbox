@@ -1,0 +1,12 @@
+{
+  "name": "@toolbox/theme",
+  "version": "1.0.0",
+  "description": "Catppuccin theme (Frappe + Latte) with light/dark toggle — shared across Toolbox apps",
+  "main": "index.css",
+  "exports": {
+    "./styles.css": "./index.css",
+    "./toggle.js": "./toggle.js"
+  },
+  "files": ["index.css", "toggle.js"],
+  "license": "MIT"
+}

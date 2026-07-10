@@ -1,0 +1,191 @@
+/* =====================================================================
+   monitor-choice — Catppuccin Theme System
+   Latte (light) + Frappé (dark) · zero external resources
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Shared fallback (defaults to Frappé dark, overridden by [data-theme])
+   --------------------------------------------------------------------- */
+:root {
+  /* ── Frappé (dark) — default ── */
+  --bg-base: #303446;
+  --bg-card: rgba(65, 69, 89, 0.55);
+  --bg-card-strong: rgba(81, 87, 109, 0.78);
+  --bg-canvas: #232634;
+  --bg-tooltip: #292c3c;
+  --bg-input: rgba(35, 38, 52, 0.92);
+
+  --text-primary: #c6d0f5;
+  --text-muted: #a5adce;
+
+  --border: rgba(198, 208, 245, 0.14);
+
+  --accent-blue: #8caaee;
+  --accent-purple: #babbf1;
+  --good-green: #a6d189;
+  --warn-yellow: #e5c890;
+  --bad-red: #e78284;
+
+  --accent-text: #232634;
+  --accent-shadow: 0 0 20px rgba(140, 170, 238, 0.25);
+
+  /* Canvas drawing colors (theme-dependent) */
+  --canvas-text: #e8e8e8;
+  --canvas-text-muted: #aaa;
+  --canvas-grid: rgba(198, 208, 245, 0.08);
+  --canvas-axis: rgba(198, 208, 245, 0.20);
+  --canvas-label: rgba(198, 208, 245, 0.35);
+  --canvas-tick: rgba(198, 208, 245, 0.25);
+  --canvas-accent: #8caaee;
+  --canvas-accent-fill: rgba(140, 170, 238, 0.10);
+  --canvas-accent-ghost: rgba(140, 170, 238, 0.03);
+  --canvas-accent-border: rgba(140, 170, 238, 0.40);
+  --canvas-ghost: rgba(198, 208, 245, 0.04);
+  --canvas-highlight: #ff9a3c;
+  --canvas-fov: rgba(166, 209, 137, 0.7);
+  --canvas-desk-fill: rgba(180, 140, 80, 0.12);
+  --canvas-desk-stroke: rgba(200, 160, 100, 0.40);
+  --canvas-person: rgba(241, 201, 165, 0.6);
+  --canvas-person-stroke: rgba(241, 201, 165, 0.8);
+  --canvas-clothes: rgba(179, 156, 255, 0.15);
+  --canvas-clothes-stroke: rgba(179, 156, 255, 0.4);
+  --canvas-stand: rgba(140, 170, 238, 0.20);
+  --canvas-stand-border: rgba(140, 170, 238, 0.4);
+  --canvas-side: rgba(100, 100, 110, 0.15);
+  --canvas-side-border: rgba(150, 150, 160, 0.3);
+  --canvas-d65-fill: #fff;
+  --canvas-d65-stroke: #000;
+  --canvas-d65-label: rgba(198, 208, 245, 0.6);
+
+  /* Hover / ghost / focus — theme-dependent */
+  --bg-hover: rgba(198, 208, 245, 0.08);
+  --bg-hover-strong: rgba(198, 208, 245, 0.14);
+  --bg-ghost: rgba(198, 208, 245, 0.05);
+  --bg-accent-hover: rgba(140, 170, 238, 0.12);
+  --ring-focus: rgba(140, 170, 238, 0.18);
+  --logo-shadow: rgba(140, 170, 238, 0.30);
+
+  /* Shared — unaffected by theme */
+  --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Fira Code",
+               "JetBrains Mono", Consolas, monospace;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 20px 80px rgba(0, 0, 0, 0.25);
+  --shadow-sticky: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --gradient-accent: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  --glass-bg: linear-gradient(145deg, var(--bg-card), rgba(255, 255, 255, 0.04));
+  --glass-bg-strong: linear-gradient(145deg, var(--bg-card-strong), rgba(255, 255, 255, 0.06));
+}
+
+/* ---------------------------------------------------------------------
+   Latte (light theme)
+   --------------------------------------------------------------------- */
+[data-theme="light"] {
+  --bg-base: #eff1f5;
+  --glass-bg: linear-gradient(145deg, var(--bg-card), rgba(76, 79, 105, 0.04));
+  --glass-bg-strong: linear-gradient(145deg, var(--bg-card-strong), rgba(76, 79, 105, 0.06));
+  --bg-card: rgba(204, 208, 218, 0.55);
+  --bg-card-strong: rgba(188, 192, 204, 0.75);
+  --bg-canvas: #e6e9ef;
+  --bg-tooltip: #dce0e8;
+  --bg-input: rgba(230, 233, 239, 0.92);
+
+  --text-primary: #4c4f69;
+  --text-muted: #494d62;
+
+  --border: rgba(76, 79, 105, 0.16);
+
+  --accent-blue: #1e66f5;
+  --accent-purple: #7287fd;
+  --good-green: #40a02b;
+  --warn-yellow: #df8e1d;
+  --bad-red: #d20f39;
+
+  --accent-text: #eff1f5;
+  --accent-shadow: 0 6px 20px rgba(30, 102, 245, 0.2);
+
+  --bg-hover: rgba(76, 79, 105, 0.08);
+  --bg-hover-strong: rgba(76, 79, 105, 0.14);
+  --bg-ghost: rgba(76, 79, 105, 0.05);
+  --bg-accent-hover: rgba(30, 102, 245, 0.08);
+  --ring-focus: rgba(30, 102, 245, 0.15);
+  --logo-shadow: rgba(30, 102, 245, 0.25);
+
+  --canvas-text: #4c4f69;
+  --canvas-text-muted: #6c6f85;
+  --canvas-grid: rgba(76, 79, 105, 0.10);
+  --canvas-axis: rgba(76, 79, 105, 0.22);
+  --canvas-label: rgba(76, 79, 105, 0.50);
+  --canvas-tick: rgba(76, 79, 105, 0.35);
+  --canvas-accent: #1e66f5;
+  --canvas-accent-fill: rgba(30, 102, 245, 0.08);
+  --canvas-accent-ghost: rgba(30, 102, 245, 0.03);
+  --canvas-accent-border: rgba(30, 102, 245, 0.40);
+  --canvas-ghost: rgba(76, 79, 105, 0.06);
+  --canvas-highlight: #fe640b;
+  --canvas-fov: rgba(64, 160, 43, 0.7);
+  --canvas-desk-fill: rgba(180, 140, 80, 0.08);
+  --canvas-desk-stroke: rgba(180, 140, 80, 0.35);
+  --canvas-side: rgba(140, 140, 150, 0.10);
+  --canvas-side-border: rgba(140, 140, 150, 0.25);
+  --canvas-d65-fill: #4c4f69;
+  --canvas-d65-stroke: #eff1f5;
+  --canvas-d65-label: rgba(76, 79, 105, 0.6);
+
+  --shadow-card: 0 12px 60px rgba(0, 0, 0, 0.08);
+  --shadow-sticky: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ---------------------------------------------------------------------
+   Body backgrounds (per theme)
+   --------------------------------------------------------------------- */
+body {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(140, 170, 238, 0.24), transparent 30%),
+    radial-gradient(circle at 80% 10%, rgba(186, 187, 241, 0.22), transparent 34%),
+    var(--bg-base);
+  background-attachment: fixed;
+}
+
+[data-theme="light"] body {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(30, 102, 245, 0.12), transparent 30%),
+    radial-gradient(circle at 80% 10%, rgba(114, 135, 253, 0.10), transparent 34%),
+    var(--bg-base);
+  background-attachment: fixed;
+}
+
+/* ---------------------------------------------------------------------
+   Bridge --ctp-* variables for @toolbox/nav compatibility.
+   monitor-choice uses its own --bg-base / --text-primary palette; the
+   shared NavBar (nav-bar.css) speaks Catppuccin --ctp-* tokens, so map
+   them here so the bar reuses the unified background/text colors.
+   --------------------------------------------------------------------- */
+:root {
+  --ctp-base: var(--bg-base);
+  --ctp-mantle: var(--bg-tooltip);
+  --ctp-crust: var(--bg-canvas);
+  --ctp-text: var(--text-primary);
+  --ctp-subtext-0: var(--text-muted);
+  --ctp-subtext-1: var(--text-primary);
+  --ctp-overlay-0: var(--text-muted);
+  --ctp-surface-0: var(--bg-hover-strong);
+  --ctp-surface-1: var(--bg-hover);
+  --ctp-blue: var(--accent-blue);
+}
+
+[data-theme="light"] {
+  --ctp-mantle: var(--bg-canvas);
+  --ctp-crust: var(--bg-tooltip);
+}

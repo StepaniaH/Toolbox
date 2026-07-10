@@ -1,0 +1,465 @@
+/* =====================================================================
+   Tab 5 — Panel Guide
+   Accordion of panel technologies + interface bandwidth calculator
+   ===================================================================== */
+
+.panel-guide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* ---------------------------------------------------------------------
+   Accordion
+   --------------------------------------------------------------------- */
+.panel-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.panel-accordion-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.panel-accordion-item:hover {
+  border-color: var(--accent-blue);
+}
+
+.panel-accordion-item.expanded {
+  border-color: var(--accent-blue);
+  background: var(--glass-bg-strong);
+}
+
+/* Accordion header */
+.panel-accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.panel-accordion-header:hover {
+  background: var(--bg-ghost);
+}
+
+.panel-accordion-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.panel-accordion-header .panel-name {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.panel-accordion-header .panel-summary {
+  font-size: 13px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Expand/collapse icon */
+.panel-accordion-header .icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  transition: transform 0.25s ease, color 0.15s ease;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.panel-accordion-item.expanded .panel-accordion-header .icon {
+  transform: rotate(90deg);
+  color: var(--accent-blue);
+}
+
+/* Accordion body */
+.panel-accordion-body {
+  display: none;
+  padding: 0 var(--space-lg) var(--space-lg);
+  animation: accordion-expand 0.25s ease;
+}
+
+.panel-accordion-item.expanded .panel-accordion-body {
+  display: block;
+}
+
+@keyframes accordion-expand {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Body content sections */
+.panel-accordion-body .section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: var(--space-md) 0 var(--space-sm);
+}
+
+.panel-accordion-body .section-title:first-child {
+  margin-top: 0;
+}
+
+.panel-accordion-body .description {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.75;
+}
+
+/* Pros / cons lists */
+.panel-accordion-body ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.panel-accordion-body ul li {
+  position: relative;
+  padding-left: var(--space-lg);
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.panel-accordion-body ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.panel-accordion-body .pros li::before {
+  background: var(--good-green);
+  box-shadow: 0 0 8px rgba(143, 240, 178, 0.4);
+}
+
+.panel-accordion-body .cons li::before {
+  background: var(--bad-red);
+  box-shadow: 0 0 8px rgba(255, 154, 162, 0.4);
+}
+
+/* Suitable / unsuitable tags */
+.panel-accordion-body .tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.panel-accordion-body .tag-row .mini-tag {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+}
+
+.panel-accordion-body .tag-row .mini-tag.suitable {
+  color: var(--good-green);
+  background: rgba(143, 240, 178, 0.1);
+  border: 1px solid rgba(143, 240, 178, 0.2);
+}
+
+.panel-accordion-body .tag-row .mini-tag.unsuitable {
+  color: var(--bad-red);
+  background: rgba(255, 154, 162, 0.1);
+  border: 1px solid rgba(255, 154, 162, 0.2);
+}
+
+/* Mini canvas for principle diagrams */
+.panel-accordion-body .diagram-wrap {
+  margin: var(--space-md) 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border);
+}
+
+.panel-accordion-body .diagram-wrap canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---------------------------------------------------------------------
+   Panel comparison summary table (optional, reuses color-lab style)
+   --------------------------------------------------------------------- */
+.panel-guide .panel-summary-table {
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.panel-guide .panel-summary-table h3 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-md);
+}
+
+.panel-guide .panel-summary-table .table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.panel-guide .panel-summary-table table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.panel-guide .panel-summary-table th,
+.panel-guide .panel-summary-table td {
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-muted);
+  vertical-align: top;
+}
+
+.panel-guide .panel-summary-table th {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.panel-guide .panel-summary-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.panel-guide .panel-summary-table td:first-child {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------
+   Interface bandwidth calculator
+   --------------------------------------------------------------------- */
+.interface-calculator {
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.interface-calculator h3 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-md);
+}
+
+.interface-calculator .calc-description {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: var(--space-lg);
+}
+
+.interface-calculator .calc-inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.interface-calculator .calc-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.interface-calculator .calc-input-group label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.interface-calculator .calc-input-group select,
+.interface-calculator .calc-input-group input {
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s ease;
+}
+
+.interface-calculator .calc-input-group select:hover,
+.interface-calculator .calc-input-group input:hover {
+  border-color: var(--accent-blue);
+}
+
+.interface-calculator .calc-input-group select:focus,
+.interface-calculator .calc-input-group input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--ring-focus);
+}
+
+/* Result display */
+.interface-calculator .calc-result {
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  background: var(--bg-canvas);
+  border: 1px solid var(--border);
+}
+
+.interface-calculator .calc-result .result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--border);
+  gap: var(--space-md);
+}
+
+.interface-calculator .calc-result .result-row:last-child {
+  border-bottom: none;
+}
+
+.interface-calculator .calc-result .result-label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.interface-calculator .calc-result .result-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  text-align: right;
+}
+
+.interface-calculator .calc-result .result-value.highlight {
+  color: var(--accent-blue);
+}
+
+.interface-calculator .calc-result .result-value.good {
+  color: var(--good-green);
+}
+
+.interface-calculator .calc-result .result-value.warn {
+  color: var(--warn-yellow);
+}
+
+.interface-calculator .calc-result .result-value.bad {
+  color: var(--bad-red);
+}
+
+/* Compatible interfaces list */
+.interface-calculator .compat-interfaces {
+  margin-top: var(--space-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.interface-calculator .compat-interfaces .compat-badge {
+  padding: var(--space-xs) var(--space-md);
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+}
+
+.interface-calculator .compat-interfaces .compat-badge.ok {
+  color: var(--good-green);
+  background: rgba(143, 240, 178, 0.1);
+  border: 1px solid rgba(143, 240, 178, 0.25);
+}
+
+.interface-calculator .compat-interfaces .compat-badge.fail {
+  color: var(--bad-red);
+  background: rgba(255, 154, 162, 0.08);
+  border: 1px solid rgba(255, 154, 162, 0.2);
+  text-decoration: line-through;
+}
+
+/* ---------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------- */
+@media (max-width: 920px) {
+  .panel-guide .panel-summary-table table {
+    min-width: 560px;
+  }
+
+  .panel-accordion-header .panel-summary {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .panel-accordion-header {
+    padding: var(--space-md);
+  }
+
+  .panel-accordion-body {
+    padding: 0 var(--space-md) var(--space-md);
+  }
+
+  .interface-calculator,
+  .panel-guide .panel-summary-table {
+    padding: var(--space-md);
+  }
+
+  .interface-calculator .calc-result .result-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+
+  .interface-calculator .calc-result .result-value {
+    text-align: left;
+  }
+}

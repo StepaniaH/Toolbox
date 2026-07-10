@@ -1,0 +1,27 @@
+/* Cleared to use index.css variables */
+
+.calculator-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 160px;
+  color: var(--text-secondary, inherit);
+  font-size: 14px;
+}
+
+.calculator-fallback-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: chrono-fallback-spin 0.8s linear infinite;
+}
+
+@keyframes chrono-fallback-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@toolbox/sane-units",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "lint": "npx oxlint"
+  },
+  "dependencies": {
+    "@toolbox/i18n": "workspace:*",
+    "@toolbox/nav": "workspace:*",
+    "@vitejs/plugin-react": "5.0.4",
+    "playwright": "^1.61.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "vite": "6.4.2"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.1.0",
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "jsdom": "^26.1.0",
+    "oxlint": "^1.73.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  }
+}

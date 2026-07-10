@@ -1,0 +1,77 @@
+/* ==========================================================================
+   Catppuccin Theme Variables
+   Dark: Frappé   | Light: Latte
+   Consistent with chrono-sphere's theme.css
+   ========================================================================== */
+
+:root {
+  /* ---- Typography ---- */
+  --font-sans: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+
+  /* ---- Catppuccin Frappé (Dark) ---- */
+  --bg-page: #303446;
+  --surface-muted: rgba(198, 208, 245, 0.06);
+  --surface-raised: rgba(198, 208, 245, 0.10);
+  --surface-highlight: rgba(140, 170, 238, 0.12);
+
+  --accent-primary: #8caaee;
+  --accent-secondary: #ca9ee6;
+  --color-success: #a6d189;
+
+  --text-primary: #c6d0f5;
+  --text-secondary: #a5adce;
+  --text-muted: #737994;
+
+  --border-subtle: rgba(198, 208, 245, 0.08);
+  --border-strong: rgba(198, 208, 245, 0.16);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---- Catppuccin Latte (Light) ---- */
+:root[data-theme="light"] {
+  --bg-page: #eff1f5;
+  --surface-muted: rgba(76, 79, 105, 0.06);
+  --surface-raised: rgba(76, 79, 105, 0.08);
+  --surface-highlight: rgba(30, 102, 245, 0.09);
+
+  --accent-primary: #1e66f5;
+  --accent-secondary: #8839ef;
+  --color-success: #40a02b;
+
+  --text-primary: #4c4f69;
+  --text-secondary: #6c6f85;
+  --text-muted: #9ca0b0;
+
+  --border-subtle: rgba(76, 79, 105, 0.10);
+  --border-strong: rgba(76, 79, 105, 0.18);
+}
+
+/* ==========================================================================
+   Bridge --ctp-* variables for @toolbox/nav compatibility.
+   The shared NavBar (nav-bar.css) speaks Catppuccin --ctp-* tokens;
+   map them onto this app's palette so the bar reuses the unified
+   background/text colors. mantle/crust have no app-level equivalent, so
+   the raw Catppuccin values are used directly.
+   ========================================================================== */
+:root {
+  --ctp-base: var(--bg-page);
+  --ctp-mantle: #292c3c;
+  --ctp-crust: #232634;
+  --ctp-text: var(--text-primary);
+  --ctp-subtext-0: var(--text-secondary);
+  --ctp-subtext-1: var(--text-primary);
+  --ctp-overlay-0: var(--text-muted);
+  --ctp-surface-0: var(--surface-raised);
+  --ctp-surface-1: var(--surface-muted);
+  --ctp-blue: var(--accent-primary);
+}
+
+:root[data-theme="light"] {
+  --ctp-mantle: #e6e9ef;
+  --ctp-crust: #dce0e8;
+}

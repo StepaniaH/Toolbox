@@ -1,0 +1,307 @@
+/* =====================================================================
+   Tab 3 — Color Lab
+   CIE 1931 gamut diagram canvas + panel comparison table
+   ===================================================================== */
+
+.color-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* ---------------------------------------------------------------------
+   Gamut diagram canvas
+   --------------------------------------------------------------------- */
+.color-canvas-container {
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.color-canvas-container .canvas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.color-canvas-container .canvas-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.color-canvas-container .canvas-wrap {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-canvas);
+  border: 1px solid var(--bg-hover);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.color-canvas-container canvas {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+}
+
+/* Gamut coverage info row */
+.color-coverage-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border);
+}
+
+.color-coverage-info .coverage-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.color-coverage-info .coverage-item .cov-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.color-coverage-info .coverage-item .cov-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-blue);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------
+   Gamut selector controls
+   --------------------------------------------------------------------- */
+.color-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.color-controls .control-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-right: var(--space-xs);
+}
+
+.color-controls .gamut-pill {
+  padding: var(--space-xs) var(--space-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease,
+              border-color 0.15s ease, transform 0.1s ease;
+  font-family: var(--font-mono);
+}
+
+.color-controls .gamut-pill:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-purple);
+}
+
+.color-controls .gamut-pill.active {
+  color: #07111f;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+  border-color: transparent;
+}
+
+.color-controls .gamut-pill:active {
+  transform: scale(0.96);
+}
+
+/* ---------------------------------------------------------------------
+   Panel type comparison table
+   --------------------------------------------------------------------- */
+.panel-comparison {
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.panel-comparison h3 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-md);
+}
+
+.panel-comparison .table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.panel-comparison table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.panel-comparison th,
+.panel-comparison td {
+  text-align: left;
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  vertical-align: top;
+  font-size: 14px;
+}
+
+.panel-comparison th {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.panel-comparison tbody tr {
+  transition: background 0.15s ease;
+}
+
+.panel-comparison tbody tr:hover {
+  background: var(--bg-ghost);
+}
+
+.panel-comparison tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.panel-comparison td:first-child {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+/* Color-coded badges inside cells */
+.panel-comparison .badge {
+  display: inline-block;
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.panel-comparison .badge.good {
+  color: var(--good-green);
+  background: rgba(143, 240, 178, 0.1);
+}
+
+.panel-comparison .badge.warn {
+  color: var(--warn-yellow);
+  background: rgba(255, 211, 122, 0.1);
+}
+
+.panel-comparison .badge.bad {
+  color: var(--bad-red);
+  background: rgba(255, 154, 162, 0.1);
+}
+
+/* ---------------------------------------------------------------------
+   Gamut needs mapping list
+   --------------------------------------------------------------------- */
+.gamut-needs {
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.gamut-needs h3 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-md);
+}
+
+.gamut-needs ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.gamut-needs li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  background: var(--bg-ghost);
+  border: 1px solid var(--bg-ghost);
+}
+
+.gamut-needs li .use-case {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.gamut-needs li .gamut-req {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-blue);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.gamut-needs li .gamut-req.high {
+  color: var(--accent-purple);
+}
+
+.gamut-needs li .gamut-req.max {
+  color: var(--warn-yellow);
+}
+
+/* ---------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------- */
+@media (max-width: 920px) {
+  .panel-comparison table {
+    min-width: 560px;
+  }
+}
+
+@media (max-width: 560px) {
+  .color-canvas-container,
+  .panel-comparison,
+  .gamut-needs {
+    padding: var(--space-md);
+  }
+
+  .gamut-needs li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+}

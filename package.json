@@ -1,0 +1,14 @@
+{
+  "name": "toolbox",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "deploy": "bash deploy/deploy.sh",
+    "lint": "turbo lint",
+    "clean": "turbo clean"
+  },
+  "devDependencies": { "turbo": "^2.0.0" },
+  "packageManager": "pnpm@11.10.0"
+}

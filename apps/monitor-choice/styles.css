@@ -1,0 +1,594 @@
+/* =====================================================================
+   monitor-choice — Global Stylesheet
+   Dark glassmorphism theme · vanilla CSS · zero external resources
+   ===================================================================== */
+
+@import url('./css/theme.css?v=10');
+@import url('./css/sharpness.css?v=10');
+@import url('./css/size-view.css?v=10');
+@import url('./css/color-lab.css?v=10');
+@import url('./css/scenarios.css?v=10');
+@import url('./css/panel-guide.css?v=10');
+
+/* ---------------------------------------------------------------------
+   Reset & base
+   --------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-top: 56px;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 700;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--accent-purple);
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ---------------------------------------------------------------------
+   Page shell
+   --------------------------------------------------------------------- */
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+}
+
+/* ---------------------------------------------------------------------
+   App header
+   --------------------------------------------------------------------- */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  flex-wrap: wrap;
+}
+
+.app-header .logo {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-accent);
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  box-shadow: 0 10px 30px var(--logo-shadow);
+}
+
+.app-header .header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-header h1 {
+  font-size: clamp(28px, 5vw, 52px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+.app-header .subtitle {
+  margin-top: var(--space-sm);
+  max-width: 720px;
+  color: var(--text-muted);
+  font-size: clamp(15px, 2vw, 18px);
+  line-height: 1.7;
+}
+
+/* ---------------------------------------------------------------------
+   Reusable glass card utility (used across tabs)
+   --------------------------------------------------------------------- */
+.glass-card {
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* ---------------------------------------------------------------------
+   Input panel (sticky, always visible)
+   --------------------------------------------------------------------- */
+.input-panel {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border: 1px solid var(--border);
+  background: var(--glass-bg-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sticky);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.input-panel .input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.3fr 1fr auto;
+  gap: var(--space-md);
+  align-items: end;
+}
+
+.input-panel .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.input-panel label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.input-panel label .value-display {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.input-panel input[type="range"] {
+  width: 100%;
+  height: 6px;
+  accent-color: var(--accent-blue);
+  cursor: grab;
+  border-radius: var(--radius-pill);
+}
+
+.input-panel input[type="range"]:active {
+  cursor: grabbing;
+}
+
+.input-panel select {
+  width: 100%;
+  height: 34px;
+  padding: 0 var(--space-md);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background-color: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--accent-blue) 50%),
+                    linear-gradient(135deg, var(--accent-blue) 50%, transparent 50%);
+  background-position: calc(100% - 18px) center, calc(100% - 13px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-panel select:hover {
+  border-color: var(--accent-blue);
+  background-color: var(--bg-accent-hover);
+}
+
+.input-panel select:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--ring-focus);
+}
+
+.input-panel select option {
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  padding: var(--space-sm);
+}
+
+/* Collapsible "more parameters" section */
+.input-panel .more-params {
+  display: none;
+  flex-direction: row;
+  gap: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border);
+}
+
+.input-panel .more-params.expanded {
+  display: flex;
+}
+
+.input-panel .more-params .input-group {
+  flex: 1;
+}
+
+.input-panel .more-params-toggle {
+  align-self: end;
+  height: 34px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.input-panel .more-params-toggle:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-blue);
+  background: var(--bg-accent-hover);
+}
+
+/* Settings buttons row */
+.input-panel .settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+  padding-top: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-top: 1px solid var(--border);
+}
+
+.input-panel .settings-btn {
+  padding: var(--space-xs) var(--space-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.input-panel .settings-btn:hover {
+  background: var(--bg-hover-strong);
+  border-color: var(--accent-blue);
+}
+
+.input-panel .settings-btn:active {
+  transform: scale(0.97);
+}
+
+.input-panel .settings-btn.danger {
+  color: var(--bad-red);
+  border-color: rgba(210, 15, 57, 0.3);
+}
+
+.input-panel .settings-btn.danger:hover {
+  background: rgba(210, 15, 57, 0.12);
+  border-color: var(--bad-red);
+}
+
+.input-panel .storage-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: var(--space-sm);
+}
+
+/* ---------------------------------------------------------------------
+   Tab navigation
+   --------------------------------------------------------------------- */
+.tab-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-nav-btn {
+  padding: var(--space-sm) var(--space-lg);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease,
+              border-color 0.18s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.tab-nav-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.tab-nav-btn.active {
+  color: var(--accent-text);
+  background: var(--gradient-accent);
+  border-color: transparent;
+  box-shadow: 0 6px 20px var(--accent-shadow);
+}
+
+.tab-nav-btn.active:hover {
+  color: var(--accent-text);
+  background: var(--gradient-accent);
+}
+
+/* ---------------------------------------------------------------------
+   Tab content
+   --------------------------------------------------------------------- */
+.tab-content {
+  display: none;
+  animation: tab-fade-in 0.3s ease;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes tab-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Footer
+   --------------------------------------------------------------------- */
+.page-footer {
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.privacy-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--bg-ghost);
+  border: 1px solid var(--border);
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.privacy-notice .lock {
+  flex-shrink: 0;
+  font-style: normal;
+}
+
+.footer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.footer-meta a {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.footer-meta a:hover {
+  color: var(--accent-blue);
+}
+
+.footer-sep {
+  color: var(--border);
+}
+
+/* ---------------------------------------------------------------------
+   Tooltip system (pure CSS, no JS)
+   --------------------------------------------------------------------- */
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dashed var(--text-muted);
+  text-underline-offset: 3px;
+}
+
+[data-tooltip]::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  min-width: 200px;
+  max-width: 320px;
+  padding: 10px 14px;
+  background: var(--bg-tooltip);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: left;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 100;
+}
+
+[data-tooltip]:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+[data-tooltip]::after {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--bg-tooltip);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------
+   Header actions (theme + lang toggles)
+   --------------------------------------------------------------------- */
+.header-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-left: auto;
+}
+
+.theme-toggle,
+.lang-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.lang-toggle {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.theme-toggle:hover,
+.lang-toggle:hover {
+  border-color: var(--accent-blue);
+  background: var(--bg-accent-hover);
+}
+
+.theme-toggle:active,
+.lang-toggle:active {
+  transform: scale(0.93);
+}
+
+/* ---------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------- */
+@media (max-width: 920px) {
+  .page {
+    padding: var(--space-lg) var(--space-md) var(--space-xl);
+  }
+
+  .input-panel {
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .input-panel .input-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .input-panel .input-row .more-params-toggle {
+    grid-column: 1 / -1;
+  }
+
+  .input-panel .more-params {
+    flex-direction: column;
+  }
+
+  .tab-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: var(--space-sm);
+  }
+
+  .tab-nav::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .tab-nav-btn {
+    flex-shrink: 0;
+  }
+
+  .app-header {
+    gap: var(--space-md);
+  }
+
+  .app-header .logo {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .input-panel {
+    padding: var(--space-md);
+  }
+}
