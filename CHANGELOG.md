@@ -20,6 +20,7 @@
 - Rebuilt the live task board around post-v0.1 priorities and privacy-safe progress records.
 - Unified NavBar language/theme actions: pointer hover no longer draws a background box, while keyboard focus gets a visible 2px ring.
 - Added `pnpm check:contracts` to enforce app isolation, package/base/output conventions, approved runtime network origins, NavBar interaction rules, and byte-identical static deployment copies.
+- Migrated Homepage into the workspace with a Vite build, root-path deployment artifact, smoke tests, and direct nav/theme/i18n package consumption; removed its copied platform runtimes.
 
 ### Dependency governance
 

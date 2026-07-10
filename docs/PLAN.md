@@ -47,9 +47,9 @@ Toolbox 要成为可以持续加入新工具的稳定平台，而不是一组碰
 
 | 优先级 | 缺口 | 为什么重要 |
 |:--:|------|--------------|
-| P1 | `@toolbox/theme` 存在但没有应用真正依赖 | “统一主题”没有单一事实源 |
-| P1 | 静态应用手工复制 nav/theme 文件 | 共享实现与部署副本会悄悄漂移 |
-| P1 | Homepage / Monitor Choice 不在质量流水线 | 根 build/test/lint 无法发现其回归 |
+| P1 | 三个 React 工具与 Monitor Choice 尚未直接依赖 `@toolbox/theme` | “统一主题”仍未完全形成单一事实源 |
+| P1 | Monitor Choice 手工复制 nav/theme 文件 | 共享实现与部署副本会悄悄漂移 |
+| P1 | Monitor Choice 不在质量流水线 | 根 build/test/lint 无法发现其回归 |
 | P1 | 缺少可执行的应用契约检查 | 规范只能靠 agent 或维护者记忆 |
 | P2 | SaneUnits 有第二套主题/语言控件与独特壳层 | 视觉、行为、偏好入口重复且不一致 |
 
@@ -61,7 +61,7 @@ Toolbox 要成为可以持续加入新工具的稳定平台，而不是一组碰
 
 - 独立拥有业务代码、测试、README 和构建配置。
 - 只通过 `packages/*` 使用共享能力，禁止直接 import 其他应用。
-- 构建输出只写入自己的 `dist/`，生产路径只位于 `/<app-id>/`。
+- 构建输出只写入自己的 `dist/`，生产路径只位于 `/<app-id>/`；Homepage 是固定的根路径 `/` 例外。
 - 工具私有 localStorage 使用 `toolbox.<app-id>.*`；只允许主题和语言使用全局键。
 - 失败时不改变首页以外的现有产物；新增路由上线应能单独回退。
 

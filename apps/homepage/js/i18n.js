@@ -2,7 +2,11 @@
    i18n — Chinese / English translations
    ========================================================================== */
 
-const LANG_KEY = "toolbox-lang";
+import {
+  getLang as getCoreLang,
+  onChange,
+  setLang as setCoreLang,
+} from "@toolbox/i18n/core";
 
 const i18n = {
   zh: {
@@ -66,14 +70,11 @@ const i18n = {
   },
 };
 
-function getLang() {
-  const saved = localStorage.getItem(LANG_KEY);
-  if (saved === "zh" || saved === "en") return saved;
-  return navigator.language.startsWith("zh") ? "zh" : "en";
+export function getLang() {
+  return getCoreLang();
 }
 
-function setLang(lang) {
-  localStorage.setItem(LANG_KEY, lang);
+function applyTranslations(lang) {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (i18n[lang]?.[key]) {
@@ -87,16 +88,14 @@ function setLang(lang) {
   document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
 }
 
-function toggleLang() {
+export function setLang(lang) {
+  setCoreLang(lang);
+  applyTranslations(lang);
+}
+
+export function toggleLang() {
   const current = document.documentElement.lang.startsWith("zh") ? "zh" : "en";
   setLang(current === "zh" ? "en" : "zh");
 }
 
-// React to language changes dispatched by the shared NavBar
-// (nav-bar.js applyLang fallback fires this when window.ToolboxI18n is absent).
-window.addEventListener("toolbox-lang-change", function (event) {
-  const lang = event && event.detail && event.detail.lang;
-  if (lang === "zh" || lang === "en") {
-    setLang(lang);
-  }
-});
+onChange(applyTranslations);

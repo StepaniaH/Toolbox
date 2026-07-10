@@ -82,6 +82,25 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@24.13.3)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)
 
+  apps/homepage:
+    dependencies:
+      '@toolbox/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@toolbox/nav':
+        specifier: workspace:*
+        version: link:../../packages/nav
+      '@toolbox/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
+    devDependencies:
+      oxlint:
+        specifier: ^1.73.0
+        version: 1.73.0
+      vite:
+        specifier: 6.4.2
+        version: 6.4.2(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)
+
   apps/rate-lens:
     dependencies:
       '@toolbox/i18n':

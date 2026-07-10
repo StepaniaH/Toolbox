@@ -103,14 +103,15 @@
 - [x] 检查 NavBar 静态共享文件副本内容（迁移完成前的过渡门禁）。
 - [x] 根命令 `pnpm check:contracts` 已在 CI 执行，并可继续扩展其他契约。
 
-### P1.3 · 让静态应用进入 workspace `⏳ 待开始`
+### P1.3 · 让静态应用进入 workspace `🔄 进行中`
 
 **目标**：Homepage 与 Monitor Choice 使用 Vite 构建壳，但不重写业务逻辑。
 
-- [ ] 为两个应用增加 package.json、build、lint、smoke scripts。
-- [ ] 保持现有 URL、DOM 行为与部署路径不变。
-- [ ] 通过 workspace 依赖消费 nav/theme，删除手工副本。
-- [ ] 迁移时逐个应用完成、验证、提交；不得同时大改两者。
+- [x] Homepage 增加 package.json、Vite build、lint 与 5 条 smoke tests。
+- [x] Homepage 保持根 URL、DOM 行为与根目录部署路径不变。
+- [x] Homepage 通过 workspace 依赖消费 nav/theme/i18n，并删除手工运行时副本。
+- [ ] Monitor Choice 完成同样迁移与验证。
+- [x] 两个应用逐个迁移；Homepage 独立验证并提交后再开始 Monitor Choice。
 
 ### P1.4 · 建立 app manifest `⏳ 待开始`
 

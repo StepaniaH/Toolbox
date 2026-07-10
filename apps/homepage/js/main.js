@@ -2,6 +2,9 @@
    main.js — Tool card data & rendering
    ========================================================================== */
 
+import "./platform.js";
+import { getLang, setLang, toggleLang } from "./i18n.js";
+
 const tools = [
   {
     id: "ratelens",

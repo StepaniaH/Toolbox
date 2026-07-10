@@ -64,7 +64,7 @@ if (
   fail('nav-focus-contract', 'packages/nav/nav-bar.css', 'focus-visible lacks the 2px blue outline')
 }
 
-for (const app of ['homepage', 'monitor-choice']) {
+for (const app of ['monitor-choice']) {
   requireIdentical('packages/nav/nav-bar.css', `apps/${app}/nav-bar.css`)
   requireIdentical('packages/nav/nav-bar.js', `apps/${app}/nav-bar.js`)
 }
@@ -75,7 +75,7 @@ const appIds = readdirSync(resolve(root, 'apps'), { withFileTypes: true })
   .map((entry) => entry.name)
   .sort()
 const appIdSet = new Set(appIds)
-const legacyStaticApps = new Set(['homepage', 'monitor-choice'])
+const legacyStaticApps = new Set(['monitor-choice'])
 const legacyThemeMigration = new Set(['chrono-sphere', 'rate-lens', 'sane-units'])
 const requiredPlatformPackages = ['@toolbox/i18n', '@toolbox/nav', '@toolbox/theme']
 
@@ -119,7 +119,7 @@ for (const appId of appIds) {
     fail('app-base-contract', `apps/${appId}`, 'missing Vite config')
   } else {
     const config = read(`apps/${appId}/${viteConfig}`)
-    const expectedBase = `/${appId}/`
+    const expectedBase = appId === 'homepage' ? '/' : `/${appId}/`
     if (!config.includes(`'${expectedBase}'`) && !config.includes(`"${expectedBase}"`)) {
       fail('app-base-contract', `apps/${appId}/${viteConfig}`, `missing ${expectedBase}`)
     }

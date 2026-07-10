@@ -105,8 +105,7 @@ ssh "${SSH_ARGS[@]}" "$VPS_HOST" mkdir -p -- "$VPS_WWW"
 
 log "  homepage → root"
 rsync "${RSYNC_ARGS[@]}" \
-  --exclude='README.md' --exclude='README.zh-CN.md' \
-  "$PROJECT_DIR/apps/homepage/" "$VPS_HOST:$VPS_WWW/"
+  "$PROJECT_DIR/apps/homepage/dist/" "$VPS_HOST:$VPS_WWW/"
 
 log "  monitor-choice"
 rsync "${RSYNC_ARGS[@]}" \
