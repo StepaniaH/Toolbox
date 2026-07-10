@@ -2,7 +2,9 @@
 
 > What others skip, these tools count.
 
-A collection of privacy-first web tools. All computation runs locally in your browser — zero backends, zero tracking, zero cookies.
+A collection of privacy-first web tools. Core calculations run locally in your browser — no first-party backend, no tracking, and no cookies.
+
+> Privacy note: form inputs are not uploaded. RateLens currently retrieves public exchange-rate data from third-party endpoints on load; changing this to explicit opt-in with a fully local default flow is the highest-priority post-v0.1 task.
 
 **Live**: [tools.s-ark.xyz](https://tools.s-ark.xyz) · **Source**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox)
 
@@ -16,15 +18,15 @@ A collection of privacy-first web tools. All computation runs locally in your br
 | RateLens | `/rate-lens/` | AI model pricing calculator | React + TS + Vite + Tailwind |
 | ChronoSphere | `/chrono-sphere/` | Date & timezone utility | React + TS + Vite |
 | Monitor Choice | `/monitor-choice/` | Display parameter lab | HTML + Vanilla JS (Canvas) |
-| SaneUnits | `/sane-units/` | Unit conversion & estimation | React + Vite |
+| SaneUnits | `/sane-units/` | Unit conversion & estimation | React + TS + Vite |
 
 ---
 
 ## Design Principles
 
-- **Privacy-first** — fully client-side; no backends, no tracking, no cookies, no third-party scripts.
+- **Privacy-first** — core calculations stay client-side; no first-party backend, tracking, or cookies. External data access must be visible, optional, and have a local fallback.
 - **Bilingual** — every tool ships both Chinese (zh) and English (en) interfaces.
-- **Catppuccin theme** — Frappé (dark, default) + Latte (light), unified through a shared theme package.
+- **Catppuccin theme** — Frappé (dark) + Latte (light); adoption of the shared theme contract is in progress.
 - **MIT licensed** — all tools are open source under the MIT license.
 - **Static deployment** — served as static files behind Caddy with path-based routing under one domain.
 
@@ -44,7 +46,7 @@ pnpm build                              # build all tools
 pnpm test                               # test all tools
 ```
 
-See [`docs/INDEX.md`](./docs/INDEX.md) for the full project overview and [`docs/AGENTS.md`](./docs/AGENTS.md) for development conventions.
+See [`docs/INDEX.md`](./docs/INDEX.md) for the project overview, [`docs/PLAN.md`](./docs/PLAN.md) for the architecture direction, [`docs/NEW_TOOL.md`](./docs/NEW_TOOL.md) for the new-tool playbook, and [`docs/AGENTS.md`](./docs/AGENTS.md) for development conventions.
 
 ---
 
