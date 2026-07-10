@@ -1,4 +1,4 @@
-name: CI
+name: CI & Deploy
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  # ── Public: runs on every push/PR, zero secrets needed ──
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -22,9 +23,67 @@ jobs:
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm test
+      - run: pnpm lint
 
+  # ── Deploy: only on push to main, after tests pass ──
+  deploy:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
       - run: pnpm build
 
-      - run: pnpm test
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci
 
-      - run: pnpm lint
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Deploy
+        run: |
+          set -eu
+          HOST="${{ secrets.VPS_HOST }}"
+          USER="${{ secrets.VPS_USER }}"
+          PORT="${{ secrets.VPS_PORT }}"
+          WWW="${{ secrets.VPS_WWW }}"
+
+          SSH_CMD="ssh -i ~/.ssh/deploy_key -p $PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o LogLevel=ERROR"
+          RSYNC_CMD="rsync -az --delete --no-motd -e $SSH_CMD"
+
+          # Ensure target dir exists
+          $SSH_CMD $USER@$HOST "mkdir -p $WWW"
+
+          # Static apps
+          $RSYNC_CMD apps/homepage/ $USER@$HOST:$WWW/ \
+            --exclude='README.md' --exclude='README.zh-CN.md'
+          $RSYNC_CMD apps/monitor-choice/ $USER@$HOST:$WWW/monitor-choice/ \
+            --exclude='README.md' --exclude='README.zh-CN.md'
+
+          # React apps (built dist/)
+          for app in rate-lens chrono-sphere sane-units; do
+            $RSYNC_CMD apps/$app/dist/ $USER@$HOST:$WWW/$app/
+          done
+
+          echo "::notice::Deploy complete — https://tools.s-ark.xyz"
