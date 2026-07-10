@@ -30,6 +30,8 @@
 
 - Fixed RateLens exchange-rate preset labels leaking raw translation keys into the interface; rendering tests now cover both presets.
 - Cleared the existing SaneUnits lint warnings without changing runtime behavior.
+- Test storage mocks no longer trigger Node 26's file-backed `localStorage` getter, removing worker-level experimental warnings.
+- ESLint and Oxlint now fail on warnings so the clean lint baseline cannot silently regress.
 
 ## v0.1 (2026-07-10)
 

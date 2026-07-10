@@ -189,12 +189,12 @@
 - [ ] 公开链接使用安全的 `rel` 属性。
 - [ ] 新 app 未标记 stable 时不出现在主入口。
 
-### P3.3 · 清理当前 warning 与测试噪音 `🔄 进行中`
+### P3.3 · 清理当前 warning 与测试噪音 `✅ 已完成`
 
 - [x] 修复 SaneUnits 3 条 lint warning。
 - [x] 修复 RateLens 倍率预设泄漏原始翻译 key，并补渲染回归断言。
-- [ ] 处理测试中的 Node localStorage ExperimentalWarning。
-- [ ] 根 lint 对 warning 采用明确策略，避免 warning 永久积累。
+- [x] 处理测试中的 Node localStorage ExperimentalWarning。
+- [x] 根 lint 对 warning 采用明确策略，避免 warning 永久积累。
 - [x] 记录各 app test 数量时不把数量当覆盖率。
 
 ### P3.4 · 性能预算 `⏳ 待开始`
