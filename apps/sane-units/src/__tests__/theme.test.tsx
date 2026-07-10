@@ -2,6 +2,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import {
+  THEME_ATTRIBUTE,
+  THEME_CONTRACT_VERSION,
+  THEME_STORAGE_KEY as CONTRACT_THEME_STORAGE_KEY,
+} from "@toolbox/theme/contract";
+import {
   LEGACY_THEME_STORAGE_KEY,
   THEME_STORAGE_KEY,
   useTheme,
@@ -25,5 +30,11 @@ describe("SaneUnits shared theme storage", () => {
     localStorage.setItem(LEGACY_THEME_STORAGE_KEY, "light");
     const { result } = renderHook(() => useTheme());
     expect(result.current.theme).toBe("dark");
+  });
+
+  it("consumes the shared v1 theme contract", () => {
+    expect(THEME_CONTRACT_VERSION).toBe(1);
+    expect(THEME_STORAGE_KEY).toBe(CONTRACT_THEME_STORAGE_KEY);
+    expect(THEME_ATTRIBUTE).toBe("data-theme");
   });
 });

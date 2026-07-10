@@ -47,7 +47,7 @@ Toolbox 要成为可以持续加入新工具的稳定平台，而不是一组碰
 
 | 优先级 | 缺口 | 为什么重要 |
 |:--:|------|--------------|
-| P1 | SaneUnits 尚未直接依赖 `@toolbox/theme`；ChronoSphere、RateLens 仅接入 runtime 契约 | “统一主题”仍未完全形成单一事实源 |
+| P1 | 五个工具已接入 `@toolbox/theme` runtime，但页面语义 token 仍是 app-specific 映射 | “统一主题”仍未完全形成单一事实源 |
 | P1 | 重复的全局偏好控件尚未自动检查 | 应用可能在共享 Nav 之外再次暴露主题/语言入口 |
 | P2 | SaneUnits 有第二套主题/语言控件与独特壳层 | 视觉、行为、偏好入口重复且不一致 |
 

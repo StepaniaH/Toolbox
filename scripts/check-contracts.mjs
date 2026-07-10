@@ -67,7 +67,6 @@ const appIds = readdirSync(resolve(root, 'apps'), { withFileTypes: true })
 const appIdSet = new Set(appIds)
 const manifestById = new Map(TOOLBOX_APPS.map((app) => [app.id, app]))
 const legacyStaticApps = new Set()
-const legacyThemeMigration = new Set(['sane-units'])
 const requiredPlatformPackages = ['@toolbox/i18n', '@toolbox/nav', '@toolbox/theme']
 
 const allowedManifestFields = new Set([
@@ -148,7 +147,6 @@ for (const appId of appIds) {
   }
   for (const platformPackage of requiredPlatformPackages) {
     if (!dependencies[platformPackage]) {
-      if (platformPackage === '@toolbox/theme' && legacyThemeMigration.has(appId)) continue
       fail('platform-dependency', packagePath, `missing ${platformPackage}`)
     }
   }

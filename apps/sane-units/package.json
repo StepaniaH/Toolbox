@@ -13,6 +13,7 @@
   "dependencies": {
     "@toolbox/i18n": "workspace:*",
     "@toolbox/nav": "workspace:*",
+    "@toolbox/theme": "workspace:*",
     "@vitejs/plugin-react": "catalog:",
     "playwright": "^1.61.0",
     "react": "catalog:",
