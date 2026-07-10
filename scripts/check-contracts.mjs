@@ -182,6 +182,67 @@ if (!existsSync(resolve(root, 'pnpm-lock.yaml'))) {
   fail('dependency-lock-contract', 'pnpm-lock.yaml', 'root lockfile is missing')
 }
 
+// ── localStorage namespace contract ──────────────────────
+const globalStorageKeys = new Set(['toolbox-theme', 'toolbox-lang'])
+const legacyStorageKeys = {
+  'chrono-sphere': new Set(['chrono-sphere.theme']),
+  'monitor-choice': new Set(['monitor-choice-prefs-v1']),
+  'rate-lens': new Set(['ratelens-theme', 'ratelens-state']),
+  'sane-units': new Set([
+    'saneunits.theme',
+    'saneunits.storage',
+    'saneunits.network',
+    'saneunits.power',
+    'saneunits.video',
+  ]),
+}
+const storageFiles = [...appFiles, ...trackedFiles('packages')]
+  .filter((file) => ['.html', '.js', '.jsx', '.ts', '.tsx'].includes(extname(file)))
+  .filter((file) => !file.includes('/__tests__/') && !file.endsWith('.test.mjs'))
+const reportedStorageKeys = new Set()
+
+function validateStorageKey(file, variable, key) {
+  const appId = file.startsWith('apps/') ? file.split('/')[1] : null
+  const isGlobal = globalStorageKeys.has(key)
+  const isPrivate = appId && key.startsWith(`toolbox.${appId}.`)
+  const isLegacy = Boolean(
+    appId &&
+    variable.startsWith('LEGACY_') &&
+    legacyStorageKeys[appId]?.has(key),
+  )
+  if (isGlobal || isPrivate || isLegacy) return
+
+  const reportKey = `${file}:${variable}:${key}`
+  if (reportedStorageKeys.has(reportKey)) return
+  reportedStorageKeys.add(reportKey)
+  fail(
+    'storage-key-contract',
+    file,
+    `${variable} must use toolbox-theme, toolbox-lang, or toolbox.${appId ?? '<app-id>'}.*`,
+  )
+}
+
+for (const file of storageFiles) {
+  const content = read(file)
+  for (const match of content.matchAll(
+    /\b([A-Z][A-Z0-9_]*KEY)\s*=\s*['"]([^'"]+)['"]/g,
+  )) {
+    validateStorageKey(file, match[1], match[2])
+  }
+  for (const match of content.matchAll(
+    /\b((?:LEGACY_)?STATE_STORAGE_KEYS)\s*=\s*Object\.freeze\(\{([\s\S]*?)\}\)/g,
+  )) {
+    for (const value of match[2].matchAll(/:\s*['"]([^'"]+)['"]/g)) {
+      validateStorageKey(file, match[1], value[1])
+    }
+  }
+  for (const match of content.matchAll(
+    /(?:window\.|globalThis\.|global\.)?localStorage\.(?:getItem|setItem|removeItem)\(\s*['"]([^'"]+)['"]/g,
+  )) {
+    validateStorageKey(file, 'direct localStorage key', match[1])
+  }
+}
+
 const sourceExtensions = new Set(['.css', '.js', '.jsx', '.ts', '.tsx'])
 const importPattern = /(?:\bfrom\s*|\bimport\s*(?:\(\s*)?|\brequire\s*\(|@import\s*(?:url\(\s*)?)\s*['"]([^'"]+)['"]/g
 

@@ -21,7 +21,9 @@
       // Priority: stored choice → system preference → dark (default).
       (function () {
         try {
-          var t = localStorage.getItem('ratelens-theme');
+          var LEGACY_THEME_STORAGE_KEY = 'ratelens-theme';
+          var t = localStorage.getItem('toolbox-theme') ||
+            localStorage.getItem(LEGACY_THEME_STORAGE_KEY);
           if (t !== 'light' && t !== 'dark') {
             t = window.matchMedia &&
               window.matchMedia('(prefers-color-scheme: light)').matches

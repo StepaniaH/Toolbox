@@ -3,6 +3,7 @@ import {
   readStoredTheme,
   getSystemTheme,
   THEME_STORAGE_KEY,
+  LEGACY_THEME_STORAGE_KEY,
   PreferencesContext,
 } from './preferencesCore';
 
@@ -77,6 +78,11 @@ describe('readStoredTheme — 主题偏好存储/读取 (dark/light/system)', ()
   it('returns "system" default in SSR (window undefined)', () => {
     expect(readStoredTheme()).toBe('system');
   });
+
+  it('falls back to the legacy app theme key during migration', () => {
+    stubWindow({ [LEGACY_THEME_STORAGE_KEY]: 'light' });
+    expect(readStoredTheme()).toBe('light');
+  });
 });
 
 describe('readStoredTheme — 无效存储值回退逻辑', () => {
@@ -110,6 +116,7 @@ describe('getSystemTheme — 系统主题解析', () => {
 
 describe('storage key stability', () => {
   it('exposes a stable, namespaced theme storage key', () => {
-    expect(THEME_STORAGE_KEY).toBe('chrono-sphere.theme');
+    expect(THEME_STORAGE_KEY).toBe('toolbox-theme');
+    expect(LEGACY_THEME_STORAGE_KEY).toBe('chrono-sphere.theme');
   });
 });

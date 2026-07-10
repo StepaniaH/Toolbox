@@ -6,7 +6,8 @@
   'use strict';
 
   /** localStorage key for persisted preferences. */
-  var STORAGE_KEY = 'monitor-choice-prefs-v1';
+  var STORAGE_KEY = 'toolbox.monitor-choice.prefs.v1';
+  var LEGACY_STORAGE_KEY = 'monitor-choice-prefs-v1';
 
   /** Keys that are persisted to localStorage. */
   var CONFIG_KEYS = [
@@ -126,7 +127,8 @@
    */
   function loadPreferences() {
     try {
-      var raw = localStorage.getItem(STORAGE_KEY);
+      var raw = localStorage.getItem(STORAGE_KEY)
+        || localStorage.getItem(LEGACY_STORAGE_KEY);
       if (!raw) return false;
       var parsed = JSON.parse(raw);
       if (!parsed || typeof parsed !== 'object') return false;
@@ -154,6 +156,7 @@
   function clearPreferences() {
     try {
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
     } catch {
       /* Silently ignore. */
     }
@@ -165,7 +168,8 @@
    */
   function hasSavedPreferences() {
     try {
-      return localStorage.getItem(STORAGE_KEY) !== null;
+      return localStorage.getItem(STORAGE_KEY) !== null
+        || localStorage.getItem(LEGACY_STORAGE_KEY) !== null;
     } catch {
       return false;
     }
@@ -173,6 +177,7 @@
 
   window.AppState = {
     STORAGE_KEY: STORAGE_KEY,
+    LEGACY_STORAGE_KEY: LEGACY_STORAGE_KEY,
     get: get,
     set: set,
     batch: batch,

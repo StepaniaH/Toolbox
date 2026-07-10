@@ -30,6 +30,12 @@ import {
 } from "./lib/units";
 import { useTranslation, LanguageProvider } from "./lib/i18n";
 import { useTheme } from "./lib/theme";
+import {
+  LEGACY_STATE_STORAGE_KEYS,
+  STATE_STORAGE_KEYS,
+  readStoredState,
+  writeStoredState,
+} from "./lib/storage";
 
 const STORAGE_DEFAULTS = {
   value: 4,
@@ -253,7 +259,7 @@ function HomePage({ onNavigate }: any) {
 
 function StoragePage() {
   const { t, lang } = useTranslation();
-  const [state, setState] = useSyncedState("saneunits.storage", STORAGE_DEFAULTS, "/storage", decodeStorageState, encodeStorageState);
+  const [state, setState] = useSyncedState(STATE_STORAGE_KEYS.storage, LEGACY_STATE_STORAGE_KEYS.storage, STORAGE_DEFAULTS, "/storage", decodeStorageState, encodeStorageState);
   const result = useMemo(() => calculateStorage(state.value, state.unit, lang), [state.value, state.unit, lang]);
   const scenarioCopy = t(`storage.scenarios.${state.scenario}`) ?? t("storage.scenarios.drive");
   const shareUrl = buildShareUrl("/storage", {
@@ -384,7 +390,7 @@ function StoragePage() {
 
 function NetworkPage() {
   const { t, lang } = useTranslation();
-  const [state, setState] = useSyncedState("saneunits.network", NETWORK_DEFAULTS, "/network", decodeNetworkState, encodeNetworkState);
+  const [state, setState] = useSyncedState(STATE_STORAGE_KEYS.network, LEGACY_STATE_STORAGE_KEYS.network, NETWORK_DEFAULTS, "/network", decodeNetworkState, encodeNetworkState);
   const result = useMemo(
     () =>
       calculateNetwork({
@@ -573,7 +579,7 @@ function NetworkPage() {
 
 function PowerPage() {
   const { t, lang } = useTranslation();
-  const [state, setState] = useSyncedState("saneunits.power", POWER_DEFAULTS, "/power", decodePowerState, encodePowerState);
+  const [state, setState] = useSyncedState(STATE_STORAGE_KEYS.power, LEGACY_STATE_STORAGE_KEYS.power, POWER_DEFAULTS, "/power", decodePowerState, encodePowerState);
   const result = useMemo(
     () =>
       calculatePower({
@@ -739,7 +745,7 @@ function PowerPage() {
 
 function VideoPage() {
   const { t, lang } = useTranslation();
-  const [state, setState] = useSyncedState("saneunits.video", VIDEO_DEFAULTS, "/video", decodeVideoState, encodeVideoState);
+  const [state, setState] = useSyncedState(STATE_STORAGE_KEYS.video, LEGACY_STATE_STORAGE_KEYS.video, VIDEO_DEFAULTS, "/video", decodeVideoState, encodeVideoState);
   const result = useMemo(
     () =>
       calculateVideo({
@@ -1205,6 +1211,7 @@ function useAppNavigation(): [string, (path: string) => void] {
 
 function useSyncedState(
   storageKey: string,
+  legacyStorageKey: string,
   defaults: any,
   pathname: string,
   decode: (params: URLSearchParams) => any,
@@ -1212,7 +1219,7 @@ function useSyncedState(
 ): [any, React.Dispatch<React.SetStateAction<any>>] {
   const [state, setState] = useState(() => {
     const fromQuery = decode(new URLSearchParams(window.location.search));
-    const fromStorage = readStoredState(storageKey);
+    const fromStorage = readStoredState(storageKey, legacyStorageKey);
     return {
       ...defaults,
       ...fromStorage,
@@ -1379,23 +1386,6 @@ function parseNumber(value: string | null, fallback: number = Number.NaN): numbe
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-function readStoredState(key: string): any {
-  try {
-    const raw = window.localStorage.getItem(key);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
-function writeStoredState(key: string, value: any): void {
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // Ignore storage failures.
-  }
-}
 
 function buildShareUrl(pathname: string, state: Record<string, any>): string {
   const params = new URLSearchParams();

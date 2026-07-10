@@ -96,7 +96,7 @@
 
 - [x] 禁止 `apps/*` 直接 import 或依赖另一个 app。
 - [x] 校验 package name、route/base、目录和 build output。
-- [ ] 校验全局/应用 storage key 命名。
+- [x] 校验全局/应用 storage key 命名；active key 统一，旧 key 仅允许显式迁移 fallback。
 - [x] 新 app 强制接入 theme/nav/i18n；现有三个 React app 的 theme 缺口暂列迁移基线。
 - [ ] 检查重复的全局偏好控件。
 - [x] 检查未经 `config/external-origins.json` allowlist 的运行时外部 URL 或动态网络访问。

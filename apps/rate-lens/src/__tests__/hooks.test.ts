@@ -16,7 +16,7 @@ describe('useLocalStorage', () => {
 
   it('persists and restores across remounts (Gate 6 persistence)', () => {
     const { result, unmount } = renderHook(() =>
-      useLocalStorage('ratelens-state', { a: 1 }),
+      useLocalStorage('toolbox.rate-lens.state', { a: 1 }),
     )
     act(() => result.current[1]({ a: 99 }))
     expect(result.current[0]).toEqual({ a: 99 })
@@ -24,9 +24,18 @@ describe('useLocalStorage', () => {
 
     // 新实例应从 localStorage 恢复
     const { result: result2 } = renderHook(() =>
-      useLocalStorage('ratelens-state', { a: 1 }),
+      useLocalStorage('toolbox.rate-lens.state', { a: 1 }),
     )
     expect(result2.current[0]).toEqual({ a: 99 })
+  })
+
+  it('migrates the legacy state key without losing data', () => {
+    localStorage.setItem('ratelens-state', JSON.stringify({ a: 42 }))
+    const { result } = renderHook(() =>
+      useLocalStorage('toolbox.rate-lens.state', { a: 1 }, 'ratelens-state'),
+    )
+    expect(result.current[0]).toEqual({ a: 42 })
+    expect(localStorage.getItem('toolbox.rate-lens.state')).toBe('{"a":42}')
   })
 
   it('supports updater function', () => {
@@ -52,11 +61,19 @@ describe('useTheme', () => {
     act(() => result.current.toggle())
     expect(result.current.theme).toBe('light')
     expect(document.documentElement.getAttribute('data-theme')).toBe('light')
-    expect(localStorage.getItem('ratelens-theme')).toBe('light')
+    expect(localStorage.getItem('toolbox-theme')).toBe('light')
 
     act(() => result.current.toggle())
     expect(result.current.theme).toBe('dark')
-    expect(localStorage.getItem('ratelens-theme')).toBe('dark')
+    expect(localStorage.getItem('toolbox-theme')).toBe('dark')
+  })
+
+  it('reads the legacy theme key when the shared key is absent', () => {
+    localStorage.setItem('ratelens-theme', 'light')
+    document.documentElement.setAttribute('data-theme', 'light')
+    const { result } = renderHook(() => useTheme())
+    expect(result.current.theme).toBe('light')
+    expect(localStorage.getItem('toolbox-theme')).toBe('light')
   })
 })
 

@@ -2,17 +2,22 @@ import { useCallback, useEffect, useState } from 'react'
 
 export type Theme = 'dark' | 'light'
 
-const STORAGE_KEY = 'ratelens-theme'
+export const THEME_STORAGE_KEY = 'toolbox-theme'
+export const LEGACY_THEME_STORAGE_KEY = 'ratelens-theme'
 
 function readInitial(): Theme {
   const attr = document.documentElement.getAttribute('data-theme')
-  if (attr === 'light' || attr === 'dark') return attr
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    const shared = localStorage.getItem(THEME_STORAGE_KEY)
+    const stored = shared ?? localStorage.getItem(LEGACY_THEME_STORAGE_KEY)
+    if (shared === null && (stored === 'light' || stored === 'dark')) {
+      localStorage.setItem(THEME_STORAGE_KEY, stored)
+    }
     if (stored === 'light' || stored === 'dark') return stored
   } catch {
     /* ignore */
   }
+  if (attr === 'light' || attr === 'dark') return attr
   return 'dark'
 }
 
@@ -32,7 +37,7 @@ export function useTheme(): {
   const apply = useCallback((t: Theme) => {
     document.documentElement.setAttribute('data-theme', t)
     try {
-      localStorage.setItem(STORAGE_KEY, t)
+      localStorage.setItem(THEME_STORAGE_KEY, t)
     } catch {
       /* ignore */
     }
@@ -60,7 +65,7 @@ export function useTheme(): {
     const onChange = (e: MediaQueryListEvent) => {
       let stored: string | null = null
       try {
-        stored = localStorage.getItem(STORAGE_KEY)
+        stored = localStorage.getItem(THEME_STORAGE_KEY)
       } catch {
         /* ignore */
       }

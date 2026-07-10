@@ -7,17 +7,22 @@ import { useCallback, useEffect, useState } from 'react'
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,
+  legacyKey?: string,
 ): [T, (value: T | ((prev: T) => T)) => void] {
   const read = useCallback((): T => {
     try {
-      const raw = localStorage.getItem(key)
+      let raw = localStorage.getItem(key)
+      if (raw === null && legacyKey) {
+        raw = localStorage.getItem(legacyKey)
+        if (raw !== null) localStorage.setItem(key, raw)
+      }
       if (raw === null) return initialValue
       return JSON.parse(raw) as T
     } catch {
       return initialValue
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
+  }, [key, legacyKey])
 
   const [value, setValue] = useState<T>(read)
 

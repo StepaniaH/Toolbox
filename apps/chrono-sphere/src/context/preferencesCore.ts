@@ -10,7 +10,8 @@ export interface PreferencesContextValue {
 
 export const PreferencesContext = createContext<PreferencesContextValue | null>(null);
 
-export const THEME_STORAGE_KEY = 'chrono-sphere.theme';
+export const THEME_STORAGE_KEY = 'toolbox-theme';
+export const LEGACY_THEME_STORAGE_KEY = 'chrono-sphere.theme';
 
 /**
  * Read persisted theme mode from localStorage. Falls back to 'system' when
@@ -18,7 +19,8 @@ export const THEME_STORAGE_KEY = 'chrono-sphere.theme';
  */
 export function readStoredTheme(): ThemeMode {
   if (typeof window === 'undefined') return 'system';
-  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
+    ?? window.localStorage.getItem(LEGACY_THEME_STORAGE_KEY);
   return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
 }
 

@@ -69,8 +69,19 @@ test('built monitor choice references emitted hashed assets', () => {
   assert.ok(readdirSync(new URL('dist/assets/', appRoot)).some((name) => name.endsWith('.js')))
 })
 
+const storage = new Map()
+Object.defineProperty(globalThis, 'localStorage', {
+  value: {
+    getItem: (key) => storage.get(key) ?? null,
+    setItem: (key, value) => storage.set(key, String(value)),
+    removeItem: (key) => storage.delete(key),
+    clear: () => storage.clear(),
+  },
+  configurable: true,
+})
 globalThis.window = globalThis
 await import('../js/calc.js?node-test')
+await import('../js/state.js?node-test')
 
 test('4K at 32 inches has the expected pixel density', () => {
   assert.ok(Math.abs(window.Calc.computePPI(3840, 2160, 32) - 137.68) < 0.01)
@@ -88,4 +99,21 @@ test('16:9 dimensions preserve the requested diagonal', () => {
 
 test('interface bandwidth calculation uses decimal Gbps', () => {
   assert.equal(window.Calc.computeInterfaceBandwidth(3840, 2160, 60, 10), 4.97664)
+})
+
+test('preferences use the namespaced key and read legacy saved data', () => {
+  localStorage.clear()
+  localStorage.setItem(window.AppState.LEGACY_STORAGE_KEY, JSON.stringify({ distance: 95 }))
+  assert.equal(window.AppState.STORAGE_KEY, 'toolbox.monitor-choice.prefs.v1')
+  assert.equal(window.AppState.hasSavedPreferences(), true)
+  assert.equal(window.AppState.loadPreferences(), true)
+  assert.equal(window.AppState.get('distance'), 95)
+})
+
+test('clearing preferences removes new and legacy storage', () => {
+  localStorage.setItem(window.AppState.STORAGE_KEY, '{}')
+  localStorage.setItem(window.AppState.LEGACY_STORAGE_KEY, '{}')
+  window.AppState.clearPreferences()
+  assert.equal(localStorage.getItem(window.AppState.STORAGE_KEY), null)
+  assert.equal(localStorage.getItem(window.AppState.LEGACY_STORAGE_KEY), null)
 })
