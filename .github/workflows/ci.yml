@@ -69,21 +69,24 @@ jobs:
           PORT="${{ secrets.VPS_PORT }}"
           WWW="${{ secrets.VPS_WWW }}"
 
-          SSH_CMD="ssh -i ~/.ssh/deploy_key -p $PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o LogLevel=ERROR"
-          RSYNC_CMD="rsync -az --delete --no-motd -e $SSH_CMD"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o LogLevel=ERROR"
+          export RSYNC_RSH="ssh $SSH_OPTS"
 
           # Ensure target dir exists
-          $SSH_CMD $USER@$HOST "mkdir -p $WWW"
+          ssh $SSH_OPTS $USER@$HOST "mkdir -p $WWW"
 
           # Static apps
-          $RSYNC_CMD apps/homepage/ $USER@$HOST:$WWW/ \
-            --exclude='README.md' --exclude='README.zh-CN.md'
-          $RSYNC_CMD apps/monitor-choice/ $USER@$HOST:$WWW/monitor-choice/ \
-            --exclude='README.md' --exclude='README.zh-CN.md'
+          rsync -az --delete --no-motd \
+            --exclude='README.md' --exclude='README.zh-CN.md' \
+            apps/homepage/ $USER@$HOST:$WWW/
+          rsync -az --delete --no-motd \
+            --exclude='README.md' --exclude='README.zh-CN.md' \
+            apps/monitor-choice/ $USER@$HOST:$WWW/monitor-choice/
 
           # React apps (built dist/)
           for app in rate-lens chrono-sphere sane-units; do
-            $RSYNC_CMD apps/$app/dist/ $USER@$HOST:$WWW/$app/
+            rsync -az --delete --no-motd \
+              apps/$app/dist/ $USER@$HOST:$WWW/$app/
           done
 
           echo "::notice::Deploy complete — https://tools.s-ark.xyz"
