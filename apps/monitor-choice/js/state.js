@@ -96,7 +96,7 @@
     set.forEach(function (cb) {
       try {
         cb(_data[key]);
-      } catch (e) {
+      } catch {
         /* Swallow listener errors so one bad listener doesn't break others. */
       }
     });
@@ -114,7 +114,7 @@
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   }
@@ -142,7 +142,7 @@
 
       batch(updates);
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   }
@@ -154,7 +154,7 @@
   function clearPreferences() {
     try {
       localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {
+    } catch {
       /* Silently ignore. */
     }
   }
@@ -166,7 +166,7 @@
   function hasSavedPreferences() {
     try {
       return localStorage.getItem(STORAGE_KEY) !== null;
-    } catch (e) {
+    } catch {
       return false;
     }
   }

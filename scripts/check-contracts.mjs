@@ -14,12 +14,6 @@ function fail(category, file, message) {
   failures.push(`${category}: ${file}${message ? ` (${message})` : ''}`)
 }
 
-function requireIdentical(canonicalPath, copyPath) {
-  if (read(canonicalPath) !== read(copyPath)) {
-    fail('shared-copy-drift', copyPath, `differs from ${canonicalPath}`)
-  }
-}
-
 function ruleBody(css, selector) {
   const start = css.indexOf(selector)
   if (start < 0) return null
@@ -64,18 +58,13 @@ if (
   fail('nav-focus-contract', 'packages/nav/nav-bar.css', 'focus-visible lacks the 2px blue outline')
 }
 
-for (const app of ['monitor-choice']) {
-  requireIdentical('packages/nav/nav-bar.css', `apps/${app}/nav-bar.css`)
-  requireIdentical('packages/nav/nav-bar.js', `apps/${app}/nav-bar.js`)
-}
-
 // ── App isolation, package and base-path contract ─────────
 const appIds = readdirSync(resolve(root, 'apps'), { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && !entry.name.startsWith('_'))
   .map((entry) => entry.name)
   .sort()
 const appIdSet = new Set(appIds)
-const legacyStaticApps = new Set(['monitor-choice'])
+const legacyStaticApps = new Set()
 const legacyThemeMigration = new Set(['chrono-sphere', 'rate-lens', 'sane-units'])
 const requiredPlatformPackages = ['@toolbox/i18n', '@toolbox/nav', '@toolbox/theme']
 

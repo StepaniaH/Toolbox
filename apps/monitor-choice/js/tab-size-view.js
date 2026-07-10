@@ -360,13 +360,11 @@
     var gridExtent = 200 * s;
     ctx.lineWidth = 1;
     for (var gz = gridExtent; gz >= -gridExtent; gz -= gridStep) {
-      var opacity = 0.04 + 0.06 * (1 - Math.abs(gz) / gridExtent);
       var p1 = P(-gridExtent, 0, gz);
       var p2 = P(gridExtent, 0, gz);
       drawLine3D(ctx, p1, p2, CA('grid'), 1);
     }
     for (var gx = -gridExtent; gx <= gridExtent; gx += gridStep) {
-      var opacity2 = 0.04 + 0.06 * (1 - Math.abs(gx) / gridExtent);
       var p3 = P(gx, 0, gridExtent);
       var p4 = P(gx, 0, -gridExtent);
       drawLine3D(ctx, p3, p4, CA('grid'), 1);

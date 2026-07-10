@@ -65,7 +65,7 @@
 
     try {
       localStorage.setItem(STORAGE_KEY, locale);
-    } catch (e) {
+    } catch {
       /* Ignore quota / privacy errors. */
     }
 
@@ -82,7 +82,7 @@
   function getStored() {
     try {
       return localStorage.getItem(STORAGE_KEY);
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -96,6 +96,8 @@
    * Called on locale change and on init.
    */
   function refreshDOM() {
+    document.documentElement.lang = currentLocale === 'zh' ? 'zh-CN' : 'en';
+
     // data-i18n → textContent (or placeholder for inputs)
     var elements = document.querySelectorAll('[data-i18n]');
     for (var i = 0; i < elements.length; i++) {
@@ -159,7 +161,7 @@
     for (var i = 0; i < listeners.length; i++) {
       try {
         listeners[i](currentLocale);
-      } catch (e) {
+      } catch {
         /* Swallow listener errors. */
       }
     }
@@ -201,10 +203,12 @@
     translations: t9n // populated by i18n-zh.js and i18n-en.js
   };
 
-  // Auto-init on DOM ready (runs after translation maps are loaded)
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  // Classic-script compatibility; the Vite entry owns ordered startup.
+  if (!window.__MONITOR_CHOICE_MANUAL_BOOT__) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   }
 })();

@@ -39,18 +39,17 @@ Toolbox 要成为可以持续加入新工具的稳定平台，而不是一组碰
 
 - monorepo 与路径路由已经落地，应用目录天然形成边界。
 - `main` 只承载稳定发布，CI 只从 `main` 部署。
-- 三个 React 工具有可运行的 build/test/lint 基线。
-- 共享 nav 与 i18n 已经被 React 工具使用。
+- 五个应用都有可运行的 build/test/lint 基线。
+- 共享 nav、theme runtime 与 i18n core 已经覆盖 React 和 Vanilla 工具。
 - 所有应用都能静态部署，无自有后端或数据库。
 
 ### 必须优先解决的缺口
 
 | 优先级 | 缺口 | 为什么重要 |
 |:--:|------|--------------|
-| P1 | 三个 React 工具与 Monitor Choice 尚未直接依赖 `@toolbox/theme` | “统一主题”仍未完全形成单一事实源 |
-| P1 | Monitor Choice 手工复制 nav/theme 文件 | 共享实现与部署副本会悄悄漂移 |
-| P1 | Monitor Choice 不在质量流水线 | 根 build/test/lint 无法发现其回归 |
-| P1 | 缺少可执行的应用契约检查 | 规范只能靠 agent 或维护者记忆 |
+| P1 | 三个 React 工具尚未直接依赖 `@toolbox/theme` | “统一主题”仍未完全形成单一事实源 |
+| P1 | 缺少单一 app manifest | 首页和两种 Nav 仍需手工维护工具列表 |
+| P1 | storage key 与重复偏好控件契约尚未自动检查 | 新工具仍可能污染同域偏好状态 |
 | P2 | SaneUnits 有第二套主题/语言控件与独特壳层 | 视觉、行为、偏好入口重复且不一致 |
 
 ## 三、目标架构

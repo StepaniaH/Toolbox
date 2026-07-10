@@ -22,7 +22,7 @@
 - [x] `pnpm test`：910 tests 通过（ChronoSphere 843、RateLens 55、SaneUnits 12）。
 - [x] `pnpm lint`：通过，SaneUnits 有 3 条 warning。
 - [x] 当前内容与全部 5 个提交做敏感模式扫描；未发现实际密钥、真实绝对路径、内网/Tailscale IP。
-- [ ] Homepage 与 Monitor Choice 尚未进入根 build/test/lint，不能把上述结果理解为全站覆盖。
+- [x] 后续 P1.3 已让 Homepage 与 Monitor Choice 进入根 build/test/lint；当前质量基线见 [INDEX.md](./INDEX.md)。
 
 ---
 
@@ -100,17 +100,17 @@
 - [x] 新 app 强制接入 theme/nav/i18n；现有三个 React app 的 theme 缺口暂列迁移基线。
 - [ ] 检查重复的全局偏好控件。
 - [x] 检查未经 `config/external-origins.json` allowlist 的运行时外部 URL 或动态网络访问。
-- [x] 检查 NavBar 静态共享文件副本内容（迁移完成前的过渡门禁）。
+- [x] 静态副本迁移期间检查 NavBar 内容一致；两个应用进入 workspace 后已删除副本与过渡门禁。
 - [x] 根命令 `pnpm check:contracts` 已在 CI 执行，并可继续扩展其他契约。
 
-### P1.3 · 让静态应用进入 workspace `🔄 进行中`
+### P1.3 · 让静态应用进入 workspace `✅ 已完成`
 
 **目标**：Homepage 与 Monitor Choice 使用 Vite 构建壳，但不重写业务逻辑。
 
 - [x] Homepage 增加 package.json、Vite build、lint 与 5 条 smoke tests。
 - [x] Homepage 保持根 URL、DOM 行为与根目录部署路径不变。
 - [x] Homepage 通过 workspace 依赖消费 nav/theme/i18n，并删除手工运行时副本。
-- [ ] Monitor Choice 完成同样迁移与验证。
+- [x] Monitor Choice 增加有序 Vite bootstrap、8 条 smoke/计算测试和 0-warning lint；Canvas 与 5 个 Tab 浏览器验证通过。
 - [x] 两个应用逐个迁移；Homepage 独立验证并提交后再开始 Monitor Choice。
 
 ### P1.4 · 建立 app manifest `⏳ 待开始`

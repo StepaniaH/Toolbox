@@ -1,6 +1,6 @@
 # Monitor Choice
 
-A privacy-first, zero-dependency interactive tool for understanding display parameters — PPI, viewing distance, color gamut, panel technologies — to help you make informed monitor and TV choices.
+A privacy-first interactive tool for understanding display parameters — PPI, viewing distance, color gamut, panel technologies — to help you make informed monitor and TV choices.
 
 **[中文文档](README.zh-CN.md)**
 
@@ -12,15 +12,18 @@ A privacy-first, zero-dependency interactive tool for understanding display para
 - **Scenario Guide** — 9 practical usage scenarios with tailored parameter recommendations
 - **Panel Encyclopedia** — IPS / VA / OLED / Mini-LED deep-dive, including interface bandwidth calculator
 
-## Quick Start
+## Development
 
-No build step. No dependencies. Just open it:
+Run it through the repository workspace so Vite can resolve the shared Toolbox platform packages:
 
 ```bash
-open index.html
-# or
-python3 -m http.server 8080
+pnpm --filter=@toolbox/monitor-choice dev
+pnpm --filter=@toolbox/monitor-choice build
+pnpm --filter=@toolbox/monitor-choice test
+pnpm --filter=@toolbox/monitor-choice lint
 ```
+
+Production assets are emitted to `dist/` with base path `/monitor-choice/`.
 
 ## Privacy
 
@@ -28,7 +31,7 @@ Zero external requests, zero tracking, zero cookies, zero third-party scripts. A
 
 ## Tech Stack
 
-HTML + CSS + Vanilla JavaScript (Canvas 2D), zero dependencies.
+Vanilla JavaScript + Vite + CSS + Canvas 2D. Shared theme, navigation, and language state come from workspace packages and are bundled locally at build time.
 
 ## License
 

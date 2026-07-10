@@ -12,15 +12,18 @@
 - **场景参考**：9 个实际使用场景的参数选购指导
 - **面板百科**：IPS / VA / OLED / Mini-LED 技术深度解析，含接口带宽计算器
 
-## 运行
+## 开发
 
-无需构建，无需依赖，直接打开：
+通过仓库 workspace 运行，使 Vite 能解析共享 Toolbox 平台包：
 
 ```bash
-open index.html
-# 或
-python3 -m http.server 8080
+pnpm --filter=@toolbox/monitor-choice dev
+pnpm --filter=@toolbox/monitor-choice build
+pnpm --filter=@toolbox/monitor-choice test
+pnpm --filter=@toolbox/monitor-choice lint
 ```
+
+生产产物输出到 `dist/`，base path 为 `/monitor-choice/`。
 
 ## 隐私
 
@@ -28,7 +31,7 @@ python3 -m http.server 8080
 
 ## 技术栈
 
-HTML + CSS + Vanilla JavaScript (Canvas 2D)，零依赖。
+Vanilla JavaScript + Vite + CSS + Canvas 2D。主题、导航与语言状态由 workspace 共享包提供，并在构建时打包到本地静态产物。
 
 ## 许可证
 

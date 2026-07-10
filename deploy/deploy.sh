@@ -109,8 +109,7 @@ rsync "${RSYNC_ARGS[@]}" \
 
 log "  monitor-choice"
 rsync "${RSYNC_ARGS[@]}" \
-  --exclude='README.md' --exclude='README.zh-CN.md' \
-  "$PROJECT_DIR/apps/monitor-choice/" "$VPS_HOST:$VPS_WWW/monitor-choice/"
+  "$PROJECT_DIR/apps/monitor-choice/dist/" "$VPS_HOST:$VPS_WWW/monitor-choice/"
 
 for app in rate-lens chrono-sphere sane-units; do
   log "  $app"

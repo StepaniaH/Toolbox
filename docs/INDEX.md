@@ -22,10 +22,10 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | Homepage | `/` | Vanilla JS + Vite + Plain CSS | 工具目录与项目入口 | 5 |
 | RateLens | `/rate-lens/` | React + TypeScript + Vite + Tailwind | AI 模型价格倍率计算 | 59 |
 | ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 843 |
-| Monitor Choice | `/monitor-choice/` | HTML + CSS + Vanilla JS + Canvas | 显示器参数实验室 | 暂无 |
+| Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 8 |
 | SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 12 |
 
-测试数量是 2026-07-10 当前 `dev` 的基线，只用于说明覆盖现状，不作为质量本身的替代指标。`v0.1` 发布时为 910 条，当前为 919 条。
+测试数量是 2026-07-10 当前 `dev` 的基线，只用于说明覆盖现状，不作为质量本身的替代指标。`v0.1` 发布时为 910 条，当前为 927 条。
 
 ## 三、仓库结构
 
@@ -53,8 +53,7 @@ Toolbox/
 
 ### 应用隔离
 
-- 三个 React 工具和 Homepage 由 Vite 独立构建，分别输出自己的 `dist/`。
-- Monitor Choice 仍是无构建步骤的静态目录，部署时直接复制源码文件。
+- 五个工具都由 Vite 独立构建，分别输出自己的 `dist/`；Vanilla 与 React 应用使用同一质量流水线。
 - 工具之间没有 `apps/* → apps/*` 依赖，这是当前最重要的稳定性边界。
 - 同一域名下使用路径路由；各应用必须正确设置自己的生产 `base`。
 
@@ -62,9 +61,9 @@ Toolbox/
 
 | 能力 | React 工具 | 静态工具 | 当前问题 |
 |------|------------|----------|----------|
-| `@toolbox/i18n` | RateLens、ChronoSphere 直接使用；SaneUnits 有兼容桥 | Homepage 直接使用 core；Monitor Choice 使用自有翻译表 | 翻译资源与调用方式仍不完全统一 |
-| `@toolbox/nav` | 三个工具直接使用 React 组件 | Homepage 直接使用 workspace 包；Monitor Choice 保存 Vanilla 快照 | Monitor Choice 仍需迁移 |
-| `@toolbox/theme` | 三个 React 工具尚未作为依赖接入 | Homepage 直接使用 workspace 运行时并保留页面 token；Monitor Choice 保存快照 | 共享 design token 仍需分应用迁移 |
+| `@toolbox/i18n` | RateLens、ChronoSphere 直接使用；SaneUnits 有兼容桥 | Homepage 使用 core；Monitor Choice 通过 core adapter 驱动自有翻译表 | 翻译资源与调用方式仍不完全统一 |
+| `@toolbox/nav` | 三个工具直接使用 React 组件 | Homepage 与 Monitor Choice 直接使用 workspace Vanilla 运行时 | React / Vanilla API 仍是两种入口 |
+| `@toolbox/theme` | 三个 React 工具尚未作为依赖接入 | Homepage 与 Monitor Choice 使用 workspace 运行时并保留页面 token | 共享 design token 仍需分应用迁移 |
 
 因此，当前是“共享导航/i18n 已部分落地，主题仍主要靠约定保持接近”，而不是完整设计系统。后续要通过版本化契约和自动一致性检查解决，不能只靠继续复制 CSS。
 
@@ -81,15 +80,15 @@ Toolbox/
 
 | 检查 | 结果 | 备注 |
 |------|------|------|
-| `pnpm build` | 通过 | 4 个 Vite 应用构建成功 |
-| `pnpm test` | 通过 | 919 tests；Monitor Choice 尚未覆盖 |
+| `pnpm build` | 通过 | 5 个 Vite 应用构建成功 |
+| `pnpm test` | 通过 | 927 tests；数量不等同于覆盖率 |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
-| `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、唯一锁文件、网络 allowlist、Nav 状态与剩余静态副本通过 |
+| `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、唯一锁文件、网络 allowlist 与 Nav 状态通过 |
 
 当前最明显的质量缺口：
 
-- Monitor Choice 不属于 workspace package，根命令不会构建、测试或 lint 它。
+- 三个 React 工具尚未直接消费 `@toolbox/theme`，页面 token 也未形成完整的单一事实源。
 - SaneUnits 在共享导航之外保留了第二套主题/语言控件，页面骨架和其他工具差异最大。
 
 这些问题的执行优先级见 [TASKS.md](./TASKS.md)。

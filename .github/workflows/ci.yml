@@ -87,13 +87,11 @@ jobs:
           # Ensure target dir exists
           ssh $SSH_OPTS $USER@$HOST "mkdir -p $WWW"
 
-          # Homepage owns the site root; the remaining legacy static app keeps
-          # its source-copy deployment until its own Vite migration.
+          # Homepage owns the site root; every app deploys a verified build.
           rsync -az --delete --no-motd \
             apps/homepage/dist/ $USER@$HOST:$WWW/
           rsync -az --delete --no-motd \
-            --exclude='README.md' --exclude='README.zh-CN.md' \
-            apps/monitor-choice/ $USER@$HOST:$WWW/monitor-choice/
+            apps/monitor-choice/dist/ $USER@$HOST:$WWW/monitor-choice/
 
           # React apps (built dist/)
           for app in rate-lens chrono-sphere sane-units; do

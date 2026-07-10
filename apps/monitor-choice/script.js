@@ -158,7 +158,7 @@
         try {
           var parsed = JSON.parse(this.value);
           AppState.set('resolution', parsed);
-        } catch (e) { /* ignore */ }
+        } catch { /* ignore */ }
       });
     }
 
@@ -262,9 +262,14 @@
     switchTab('sharpness');
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  window.MonitorChoice = { init: init };
+
+  // Classic-script compatibility; the Vite entry owns ordered startup.
+  if (!window.__MONITOR_CHOICE_MANUAL_BOOT__) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   }
 })();

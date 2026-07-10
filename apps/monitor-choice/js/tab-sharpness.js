@@ -15,15 +15,6 @@
   /* Helpers                                                            */
   /* ------------------------------------------------------------------ */
 
-  function getAspectRatio(w, h) {
-    if (!window.Constants || !Constants.RESOLUTIONS) return '16:9';
-    for (var i = 0; i < Constants.RESOLUTIONS.length; i++) {
-      var r = Constants.RESOLUTIONS[i];
-      if (r.w === w && r.h === h) return r.ar;
-    }
-    return '16:9';
-  }
-
   function ppdLabel(ppd) {
     var t = Calc.PPD_THRESHOLDS;
     if (ppd < t.POOR) return I18n.t('sharp.scale.poor');
