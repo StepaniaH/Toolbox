@@ -1,0 +1,6 @@
+{
+  "apps/rate-lens/src/hooks/use-exchange-rate.ts": [
+    "https://open.er-api.com",
+    "https://cdn.jsdelivr.net"
+  ]
+}

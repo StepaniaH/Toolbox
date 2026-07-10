@@ -1,14 +1,22 @@
-import { readFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { readdirSync, readFileSync } from 'node:fs'
+import { dirname, extname, resolve, sep } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
+const root = fileURLToPath(new URL('../', import.meta.url))
 const failures = []
 
 function read(path) {
-  return readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
+  return readFileSync(resolve(root, path), 'utf8')
+}
+
+function fail(category, file, message) {
+  failures.push(`${category}: ${file}${message ? ` (${message})` : ''}`)
 }
 
 function requireIdentical(canonicalPath, copyPath) {
   if (read(canonicalPath) !== read(copyPath)) {
-    failures.push(`shared-copy-drift: ${copyPath} differs from ${canonicalPath}`)
+    fail('shared-copy-drift', copyPath, `differs from ${canonicalPath}`)
   }
 }
 
@@ -21,23 +29,31 @@ function ruleBody(css, selector) {
   return css.slice(open + 1, close)
 }
 
+function trackedFiles(path) {
+  return execFileSync('git', ['ls-files', '-z', path])
+    .toString('utf8')
+    .split('\0')
+    .filter(Boolean)
+}
+
+// ── Nav interaction and deploy-copy contract ─────────────
 const navCss = read('packages/nav/nav-bar.css')
 const actionBase = ruleBody(navCss, '.toolbox-nav-icon-btn')
 const actionHover = ruleBody(navCss, '.toolbox-nav-icon-btn:hover')
 const actionFocus = ruleBody(navCss, '.toolbox-nav-icon-btn:focus-visible')
 
 if (!actionBase || /outline\s*:\s*(?:none|0)\b/.test(actionBase)) {
-  failures.push('nav-focus-contract: base icon action must not suppress outlines')
+  fail('nav-focus-contract', 'packages/nav/nav-bar.css', 'base action suppresses outlines')
 }
 if (!actionHover || /background(?:-color)?\s*:/.test(actionHover)) {
-  failures.push('nav-hover-contract: language/theme hover must not draw a background box')
+  fail('nav-hover-contract', 'packages/nav/nav-bar.css', 'hover draws a background box')
 }
 if (
   !actionFocus ||
   !/outline\s*:\s*2px\s+solid\s+var\(--ctp-blue\)/.test(actionFocus) ||
   /outline\s*:\s*(?:none|0)\b/.test(actionFocus)
 ) {
-  failures.push('nav-focus-contract: focus-visible must provide a 2px blue outline')
+  fail('nav-focus-contract', 'packages/nav/nav-bar.css', 'focus-visible lacks the 2px blue outline')
 }
 
 for (const app of ['homepage', 'monitor-choice']) {
@@ -45,10 +61,152 @@ for (const app of ['homepage', 'monitor-choice']) {
   requireIdentical('packages/nav/nav-bar.js', `apps/${app}/nav-bar.js`)
 }
 
+// ── App isolation, package and base-path contract ─────────
+const appIds = readdirSync(resolve(root, 'apps'), { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && !entry.name.startsWith('_'))
+  .map((entry) => entry.name)
+  .sort()
+const appIdSet = new Set(appIds)
+const legacyStaticApps = new Set(['homepage', 'monitor-choice'])
+const legacyThemeMigration = new Set(['chrono-sphere', 'rate-lens', 'sane-units'])
+const requiredPlatformPackages = ['@toolbox/i18n', '@toolbox/nav', '@toolbox/theme']
+
+for (const appId of appIds) {
+  const packagePath = `apps/${appId}/package.json`
+  let manifest
+  try {
+    manifest = JSON.parse(read(packagePath))
+  } catch {
+    if (!legacyStaticApps.has(appId)) {
+      fail('app-package-contract', packagePath, 'new apps require a workspace package')
+    }
+    continue
+  }
+
+  if (manifest.name !== `@toolbox/${appId}`) {
+    fail('app-package-contract', packagePath, 'package name must match the app directory')
+  }
+  for (const script of ['build', 'test', 'lint']) {
+    if (typeof manifest.scripts?.[script] !== 'string') {
+      fail('app-package-contract', packagePath, `missing ${script} script`)
+    }
+  }
+
+  const dependencies = { ...manifest.dependencies, ...manifest.devDependencies }
+  for (const otherApp of appIds) {
+    if (otherApp !== appId && dependencies[`@toolbox/${otherApp}`]) {
+      fail('cross-app-dependency', packagePath, `depends on app ${otherApp}`)
+    }
+  }
+  for (const platformPackage of requiredPlatformPackages) {
+    if (!dependencies[platformPackage]) {
+      if (platformPackage === '@toolbox/theme' && legacyThemeMigration.has(appId)) continue
+      fail('platform-dependency', packagePath, `missing ${platformPackage}`)
+    }
+  }
+
+  const viteConfig = readdirSync(resolve(root, `apps/${appId}`))
+    .find((name) => /^vite\.config\.(?:js|mjs|ts)$/.test(name))
+  if (!viteConfig) {
+    fail('app-base-contract', `apps/${appId}`, 'missing Vite config')
+  } else {
+    const config = read(`apps/${appId}/${viteConfig}`)
+    const expectedBase = `/${appId}/`
+    if (!config.includes(`'${expectedBase}'`) && !config.includes(`"${expectedBase}"`)) {
+      fail('app-base-contract', `apps/${appId}/${viteConfig}`, `missing ${expectedBase}`)
+    }
+    const outDir = /outDir\s*:\s*['"]([^'"]+)['"]/.exec(config)?.[1]
+    if (outDir && outDir !== 'dist') {
+      fail('app-output-contract', `apps/${appId}/${viteConfig}`, 'build output must remain dist')
+    }
+  }
+}
+
+const appFiles = trackedFiles('apps')
+const sourceExtensions = new Set(['.css', '.js', '.jsx', '.ts', '.tsx'])
+const importPattern = /(?:\bfrom\s*|\bimport\s*(?:\(\s*)?|\brequire\s*\(|@import\s*(?:url\(\s*)?)\s*['"]([^'"]+)['"]/g
+
+for (const file of appFiles) {
+  if (!sourceExtensions.has(extname(file))) continue
+  const currentApp = file.split('/')[1]
+  const content = read(file)
+
+  for (const match of content.matchAll(importPattern)) {
+    const specifier = match[1]
+    if (specifier.startsWith('.')) {
+      const target = resolve(root, dirname(file), specifier)
+      const appsRoot = `${resolve(root, 'apps')}${sep}`
+      if (target.startsWith(appsRoot)) {
+        const relativeTarget = target.slice(appsRoot.length)
+        const targetApp = relativeTarget.split(sep)[0]
+        if (targetApp && targetApp !== currentApp) {
+          fail('cross-app-import', file, `imports app ${targetApp}`)
+        }
+      }
+    }
+
+    const toolboxPackage = /^@toolbox\/([^/]+)$/.exec(specifier)?.[1]
+    if (toolboxPackage && appIdSet.has(toolboxPackage) && toolboxPackage !== currentApp) {
+      fail('cross-app-import', file, `imports app package ${toolboxPackage}`)
+    }
+  }
+}
+
+// ── Runtime network allowlist ─────────────────────────────
+const externalOrigins = JSON.parse(read('config/external-origins.json'))
+const networkApiPattern = /\b(?:fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon)\b/
+const absoluteUrlPattern = /https?:\/\/[^\s'"`<>]+/g
+
+for (const file of appFiles) {
+  if (!sourceExtensions.has(extname(file)) || file.includes('/__tests__/')) continue
+  const content = read(file)
+  if (!networkApiPattern.test(content)) continue
+
+  const absoluteUrls = [...content.matchAll(absoluteUrlPattern)].map((match) => match[0])
+  const allowed = new Set(externalOrigins[file] ?? [])
+  const hasRelativeFetch = /\bfetch\s*\(\s*['"](?:\/[^/]|\.\.?\/)/.test(content)
+
+  if (allowed.size === 0 && !hasRelativeFetch) {
+    fail('runtime-network-contract', file, 'external or dynamic network access is not allowlisted')
+    continue
+  }
+
+  for (const value of absoluteUrls) {
+    let origin
+    try {
+      origin = new URL(value).origin
+    } catch {
+      fail('runtime-network-contract', file, 'contains an invalid absolute URL')
+      continue
+    }
+    if (!allowed.has(origin)) {
+      fail('runtime-network-contract', file, 'contains an origin outside its allowlist')
+    }
+  }
+
+  for (const origin of allowed) {
+    if (!absoluteUrls.some((value) => {
+      try {
+        return new URL(value).origin === origin
+      } catch {
+        return false
+      }
+    })) {
+      fail('runtime-network-contract', file, 'contains a stale allowlist origin')
+    }
+  }
+}
+
+for (const file of Object.keys(externalOrigins)) {
+  if (!appFiles.includes(file)) {
+    fail('runtime-network-contract', file, 'allowlist references a missing source file')
+  }
+}
+
 if (failures.length > 0) {
   console.error('[contracts] Contract violations:')
-  for (const failure of failures) console.error(`[contracts] ${failure}`)
+  for (const failure of failures.sort()) console.error(`[contracts] ${failure}`)
   process.exitCode = 1
 } else {
-  console.log('[contracts] Nav interaction and static-copy contracts passed.')
+  console.log(`[contracts] Passed app isolation, base-path, network and NavBar contracts for ${appIds.length} apps.`)
 }

@@ -85,7 +85,7 @@ Toolbox/
 | `pnpm test` | 通过 | 914 tests；静态工具未覆盖 |
 | `pnpm lint` | 通过 | SaneUnits 有 3 条 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
-| `pnpm check:contracts` | 通过 | Nav hover/focus 契约与静态副本一致性通过 |
+| `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、网络 allowlist、Nav 状态与静态副本通过 |
 
 当前最明显的质量缺口：
 

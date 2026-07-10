@@ -136,6 +136,8 @@ pnpm check:privacy
 - 未经维护者确认公开的邮箱、日志、截图元数据和调试转储。
 - 新增外部 URL、fetch、第三方脚本和远端字体。
 
+任何获准的运行时外部请求还必须登记在 `config/external-origins.json`；未登记或已失效的来源会被 `pnpm check:contracts` 拒绝。
+
 提交邮箱可以是 GitHub noreply，也可以是维护者明确作为公开身份使用的 GitHub 邮箱；不得意外使用私人或工作邮箱。既有已发布历史的改写会改变 SHA，只能在维护者明确批准后执行。
 
 ### Commit 格式

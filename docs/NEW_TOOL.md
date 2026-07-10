@@ -135,6 +135,8 @@ React 工具建议提供顶层 Error Boundary；所有工具都要对非法 URL 
 
 禁止提交：`.env`、公网/内网 IP、真实端口、主机名、SSH 配置、Token、个人邮箱、设备绝对路径、生产日志和浏览器存储转储。
 
+获准的运行时来源登记在 `config/external-origins.json`，按“源文件 → origin 列表”最小授权。动态或未登记的外部访问会被 `pnpm check:contracts` 拒绝。
+
 ## 七、最小测试包
 
 新工具至少包含：
