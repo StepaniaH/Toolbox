@@ -161,6 +161,7 @@
 ### P2.3 · 逐个应用接入 `@toolbox/theme` `🔄 进行中`
 
 - [x] 冻结 `@toolbox/theme` v1 模式、storage、DOM 与语义 token 契约，并补 CSS/runtime/pre-paint 包级测试。
+- [x] ChronoSphere 先接入 v1 runtime 契约，消除 storage key、DOM 属性、默认值与 dark/light 校验的重复定义；保留 app 级 `system` 模式和现有 CSS。
 - [ ] 选一个代表性 React 工具试点，确保无视觉回归。
 - [ ] 每次只迁移一个工具并保留 app-specific token 映射层。
 - [ ] React 工具完成后再迁移两个静态工具。

@@ -17,6 +17,7 @@
   "dependencies": {
     "@toolbox/i18n": "workspace:*",
     "@toolbox/nav": "workspace:*",
+    "@toolbox/theme": "workspace:*",
     "lucide-react": "^1.17.0",
     "lunar-javascript": "^1.7.7",
     "luxon": "^3.7.2",

@@ -58,6 +58,9 @@ importers:
       '@toolbox/nav':
         specifier: workspace:*
         version: link:../../packages/nav
+      '@toolbox/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
       lucide-react:
         specifier: ^1.17.0
         version: 1.23.0(react@19.2.7)

@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
+  DEFAULT_THEME,
+  THEME_ATTRIBUTE,
+  THEME_CONTRACT_VERSION,
+  THEME_STORAGE_KEY as CONTRACT_THEME_STORAGE_KEY,
+} from '@toolbox/theme/contract';
+import {
   readStoredTheme,
   getSystemTheme,
   THEME_STORAGE_KEY,
@@ -115,8 +121,11 @@ describe('getSystemTheme — 系统主题解析', () => {
 });
 
 describe('storage key stability', () => {
-  it('exposes a stable, namespaced theme storage key', () => {
-    expect(THEME_STORAGE_KEY).toBe('toolbox-theme');
+  it('consumes the shared v1 theme contract without changing legacy fallback', () => {
+    expect(THEME_CONTRACT_VERSION).toBe(1);
+    expect(THEME_STORAGE_KEY).toBe(CONTRACT_THEME_STORAGE_KEY);
+    expect(DEFAULT_THEME).toBe('dark');
+    expect(THEME_ATTRIBUTE).toBe('data-theme');
     expect(LEGACY_THEME_STORAGE_KEY).toBe('chrono-sphere.theme');
   });
 });
