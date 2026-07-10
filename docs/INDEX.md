@@ -20,12 +20,12 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | 工具 | 路径 | 技术栈 | 主要职责 | 自动化测试 |
 |------|------|--------|----------|:----------:|
 | Homepage | `/` | HTML + CSS + Vanilla JS | 工具目录与项目入口 | 暂无 |
-| RateLens | `/rate-lens/` | React + TypeScript + Vite + Tailwind | AI 模型价格倍率计算 | 55 |
+| RateLens | `/rate-lens/` | React + TypeScript + Vite + Tailwind | AI 模型价格倍率计算 | 59 |
 | ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 843 |
 | Monitor Choice | `/monitor-choice/` | HTML + CSS + Vanilla JS + Canvas | 显示器参数实验室 | 暂无 |
 | SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 12 |
 
-测试数量是 2026-07-10 的基线，只用于说明覆盖现状，不作为质量本身的替代指标。
+测试数量是 2026-07-10 当前 `dev` 的基线，只用于说明覆盖现状，不作为质量本身的替代指标。`v0.1` 发布时为 910 条，当前为 914 条。
 
 ## 三、仓库结构
 
@@ -77,19 +77,19 @@ Toolbox/
 
 ## 五、质量基线
 
-2026-07-10 在 `dev`（与 `v0.1` 同起点）完成基线验证：
+2026-07-10 在当前 `dev` 完成基线验证：
 
 | 检查 | 结果 | 备注 |
 |------|------|------|
 | `pnpm build` | 通过 | 3 个 Vite 应用构建成功 |
-| `pnpm test` | 通过 | 910 tests；静态工具未覆盖 |
+| `pnpm test` | 通过 | 914 tests；静态工具未覆盖 |
 | `pnpm lint` | 通过 | SaneUnits 有 3 条 warning |
 | 内容型敏感信息扫描 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP | 仍需在每次提交前复查 staged diff |
 
 当前最明显的质量缺口：
 
 - Homepage 与 Monitor Choice 不属于 workspace package，根命令不会构建、测试或 lint 它们。
-- RateLens 会在页面加载时自动访问第三方汇率服务，与“完全本地、零第三方访问”的对外表述不一致。
+- RateLens 默认使用本地参考汇率；实时汇率只在用户主动操作后访问已披露的第三方服务。
 - SaneUnits 在共享导航之外保留了第二套主题/语言控件，页面骨架和其他工具差异最大。
 - 多个应用仍保留 `package-lock.json`，与根 `pnpm-lock.yaml` 形成双锁文件来源。
 
@@ -97,7 +97,7 @@ Toolbox/
 
 ## 六、隐私边界
 
-允许公开的内容：项目公开域名、公开仓库地址、开源作者署名、通用部署示例。
+允许公开的内容：项目公开域名、公开仓库地址、开源作者署名、维护者确认公开的 GitHub 提交邮箱、通用部署示例。
 
 禁止进入仓库或 Git 历史的内容：真实服务器 IP/端口、内网域名、VPN 地址、SSH 信息、真实部署路径、密钥、Token、私有邮箱、个人设备路径和调试转储。
 

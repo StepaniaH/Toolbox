@@ -11,6 +11,22 @@ export interface ExchangeRateState {
 
 export type RateFetcher = () => Promise<number>
 
+const RATE_REQUEST_TIMEOUT_MS = 8_000
+
+async function fetchWithTimeout(url: string): Promise<Response> {
+  const controller = new AbortController()
+  const timeout = globalThis.setTimeout(
+    () => controller.abort(),
+    RATE_REQUEST_TIMEOUT_MS,
+  )
+
+  try {
+    return await fetch(url, { signal: controller.signal })
+  } finally {
+    globalThis.clearTimeout(timeout)
+  }
+}
+
 /** 默认多端点 fallback: open.er-api → fawazahmed0 CDN. */
 export const defaultRateFetcher: RateFetcher = async () => {
   const endpoints: Array<{ url: string; pick: (j: unknown) => number }> = [
@@ -27,7 +43,7 @@ export const defaultRateFetcher: RateFetcher = async () => {
   let lastErr: unknown
   for (const ep of endpoints) {
     try {
-      const res = await fetch(ep.url)
+      const res = await fetchWithTimeout(ep.url)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const json = await res.json()
       const v = ep.pick(json)
@@ -41,7 +57,8 @@ export const defaultRateFetcher: RateFetcher = async () => {
 }
 
 /**
- * 自动获取 USD→CNY 汇率 + 手动覆盖 + 多 API fallback.
+ * 默认使用本地参考汇率。只有调用 `refetch()` 时才会主动访问第三方，
+ * 同时保留手动覆盖与多端点 fallback。
  *
  * ⚠️ `defaultRate` 通过 ref 读取, 不进入 effect 依赖, 避免重取循环.
  */
@@ -50,13 +67,13 @@ export function useExchangeRate(
   fetcher: RateFetcher = defaultRateFetcher,
 ): ExchangeRateState & {
   setManual: (n: number) => void
-  refetch: () => void
+  refetch: () => Promise<void>
 } {
   const [state, setState] = useState<ExchangeRateState>({
-    rate: null,
-    loading: true,
+    rate: defaultRate,
+    loading: false,
     error: null,
-    source: 'auto',
+    source: 'default',
   })
 
   const defaultRef = useRef(defaultRate)
@@ -64,15 +81,17 @@ export function useExchangeRate(
   const fetcherRef = useRef(fetcher)
   fetcherRef.current = fetcher
   const cancelledRef = useRef(false)
+  const requestIdRef = useRef(0)
 
   const run = useCallback(async () => {
+    const requestId = ++requestIdRef.current
     setState((s) => ({ ...s, loading: true, error: null }))
     try {
       const v = await fetcherRef.current()
-      if (cancelledRef.current) return
+      if (cancelledRef.current || requestId !== requestIdRef.current) return
       setState({ rate: v, loading: false, error: null, source: 'auto' })
     } catch (e) {
-      if (cancelledRef.current) return
+      if (cancelledRef.current || requestId !== requestIdRef.current) return
       setState({
         rate: defaultRef.current,
         loading: false,
@@ -84,19 +103,20 @@ export function useExchangeRate(
 
   useEffect(() => {
     cancelledRef.current = false
-    void run()
     return () => {
       cancelledRef.current = true
+      requestIdRef.current += 1
     }
-  }, [run])
+  }, [])
 
   const setManual = useCallback((n: number) => {
     if (!Number.isFinite(n) || n <= 0) return
+    requestIdRef.current += 1
     setState({ rate: n, loading: false, error: null, source: 'manual' })
   }, [])
 
   const refetch = useCallback(() => {
-    void run()
+    return run()
   }, [run])
 
   return { ...state, setManual, refetch }

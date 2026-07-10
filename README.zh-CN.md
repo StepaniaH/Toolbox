@@ -4,7 +4,7 @@
 
 一个隐私优先的网页工具集合。核心计算在浏览器本地完成——无自有后端、无追踪、无 Cookie。
 
-> 隐私说明：工具不会上传表单输入。RateLens 当前会自动读取第三方公开汇率数据；将其改为用户主动触发并提供纯本地默认流程，已列为 v0.1 后的最高优先级任务。
+> 隐私说明：工具不会上传表单输入。RateLens 默认使用本地参考汇率；只有用户主动点击获取实时汇率时才会访问已披露的第三方公开服务。
 
 **线上**: [tools.s-ark.xyz](https://tools.s-ark.xyz) · **源码**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox)
 

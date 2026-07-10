@@ -76,13 +76,16 @@
     "na": "N/A"
   },
   "exchange": {
-    "sourceAuto": "Auto",
+    "sourceAuto": "Live",
     "sourceManual": "Manual",
-    "sourceDefault": "Default (offline)",
-    "realtime": "Live rate",
+    "sourceDefault": "Local reference",
+    "rateLabel": "USD/CNY rate",
     "confirm": "Confirm",
     "edit": "Edit rate",
-    "refetch": "Refresh"
+    "fetchLive": "Get live rate",
+    "fetching": "Fetching",
+    "networkDisclosure": "Fetching connects to a public third-party rate service (open.er-api.com, with jsDelivr fallback). No form inputs are sent.",
+    "fetchFailed": "The live rate could not be fetched. The local reference rate is still in use."
   },
   "preset": {
     "recharge100arrived100": "Recharge 100 → 100",

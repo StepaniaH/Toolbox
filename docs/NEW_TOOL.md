@@ -189,7 +189,7 @@ pnpm test:smoke
 - [ ] light/dark × zh/en × mobile/desktop 检查通过。
 - [ ] 计算、错误恢复和主流程测试通过。
 - [ ] 无自动第三方访问；如有可选请求，用户主动触发且已披露。
-- [ ] staged diff 与提交身份通过隐私检查。
+- [ ] staged diff 与提交身份通过隐私检查；邮箱属于维护者确认公开的身份。
 - [ ] 全仓 build/test/lint/smoke 通过。
 - [ ] CHANGELOG、README 与 TASKS 状态同步。
 

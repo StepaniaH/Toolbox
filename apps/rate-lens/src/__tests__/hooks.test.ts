@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useLocalStorage } from '@/hooks/use-local-storage'
 import { useTheme } from '@/hooks/use-theme'
+import { useExchangeRate } from '@/hooks/use-exchange-rate'
 
 describe('useLocalStorage', () => {
   beforeEach(() => {
@@ -56,5 +57,70 @@ describe('useTheme', () => {
     act(() => result.current.toggle())
     expect(result.current.theme).toBe('dark')
     expect(localStorage.getItem('ratelens-theme')).toBe('dark')
+  })
+})
+
+describe('useExchangeRate privacy contract', () => {
+  it('starts with the local reference rate and does not call the network fetcher', () => {
+    const fetcher = vi.fn(async () => 7.3)
+    const { result } = renderHook(() => useExchangeRate(7.2, fetcher))
+
+    expect(result.current.rate).toBe(7.2)
+    expect(result.current.loading).toBe(false)
+    expect(result.current.source).toBe('default')
+    expect(fetcher).not.toHaveBeenCalled()
+  })
+
+  it('fetches a live rate only after an explicit refetch action', async () => {
+    let resolveRate!: (rate: number) => void
+    const fetcher = vi.fn(
+      () => new Promise<number>((resolve) => {
+        resolveRate = resolve
+      }),
+    )
+    const { result } = renderHook(() => useExchangeRate(7.2, fetcher))
+    let request!: Promise<void>
+
+    act(() => {
+      request = result.current.refetch()
+    })
+
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    expect(result.current.loading).toBe(true)
+    await act(async () => {
+      resolveRate(7.3)
+      await request
+    })
+    expect(result.current.rate).toBe(7.3)
+    expect(result.current.source).toBe('auto')
+    expect(result.current.error).toBeNull()
+  })
+
+  it('falls back to the local reference rate when an explicit fetch fails', async () => {
+    const fetcher = vi.fn(async () => {
+      throw new Error('offline')
+    })
+    const { result } = renderHook(() => useExchangeRate(7.2, fetcher))
+
+    await act(async () => {
+      await result.current.refetch()
+    })
+
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.rate).toBe(7.2)
+    expect(result.current.source).toBe('default')
+    expect(result.current.error).toBe('offline')
+  })
+
+  it('supports a fully local manual override without calling the fetcher', () => {
+    const fetcher = vi.fn(async () => 7.3)
+    const { result } = renderHook(() => useExchangeRate(7.2, fetcher))
+
+    act(() => result.current.setManual(7.25))
+
+    expect(result.current.rate).toBe(7.25)
+    expect(result.current.source).toBe('manual')
+    expect(result.current.error).toBeNull()
+    expect(fetcher).not.toHaveBeenCalled()
   })
 })

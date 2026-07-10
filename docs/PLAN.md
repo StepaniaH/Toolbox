@@ -47,9 +47,7 @@ Toolbox 要成为可以持续加入新工具的稳定平台，而不是一组碰
 
 | 优先级 | 缺口 | 为什么重要 |
 |:--:|------|--------------|
-| P0 | RateLens 自动访问第三方汇率 API | 对外隐私承诺与真实网络行为不一致 |
 | P0 | 手动部署脚本会尝试切换分支并忽略失败 | 可能从非 `main` 或脏工作区部署 |
-| P0 | Git 提交邮箱不是 noreply | 开源历史会长期暴露提交者邮箱 |
 | P1 | `@toolbox/theme` 存在但没有应用真正依赖 | “统一主题”没有单一事实源 |
 | P1 | 静态应用手工复制 nav/theme 文件 | 共享实现与部署副本会悄悄漂移 |
 | P1 | Homepage / Monitor Choice 不在质量流水线 | 根 build/test/lint 无法发现其回归 |
@@ -133,15 +131,15 @@ type ToolboxApp = {
 - 禁止追踪、广告脚本、指纹、遥测和静默远端字体。
 - CI 增加 secret scan、外部 URL allowlist 与依赖审计。
 - 文档不记录服务器供应商、位置、内部地址、端口和真实路径。
-- Git 使用 noreply 邮箱；提交前扫描 staged diff。历史改写必须单独审批。
+- Git 使用维护者确认公开的身份邮箱或 noreply；提交前扫描 staged diff，避免意外带入私人/工作邮箱。历史改写必须单独审批。
 
 ## 四、演进顺序
 
 ### Phase A — 先建立护栏
 
-- 修正隐私承诺与 RateLens 外部访问行为。
+- 保持 RateLens “默认本地、用户主动获取实时数据”的隐私契约，并用测试防止回归。
 - 加固手动部署脚本：只允许干净的 `main`、只做 fast-forward、绝不静默切分支。
-- 配置 noreply 提交身份，补 secret / URL 扫描。
+- 校验提交身份属于维护者确认公开的邮箱，补 secret / URL 扫描。
 - 将 Homepage 与 Monitor Choice 纳入可执行的 build/lint/smoke 流程。
 - 建立最小跨应用浏览器 smoke，保证现有 v0.1 行为可回归。
 

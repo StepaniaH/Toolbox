@@ -1,10 +1,17 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import App from '@/App'
 import { I18nWrapper } from './i18n-test-utils'
 
 describe('App smoke', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('mounts without crashing and renders key landmarks', () => {
+    const fetchSpy = vi.fn()
+    vi.stubGlobal('fetch', fetchSpy)
+
     render(<App />, { wrapper: I18nWrapper })
     // Header title (heading)
     expect(
@@ -17,5 +24,9 @@ describe('App smoke', () => {
     expect(screen.getByText('名词解释')).toBeInTheDocument()
     // Funding input placeholders (two of them)
     expect(screen.getAllByPlaceholderText('例如 100').length).toBeGreaterThanOrEqual(1)
+    // Initial render must remain fully local; live data is explicit opt-in.
+    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(screen.getByText(/获取时会连接第三方公开汇率服务/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '获取实时汇率' })).toBeInTheDocument()
   })
 })

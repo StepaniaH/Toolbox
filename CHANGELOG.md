@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Privacy
+
+- RateLens now uses a local reference exchange rate by default. Live USD/CNY data is fetched only after an explicit user action, with an on-screen third-party disclosure, timeout, fallback, and manual override.
+
+### Architecture and documentation
+
+- Defined the application-isolation and versioned-platform-contract direction.
+- Added the shared design-system contract and new-tool development playbook.
+- Rebuilt the live task board around post-v0.1 priorities and privacy-safe progress records.
+
 ## v0.1 (2026-07-10)
 
 ### 首个稳定版本
