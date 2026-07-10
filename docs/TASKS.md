@@ -180,10 +180,10 @@
 
 ## P3 — 测试与可维护性
 
-### P3.1 · Monitor Choice 逻辑分层与测试 `⏳ 待开始`
+### P3.1 · Monitor Choice 逻辑分层与测试 `🔄 进行中`
 
-- [ ] 从 7k+ 行静态代码中优先提取 PPI/PPD、距离、带宽等纯函数。
-- [ ] 为边界值、单位、舍入和非法输入补 Vitest。
+- [x] PPI/PPD、距离、FOV、带宽与桌深逻辑集中到 `calc.js`，并提供 ESM named exports；现有 Tab 继续通过 `window.Calc` 兼容桥运行。
+- [x] 用独立 Node tests 覆盖主要边界、厘米/英寸和十进制 Gbps 公式；正常输入公式未改变。
 - [ ] 为 5 个 tab 与 Canvas 初始化增加浏览器 smoke。
 - [ ] Canvas 提供可读的文本结果或摘要。
 

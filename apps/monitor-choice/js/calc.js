@@ -1,9 +1,8 @@
 /**
  * calc.js — Pure display-optics calculation functions.
- * Zero DOM dependencies. Attaches to window.Calc.
+ * Zero DOM dependencies. Exports ESM functions and keeps window.Calc as a
+ * compatibility bridge for the existing tab controllers.
  */
-(function () {
-  'use strict';
 
   /**
    * Clamp a value between min and max (inclusive).
@@ -167,18 +166,35 @@
     };
   }
 
-  window.Calc = {
-    clamp: clamp,
-    PPD_THRESHOLDS: PPD_THRESHOLDS,
-    computePPI: computePPI,
-    computePPD: computePPD,
-    computeRetinaDistance: computeRetinaDistance,
-    resolveDimensions: resolveDimensions,
-    computeHorizontalFOV: computeHorizontalFOV,
-    computeTHXDistance: computeTHXDistance,
-    computeSMPTERange: computeSMPTERange,
-    computeTextComfort: computeTextComfort,
-    computeInterfaceBandwidth: computeInterfaceBandwidth,
-    computeDeskConstraint: computeDeskConstraint
-  };
-})();
+var Calc = {
+  clamp: clamp,
+  PPD_THRESHOLDS: PPD_THRESHOLDS,
+  computePPI: computePPI,
+  computePPD: computePPD,
+  computeRetinaDistance: computeRetinaDistance,
+  resolveDimensions: resolveDimensions,
+  computeHorizontalFOV: computeHorizontalFOV,
+  computeTHXDistance: computeTHXDistance,
+  computeSMPTERange: computeSMPTERange,
+  computeTextComfort: computeTextComfort,
+  computeInterfaceBandwidth: computeInterfaceBandwidth,
+  computeDeskConstraint: computeDeskConstraint
+};
+
+if (typeof window !== 'undefined') window.Calc = Calc;
+
+export {
+  clamp,
+  PPD_THRESHOLDS,
+  computePPI,
+  computePPD,
+  computeRetinaDistance,
+  resolveDimensions,
+  computeHorizontalFOV,
+  computeTHXDistance,
+  computeSMPTERange,
+  computeTextComfort,
+  computeInterfaceBandwidth,
+  computeDeskConstraint
+};
+export default Calc;

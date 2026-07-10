@@ -1,6 +1,6 @@
 # Monitor Choice — 当前架构
 
-> 最后核对：2026-07-10 · Vite workspace 迁移完成
+> 最后核对：2026-07-11 · Vite workspace 迁移完成
 
 ## 加载顺序与全局依赖
 
@@ -15,7 +15,7 @@
 | 5 | `js/i18n-zh.js` | (mutates I18n.translations.zh) | 中文翻译 |
 | 6 | `js/i18n-en.js` | (mutates I18n.translations.en) | 英文翻译 |
 | 7 | `js/constants.js` | `window.Constants` | 静态参考数据 (分辨率、色域、面板类型) |
-| 8 | `js/calc.js` | `window.Calc` | 纯数学函数 (PPI/PPD/FOV/THX/SMPTE) |
+| 8 | `js/calc.js` | ESM exports + `window.Calc` 兼容桥 | 纯数学函数 (PPI/PPD/FOV/THX/SMPTE) |
 | 9 | `js/state.js` | `window.AppState` | 响应式状态 + localStorage |
 | 10 | `js/data-scenarios.js` | `window.Scenarios` | 场景数据 |
 | 11 | `js/data-panels.js` | `window.PanelGuideData` | 面板百科数据 |
@@ -116,7 +116,7 @@ graph TD
 - **i18n.js** — i18n 引擎。暴露 `window.I18n` (t/setLocale/getLocale/onChange/init/refreshDOM)。遍历 DOM 中 `data-i18n` 属性并由共享 core 驱动，使用全局 `toolbox-lang`。
 - **i18n-zh.js / i18n-en.js** — 翻译数据，填充 `window.I18n.translations.{zh,en}`。
 - **constants.js** — 静态参考数据：分辨率列表、宽高比、CIE 1931 光谱轨迹、面板类型、接口带宽阈值。零 DOM 依赖。
-- **calc.js** — 纯数学函数：`computePPI`, `computePPD`, `computeRetinaDistance`, `resolveDimensions`, `computeHorizontalFOV`, `computeTHXDistance`, `computeSMPTERange`, `computeInterfaceBandwidth`, `computeDeskConstraint`。**100% 纯函数，所有 Tab 共用**。
+- **calc.js** — 纯数学函数：`computePPI`, `computePPD`, `computeRetinaDistance`, `resolveDimensions`, `computeHorizontalFOV`, `computeTHXDistance`, `computeSMPTERange`, `computeInterfaceBandwidth`, `computeDeskConstraint`。提供 named ESM exports，并保留 `window.Calc` 兼容桥供现有 Tab 使用。
 - **state.js** — 响应式状态存储。暴露 `window.AppState` (get/set/batch/onChange/savePreferences/loadPreferences)。6 个持久化 key: `distance`, `size`, `resolution`, `workPercentage`, `mediaPercentage`, `deskDepth`。Pub/sub 模式。
 
 ### 数据
@@ -162,9 +162,9 @@ graph TD
 
 ## ES Modules 状态
 
-当前采用低风险的过渡结构：Vite 负责依赖图、hashed assets、base path 和 CI，业务文件仍用原 IIFE API。这样先消除源码直部署和共享副本，不在同一阶段重写 Canvas 生命周期。
+当前采用低风险的过渡结构：Vite 负责依赖图、hashed assets、base path 和 CI；`calc.js` 已成为显式 ESM，其他业务文件仍用原 IIFE API。这样可以逐个建立测试边界，不在同一阶段重写 Canvas 生命周期。
 
-后续只有在测试边界足够时再逐步把 `Calc`、`AppState`、数据和 Tab 控制器改为显式 exports；不要求一次性移除全部全局变量。
+后续只有在测试边界足够时再逐步把 `AppState`、数据和 Tab 控制器改为显式 exports；不要求一次性移除全部全局变量。`window.Calc` 要等所有 Tab 改用 import 后再删除。
 
 ### 关键风险
 
@@ -180,5 +180,5 @@ graph TD
 | workspace 共享依赖 | theme / nav / i18n |
 | 全局变量 | 14 |
 | 纯函数可提测 | ~25 个 |
-| 自动化测试 | 8（构建/契约 + 核心计算） |
+| 自动化测试 | 16（构建/契约 + 纯计算 + 兼容桥 + storage） |
 | 生产输出 | `dist/`，base `/monitor-choice/` |

@@ -80,25 +80,12 @@ Object.defineProperty(globalThis, 'localStorage', {
   configurable: true,
 })
 globalThis.window = globalThis
-await import('../js/calc.js?node-test')
+const { default: compatibilityCalc } = await import('../js/calc.js?compatibility-test')
 await import('../js/state.js?node-test')
 
-test('4K at 32 inches has the expected pixel density', () => {
-  assert.ok(Math.abs(window.Calc.computePPI(3840, 2160, 32) - 137.68) < 0.01)
-})
-
-test('invalid diagonal returns zero PPI', () => {
-  assert.equal(window.Calc.computePPI(3840, 2160, 0), 0)
-})
-
-test('16:9 dimensions preserve the requested diagonal', () => {
-  const dimensions = window.Calc.resolveDimensions(32, '16:9')
-  const diagonal = Math.hypot(dimensions.widthCm, dimensions.heightCm) / 2.54
-  assert.ok(Math.abs(diagonal - 32) < 1e-10)
-})
-
-test('interface bandwidth calculation uses decimal Gbps', () => {
-  assert.equal(window.Calc.computeInterfaceBandwidth(3840, 2160, 60, 10), 4.97664)
+test('calculation ESM keeps the legacy window bridge for existing tabs', () => {
+  assert.equal(window.Calc, compatibilityCalc)
+  assert.equal(typeof window.Calc.computePPI, 'function')
 })
 
 test('preferences use the namespaced key and read legacy saved data', () => {
