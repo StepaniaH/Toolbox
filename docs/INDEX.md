@@ -89,7 +89,6 @@ Toolbox/
 当前最明显的质量缺口：
 
 - Homepage 与 Monitor Choice 不属于 workspace package，根命令不会构建、测试或 lint 它们。
-- RateLens 默认使用本地参考汇率；实时汇率只在用户主动操作后访问已披露的第三方服务。
 - SaneUnits 在共享导航之外保留了第二套主题/语言控件，页面骨架和其他工具差异最大。
 - 多个应用仍保留 `package-lock.json`，与根 `pnpm-lock.yaml` 形成双锁文件来源。
 

@@ -6,6 +6,11 @@
 
 - RateLens now uses a local reference exchange rate by default. Live USD/CNY data is fetched only after an explicit user action, with an on-screen third-party disclosure, timeout, fallback, and manual override.
 
+### Deployment safety
+
+- Manual deployment now refuses non-`main`, detached, dirty, diverged, or non-fast-forward states instead of silently switching branches.
+- Sanitized `deploy/.env.example` to use placeholders only; host, port, and remote path remain exclusively in ignored local configuration or CI secrets.
+
 ### Architecture and documentation
 
 - Defined the application-isolation and versioned-platform-contract direction.
