@@ -121,13 +121,14 @@
 - [x] manifest 只允许公开产品字段，不包含主机、部署或环境数据。
 - [x] 删除三处手工维护工具列表的流程，并由 `check:contracts` 校验目录、路径与消费者。
 
-### P1.5 · 统一依赖事实源 `🔄 进行中`
+### P1.5 · 统一依赖事实源 `✅ 已完成`
 
 - [x] 所有 app 只使用 pnpm workspace 与根 `pnpm-lock.yaml`。
 - [x] 删除 3 个 app 级 `package-lock.json`，更新仍在维护的 README/计划命令。
 - [x] `check:contracts` 阻止 app 下重新加入 npm/yarn 锁文件。
-- [ ] 校准 React/Vite/Vitest/TypeScript 版本策略，避免无意的多版本组合。
-- [ ] 记录依赖升级与平台升级的回滚方式。
+- [x] 用 pnpm catalog 集中 React/Vite/Vitest/TypeScript 版本；保留已验证的 Vite 6 稳定线和 Vite 7/8 显式迁移线，迁移未改变实际解析版本。
+- [x] [DEPENDENCIES.md](./DEPENDENCIES.md) 记录依赖/平台升级、锁文件审查与发布前后回滚方式。
+- [x] `check:contracts` 拒绝受控工具链绕过 catalog 或组合不匹配。
 
 ---
 

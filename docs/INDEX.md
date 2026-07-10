@@ -47,6 +47,7 @@ Toolbox/
 ├── .github/workflows/    # CI 与 main 部署流程
 ├── package.json
 ├── pnpm-workspace.yaml
+├── pnpm-lock.yaml
 └── turbo.json
 ```
 
@@ -57,6 +58,7 @@ Toolbox/
 - 五个工具都由 Vite 独立构建，分别输出自己的 `dist/`；Vanilla 与 React 应用使用同一质量流水线。
 - 工具之间没有 `apps/* → apps/*` 依赖，这是当前最重要的稳定性边界。
 - 同一域名下使用路径路由；各应用必须正确设置自己的生产 `base`。
+- 受控工具链版本集中在 `pnpm-workspace.yaml` catalog；当前保留 Vite 6 稳定线与 Vite 7/8 显式迁移线，完整解析结果只由根锁文件记录。
 
 ### 共享能力的真实接入状态
 
@@ -86,7 +88,7 @@ Toolbox/
 | `pnpm test` | 通过 | 942 tests；数量不等同于覆盖率 |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
-| `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、唯一锁文件、网络 allowlist 与 Nav 状态通过 |
+| `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |
 
 当前最明显的质量缺口：
 
@@ -128,5 +130,6 @@ pnpm --filter=@toolbox/rate-lens test
 | [PLAN.md](./PLAN.md) | 当前判断、目标架构、ADR 与演进顺序 |
 | [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | 主题、语言、导航和交互的规范性契约 |
 | [NEW_TOOL.md](./NEW_TOOL.md) | “积木式”新增工具的开发手册 |
+| [DEPENDENCIES.md](./DEPENDENCIES.md) | 工具链 catalog、升级边界与回滚方式 |
 | [TASKS.md](./TASKS.md) | 当前可执行任务与进度 |
 | [../CHANGELOG.md](../CHANGELOG.md) | 已发布版本的结果记录 |

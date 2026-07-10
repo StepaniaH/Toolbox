@@ -4,8 +4,43 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@vitejs/plugin-react':
+      specifier: 5.0.4
+      version: 5.0.4
+    react:
+      specifier: 19.2.7
+      version: 19.2.7
+    react-dom:
+      specifier: 19.2.7
+      version: 19.2.7
+    typescript:
+      specifier: 5.9.3
+      version: 5.9.3
+    vite:
+      specifier: 6.4.2
+      version: 6.4.2
+  vite7:
+    '@vitejs/plugin-react':
+      specifier: 4.7.0
+      version: 4.7.0
+    vite:
+      specifier: 7.3.6
+      version: 7.3.6
+  vite8:
+    '@vitejs/plugin-react':
+      specifier: 6.0.3
+      version: 6.0.3
+    typescript:
+      specifier: 6.0.3
+      version: 6.0.3
+    vite:
+      specifier: 8.1.3
+      version: 8.1.3
+
 overrides:
-  vitest: ^3.2.4
+  vitest: 3.2.7
 
 importers:
 
@@ -33,10 +68,10 @@ importers:
         specifier: ^3.7.2
         version: 3.7.2
       react:
-        specifier: ^19.2.6
+        specifier: 'catalog:'
         version: 19.2.7
       react-dom:
-        specifier: ^19.2.6
+        specifier: 'catalog:'
         version: 19.2.7(react@19.2.7)
     devDependencies:
       '@eslint/js':
@@ -55,7 +90,7 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.17)
       '@vitejs/plugin-react':
-        specifier: ^6.0.1
+        specifier: catalog:vite8
         version: 6.0.3(vite@8.1.3(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0))
       eslint:
         specifier: ^10.3.0
@@ -70,16 +105,16 @@ importers:
         specifier: ^17.6.0
         version: 17.7.0
       typescript:
-        specifier: ~6.0.2
+        specifier: catalog:vite8
         version: 6.0.3
       typescript-eslint:
         specifier: ^8.59.2
         version: 8.63.0(eslint@10.6.0(jiti@2.7.0))(typescript@6.0.3)
       vite:
-        specifier: ^8.0.12
+        specifier: catalog:vite8
         version: 8.1.3(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)
       vitest:
-        specifier: ^3.2.4
+        specifier: 3.2.7
         version: 3.2.7(@types/node@24.13.3)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)
 
   apps/homepage:
@@ -101,7 +136,7 @@ importers:
         specifier: ^1.73.0
         version: 1.73.0
       vite:
-        specifier: 6.4.2
+        specifier: 'catalog:'
         version: 6.4.2(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)
 
   apps/monitor-choice:
@@ -120,7 +155,7 @@ importers:
         specifier: ^1.73.0
         version: 1.73.0
       vite:
-        specifier: 6.4.2
+        specifier: 'catalog:'
         version: 6.4.2(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)
 
   apps/rate-lens:
@@ -144,10 +179,10 @@ importers:
         specifier: ^1.6.2
         version: 1.6.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
-        specifier: ^19.2.7
+        specifier: 'catalog:'
         version: 19.2.7
       react-dom:
-        specifier: ^19.2.7
+        specifier: 'catalog:'
         version: 19.2.7(react@19.2.7)
       tailwind-merge:
         specifier: ^2.6.0
@@ -172,7 +207,7 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.17)
       '@vitejs/plugin-react':
-        specifier: ^4.3.4
+        specifier: catalog:vite7
         version: 4.7.0(vite@7.3.6(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0))
       jsdom:
         specifier: ^26.0.0
@@ -184,13 +219,13 @@ importers:
         specifier: ^4.1.0
         version: 4.3.2
       typescript:
-        specifier: ~5.9.2
+        specifier: 'catalog:'
         version: 5.9.3
       vite:
-        specifier: ^7.1.0
+        specifier: catalog:vite7
         version: 7.3.6(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)
       vitest:
-        specifier: ^3.2.4
+        specifier: 3.2.7
         version: 3.2.7(@types/node@24.13.3)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)
 
   apps/sane-units:
@@ -202,19 +237,19 @@ importers:
         specifier: workspace:*
         version: link:../../packages/nav
       '@vitejs/plugin-react':
-        specifier: 5.0.4
+        specifier: 'catalog:'
         version: 5.0.4(vite@6.4.2(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0))
       playwright:
         specifier: ^1.61.0
         version: 1.61.1
       react:
-        specifier: ^19.2.7
+        specifier: 'catalog:'
         version: 19.2.7
       react-dom:
-        specifier: ^19.2.7
+        specifier: 'catalog:'
         version: 19.2.7(react@19.2.7)
       vite:
-        specifier: 6.4.2
+        specifier: 'catalog:'
         version: 6.4.2(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)
     devDependencies:
       '@testing-library/react':
@@ -236,10 +271,10 @@ importers:
         specifier: ^1.73.0
         version: 1.73.0
       typescript:
-        specifier: ^5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^3.2.4
+        specifier: 3.2.7
         version: 3.2.7(@types/node@26.1.1)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)
 
   packages/app-manifest:
@@ -254,10 +289,10 @@ importers:
         specifier: ^19.2.17
         version: 19.2.17
       react:
-        specifier: ^19.2.7
+        specifier: 'catalog:'
         version: 19.2.7
       typescript:
-        specifier: ^5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
 
   packages/nav:
@@ -276,7 +311,7 @@ importers:
         specifier: ^1.73.0
         version: 1.73.0
       react:
-        specifier: ^19.2.7
+        specifier: 'catalog:'
         version: 19.2.7
 
   packages/theme: {}

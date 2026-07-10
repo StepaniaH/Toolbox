@@ -29,6 +29,7 @@
 
 - Removed app-level npm lockfiles; the root `pnpm-lock.yaml` is now the only dependency lock source.
 - Contract checks reject new `package-lock.json` or `yarn.lock` files under `apps/`.
+- Centralized React/Vite/Vitest/TypeScript toolchain versions in pnpm catalogs without changing resolved versions; named Vite 7/8 migration lines and a documented revert-first rollback procedure keep upgrades explicit.
 
 ### Quality
 

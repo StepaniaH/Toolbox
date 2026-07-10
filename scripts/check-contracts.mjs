@@ -182,6 +182,127 @@ if (!existsSync(resolve(root, 'pnpm-lock.yaml'))) {
   fail('dependency-lock-contract', 'pnpm-lock.yaml', 'root lockfile is missing')
 }
 
+// ── shared dependency catalog contract ───────────────────
+const controlledToolchainDependencies = new Set([
+  '@vitejs/plugin-react',
+  'react',
+  'react-dom',
+  'typescript',
+  'vite',
+  'vitest',
+])
+
+function yamlEntry(line, indent) {
+  const prefix = ' '.repeat(indent)
+  if (!line.startsWith(prefix) || line.startsWith(`${prefix} `)) return null
+  const match = /^(?:"([^"]+)"|'([^']+)'|([^:\s]+)):\s*(.*)$/.exec(line.slice(indent))
+  if (!match) return null
+  return { key: match[1] ?? match[2] ?? match[3], value: match[4] }
+}
+
+function parseWorkspaceCatalogs(content) {
+  const catalogs = new Map()
+  let section = null
+  let activeCatalog = null
+
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.replace(/\s+#.*$/, '')
+    if (line === 'catalog:') {
+      section = 'default'
+      activeCatalog = 'default'
+      catalogs.set(activeCatalog, new Set())
+      continue
+    }
+    if (line === 'catalogs:') {
+      section = 'named'
+      activeCatalog = null
+      continue
+    }
+    if (line && !line.startsWith(' ')) {
+      section = null
+      activeCatalog = null
+      continue
+    }
+
+    if (section === 'default') {
+      const entry = yamlEntry(line, 2)
+      if (entry?.value) catalogs.get('default').add(entry.key)
+      continue
+    }
+    if (section !== 'named') continue
+
+    const catalogEntry = yamlEntry(line, 2)
+    if (catalogEntry && !catalogEntry.value) {
+      activeCatalog = catalogEntry.key
+      catalogs.set(activeCatalog, new Set())
+      continue
+    }
+    const dependencyEntry = yamlEntry(line, 4)
+    if (activeCatalog && dependencyEntry?.value) {
+      catalogs.get(activeCatalog).add(dependencyEntry.key)
+    }
+  }
+
+  return catalogs
+}
+
+const workspaceConfig = read('pnpm-workspace.yaml')
+const dependencyCatalogs = parseWorkspaceCatalogs(workspaceConfig)
+const packageFiles = [...appFiles, ...trackedFiles('packages')]
+  .filter((file) => file.endsWith('/package.json'))
+
+if (!workspaceConfig.includes('  vitest: "catalog:"')) {
+  fail('dependency-catalog-contract', 'pnpm-workspace.yaml', 'Vitest override must use the default catalog')
+}
+
+for (const file of packageFiles) {
+  const manifest = JSON.parse(read(file))
+  const catalogReferences = new Map()
+
+  for (const field of ['dependencies', 'devDependencies', 'optionalDependencies']) {
+    for (const [dependency, specifier] of Object.entries(manifest[field] ?? {})) {
+      if (!controlledToolchainDependencies.has(dependency)) continue
+      if (typeof specifier !== 'string' || !/^catalog:(?:[a-zA-Z0-9_-]+)?$/.test(specifier)) {
+        fail(
+          'dependency-catalog-contract',
+          file,
+          `${dependency} must reference pnpm-workspace.yaml through catalog:`,
+        )
+        continue
+      }
+
+      const catalogName = specifier === 'catalog:' ? 'default' : specifier.slice('catalog:'.length)
+      const catalog = dependencyCatalogs.get(catalogName)
+      if (!catalog?.has(dependency)) {
+        fail(
+          'dependency-catalog-contract',
+          file,
+          `${specifier} does not define ${dependency}`,
+        )
+      }
+      if (catalogReferences.has(dependency) && catalogReferences.get(dependency) !== specifier) {
+        fail('dependency-catalog-contract', file, `${dependency} uses multiple catalogs`)
+      }
+      catalogReferences.set(dependency, specifier)
+    }
+  }
+
+  if (
+    catalogReferences.has('react') &&
+    catalogReferences.has('react-dom') &&
+    catalogReferences.get('react') !== catalogReferences.get('react-dom')
+  ) {
+    fail('dependency-catalog-contract', file, 'react and react-dom must use the same catalog')
+  }
+  if (
+    catalogReferences.has('vite') &&
+    catalogReferences.has('@vitejs/plugin-react') &&
+    catalogReferences.get('vite') !== catalogReferences.get('@vitejs/plugin-react')
+  ) {
+    fail('dependency-catalog-contract', file, 'Vite and its React plugin must use the same catalog')
+  }
+}
+
 // ── localStorage namespace contract ──────────────────────
 const globalStorageKeys = new Set(['toolbox-theme', 'toolbox-lang'])
 const legacyStorageKeys = {

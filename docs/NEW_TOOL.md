@@ -40,6 +40,7 @@ acceptance: 3-8 条可验证验收标准
 
 - 优先使用浏览器平台能力和已有依赖。
 - 新依赖必须说明用途、体积、许可证、维护状态和是否发起网络请求。
+- React、Vite、Vitest、TypeScript 与 Vite React plugin 使用根 workspace catalog；新工具默认使用稳定线，不自行新增版本组合。
 - 不因为模板方便就引入后端、数据库、账号或追踪 SDK。
 - 不从其他 `apps/*` 复制业务代码；真正稳定的跨工具能力先经过评审再进入 `packages/*`。
 
@@ -63,6 +64,7 @@ apps/<app-id>/
 - production base：`/<app-id>/`。
 - build output：仅 `apps/<app-id>/dist/`。
 - 依赖只写入 workspace 与根 `pnpm-lock.yaml`，不得生成 app 级 npm/yarn 锁文件。
+- 受控工具链在 `package.json` 中只写 `catalog:`；升级与回滚遵循 [DEPENDENCIES.md](./DEPENDENCIES.md)。
 - 不写仓库外路径，不读取其他工具的源码或构建产物。
 - 私有持久化键：`toolbox.<app-id>.<key>`。
 - 全局主题和语言只能使用 `toolbox-theme` / `toolbox-lang`。

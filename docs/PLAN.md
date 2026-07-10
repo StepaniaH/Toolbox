@@ -199,6 +199,12 @@ type ToolboxApp = {
 
 **理由**：运行时全局更新虽统一，但会让一次平台错误同时破坏所有工具，违背稳定性目标。
 
+### ADR-7：工具链版本使用 catalog 与显式迁移线
+
+**决定**：React、Vite、Vitest、TypeScript 与 Vite React plugin 的版本只在根 `pnpm-workspace.yaml` 定义。默认 catalog 是新工具的稳定线；现存 Vite 7/8 组合用命名 catalog 表示迁移边界。
+
+**理由**：集中版本事实可以防止 package 之间悄悄漂移；命名迁移线允许逐应用收敛，不需要为了表面统一一次性升级所有工具。完整规则与回滚方式见 [DEPENDENCIES.md](./DEPENDENCIES.md)。
+
 ## 六、完成定义
 
 当以下条件同时成立时，才可以说 Toolbox 具备“积木式扩展”能力：
