@@ -1,7 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
+import {
+  DEFAULT_THEME,
+  THEME_ATTRIBUTE,
+  THEME_CONTRACT_VERSION,
+  THEME_STORAGE_KEY,
+} from '@toolbox/theme/contract'
 import { useLocalStorage } from '@/hooks/use-local-storage'
-import { useTheme } from '@/hooks/use-theme'
+import {
+  THEME_STORAGE_KEY as HOOK_THEME_STORAGE_KEY,
+  useTheme,
+} from '@/hooks/use-theme'
 import { useExchangeRate } from '@/hooks/use-exchange-rate'
 
 describe('useLocalStorage', () => {
@@ -66,6 +75,13 @@ describe('useTheme', () => {
     act(() => result.current.toggle())
     expect(result.current.theme).toBe('dark')
     expect(localStorage.getItem('toolbox-theme')).toBe('dark')
+  })
+
+  it('consumes the shared v1 theme contract', () => {
+    expect(THEME_CONTRACT_VERSION).toBe(1)
+    expect(HOOK_THEME_STORAGE_KEY).toBe(THEME_STORAGE_KEY)
+    expect(THEME_ATTRIBUTE).toBe('data-theme')
+    expect(DEFAULT_THEME).toBe('dark')
   })
 
   it('reads the legacy theme key when the shared key is absent', () => {

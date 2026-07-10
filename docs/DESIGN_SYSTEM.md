@@ -207,7 +207,7 @@ App Surface（工具自己拥有）
 
 | 区域 | 差距 | 目标 |
 |------|------|------|
-| Theme | ChronoSphere 已消费 runtime 契约；React 应用仍未消费共享语义 CSS token | 逐个应用迁移到语义 token，并有视觉回归 |
+| Theme | ChronoSphere、RateLens 已消费 runtime 契约；React 应用仍未消费共享语义 CSS token | 逐个应用迁移到语义 token，并有视觉回归 |
 | Homepage / Monitor | 已使用构建期 nav/theme runtime；页面 token 仍各自维护 | 在不改变视觉的前提下逐步改用共享语义 token |
 | SaneUnits | 共享 NavBar 外还有两套响应式偏好控件 | 只保留共享入口，业务导航保持自身特色 |
 | Visual QA | 没有跨主题/语言/视口矩阵 | CI 生成 smoke 截图并做人工/自动审查 |

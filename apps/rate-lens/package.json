@@ -13,6 +13,7 @@
   "dependencies": {
     "@toolbox/i18n": "workspace:*",
     "@toolbox/nav": "workspace:*",
+    "@toolbox/theme": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.460.0",

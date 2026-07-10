@@ -26,6 +26,7 @@
 - Standardized theme persistence on `toolbox-theme` and private state on `toolbox.<app-id>.*`; existing RateLens, ChronoSphere, SaneUnits, and Monitor Choice keys remain readable through explicit migration fallbacks.
 - Froze the `@toolbox/theme` v1 public contract for modes, storage, DOM state, semantic tokens, runtime fallback, and pre-paint behavior; package-level tests now guard it before app-by-app adoption.
 - Moved ChronoSphere theme persistence, DOM state, defaults, and resolved-theme validation onto the shared v1 runtime contract while preserving its app-level system mode and existing visual tokens.
+- Moved RateLens theme persistence, DOM state, defaults, and validation onto the same v1 runtime contract while preserving its legacy pre-paint fallback and Tailwind-specific visual tokens.
 
 ### Dependency governance
 

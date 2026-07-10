@@ -1,24 +1,31 @@
 import { useCallback, useEffect, useState } from 'react'
+import {
+  DEFAULT_THEME,
+  isTheme,
+  THEME_ATTRIBUTE,
+  THEME_STORAGE_KEY,
+} from '@toolbox/theme/contract'
+import type { ToolboxTheme } from '@toolbox/theme/contract'
 
-export type Theme = 'dark' | 'light'
+export type Theme = ToolboxTheme
 
-export const THEME_STORAGE_KEY = 'toolbox-theme'
+export { THEME_STORAGE_KEY }
 export const LEGACY_THEME_STORAGE_KEY = 'ratelens-theme'
 
 function readInitial(): Theme {
-  const attr = document.documentElement.getAttribute('data-theme')
+  const attr = document.documentElement.getAttribute(THEME_ATTRIBUTE)
   try {
     const shared = localStorage.getItem(THEME_STORAGE_KEY)
     const stored = shared ?? localStorage.getItem(LEGACY_THEME_STORAGE_KEY)
-    if (shared === null && (stored === 'light' || stored === 'dark')) {
+    if (shared === null && isTheme(stored)) {
       localStorage.setItem(THEME_STORAGE_KEY, stored)
     }
-    if (stored === 'light' || stored === 'dark') return stored
+    if (isTheme(stored)) return stored
   } catch {
     /* ignore */
   }
-  if (attr === 'light' || attr === 'dark') return attr
-  return 'dark'
+  if (isTheme(attr)) return attr
+  return DEFAULT_THEME
 }
 
 /** Dark/Light 主题切换 + localStorage 持久化. */
@@ -31,11 +38,11 @@ export function useTheme(): {
 
   // 保持 DOM data-theme 属性与 state 同步 (兜底，即使 pre-paint 脚本未执行)
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.setAttribute(THEME_ATTRIBUTE, theme)
   }, [theme])
 
   const apply = useCallback((t: Theme) => {
-    document.documentElement.setAttribute('data-theme', t)
+    document.documentElement.setAttribute(THEME_ATTRIBUTE, t)
     try {
       localStorage.setItem(THEME_STORAGE_KEY, t)
     } catch {
@@ -69,7 +76,7 @@ export function useTheme(): {
       } catch {
         /* ignore */
       }
-      if (stored !== 'light' && stored !== 'dark') {
+      if (!isTheme(stored)) {
         const next: Theme = e.matches ? 'light' : 'dark'
         setThemeState(next)
         apply(next)

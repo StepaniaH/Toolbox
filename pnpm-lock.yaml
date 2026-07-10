@@ -169,6 +169,9 @@ importers:
       '@toolbox/nav':
         specifier: workspace:*
         version: link:../../packages/nav
+      '@toolbox/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
