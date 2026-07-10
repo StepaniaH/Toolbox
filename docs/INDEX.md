@@ -83,7 +83,7 @@ Toolbox/
 |------|------|------|
 | `pnpm build` | 通过 | 3 个 Vite 应用构建成功 |
 | `pnpm test` | 通过 | 914 tests；静态工具未覆盖 |
-| `pnpm lint` | 通过 | SaneUnits 有 3 条 warning |
+| `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 | `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、唯一锁文件、网络 allowlist、Nav 状态与静态副本通过 |
 

@@ -90,8 +90,8 @@
   "preset": {
     "recharge100arrived100": "充值100到账100",
     "recharge100arrived50": "充值100到账50",
-    "rate0.6": "倍率 0.6",
-    "rate1.1": "倍率 1.1"
+    "rate06": "倍率 0.6",
+    "rate11": "倍率 1.1"
   },
   "provider": {
     "ariaLabel": "模型分类"

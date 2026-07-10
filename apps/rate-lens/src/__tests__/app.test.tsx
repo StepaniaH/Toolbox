@@ -24,6 +24,11 @@ describe('App smoke', () => {
     expect(screen.getByText('名词解释')).toBeInTheDocument()
     // Funding input placeholders (two of them)
     expect(screen.getAllByPlaceholderText('例如 100').length).toBeGreaterThanOrEqual(1)
+    // Translation keys may not contain numeric dot segments that leak into the UI.
+    expect(screen.getByRole('button', { name: '倍率 0.6' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '倍率 1.1' })).toBeInTheDocument()
+    expect(screen.queryByText('preset.rate0.6')).not.toBeInTheDocument()
+    expect(screen.queryByText('preset.rate1.1')).not.toBeInTheDocument()
     // Initial render must remain fully local; live data is explicit opt-in.
     expect(fetchSpy).not.toHaveBeenCalled()
     expect(screen.getByText(/获取时会连接第三方公开汇率服务/)).toBeInTheDocument()

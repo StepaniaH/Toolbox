@@ -90,8 +90,8 @@
   "preset": {
     "recharge100arrived100": "Recharge 100 → 100",
     "recharge100arrived50": "Recharge 100 → 50",
-    "rate0.6": "Rate 0.6",
-    "rate1.1": "Rate 1.1"
+    "rate06": "Rate 0.6",
+    "rate11": "Rate 1.1"
   },
   "provider": {
     "ariaLabel": "Model category"

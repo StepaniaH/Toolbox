@@ -1215,8 +1215,8 @@ function useSyncedState(
     const fromStorage = readStoredState(storageKey);
     return {
       ...defaults,
-      ...(fromStorage ?? {}),
-      ...(fromQuery ?? {}),
+      ...fromStorage,
+      ...fromQuery,
     };
   });
 

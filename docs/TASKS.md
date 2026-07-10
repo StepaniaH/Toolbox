@@ -189,12 +189,13 @@
 - [ ] 公开链接使用安全的 `rel` 属性。
 - [ ] 新 app 未标记 stable 时不出现在主入口。
 
-### P3.3 · 清理当前 warning 与测试噪音 `⏳ 待开始`
+### P3.3 · 清理当前 warning 与测试噪音 `🔄 进行中`
 
-- [ ] 修复 SaneUnits 3 条 lint warning。
+- [x] 修复 SaneUnits 3 条 lint warning。
+- [x] 修复 RateLens 倍率预设泄漏原始翻译 key，并补渲染回归断言。
 - [ ] 处理测试中的 Node localStorage ExperimentalWarning。
 - [ ] 根 lint 对 warning 采用明确策略，避免 warning 永久积累。
-- [ ] 记录各 app test 数量时不把数量当覆盖率。
+- [x] 记录各 app test 数量时不把数量当覆盖率。
 
 ### P3.4 · 性能预算 `⏳ 待开始`
 
@@ -248,7 +249,6 @@
 
 - ChronoSphere：核对最大 timezone chunk 的实际首屏加载与缓存表现。
 - RateLens：模型价格硬编码应记录数据更新时间与来源，但不要为更新数据引入隐式追踪。
-- RateLens：倍率预设按钮当前会显示 `preset.rate0.6` / `preset.rate1.1` 原始翻译 key，应改用不含点号的稳定 key 并补渲染测试。
 - Monitor Choice：减少 inline style，逐步建立可测试的渲染/计算边界。
 - SaneUnits：页面内存在大量业务与布局代码集中在 `App.tsx`，设计对齐后再按领域拆分，避免同时动 UI 与计算。
 - 全站：统一 favicon、404、错误页和离线提示，但 PWA/Service Worker 应在路由与缓存失效策略明确后再做。

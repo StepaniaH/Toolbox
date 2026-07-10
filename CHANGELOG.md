@@ -26,6 +26,11 @@
 - Removed app-level npm lockfiles; the root `pnpm-lock.yaml` is now the only dependency lock source.
 - Contract checks reject new `package-lock.json` or `yarn.lock` files under `apps/`.
 
+### Quality
+
+- Fixed RateLens exchange-rate preset labels leaking raw translation keys into the interface; rendering tests now cover both presets.
+- Cleared the existing SaneUnits lint warnings without changing runtime behavior.
+
 ## v0.1 (2026-07-10)
 
 ### 首个稳定版本
