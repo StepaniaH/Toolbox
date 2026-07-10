@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import test from 'node:test'
+import { getStableApps } from '@toolbox/app-manifest'
 
 const appRoot = new URL('../', import.meta.url)
 const read = (path) => readFileSync(new URL(path, appRoot), 'utf8')
@@ -15,13 +16,16 @@ test('homepage keeps its public root shell and secure source link', () => {
 
 test('homepage lists every stable tool path exactly once', () => {
   const main = read('js/main.js')
-  const urls = [...main.matchAll(/url:\s*"([^"]+)"/g)].map((match) => match[1])
-  assert.deepEqual(urls, [
+  const apps = getStableApps().filter((app) => app.path !== '/')
+  assert.deepEqual(apps.map((app) => app.path), [
     '/rate-lens/',
     '/chrono-sphere/',
     '/monitor-choice/',
     '/sane-units/',
   ])
+  const presentationIds = [...main.matchAll(/^  "([a-z0-9-]+)": \{$/gm)]
+    .map((match) => match[1])
+  assert.deepEqual(presentationIds, apps.map((app) => app.id))
 })
 
 test('homepage consumes shared platform packages instead of copied runtimes', () => {

@@ -48,7 +48,6 @@ Toolbox 要成为可以持续加入新工具的稳定平台，而不是一组碰
 | 优先级 | 缺口 | 为什么重要 |
 |:--:|------|--------------|
 | P1 | 三个 React 工具尚未直接依赖 `@toolbox/theme` | “统一主题”仍未完全形成单一事实源 |
-| P1 | 缺少单一 app manifest | 首页和两种 Nav 仍需手工维护工具列表 |
 | P1 | storage key 与重复偏好控件契约尚未自动检查 | 新工具仍可能污染同域偏好状态 |
 | P2 | SaneUnits 有第二套主题/语言控件与独特壳层 | 视觉、行为、偏好入口重复且不一致 |
 
@@ -75,7 +74,7 @@ Toolbox 要成为可以持续加入新工具的稳定平台，而不是一组碰
 | `@toolbox/theme` | 原始色板、语义 token、主题解析、pre-paint | 单个工具的页面样式 |
 | `@toolbox/nav` | 全局导航、语言/主题入口、响应式外壳 | 工具业务导航或业务状态 |
 | `@toolbox/i18n` | 全局语言状态、订阅机制、Provider | 每个工具的所有翻译文案 |
-| app manifest（待建） | app id、路径、名称、简介、可用状态 | React 组件或工具逻辑 |
+| `@toolbox/app-manifest` | app id、路径、名称、简介、可用状态 | React 组件、工具逻辑或部署信息 |
 
 共享包变更必须遵循兼容性规则：
 
@@ -88,23 +87,23 @@ Toolbox 要成为可以持续加入新工具的稳定平台，而不是一组碰
 
 ### 3.3 一个清单描述所有工具
 
-当前工具列表分别存在于 Homepage、React NavBar 和 Vanilla NavBar。新增工具需要多处修改，容易遗漏并扩大回归面。
+`@toolbox/app-manifest` 现在是工具身份、路径、导航短文案与公开状态的唯一来源；Homepage 和两种 NavBar 都从它生成稳定入口。
 
-目标是建立一个可校验的 app manifest，至少包含：
+当前 schema 至少包含：
 
 ```ts
 type ToolboxApp = {
   id: string
   path: `/${string}/` | '/'
   name: string
-  descriptionKey: string
+  description: { zh: string; en: string }
   status: 'stable' | 'preview' | 'hidden'
 }
 ```
 
 - Homepage 与两种 NavBar 都从该清单生成或消费数据。
-- 新工具可先以 `hidden` / `preview` 存在，不影响稳定导航。
-- CI 校验 id、路径、翻译键和目录唯一性。
+- 新工具默认 `hidden`，可显式进入 `preview`，只有 `stable` 出现在主入口。
+- CI 校验 id、路径、状态、目录唯一性与三个消费者。
 - manifest 只描述公开产品信息，不包含部署主机或内部配置。
 
 ### 3.4 设计一致性由契约和测试保证

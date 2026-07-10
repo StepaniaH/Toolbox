@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { basename, dirname, extname, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { APP_STATUSES, TOOLBOX_APPS } from '../packages/app-manifest/manifest.js'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const failures = []
@@ -64,9 +65,59 @@ const appIds = readdirSync(resolve(root, 'apps'), { withFileTypes: true })
   .map((entry) => entry.name)
   .sort()
 const appIdSet = new Set(appIds)
+const manifestById = new Map(TOOLBOX_APPS.map((app) => [app.id, app]))
 const legacyStaticApps = new Set()
 const legacyThemeMigration = new Set(['chrono-sphere', 'rate-lens', 'sane-units'])
 const requiredPlatformPackages = ['@toolbox/i18n', '@toolbox/nav', '@toolbox/theme']
+
+const allowedManifestFields = new Set([
+  'id',
+  'navId',
+  'path',
+  'name',
+  'navLabel',
+  'description',
+  'status',
+])
+for (const app of TOOLBOX_APPS) {
+  if (!appIdSet.has(app.id)) {
+    fail('app-manifest-contract', 'packages/app-manifest/manifest.js', `unknown app ${app.id}`)
+  }
+  const expectedPath = app.id === 'homepage' ? '/' : `/${app.id}/`
+  if (app.path !== expectedPath) {
+    fail('app-manifest-contract', 'packages/app-manifest/manifest.js', `${app.id} must use ${expectedPath}`)
+  }
+  if (!APP_STATUSES.includes(app.status)) {
+    fail('app-manifest-contract', 'packages/app-manifest/manifest.js', `${app.id} has invalid status`)
+  }
+  for (const field of Object.keys(app)) {
+    if (!allowedManifestFields.has(field)) {
+      fail('app-manifest-contract', 'packages/app-manifest/manifest.js', `${app.id} has non-public field ${field}`)
+    }
+  }
+}
+
+for (const appId of appIds) {
+  if (!manifestById.has(appId)) {
+    fail('app-manifest-contract', 'packages/app-manifest/manifest.js', `missing app ${appId}`)
+  }
+}
+
+for (const consumer of [
+  'apps/homepage/js/main.js',
+  'packages/nav/NavBar.tsx',
+  'packages/nav/nav-bar.js',
+]) {
+  const content = read(consumer)
+  if (!content.includes('@toolbox/app-manifest')) {
+    fail('app-manifest-consumer', consumer, 'must consume the canonical manifest')
+  }
+  for (const app of TOOLBOX_APPS) {
+    if (app.path !== '/' && content.includes(app.path)) {
+      fail('app-manifest-consumer', consumer, `duplicates route ${app.path}`)
+    }
+  }
+}
 
 for (const appId of appIds) {
   const packagePath = `apps/${appId}/package.json`
@@ -108,7 +159,8 @@ for (const appId of appIds) {
     fail('app-base-contract', `apps/${appId}`, 'missing Vite config')
   } else {
     const config = read(`apps/${appId}/${viteConfig}`)
-    const expectedBase = appId === 'homepage' ? '/' : `/${appId}/`
+    const expectedBase = manifestById.get(appId)?.path
+    if (!expectedBase) continue
     if (!config.includes(`'${expectedBase}'`) && !config.includes(`"${expectedBase}"`)) {
       fail('app-base-contract', `apps/${appId}/${viteConfig}`, `missing ${expectedBase}`)
     }

@@ -1,6 +1,6 @@
 # Toolbox — 当前任务与进度
 
-> 最后更新：2026-07-10
+> 最后更新：2026-07-11
 >
 > 本文只保留当前和下一阶段任务。已发布结果进入 [CHANGELOG.md](../CHANGELOG.md)，架构理由进入 [PLAN.md](./PLAN.md)。不得在任务记录中保存真实服务器、网络或个人环境信息。
 
@@ -113,13 +113,13 @@
 - [x] Monitor Choice 增加有序 Vite bootstrap、8 条 smoke/计算测试和 0-warning lint；Canvas 与 5 个 Tab 浏览器验证通过。
 - [x] 两个应用逐个迁移；Homepage 独立验证并提交后再开始 Monitor Choice。
 
-### P1.4 · 建立 app manifest `⏳ 待开始`
+### P1.4 · 建立 app manifest `✅ 已完成`
 
-- [ ] 定义并测试 id/path/name/description/status schema。
-- [ ] Homepage、React NavBar、Vanilla NavBar 从同一数据源生成。
-- [ ] 支持 `hidden` / `preview` / `stable`，新工具默认 `hidden`。
-- [ ] manifest 不包含主机、部署或环境数据。
-- [ ] 删除三处手工维护工具列表的流程。
+- [x] 定义并测试 id/path/name/description/status schema。
+- [x] Homepage、React NavBar、Vanilla NavBar 从同一数据源生成。
+- [x] 支持 `hidden` / `preview` / `stable`，新工具默认 `hidden`。
+- [x] manifest 只允许公开产品字段，不包含主机、部署或环境数据。
+- [x] 删除三处手工维护工具列表的流程，并由 `check:contracts` 校验目录、路径与消费者。
 
 ### P1.5 · 统一依赖事实源 `🔄 进行中`
 
@@ -183,12 +183,12 @@
 - [ ] 为 5 个 tab 与 Canvas 初始化增加浏览器 smoke。
 - [ ] Canvas 提供可读的文本结果或摘要。
 
-### P3.2 · Homepage smoke 与链接契约 `⏳ 待开始`
+### P3.2 · Homepage smoke 与链接契约 `✅ 已完成`
 
-- [ ] 所有 stable app 卡片存在且 URL 唯一。
-- [ ] zh/en 切换、light/dark 切换与移动菜单可用。
-- [ ] 公开链接使用安全的 `rel` 属性。
-- [ ] 新 app 未标记 stable 时不出现在主入口。
+- [x] 所有 stable app 卡片存在且 URL 唯一。
+- [x] zh/en 切换、light/dark 切换与 375px 移动菜单可用。
+- [x] 公开链接使用安全的 `rel` 属性。
+- [x] 新 app 未标记 stable 时不出现在主入口。
 
 ### P3.3 · 清理当前 warning 与测试噪音 `✅ 已完成`
 

@@ -104,9 +104,9 @@ apps/<app-id>/
 
 ### App catalog
 
-当前工具信息仍分散在 Homepage 和两种 NavBar 中。app manifest 建成前，新增工具需逐项核对这些位置；建成后只允许修改 manifest。具体过渡任务见 [TASKS.md](./TASKS.md)。
+工具身份、路径、导航短文案与公开状态只在 `@toolbox/app-manifest` 维护。Homepage 与 React/Vanilla Nav 都从它生成入口，不得再在消费者里手工复制 URL 列表。
 
-新工具在开发阶段应标记为 `hidden`，不能因为目录存在就自动进入稳定导航。
+使用 `defineApp()` 创建条目时默认状态是 `hidden`；完成对应验收后才显式改为 `preview` / `stable`。
 
 ## 五、隔离设计
 

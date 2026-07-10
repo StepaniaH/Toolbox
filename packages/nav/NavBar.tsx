@@ -13,6 +13,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { setLang, getLang, onChange } from "@toolbox/i18n";
+import { getStableApps } from "@toolbox/app-manifest";
 
 export type NavApp = {
   id: string;
@@ -23,45 +24,15 @@ export type NavApp = {
   descEn?: string;
 };
 
-/** Canonical Toolbox tool list. Append new tools here (docs/AGENTS.md §五). */
-export const NAV_APPS: NavApp[] = [
-  {
-    id: "home",
-    label: "首页",
-    labelEn: "Home",
-    href: "/",
-    desc: "Toolbox 导航中心",
-    descEn: "Toolbox navigation hub",
-  },
-  {
-    id: "rate-lens",
-    label: "RateLens",
-    href: "/rate-lens/",
-    desc: "AI 模型价格倍率计算器",
-    descEn: "AI model pricing calculator",
-  },
-  {
-    id: "chrono-sphere",
-    label: "ChronoSphere",
-    href: "/chrono-sphere/",
-    desc: "日期与时区工具",
-    descEn: "Date & timezone utility",
-  },
-  {
-    id: "monitor-choice",
-    label: "Monitor Choice",
-    href: "/monitor-choice/",
-    desc: "显示器参数实验室",
-    descEn: "Display parameter lab",
-  },
-  {
-    id: "sane-units",
-    label: "SaneUnits",
-    href: "/sane-units/",
-    desc: "单位换算与实感估算",
-    descEn: "Unit conversion & estimation",
-  },
-];
+/** Navigation projection of the canonical public app manifest. */
+export const NAV_APPS: NavApp[] = getStableApps().map((app) => ({
+  id: app.navId,
+  label: app.navLabel.zh,
+  labelEn: app.navLabel.en,
+  href: app.path,
+  desc: app.description.zh,
+  descEn: app.description.en,
+}));
 
 /** Resolve `?lang=`-aware label/desc. Apps without an i18n context just get zh. */
 function pick<T>(zh: T, en: T | undefined, preferEn: boolean): T {

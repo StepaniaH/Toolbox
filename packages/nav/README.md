@@ -1,23 +1,22 @@
 # @toolbox/nav
 
-Shared navigation bar for every Toolbox app — the single source of truth for
-the cross-tool menu. Ships two interchangeable surfaces over the same CSS:
+Shared navigation bar for every Toolbox app. Both surfaces project the stable
+entries from `@toolbox/app-manifest` over the same CSS:
 
-- **`nav-bar.js`** — vanilla JS, auto-mounts into `<div id="toolbox-nav"></div>`. Used by the static apps (`homepage`, `monitor-choice`).
+- **`nav-bar.js`** — vanilla JS, auto-mounts into `<div id="toolbox-nav"></div>`. Used by the Vanilla apps (`homepage`, `monitor-choice`).
 - **`NavBar.tsx`** — React component, `<NavBar currentApp="rate-lens" />`. Used by the React apps (`rate-lens`, `chrono-sphere`, `sane-units`).
 
 Both render the same layout:
 
 ```
-[ 🧰 Toolbox ▾ ]   RateLens  ChronoSphere  Monitor Choice  SaneUnits   [ 🌓 ][ ☰ ]
-|-- left drop --| |--------------- center quick links --------------| |-- right --|
+[ 🧰 Toolbox ▾ ]                                            [ 🌐 ][ 🌓 ][ ☰ ]
+|-- tool menu --|                                           |--- actions ---|
 ```
 
 - **Left** — `🧰 Toolbox` dropdown. Hover (desktop) or tap (touch) to expand the full tool list with one-line descriptions.
-- **Center** — quick links to every tool. The current tool is highlighted.
-- **Right** — language + theme actions, plus a hamburger that collapses the center links into a slide-down drawer on narrow screens.
+- **Right** — language + theme actions, plus a hamburger that opens the tool list on narrow screens.
 
-Language/theme actions intentionally have no background box on pointer hover; hover uses color only. Keyboard `focus-visible` uses a 2px blue outline. `pnpm check:contracts` enforces this behavior and verifies that the two static deployment copies remain byte-identical to the canonical CSS/JS.
+Language/theme actions intentionally have no background box on pointer hover; hover uses color only. Keyboard `focus-visible` uses a 2px blue outline. `pnpm check:contracts` enforces this behavior and verifies manifest consumption.
 
 ## Tool list
 
@@ -29,16 +28,15 @@ Language/theme actions intentionally have no background box on pointer hover; ho
 | `monitor-choice` | Monitor Choice | `/monitor-choice/` | Display parameter lab |
 | `sane-units` | SaneUnits | `/sane-units/` | Unit conversion & estimation |
 
-When adding a new tool, append it to `TOOLS` in `nav-bar.js` **and** `NAV_APPS`
-in `NavBar.tsx` (per `docs/AGENTS.md` §五, step 7). The two lists must stay in
-sync.
+This table is generated in code from `@toolbox/app-manifest`. Add a single
+manifest entry (default `hidden`); do not edit `TOOLS` or `NAV_APPS` manually.
 
 ## Setup
 
 Add the workspace dependency:
 
 ```bash
-pnpm --filter=@toolbox/<app> add @toolbox/theme@workspace:* @toolbox/nav@workspace:*
+pnpm --filter=@toolbox/<app> add @toolbox/i18n@workspace:* @toolbox/theme@workspace:* @toolbox/nav@workspace:*
 ```
 
 `@toolbox/nav` depends on `@toolbox/theme` for the `--ctp-*` CSS variables and

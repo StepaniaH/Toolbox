@@ -15,16 +15,23 @@
     "react": ">=18",
     "@toolbox/i18n": "workspace:*"
   },
+  "dependencies": {
+    "@toolbox/app-manifest": "workspace:*"
+  },
   "files": [
     "nav-bar.js",
     "nav-bar.css",
     "NavBar.tsx",
     "README.md"
   ],
+  "scripts": {
+    "lint": "oxlint --deny-warnings"
+  },
   "license": "MIT",
   "devDependencies": {
     "@toolbox/i18n": "workspace:*",
     "@types/react": "^19.2.17",
+    "oxlint": "^1.73.0",
     "react": "^19.2.7"
   }
 }

@@ -199,7 +199,7 @@ App Surface（工具自己拥有）
 | 区域 | 差距 | 目标 |
 |------|------|------|
 | Theme | `@toolbox/theme` 未被应用直接消费 | 逐个应用迁移到语义 token，并有视觉回归 |
-| Homepage / Monitor | nav/theme 仍是部署副本；nav 已有字节一致性门禁 | 迁移到构建期依赖，过渡期保持自动校验 |
+| Homepage / Monitor | 已使用构建期 nav/theme runtime；页面 token 仍各自维护 | 在不改变视觉的前提下逐步改用共享语义 token |
 | SaneUnits | 共享 NavBar 外还有两套响应式偏好控件 | 只保留共享入口，业务导航保持自身特色 |
 | Visual QA | 没有跨主题/语言/视口矩阵 | CI 生成 smoke 截图并做人工/自动审查 |
 

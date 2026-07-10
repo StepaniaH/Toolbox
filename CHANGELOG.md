@@ -22,6 +22,7 @@
 - Added `pnpm check:contracts` to enforce app isolation, package/base/output conventions, approved runtime network origins, NavBar interaction rules, and byte-identical static deployment copies.
 - Migrated Homepage into the workspace with a Vite build, root-path deployment artifact, smoke tests, and direct nav/theme/i18n package consumption; removed its copied platform runtimes.
 - Migrated Monitor Choice into the workspace with an ordered Vite bootstrap, eight smoke/calculation tests, shared platform runtimes, hashed deployment assets, and zero lint warnings.
+- Added the tested `@toolbox/app-manifest` catalog; Homepage and both Nav implementations now derive stable app identity, routes, labels, and descriptions from one public metadata source, with new entries hidden by default.
 
 ### Dependency governance
 
@@ -34,6 +35,7 @@
 - Cleared the existing SaneUnits lint warnings without changing runtime behavior.
 - Test storage mocks no longer trigger Node 26's file-backed `localStorage` getter, removing worker-level experimental warnings.
 - ESLint and Oxlint now fail on warnings so the clean lint baseline cannot silently regress.
+- Vanilla Nav now refreshes desktop and mobile tool labels when the shared language changes.
 
 ## v0.1 (2026-07-10)
 

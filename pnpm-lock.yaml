@@ -84,6 +84,9 @@ importers:
 
   apps/homepage:
     dependencies:
+      '@toolbox/app-manifest':
+        specifier: workspace:*
+        version: link:../../packages/app-manifest
       '@toolbox/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -239,6 +242,12 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@26.1.1)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)
 
+  packages/app-manifest:
+    devDependencies:
+      oxlint:
+        specifier: ^1.73.0
+        version: 1.73.0
+
   packages/i18n:
     devDependencies:
       '@types/react':
@@ -252,6 +261,10 @@ importers:
         version: 5.9.3
 
   packages/nav:
+    dependencies:
+      '@toolbox/app-manifest':
+        specifier: workspace:*
+        version: link:../app-manifest
     devDependencies:
       '@toolbox/i18n':
         specifier: workspace:*
@@ -259,6 +272,9 @@ importers:
       '@types/react':
         specifier: ^19.2.17
         version: 19.2.17
+      oxlint:
+        specifier: ^1.73.0
+        version: 1.73.0
       react:
         specifier: ^19.2.7
         version: 19.2.7

@@ -11,6 +11,7 @@
     "smoke": "pnpm test"
   },
   "dependencies": {
+    "@toolbox/app-manifest": "workspace:*",
     "@toolbox/i18n": "workspace:*",
     "@toolbox/nav": "workspace:*",
     "@toolbox/theme": "workspace:*"
