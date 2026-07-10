@@ -168,15 +168,16 @@ pnpm --filter=@toolbox/<app-id> build
 pnpm --filter=@toolbox/<app-id> test
 pnpm --filter=@toolbox/<app-id> lint
 
+pnpm check:privacy
+pnpm check:contracts
 pnpm build
 pnpm test
 pnpm lint
 ```
 
-未来的契约命令（待实现）：
+浏览器 smoke 命令仍待实现：
 
 ```bash
-pnpm check:contracts
 pnpm test:smoke
 ```
 

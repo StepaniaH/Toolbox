@@ -6,6 +6,7 @@
     "build": "turbo build",
     "test": "turbo test",
     "check:privacy": "node scripts/check-privacy.mjs",
+    "check:contracts": "node scripts/check-contracts.mjs",
     "deploy": "bash deploy/deploy.sh",
     "lint": "turbo lint",
     "clean": "turbo clean"

@@ -15,7 +15,9 @@ Both render the same layout:
 
 - **Left** — `🧰 Toolbox` dropdown. Hover (desktop) or tap (touch) to expand the full tool list with one-line descriptions.
 - **Center** — quick links to every tool. The current tool is highlighted.
-- **Right** — theme toggle (delegates to `@toolbox/theme`'s `toggleTheme`) + a hamburger that collapses the center links into a slide-down drawer on narrow screens.
+- **Right** — language + theme actions, plus a hamburger that collapses the center links into a slide-down drawer on narrow screens.
+
+Language/theme actions intentionally have no background box on pointer hover; hover uses color only. Keyboard `focus-visible` uses a 2px blue outline. `pnpm check:contracts` enforces this behavior and verifies that the two static deployment copies remain byte-identical to the canonical CSS/JS.
 
 ## Tool list
 

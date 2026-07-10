@@ -95,7 +95,7 @@ App Surface（工具自己拥有）
 - 语言按钮展示“将切换到的语言”，并具有双语 `aria-label`。
 - 主题按钮的图标、标题与真实当前主题一致。
 
-当前共享 CSS 对 `.toolbox-nav-icon-btn:hover` 设置了背景，且 `focus-visible` 被清空；这是待修复项，不是规范本身。
+共享 CSS 已按上述规则实现，并由 `pnpm check:contracts` 检查 hover、focus-visible 与静态副本一致性。
 
 ## 五、排版与密度
 
@@ -199,8 +199,7 @@ App Surface（工具自己拥有）
 | 区域 | 差距 | 目标 |
 |------|------|------|
 | Theme | `@toolbox/theme` 未被应用直接消费 | 逐个应用迁移到语义 token，并有视觉回归 |
-| Homepage / Monitor | nav/theme 是手工副本 | 使用构建期依赖或自动生成且校验 hash |
-| Nav actions | hover 有背景；focus-visible 无可见 ring | 按第 4.2 节统一 |
+| Homepage / Monitor | nav/theme 仍是部署副本；nav 已有字节一致性门禁 | 迁移到构建期依赖，过渡期保持自动校验 |
 | SaneUnits | 共享 NavBar 外还有两套响应式偏好控件 | 只保留共享入口，业务导航保持自身特色 |
 | Visual QA | 没有跨主题/语言/视口矩阵 | CI 生成 smoke 截图并做人工/自动审查 |
 

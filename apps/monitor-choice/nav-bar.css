@@ -236,13 +236,11 @@
   border-radius: var(--radius-sm);
   color: var(--ctp-subtext-1);
   font-size: 16px;
-  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+  transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toolbox-nav-icon-btn:hover {
-  background: var(--ctp-surface-0);
   color: var(--ctp-text);
 }
 
@@ -251,7 +249,8 @@
 }
 
 .toolbox-nav-icon-btn:focus-visible {
-  outline: none;
+  outline: 2px solid var(--ctp-blue);
+  outline-offset: 2px;
 }
 
 .toolbox-nav-theme.is-animating {

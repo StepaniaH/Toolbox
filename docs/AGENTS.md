@@ -101,6 +101,7 @@ pnpm --filter=@toolbox/<app> lint
 
 # 跨应用 / 共享 / 发布门禁
 pnpm check:privacy
+pnpm check:contracts
 pnpm build
 pnpm test
 pnpm lint

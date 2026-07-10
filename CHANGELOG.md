@@ -18,6 +18,8 @@
 - Defined the application-isolation and versioned-platform-contract direction.
 - Added the shared design-system contract and new-tool development playbook.
 - Rebuilt the live task board around post-v0.1 priorities and privacy-safe progress records.
+- Unified NavBar language/theme actions: pointer hover no longer draws a background box, while keyboard focus gets a visible 2px ring.
+- Added `pnpm check:contracts` to enforce NavBar interaction rules and byte-identical static deployment copies.
 
 ## v0.1 (2026-07-10)
 

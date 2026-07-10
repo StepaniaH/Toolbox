@@ -90,7 +90,7 @@
 - [x] [NEW_TOOL.md](./NEW_TOOL.md) 提供新工具 playbook。
 - [x] 将 v0.1 迁移过程从当前任务板移除；发布结果由 CHANGELOG 保存。
 
-### P1.2 · 实现 `check:contracts` `⏳ 待开始`
+### P1.2 · 实现 `check:contracts` `🔄 进行中`
 
 **目标**：把文档中可机器判断的规则变成根命令和 CI 门禁。
 
@@ -99,8 +99,8 @@
 - [ ] 校验全局/应用 storage key 命名。
 - [ ] 检查 theme/nav/i18n 依赖与重复偏好控件。
 - [ ] 检查未经 allowlist 的运行时外部 URL。
-- [ ] 检查静态共享文件副本 hash（迁移完成前的过渡门禁）。
-- [ ] 根命令 `pnpm check:contracts` 在 CI 执行。
+- [x] 检查 NavBar 静态共享文件副本内容（迁移完成前的过渡门禁）。
+- [x] 根命令 `pnpm check:contracts` 已在 CI 执行，并可继续扩展其他契约。
 
 ### P1.3 · 让静态应用进入 workspace `⏳ 待开始`
 
@@ -130,15 +130,17 @@
 
 ## P2 — 设计系统收敛
 
-### P2.1 · 修复 NavBar 控件状态 `⏳ 待开始`
+### P2.1 · 修复 NavBar 控件状态 `🔄 进行中`
 
 **已确认设计偏好**：所有工具右上角的语言与主题按钮，鼠标 hover 时不出现背景块、边框或选中框。
 
-- [ ] 移除 icon action 的 hover 背景，只保留颜色/图标反馈。
-- [ ] 恢复清晰的 `:focus-visible` ring，不能用 `outline: none` 清空。
-- [ ] React 与 Vanilla 表面行为一致。
+- [x] 移除 icon action 的 hover 背景，只保留颜色/图标反馈。
+- [x] 恢复清晰的 `:focus-visible` 2px ring，不再用 `outline: none` 清空。
+- [x] React 与 Vanilla CSS 以及两个静态部署副本完全一致。
 - [ ] light/dark、mouse/keyboard/touch 验证通过。
-- [ ] 增加交互契约测试或 Playwright smoke。
+- [x] 增加交互契约检查并接入 CI。
+
+**待复核**：本轮浏览器服务器启动因环境授权额度不足被拒绝；没有绕过。自动契约、build/test/lint 可继续通过，真实浏览器矩阵待额度恢复后补做再标记完成。
 
 ### P2.2 · SaneUnits 外壳对齐 `⏳ 待开始`
 

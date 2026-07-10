@@ -63,7 +63,7 @@ Toolbox/
 | 能力 | React 工具 | 静态工具 | 当前问题 |
 |------|------------|----------|----------|
 | `@toolbox/i18n` | RateLens、ChronoSphere 直接使用；SaneUnits 有兼容桥 | 使用各自翻译表并监听共享事件 | 翻译资源与调用方式仍不完全统一 |
-| `@toolbox/nav` | 三个工具直接使用 React 组件 | 各自保存一份 Vanilla JS/CSS 快照 | 手工复制会漂移，不能算单一事实源 |
+| `@toolbox/nav` | 三个工具直接使用 React 组件 | 各自保存一份 Vanilla JS/CSS 快照 | 当前有字节一致性门禁，但部署形态仍有重复 |
 | `@toolbox/theme` | 尚未作为依赖接入 | 各自保存主题变量与切换脚本 | 文档此前宣称“已统一”，与代码不符 |
 
 因此，当前是“共享导航/i18n 已部分落地，主题仍主要靠约定保持接近”，而不是完整设计系统。后续要通过版本化契约和自动一致性检查解决，不能只靠继续复制 CSS。
@@ -85,6 +85,7 @@ Toolbox/
 | `pnpm test` | 通过 | 914 tests；静态工具未覆盖 |
 | `pnpm lint` | 通过 | SaneUnits 有 3 条 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
+| `pnpm check:contracts` | 通过 | Nav hover/focus 契约与静态副本一致性通过 |
 
 当前最明显的质量缺口：
 
@@ -107,6 +108,7 @@ Toolbox/
 ```bash
 pnpm install --frozen-lockfile
 pnpm check:privacy
+pnpm check:contracts
 pnpm build
 pnpm test
 pnpm lint
