@@ -5,8 +5,27 @@
   "main": "index.css",
   "exports": {
     "./styles.css": "./index.css",
-    "./toggle.js": "./toggle.js"
+    "./toggle.js": "./toggle.js",
+    "./contract": {
+      "types": "./contract.d.ts",
+      "import": "./contract.mjs",
+      "default": "./contract.mjs"
+    },
+    "./README.md": "./README.md"
   },
-  "files": ["index.css", "toggle.js"],
-  "license": "MIT"
+  "files": [
+    "index.css",
+    "toggle.js",
+    "contract.mjs",
+    "contract.d.ts",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test contract.test.mjs",
+    "lint": "oxlint --deny-warnings"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "oxlint": "^1.73.0"
+  }
 }

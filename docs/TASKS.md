@@ -158,9 +158,9 @@
 - [ ] 建立迁移前视觉基线，逐页验证 storage/network/video/power/about。
 - [ ] 不在一次提交中同时重写计算逻辑。
 
-### P2.3 · 逐个应用接入 `@toolbox/theme` `⏳ 待开始`
+### P2.3 · 逐个应用接入 `@toolbox/theme` `🔄 进行中`
 
-- [ ] 先冻结 theme token 契约并补包级测试。
+- [x] 冻结 `@toolbox/theme` v1 模式、storage、DOM 与语义 token 契约，并补 CSS/runtime/pre-paint 包级测试。
 - [ ] 选一个代表性 React 工具试点，确保无视觉回归。
 - [ ] 每次只迁移一个工具并保留 app-specific token 映射层。
 - [ ] React 工具完成后再迁移两个静态工具。

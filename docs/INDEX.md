@@ -25,7 +25,7 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 10 |
 | SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 17 |
 
-测试数量只用于说明覆盖现状，不作为质量本身的替代指标。5 个应用当前有 937 条测试，另有 5 条 app manifest 契约测试；`pnpm test` 共运行 942 条。`v0.1` 发布时为 910 条。
+测试数量只用于说明覆盖现状，不作为质量本身的替代指标。5 个应用当前有 937 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；`pnpm test` 共运行 953 条。`v0.1` 发布时为 910 条。
 
 ## 三、仓库结构
 
@@ -66,7 +66,7 @@ Toolbox/
 |------|------------|----------|----------|
 | `@toolbox/i18n` | RateLens、ChronoSphere 直接使用；SaneUnits 有兼容桥 | Homepage 使用 core；Monitor Choice 通过 core adapter 驱动自有翻译表 | 翻译资源与调用方式仍不完全统一 |
 | `@toolbox/nav` | 三个工具直接使用 React 组件 | Homepage 与 Monitor Choice 直接使用 workspace Vanilla 运行时 | React / Vanilla API 仍是两种入口 |
-| `@toolbox/theme` | 三个 React 工具尚未作为依赖接入 | Homepage 与 Monitor Choice 使用 workspace 运行时并保留页面 token | 共享 design token 仍需分应用迁移 |
+| `@toolbox/theme` | 三个 React 工具尚未作为依赖接入 | Homepage 与 Monitor Choice 使用 workspace 运行时并保留页面 token | v1 契约已冻结并测试，仍需分应用迁移 |
 | `@toolbox/app-manifest` | React Nav 统一消费 stable 目录 | Homepage 与 Vanilla Nav 消费同一目录 | 页面专属图标/长文案仍由应用拥有 |
 
 因此，当前是“共享导航/i18n 已部分落地，主题仍主要靠约定保持接近”，而不是完整设计系统。后续要通过版本化契约和自动一致性检查解决，不能只靠继续复制 CSS。
@@ -85,7 +85,7 @@ Toolbox/
 | 检查 | 结果 | 备注 |
 |------|------|------|
 | `pnpm build` | 通过 | 5 个 Vite 应用构建成功 |
-| `pnpm test` | 通过 | 942 tests；数量不等同于覆盖率 |
+| `pnpm test` | 通过 | 953 tests；数量不等同于覆盖率 |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 | `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |

@@ -73,6 +73,15 @@ App Surface（工具自己拥有）
 
 应用专属色可以存在，但必须在 light/dark 下分别验证对比度，且不能重新定义全局 token。
 
+### 3.3 v1 兼容性边界
+
+`@toolbox/theme/contract` 是主题模式、storage key、DOM 属性和必需 token 名称的机器可读来源；`@toolbox/theme` 的包级测试同时验证 CSS、runtime 与 pre-paint 行为。
+
+- 新增 token 或 runtime 方法是兼容性扩展。
+- 删除、改名或改变既有 token 语义，以及改变 `toolbox-theme`、`dark|light`、`data-theme` 或 runtime 方法语义，属于 breaking change。
+- 调整既有颜色值属于视觉变更，即使 API 未变化也必须跑完整视觉矩阵。
+- 应用迁移可以保留 app-specific token 映射层，但不能复制主题解析实现。
+
 ## 四、导航与右上角控件
 
 ### 4.1 导航结构
