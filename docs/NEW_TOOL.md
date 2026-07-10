@@ -62,6 +62,7 @@ apps/<app-id>/
 - package name：`@toolbox/<app-id>`。
 - production base：`/<app-id>/`。
 - build output：仅 `apps/<app-id>/dist/`。
+- 依赖只写入 workspace 与根 `pnpm-lock.yaml`，不得生成 app 级 npm/yarn 锁文件。
 - 不写仓库外路径，不读取其他工具的源码或构建产物。
 - 私有持久化键：`toolbox.<app-id>.<key>`。
 - 全局主题和语言只能使用 `toolbox-theme` / `toolbox-lang`。

@@ -1,6 +1,8 @@
 # RateLens — 实施计划
 
-> 对应规格书: [spec.md](./spec.md) | 任务追踪: [../TASKS.md](../TASKS.md)
+> 历史文档：本文记录合并 monorepo 前的初始实现过程，未勾选项和部分 npm/npx 命令不再代表当前任务或开发入口。当前命令见上级 README，当前进度见 [`../../../docs/TASKS.md`](../../../docs/TASKS.md)。
+>
+> 对应规格书: [spec.md](./spec.md)
 > 日期: 2026-07-08 | 状态: 规划完成，等待执行
 
 ---
@@ -49,8 +51,8 @@ Task 8 (部署准备) → Gate 8: build + preview 全功能验证
 ### Gate 1
 
 - [ ] `npm run dev` 成功，页面背景为 `#303446`
-- [ ] `npm run build` 无 TypeScript 错误
-- [ ] `npx vitest run` 可执行（不报配置错误）
+- [ ] `pnpm --filter=@toolbox/rate-lens build` 无 TypeScript 错误
+- [ ] `pnpm --filter=@toolbox/rate-lens test` 可执行（不报配置错误）
 
 ---
 
@@ -67,7 +69,7 @@ Task 8 (部署准备) → Gate 8: build + preview 全功能验证
 5. `src/hooks/use-local-storage.ts` — 泛型 localStorage 封装
 6. `src/hooks/use-exchange-rate.ts` — 自动获取汇率 + 手动输入 + 多 API fallback **（⚠️ 注意 useCallback 依赖 `defaultRate` 可能引发重取循环）**
 7. `src/hooks/use-theme.ts` — Dark/Light 切换 + 系统偏好检测 + localStorage 持久化
-8. `npm install lucide-react`
+8. `pnpm --filter=@toolbox/rate-lens add lucide-react`
 9. 编写 4 组测试:
 
 | 测试文件 | 用例数 | 覆盖 |
@@ -79,7 +81,7 @@ Task 8 (部署准备) → Gate 8: build + preview 全功能验证
 
 ### Gate 2
 
-- [ ] `npx vitest run` — 全部约 30 用例通过
+- [ ] `pnpm --filter=@toolbox/rate-lens test` — 全部约 30 用例通过
 - [ ] `npm run build` — 无 TypeScript 错误
 
 ---

@@ -120,10 +120,11 @@
 - [ ] manifest 不包含主机、部署或环境数据。
 - [ ] 删除三处手工维护工具列表的流程。
 
-### P1.5 · 统一依赖事实源 `⏳ 待开始`
+### P1.5 · 统一依赖事实源 `🔄 进行中`
 
-- [ ] 确认所有 app 只使用 pnpm workspace 与根 `pnpm-lock.yaml`。
-- [ ] 删除 app 级 `package-lock.json`，更新 README 中的 npm 指令。
+- [x] 所有 app 只使用 pnpm workspace 与根 `pnpm-lock.yaml`。
+- [x] 删除 3 个 app 级 `package-lock.json`，更新仍在维护的 README/计划命令。
+- [x] `check:contracts` 阻止 app 下重新加入 npm/yarn 锁文件。
 - [ ] 校准 React/Vite/Vitest/TypeScript 版本策略，避免无意的多版本组合。
 - [ ] 记录依赖升级与平台升级的回滚方式。
 

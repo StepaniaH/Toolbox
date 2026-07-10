@@ -21,6 +21,11 @@
 - Unified NavBar language/theme actions: pointer hover no longer draws a background box, while keyboard focus gets a visible 2px ring.
 - Added `pnpm check:contracts` to enforce app isolation, package/base/output conventions, approved runtime network origins, NavBar interaction rules, and byte-identical static deployment copies.
 
+### Dependency governance
+
+- Removed app-level npm lockfiles; the root `pnpm-lock.yaml` is now the only dependency lock source.
+- Contract checks reject new `package-lock.json` or `yarn.lock` files under `apps/`.
+
 ## v0.1 (2026-07-10)
 
 ### 首个稳定版本

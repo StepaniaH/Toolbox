@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { basename } from 'node:path'
 
 const trackedFiles = execFileSync('git', [
@@ -12,6 +12,7 @@ const trackedFiles = execFileSync('git', [
   .toString('utf8')
   .split('\0')
   .filter(Boolean)
+  .filter((file) => existsSync(file))
 
 const findings = new Map()
 

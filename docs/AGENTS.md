@@ -34,6 +34,7 @@ deploy/      公开脚本与占位符模板
 - 默认不修改 `packages/*`。共享包会影响多个应用，只有任务明确要求平台变更时才能编辑。
 - 跨工具重构、共享包迁移和部署变更要在 [TASKS.md](./TASKS.md) 有独立任务，并分阶段提交。
 - 禁止 `apps/A` import `apps/B`；共享业务逻辑必须经过评审后才可进入 `packages/*`。
+- 全仓只使用根 `pnpm-lock.yaml`；不得在 app 目录生成或提交 `package-lock.json` / `yarn.lock`。
 
 ## 三、不可违反的产品红线
 

@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process'
-import { readdirSync, readFileSync } from 'node:fs'
-import { dirname, extname, resolve, sep } from 'node:path'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { basename, dirname, extname, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
@@ -30,10 +30,18 @@ function ruleBody(css, selector) {
 }
 
 function trackedFiles(path) {
-  return execFileSync('git', ['ls-files', '-z', path])
+  return execFileSync('git', [
+    'ls-files',
+    '-z',
+    '--cached',
+    '--others',
+    '--exclude-standard',
+    path,
+  ])
     .toString('utf8')
     .split('\0')
     .filter(Boolean)
+    .filter((file) => existsSync(resolve(root, file)))
 }
 
 // ── Nav interaction and deploy-copy contract ─────────────
@@ -123,6 +131,16 @@ for (const appId of appIds) {
 }
 
 const appFiles = trackedFiles('apps')
+const forbiddenAppLocks = new Set(['package-lock.json', 'yarn.lock'])
+for (const file of appFiles) {
+  if (forbiddenAppLocks.has(basename(file))) {
+    fail('dependency-lock-contract', file, 'the workspace uses only the root pnpm-lock.yaml')
+  }
+}
+if (!existsSync(resolve(root, 'pnpm-lock.yaml'))) {
+  fail('dependency-lock-contract', 'pnpm-lock.yaml', 'root lockfile is missing')
+}
+
 const sourceExtensions = new Set(['.css', '.js', '.jsx', '.ts', '.tsx'])
 const importPattern = /(?:\bfrom\s*|\bimport\s*(?:\(\s*)?|\brequire\s*\(|@import\s*(?:url\(\s*)?)\s*['"]([^'"]+)['"]/g
 
