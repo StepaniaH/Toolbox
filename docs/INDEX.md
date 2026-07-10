@@ -84,7 +84,7 @@ Toolbox/
 | `pnpm build` | 通过 | 3 个 Vite 应用构建成功 |
 | `pnpm test` | 通过 | 914 tests；静态工具未覆盖 |
 | `pnpm lint` | 通过 | SaneUnits 有 3 条 warning |
-| 内容型敏感信息扫描 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP | 仍需在每次提交前复查 staged diff |
+| `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 
 当前最明显的质量缺口：
 
@@ -106,6 +106,7 @@ Toolbox/
 
 ```bash
 pnpm install --frozen-lockfile
+pnpm check:privacy
 pnpm build
 pnpm test
 pnpm lint

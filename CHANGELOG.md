@@ -5,6 +5,8 @@
 ### Privacy
 
 - RateLens now uses a local reference exchange rate by default. Live USD/CNY data is fetched only after an explicit user action, with an on-screen third-party disclosure, timeout, fallback, and manual override.
+- Added a dependency-free privacy scanner that reports only finding categories and file paths, never matched values; CI now runs it before installing dependencies.
+- CI uses read-only repository permissions, does not persist checkout credentials, and explicitly disables Turborepo telemetry.
 
 ### Deployment safety
 

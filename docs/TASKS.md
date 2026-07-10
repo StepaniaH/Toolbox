@@ -67,14 +67,14 @@
 - [x] 按维护者决定继续使用其 GitHub 主页已公开的提交邮箱，不强制 noreply。
 - [x] 当前树的部署模板已移除具体 SSH 端口和内部网络提示。
 - [ ] `v0.1` 历史模板曾包含具体端口（未包含密钥、真实主机或 IP）；若该值仍在使用，由维护者在服务器侧决定是否轮换，不为此自动改写 Git 历史。
-- [ ] CI 增加 secret scan；扫描结果不得把疑似 secret 原文打印到日志。
+- [x] CI 增加无第三方依赖的 privacy scan；扫描结果只输出类别和文件名，不回显疑似 secret 原文。
 
 **决策**：该邮箱属于维护者主动公开的项目身份，不视为隐私缺陷，不改写 v0.1 历史。仍禁止意外混入其他私人或工作邮箱。
 
-### P0.4 · CI / 工具链最小遥测面 `⏳ 待开始`
+### P0.4 · CI / 工具链最小遥测面 `🔄 进行中`
 
-- [ ] CI 明确设置 Turborepo telemetry opt-out。
-- [ ] 审查 GitHub Actions 权限，默认 `contents: read`，部署 job 只申请必需权限。
+- [x] CI 明确设置 Turborepo telemetry opt-out。
+- [x] GitHub Actions 默认权限收紧为 `contents: read`，checkout 不持久化 token。
 - [ ] 第三方 Actions 固定到审核过的 commit SHA 或使用受控更新策略。
 - [ ] 建立依赖许可证与高危漏洞检查，避免将完整环境信息上传第三方服务。
 

@@ -100,6 +100,7 @@ pnpm --filter=@toolbox/<app> test
 pnpm --filter=@toolbox/<app> lint
 
 # 跨应用 / 共享 / 发布门禁
+pnpm check:privacy
 pnpm build
 pnpm test
 pnpm lint
@@ -123,6 +124,7 @@ git diff --check
 git diff
 git diff --cached
 git config --get user.email
+pnpm check:privacy
 ```
 
 必须逐行检查 staged diff：
