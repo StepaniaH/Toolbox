@@ -13,7 +13,7 @@ No first-party backend and no tracking. All math runs in the browser.
 
 ### Current network behavior
 
-The app uses an embedded reference rate by default and makes no automatic third-party request. Only when the user clicks “Get live rate” does it request USD/CNY data from `open.er-api.com`, falling back to public currency data on jsDelivr. Form values are not included, but the third party receives ordinary request metadata such as the visitor's IP address, headers, and request time. The local reference rate and manual input remain available at all times.
+The app automatically requests the current USD/CNY rate from `open.er-api.com`, falling back to public currency data on jsDelivr. Form values, model choices and calculation results are not included, but the services receive ordinary network metadata such as the visitor's IP address, headers, and request time. If both sources fail, no hardcoded rate is substituted and the app asks for manual input.
 
 The UI discloses this behavior before the action. Each endpoint has an eight-second timeout, and failures keep the local rate in use.
 

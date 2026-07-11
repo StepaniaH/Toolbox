@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export type ExchangeSource = 'auto' | 'manual' | 'default'
+export type ExchangeSource = 'auto' | 'manual'
 
 export interface ExchangeRateState {
   rate: number | null
@@ -56,28 +56,19 @@ export const defaultRateFetcher: RateFetcher = async () => {
   throw lastErr instanceof Error ? lastErr : new Error('fetch failed')
 }
 
-/**
- * 默认使用本地参考汇率。只有调用 `refetch()` 时才会主动访问第三方，
- * 同时保留手动覆盖与多端点 fallback。
- *
- * ⚠️ `defaultRate` 通过 ref 读取, 不进入 effect 依赖, 避免重取循环.
- */
 export function useExchangeRate(
-  defaultRate = 7.2,
   fetcher: RateFetcher = defaultRateFetcher,
 ): ExchangeRateState & {
   setManual: (n: number) => void
   refetch: () => Promise<void>
 } {
   const [state, setState] = useState<ExchangeRateState>({
-    rate: defaultRate,
-    loading: false,
+    rate: null,
+    loading: true,
     error: null,
-    source: 'default',
+    source: 'auto',
   })
 
-  const defaultRef = useRef(defaultRate)
-  defaultRef.current = defaultRate
   const fetcherRef = useRef(fetcher)
   fetcherRef.current = fetcher
   const cancelledRef = useRef(false)
@@ -92,22 +83,23 @@ export function useExchangeRate(
       setState({ rate: v, loading: false, error: null, source: 'auto' })
     } catch (e) {
       if (cancelledRef.current || requestId !== requestIdRef.current) return
-      setState({
-        rate: defaultRef.current,
+      setState((current) => ({
+        rate: current.source === 'manual' ? current.rate : null,
         loading: false,
         error: e instanceof Error ? e.message : 'fetch failed',
-        source: 'default',
-      })
+        source: current.source,
+      }))
     }
   }, [])
 
   useEffect(() => {
     cancelledRef.current = false
+    void run()
     return () => {
       cancelledRef.current = true
       requestIdRef.current += 1
     }
-  }, [])
+  }, [run])
 
   const setManual = useCallback((n: number) => {
     if (!Number.isFinite(n) || n <= 0) return

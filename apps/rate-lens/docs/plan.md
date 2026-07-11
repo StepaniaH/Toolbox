@@ -67,7 +67,7 @@ Task 8 (部署准备) → Gate 8: build + preview 全功能验证
 3. `src/calc/forward.ts` — `calcForward()` + `calcPriceCell()`
 4. `src/calc/reverse.ts` — `calcReverse()`（含 verdict 判定逻辑）
 5. `src/hooks/use-local-storage.ts` — 泛型 localStorage 封装
-6. `src/hooks/use-exchange-rate.ts` — 自动获取汇率 + 手动输入 + 多 API fallback **（⚠️ 注意 useCallback 依赖 `defaultRate` 可能引发重取循环）**
+6. `src/hooks/use-exchange-rate.ts` — 页面打开后自动获取汇率 + 手动输入 + 多 API fallback；双源失败时不设硬编码默认值
 7. `src/hooks/use-theme.ts` — Dark/Light 切换 + 系统偏好检测 + localStorage 持久化
 8. `pnpm --filter=@toolbox/rate-lens add lucide-react`
 9. 编写 4 组测试:

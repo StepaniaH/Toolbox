@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import {
   DEFAULT_THEME,
@@ -11,7 +11,10 @@ import {
   THEME_STORAGE_KEY as HOOK_THEME_STORAGE_KEY,
   useTheme,
 } from '@/hooks/use-theme'
-import { useExchangeRate } from '@/hooks/use-exchange-rate'
+import {
+  defaultRateFetcher,
+  useExchangeRate,
+} from '@/hooks/use-exchange-rate'
 
 describe('useLocalStorage', () => {
   beforeEach(() => {
@@ -94,66 +97,98 @@ describe('useTheme', () => {
 })
 
 describe('useExchangeRate privacy contract', () => {
-  it('starts with the local reference rate and does not call the network fetcher', () => {
-    const fetcher = vi.fn(async () => 7.3)
-    const { result } = renderHook(() => useExchangeRate(7.2, fetcher))
-
-    expect(result.current.rate).toBe(7.2)
-    expect(result.current.loading).toBe(false)
-    expect(result.current.source).toBe('default')
-    expect(fetcher).not.toHaveBeenCalled()
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
-  it('fetches a live rate only after an explicit refetch action', async () => {
+  it('automatically fetches a live rate on mount without a hardcoded default', async () => {
     let resolveRate!: (rate: number) => void
     const fetcher = vi.fn(
       () => new Promise<number>((resolve) => {
         resolveRate = resolve
       }),
     )
-    const { result } = renderHook(() => useExchangeRate(7.2, fetcher))
-    let request!: Promise<void>
-
-    act(() => {
-      request = result.current.refetch()
-    })
+    const { result } = renderHook(() => useExchangeRate(fetcher))
 
     expect(fetcher).toHaveBeenCalledTimes(1)
     expect(result.current.loading).toBe(true)
+    expect(result.current.rate).toBeNull()
+    expect(result.current.source).toBe('auto')
     await act(async () => {
       resolveRate(7.3)
-      await request
     })
+    await waitFor(() => expect(result.current.loading).toBe(false))
     expect(result.current.rate).toBe(7.3)
     expect(result.current.source).toBe('auto')
     expect(result.current.error).toBeNull()
   })
 
-  it('falls back to the local reference rate when an explicit fetch fails', async () => {
+  it('requires manual input instead of using a hardcoded rate when automatic fetch fails', async () => {
     const fetcher = vi.fn(async () => {
       throw new Error('offline')
     })
-    const { result } = renderHook(() => useExchangeRate(7.2, fetcher))
-
-    await act(async () => {
-      await result.current.refetch()
-    })
+    const { result } = renderHook(() => useExchangeRate(fetcher))
 
     await waitFor(() => expect(result.current.loading).toBe(false))
-    expect(result.current.rate).toBe(7.2)
-    expect(result.current.source).toBe('default')
+    expect(result.current.rate).toBeNull()
+    expect(result.current.source).toBe('auto')
     expect(result.current.error).toBe('offline')
   })
 
-  it('supports a fully local manual override without calling the fetcher', () => {
-    const fetcher = vi.fn(async () => 7.3)
-    const { result } = renderHook(() => useExchangeRate(7.2, fetcher))
+  it('supports a local manual override and ignores the pending automatic request', () => {
+    const fetcher = vi.fn(() => new Promise<number>(() => {}))
+    const { result } = renderHook(() => useExchangeRate(fetcher))
 
     act(() => result.current.setManual(7.25))
 
     expect(result.current.rate).toBe(7.25)
     expect(result.current.source).toBe('manual')
     expect(result.current.error).toBeNull()
-    expect(fetcher).not.toHaveBeenCalled()
+    expect(fetcher).toHaveBeenCalledTimes(1)
+  })
+
+  it('preserves a manual rate when a later live-rate retry fails', async () => {
+    const fetcher = vi.fn(async () => {
+      throw new Error('offline')
+    })
+    const { result } = renderHook(() => useExchangeRate(fetcher))
+
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    act(() => result.current.setManual(7.25))
+    await act(async () => {
+      await result.current.refetch()
+    })
+
+    expect(result.current.rate).toBe(7.25)
+    expect(result.current.source).toBe('manual')
+    expect(result.current.error).toBe('offline')
+    expect(fetcher).toHaveBeenCalledTimes(2)
+  })
+
+  it('uses only fixed public endpoints and sends no page inputs', async () => {
+    const fetchSpy = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 503 } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ usd: { cny: 7.18 } }),
+      } as Response)
+    vi.stubGlobal('fetch', fetchSpy)
+
+    await expect(defaultRateFetcher()).resolves.toBe(7.18)
+    expect(fetchSpy).toHaveBeenNthCalledWith(
+      1,
+      'https://open.er-api.com/v6/latest/USD',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    )
+    expect(fetchSpy).toHaveBeenNthCalledWith(
+      2,
+      'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    )
+    for (const [, options] of fetchSpy.mock.calls) {
+      expect(options).not.toHaveProperty('body')
+      expect(options).not.toHaveProperty('headers')
+      expect(options).not.toHaveProperty('method')
+    }
   })
 })

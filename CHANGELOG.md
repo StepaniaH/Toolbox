@@ -1,10 +1,18 @@
 # Changelog
 
-## Unreleased
+## v0.2 (2026-07-11)
+
+### Release highlights
+
+- Rebuilt the five-tool repository around one pnpm/Turborepo workspace, a canonical app manifest, shared platform contracts, and enforceable app-isolation/privacy checks.
+- Restored Monitor Choice's production styling, separated and tested its calculations, added browser coverage for every tab/canvas, and supplied accessible text summaries.
+- Consolidated theme, language, navigation and storage contracts across all tools; SaneUnits now has a single global preference surface, shared semantic tokens, and route/mobile browser coverage.
+- Replaced merge-triggered production deployment with an explicit manual main workflow, immutable Action SHAs, documented rollback steps, and a hardened local fallback script.
+- Changed RateLens to transparently request the current USD/CNY rate on page load; it sends no calculator inputs and requires manual entry instead of using a hardcoded value when both public endpoints fail.
 
 ### Privacy
 
-- RateLens now uses a local reference exchange rate by default. Live USD/CNY data is fetched only after an explicit user action, with an on-screen third-party disclosure, timeout, fallback, and manual override.
+- RateLens automatically requests the current USD/CNY rate from the disclosed public service, with a fixed-endpoint fallback and timeout. No calculator inputs are sent; if both services fail, no hardcoded rate is substituted and the user is asked to enter one manually.
 - Added a dependency-free privacy scanner that reports only finding categories and file paths, never matched values; CI now runs it before installing dependencies.
 - CI uses read-only repository permissions, does not persist checkout credentials, and explicitly disables Turborepo telemetry.
 
@@ -49,6 +57,7 @@
 - Removed SaneUnits' duplicate sidebar and mobile theme/language buttons; shared navigation is now the only global preference surface, enforced by the contract checker.
 - Replaced SaneUnits' copied dark/light palette with the shared theme stylesheet and semantic background, text, border, state, typography, and radius tokens.
 - Added a SaneUnits production browser smoke covering all five calculator/about routes, shared language/theme switching, semantic style tokens, duplicate-control absence, and the 390px layout; language changes now also keep `<html lang>` accurate.
+- Added deterministic RateLens production browser coverage for automatic live-rate success, dual-source failure, required manual entry, disclosure copy, mobile layout, and console errors.
 - Changed production release to an explicit manual GitHub Actions step after main CI, pinned every Action to an immutable official commit SHA, and documented the fixed dev-to-main deployment and rollback flow.
 
 ## v0.1 (2026-07-10)

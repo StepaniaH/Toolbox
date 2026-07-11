@@ -49,7 +49,7 @@ const EMPTY_PAID: ReversePaidInput = {
 function App() {
   const { t } = useTranslation()
   const { toggle } = useTheme()
-  const { rate, loading, error, source, setManual, refetch } = useExchangeRate(7.2)
+  const { rate, loading, error, source, setManual, refetch } = useExchangeRate()
 
   const [state, setState] = useLocalStorage<AppState>(
     STATE_STORAGE_KEY,

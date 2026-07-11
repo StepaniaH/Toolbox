@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Pencil, Check, Loader2, RefreshCw } from 'lucide-react'
 import { useTranslation } from '@toolbox/i18n/react'
 import { Input } from '@/components/ui/input'
@@ -18,7 +18,6 @@ interface ExchangeRateDisplayProps {
 const SOURCE_KEY: Record<ExchangeSource, string> = {
   auto: 'exchange.sourceAuto',
   manual: 'exchange.sourceManual',
-  default: 'exchange.sourceDefault',
 }
 
 export function ExchangeRateDisplay({
@@ -32,6 +31,13 @@ export function ExchangeRateDisplay({
   const { t } = useTranslation()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
+
+  useEffect(() => {
+    if (!loading && error && rate === null) {
+      setDraft('')
+      setEditing(true)
+    }
+  }, [error, loading, rate])
 
   const startEdit = () => {
     setDraft(rate !== null ? String(rate) : '')
@@ -56,6 +62,8 @@ export function ExchangeRateDisplay({
               step="any"
               value={draft}
               autoFocus
+              aria-label={t('exchange.rateLabel')}
+              placeholder={t('exchange.manualPlaceholder')}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') commit()

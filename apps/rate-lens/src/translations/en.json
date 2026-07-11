@@ -78,14 +78,14 @@
   "exchange": {
     "sourceAuto": "Live",
     "sourceManual": "Manual",
-    "sourceDefault": "Local reference",
     "rateLabel": "USD/CNY rate",
     "confirm": "Confirm",
     "edit": "Edit rate",
-    "fetchLive": "Get live rate",
-    "fetching": "Fetching",
-    "networkDisclosure": "Fetching connects to a public third-party rate service (open.er-api.com, with jsDelivr fallback). No form inputs are sent.",
-    "fetchFailed": "The live rate could not be fetched. The local reference rate is still in use."
+    "fetchLive": "Retry live rate",
+    "fetching": "Fetching live rate",
+    "manualPlaceholder": "Enter the current rate",
+    "networkDisclosure": "Opening this page automatically connects to the public rate service open.er-api.com, with jsDelivr fallback. Only the USD/CNY rate is requested; form inputs, model choices and calculation results are never sent. The services still receive ordinary network metadata such as IP address, request headers and request time.",
+    "fetchFailed": "The live rate could not be fetched. Enter the current USD/CNY rate to continue."
   },
   "preset": {
     "recharge100arrived100": "Recharge 100 → 100",

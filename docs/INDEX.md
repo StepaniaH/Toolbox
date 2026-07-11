@@ -1,6 +1,6 @@
 # Toolbox — 项目全景
 
-> 最后核对：2026-07-11 · 当前稳定版本：`v0.1`
+> 最后核对：2026-07-11 · 当前生产稳定版本：`v0.1` · 待发布版本：`v0.2`
 >
 > `main` 是已部署的稳定线；所有日常修改只在 `dev`（或从 `dev` 派生的功能分支）进行。
 
@@ -20,12 +20,12 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | 工具 | 路径 | 技术栈 | 主要职责 | 自动化测试 |
 |------|------|--------|----------|:----------:|
 | Homepage | `/` | Vanilla JS + Vite + Plain CSS | 工具目录与项目入口 | 5 |
-| RateLens | `/rate-lens/` | React + TypeScript + Vite + Tailwind | AI 模型价格倍率计算 | 62 |
+| RateLens | `/rate-lens/` | React + TypeScript + Vite + Tailwind | AI 模型价格倍率计算 | 63 |
 | ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 844 |
 | Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 18 |
 | SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 20 |
 
-测试数量只用于说明覆盖现状，不作为质量本身的替代指标。5 个应用当前有 949 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；`pnpm test` 共运行 965 条。`v0.1` 发布时为 910 条。
+测试数量只用于说明覆盖现状，不作为质量本身的替代指标。5 个应用当前有 950 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；`pnpm test` 共运行 966 条。`v0.1` 发布时为 910 条。
 
 ## 三、仓库结构
 
@@ -76,7 +76,7 @@ Toolbox/
 - 全局语言键：`toolbox-lang`
 - 全局主题键：`toolbox-theme`
 - 工具私有状态应使用 `toolbox.<app-id>.*` 命名，避免同域名下互相覆盖。
-- 用户内容默认不得离开浏览器；任何可选外部请求必须显式说明并由用户触发。
+- 用户内容默认不得离开浏览器；外部请求必须显式说明并最小化。RateLens 是经维护者确认的自动实时数据例外，只请求公开 USD/CNY 汇率，不发送计算输入，并提供手动失败恢复。
 
 ## 五、质量基线
 
@@ -85,8 +85,8 @@ Toolbox/
 | 检查 | 结果 | 备注 |
 |------|------|------|
 | `pnpm build` | 通过 | 5 个 Vite 应用构建成功 |
-| `pnpm test` | 通过 | 965 tests；数量不等同于覆盖率 |
-| `pnpm test:browser` | 通过 | Monitor Choice 与 SaneUnits 的生产资源、关键页面、语言/主题、移动端与 console |
+| `pnpm test` | 通过 | 966 tests；数量不等同于覆盖率 |
+| `pnpm test:browser` | 通过 | Monitor Choice、RateLens 与 SaneUnits 的生产资源、关键页面、固定网络路径、语言/主题、移动端与 console |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 | `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |

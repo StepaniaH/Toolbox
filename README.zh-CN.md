@@ -4,7 +4,7 @@
 
 一个隐私优先的网页工具集合。核心计算在浏览器本地完成——无自有后端、无追踪、无 Cookie。
 
-> 隐私说明：工具不会上传表单输入。RateLens 默认使用本地参考汇率；只有用户主动点击获取实时汇率时才会访问已披露的第三方公开服务。
+> 隐私说明：工具不会上传表单输入。RateLens 会自动向已披露的公开服务请求当前 USD/CNY 汇率；两个来源都失败时要求手动填写，不用硬编码汇率代替。
 
 **线上**: [tools.s-ark.xyz](https://tools.s-ark.xyz) · **源码**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox)
 
