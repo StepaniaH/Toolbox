@@ -69,6 +69,25 @@ test('built monitor choice references emitted hashed assets', () => {
   assert.ok(readdirSync(new URL('dist/assets/', appRoot)).some((name) => name.endsWith('.js')))
 })
 
+test('built stylesheet bundles every business stylesheet', () => {
+  const cssAssets = readdirSync(new URL('dist/assets/', appRoot))
+    .filter((name) => name.endsWith('.css'))
+  assert.equal(cssAssets.length, 1)
+  const css = read(`dist/assets/${cssAssets[0]}`)
+  assert.doesNotMatch(css, /@import/)
+  assert.doesNotMatch(css, /\.\/css\//)
+  for (const selector of [
+    ':root',
+    '.sharpness-panel',
+    '.size-panel',
+    '.color-panel',
+    '.scenario-panel',
+    '.panel-guide',
+  ]) {
+    assert.match(css, new RegExp(selector.replaceAll('.', '\\.')))
+  }
+})
+
 const storage = new Map()
 Object.defineProperty(globalThis, 'localStorage', {
   value: {

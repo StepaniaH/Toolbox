@@ -138,6 +138,7 @@ graph TD
 
 - **entry.js** — Vite 单入口，固定全局依赖顺序，完成 ThemeManager → I18n → platform bridge → MonitorChoice 启动。
 - **script.js** — 编排器：初始化分辨率选择器、同步输入控件与 AppState、绑定 Tab 导航、保存/清除。实现懒 Tab 生命周期（切换时 destroy → init）。
+- **styles.css** — 唯一 CSS 入口；六个业务样式必须由 Vite 构建期内联到 hashed CSS，禁止在产物中保留指向源码目录的相对 `@import`。
 
 ## 死代码
 
@@ -180,5 +181,5 @@ graph TD
 | workspace 共享依赖 | theme / nav / i18n |
 | 全局变量 | 14 |
 | 纯函数可提测 | ~25 个 |
-| 自动化测试 | 16（构建/契约 + 纯计算 + 兼容桥 + storage） |
+| 自动化测试 | 17（构建/完整 CSS + 纯计算 + 兼容桥 + storage） |
 | 生产输出 | `dist/`，base `/monitor-choice/` |

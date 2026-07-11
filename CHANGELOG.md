@@ -43,6 +43,7 @@
 - ESLint and Oxlint now fail on warnings so the clean lint baseline cannot silently regress.
 - Vanilla Nav now refreshes desktop and mobile tool labels when the shared language changes.
 - Converted Monitor Choice display calculations to explicit ESM exports while retaining the existing global bridge; focused tests now cover PPI/PPD, dimensions, FOV, cinema distances, comfort scores, bandwidth, and desk constraints.
+- Fixed Monitor Choice production builds leaving six source-relative CSS imports under the hashed asset directory; Vite now bundles all business styles, and a regression test rejects unresolved CSS imports.
 
 ## v0.1 (2026-07-10)
 
