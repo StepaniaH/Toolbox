@@ -7,6 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "test": "vite build && node --test tests/*.test.mjs",
+    "test:browser": "vite build && node tests/browser-smoke.mjs",
     "lint": "oxlint --deny-warnings",
     "smoke": "pnpm test"
   },
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "oxlint": "^1.73.0",
+    "playwright": "^1.61.0",
     "vite": "catalog:"
   }
 }

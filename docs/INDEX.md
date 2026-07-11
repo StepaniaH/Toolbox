@@ -86,6 +86,7 @@ Toolbox/
 |------|------|------|
 | `pnpm build` | 通过 | 5 个 Vite 应用构建成功 |
 | `pnpm test` | 通过 | 962 tests；数量不等同于覆盖率 |
+| `pnpm test:browser` | 通过 | Monitor Choice 生产资源、5 Tabs、7 Canvas、语言/主题与 console |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 | `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |

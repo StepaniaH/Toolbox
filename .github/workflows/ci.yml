@@ -33,8 +33,10 @@ jobs:
       - run: pnpm check:privacy
       - run: pnpm check:contracts
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter=@toolbox/monitor-choice exec playwright install --with-deps chromium
       - run: pnpm build
       - run: pnpm test
+      - run: pnpm test:browser
       - run: pnpm lint
 
   # ── Deploy: only on push to main, after tests pass ──

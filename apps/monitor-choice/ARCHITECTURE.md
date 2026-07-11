@@ -181,5 +181,5 @@ graph TD
 | workspace 共享依赖 | theme / nav / i18n |
 | 全局变量 | 14 |
 | 纯函数可提测 | ~25 个 |
-| 自动化测试 | 17（构建/完整 CSS + 纯计算 + 兼容桥 + storage） |
+| 自动化测试 | 17 个 Node tests + 1 个生产浏览器 smoke |
 | 生产输出 | `dist/`，base `/monitor-choice/` |
