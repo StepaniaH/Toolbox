@@ -707,6 +707,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<LanguageCode>(() => coreToSaneUnits(getLang()));
 
   useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  useEffect(() => {
     const unsubscribe = onChange((coreLang) => {
       setLangState(coreToSaneUnits(coreLang));
     });

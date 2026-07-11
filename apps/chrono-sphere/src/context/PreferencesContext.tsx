@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { THEME_ATTRIBUTE } from '@toolbox/theme/contract';
 import type { ResolvedTheme, ThemeMode } from '../i18n';
 import {
   THEME_STORAGE_KEY,
@@ -33,7 +34,7 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
-    document.documentElement.dataset.theme = resolvedTheme;
+    document.documentElement.setAttribute(THEME_ATTRIBUTE, resolvedTheme);
     document.documentElement.style.colorScheme = resolvedTheme;
   }, [resolvedTheme]);
 

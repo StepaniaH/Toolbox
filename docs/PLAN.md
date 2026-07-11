@@ -1,214 +1,218 @@
-# Toolbox — 发展方向与架构决策
+# Toolbox — 架构方向与决策
 
-> 本文档记录整体架构决策、设计原则、以及未来路线图。
-> 可执行任务见 [TASKS.md](./TASKS.md)，AI agent 操作规范见 [AGENTS.md](./AGENTS.md)。
+> 本文档回答“为什么这样设计、下一步先做什么”。项目事实见 [INDEX.md](./INDEX.md)，具体任务见 [TASKS.md](./TASKS.md)。
 
----
+## 一、北极星
 
-## 一、架构决策记录 (ADR)
+Toolbox 要成为可以持续加入新工具的稳定平台，而不是一组碰巧放在同一仓库中的页面。
 
-### ADR-1: Monorepo 而非多仓库
+目标由两个同等重要的约束组成：
 
-**决策**: 合并到单一仓库 `StepaniaH/Toolbox`。
+- **隔离性**：一个新工具即使没有完成、构建失败或设计不成熟，也不能改变已发布工具的运行结果。
+- **一致性**：新工具不需要重新发明主题、语言、导航、基础控件和响应式规则，也不能带入另一套未经约定的设计语言。
 
-**理由**:
-- 零用户零 star，无沉没成本
-- 共享主题、导航栏、i18n 天然统一
-- 新工具从 `apps/_template/` 复制即用，不重复配基建
-- DNS 管理简化为一个域名
-- 一份 AGENTS.md 即可规范所有 agent 操作
+这两个目标不能只靠“共享更多代码”实现。可变的共享代码会扩大故障半径；只复制代码又会造成漂移。正确方向是：**应用隔离 + 版本化平台契约 + 自动一致性门禁**。
 
-**代价**: 旧仓库需 archive，单工具开发者可能困惑（README 开头说明即可）。
+```text
+独立工具应用
+  ├─ 只拥有自己的业务逻辑、页面和测试
+  ├─ 依赖固定版本的平台契约
+  └─ 独立构建为自己的静态产物
 
-### ADR-2: 路径路由而非子域名
+平台契约
+  ├─ design tokens / theme
+  ├─ shell / navigation / preferences
+  ├─ i18n core
+  └─ app manifest schema
 
-**决策**: 统一域名 `tools.s-ark.xyz/<app>/`，不再为每个工具分配子域名。
-
-**理由**:
-- Caddy 仅需一个站点块，新工具无需改配置
-- 导航栏用相对路径跳转，无跨域问题
-- GA/AdSense 验证文件放根目录即覆盖所有页面
-- 新增工具不需要新增 DNS 记录
-
-## 部署架构（实际配置）
-
-```
-GitHub (StepaniaH/Toolbox)
-  → pnpm build（本地或 CI）
-    → rsync apps/homepage/ + apps/monitor-choice/ + apps/*/dist/
-      → VPS: {{VPS_WWW}}/
-        → Docker Caddy 容器: /srv/www/toolbox/
-          → tools.s-ark.xyz (Caddy 自动 HTTPS)
+仓库门禁
+  ├─ 单工具验证
+  ├─ 全仓回归
+  ├─ 契约一致性检查
+  ├─ 隐私与依赖扫描
+  └─ 视觉 smoke / snapshot
 ```
 
-| 环节 | 详情 |
-|------|------|
-| VPS | SaltyFish Frankfurt VPS ({{VPS_IP}}), 15GB SSD (9.7GB 可用) |
-| Caddy | Docker 容器 `caddy:latest`, 宿主机 `~/www` 映射到容器 `/srv/www` |
-| 配置文件 | `{{CADDY_DIR}}/Caddyfile` |
-| 重载命令 | `docker compose -f ~/docker_projects/caddy/docker-compose.yml restart` |
-| 部署方式 | 本地构建 → `rsync` 上传 → Caddy 提供静态文件 |
-| 路由方式 | 路径路由: `tools.s-ark.xyz/<app>/`（一个站点块，无需配 DNS） |
+## 二、当前判断
 
-**旧域名迁移**: 新站点上线后，保留旧子域名运行一段时间作为回退。最终删除旧 DNS 记录和 Caddy 站点块。不使用 301 跳转。
+### 已经成立的基础
 
-### ADR-3: 分三类应用处理
+- monorepo 与路径路由已经落地，应用目录天然形成边界。
+- `main` 只承载稳定发布；合并不会自动上线，生产部署只能从 `main` 手动触发。
+- 五个应用都有可运行的 build/test/lint 基线。
+- 共享 nav、theme runtime 与 i18n core 已经覆盖 React 和 Vanilla 工具。
+- 所有应用都能静态部署，无自有后端或数据库。
 
-| 类型 | 示例 | 构建 | 部署 |
-|------|------|------|------|
-| **React (Vite)** | rate-lens, chrono-sphere, sane-units | `vite build --base=/<app>/` | rsync dist/ |
-| **纯静态** | homepage, monitor-choice | 无（文件即产物） | 直接 rsync |
-| **未来: 轻量框架** | 待定 | 按需 | 按需 |
+### 必须优先解决的缺口
 
-### ADR-4: 共享包分层
+| 优先级 | 缺口 | 为什么重要 |
+|:--:|------|--------------|
+| P1 | 五个工具已接入 `@toolbox/theme` runtime，但页面语义 token 仍是 app-specific 映射 | “统一主题”仍未完全形成单一事实源 |
+| P1 | 重复的全局偏好控件尚未自动检查 | 应用可能在共享 Nav 之外再次暴露主题/语言入口 |
+| P2 | SaneUnits 已收敛共享偏好入口与语义 token，并完成逐页 browser smoke | 多页面业务壳层已被自动验证，后续并入五应用截图矩阵 |
 
-```
-packages/
-├── theme/     ← 稳定层（CSS 变量 + 切换逻辑，变更极少）
-└── nav/       ← 稳定层（导航栏组件，工具新增时更新链接列表）
-```
+## 三、目标架构
 
-- Agent 默认**不允许修改** `packages/` 下的文件，除非用户明确要求
-- 新工具引用共享包，不复制代码
+### 3.1 应用是故障隔离单元
 
-### ADR-5: 部署配置不入公开仓
+每个 `apps/<app-id>` 必须：
 
-**决策**: 公开仓库仅放 `.example` 模板，真实域名路径仅在 VPS 上。
+- 独立拥有业务代码、测试、README 和构建配置。
+- 只通过 `packages/*` 使用共享能力，禁止直接 import 其他应用。
+- 构建输出只写入自己的 `dist/`，生产路径只位于 `/<app-id>/`；Homepage 是固定的根路径 `/` 例外。
+- 工具私有 localStorage 使用 `toolbox.<app-id>.*`；只允许主题和语言使用全局键。
+- 失败时不改变首页以外的现有产物；新增路由上线应能单独回退。
 
-```
-deploy/
-├── Caddyfile.example   ← 含占位符的模板，可安全公开
-└── deploy.sh           ← 构建 + rsync 脚本（不含敏感信息）
-```
+新工具推荐使用 **Vite 构建壳**，内部可以是 Vanilla JS、React 或其他适合的客户端方案。Vite 不是为了统一框架，而是让静态工具也能可靠消费 workspace 包、参与 CI、获得 hashed assets 和一致的 base-path 行为。
 
-### ADR-6: 旧域名过渡期
+### 3.2 平台包提供契约，不拥有工具业务
 
-| 阶段 | 旧域名行为 | 新域名 |
-|------|-----------|--------|
-| 上线初期 | 旧域名正常运行 | tools.s-ark.xyz 同时上线 |
-| 验证期 (~1周) | 保留作为回退 | 作为主站 |
-| 迁移完成 | 删除旧 DNS 记录 + Caddy 站点块 | 唯一入口 |
+建议维持小而稳定的共享层：
 
-不使用 301 跳转——直接清除旧记录。
+| 包 / 能力 | 职责 | 不应包含 |
+|-----------|------|----------|
+| `@toolbox/theme` | 原始色板、语义 token、主题解析、pre-paint | 单个工具的页面样式 |
+| `@toolbox/nav` | 全局导航、语言/主题入口、响应式外壳 | 工具业务导航或业务状态 |
+| `@toolbox/i18n` | 全局语言状态、订阅机制、Provider | 每个工具的所有翻译文案 |
+| `@toolbox/app-manifest` | app id、路径、名称、简介、可用状态 | React 组件、工具逻辑或部署信息 |
 
----
+共享包变更必须遵循兼容性规则：
 
-## 二、设计系统
+1. 优先增加语义 token，不直接让应用依赖原始色号。
+2. 破坏性 token / prop / event 变更需要新 major 契约或迁移期。
+3. 应用构建时固定自己消费的契约版本；升级共享能力是显式任务。
+4. 共享包改动必须跑全仓测试、契约检查和视觉 smoke。
 
-### 色彩
+在仓库内部使用 `workspace:*` 方便开发，但发布思维仍应按语义版本执行；不能把“同仓”当成无兼容成本。
 
-采用 [Catppuccin](https://catppuccin.com/) 配色，通过 `@toolbox/theme` 统一分发。
+### 3.3 一个清单描述所有工具
 
-| 模式 | 风格 | 默认 |
-|------|------|:--:|
-| Dark | Catppuccin Frappe | ✅ 默认 |
-| Light | Catppuccin Latte | |
+`@toolbox/app-manifest` 现在是工具身份、路径、导航短文案与公开状态的唯一来源；Homepage 和两种 NavBar 都从它生成稳定入口。
 
-### 导航栏
+当前 schema 至少包含：
 
-每个工具页顶部统一的导航条：
-
-```
-[🧰 Toolbox ▾]  RateLens  ChronoSphere  Monitor Choice  SaneUnits  [🌓]
+```ts
+type ToolboxApp = {
+  id: string
+  path: `/${string}/` | '/'
+  name: string
+  description: { zh: string; en: string }
+  status: 'stable' | 'preview' | 'hidden'
+}
 ```
 
-- 悬停「Toolbox」展开下拉列表（所有工具 + 简介）
-- 亮暗切换按钮统一在右上角
-- 移动端折叠为汉堡菜单
+- Homepage 与两种 NavBar 都从该清单生成或消费数据。
+- 新工具默认 `hidden`，可显式进入 `preview`，只有 `stable` 出现在主入口。
+- CI 校验 id、路径、状态、目录唯一性与三个消费者。
+- manifest 只描述公开产品信息，不包含部署主机或内部配置。
 
-### 字体
+### 3.4 设计一致性由契约和测试保证
 
-- 中文字体栈: `"PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif`
-- 等宽字体: `"JetBrains Mono", "SF Mono", "Cascadia Code", monospace`
-- 系统字体优先，零外部加载
+[DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) 是规范性来源，代码层逐步补齐：
 
-### 响应式断点（新工具建议遵循）
+- 语义 token：背景、文字、边框、状态色、间距、圆角、字体、动效。
+- 唯一的全局偏好入口：共享 NavBar 中的语言与主题按钮。
+- 交互状态规范：hover、active、focus-visible、disabled 不能由各工具自由发挥。
+- 视觉矩阵：5 个应用 × light/dark × zh/en × desktop/mobile 的 smoke 截图。
+- 契约测试：关键 token、storage key、HTML `lang`、无重复控件、静态副本一致性。
 
-| 断点 | 目标设备 |
-|------|----------|
-| 375px | 手机竖屏（最小支持宽度） |
-| 768px | 平板竖屏 |
-| 1024px | 平板横屏 / 小笔记本 |
-| 1440px | 桌面显示器 |
+用户已确认的具体规则：右上角语言与主题按钮在鼠标 hover 时不出现背景、边框或“选中框”；键盘 `focus-visible` 仍必须有清晰焦点提示。
 
----
+### 3.5 隐私是可验证的产品能力
 
-## 三、工具开发规范
+“隐私优先”不能只写在 README：
 
-### 新增工具 Checklist
+- 默认不发起业务所非必需的外部请求。
+- 需要外部数据时，显示用途和目标服务、固定 allowlist、最小发送并提供手动/离线恢复；页面加载自动请求仅限维护者明确批准的核心实时数据。
+- 禁止追踪、广告脚本、指纹、遥测和静默远端字体。
+- CI 增加 secret scan、外部 URL allowlist 与依赖审计。
+- 文档不记录服务器供应商、位置、内部地址、端口和真实路径。
+- Git 使用维护者确认公开的身份邮箱或 noreply；提交前扫描 staged diff，避免意外带入私人/工作邮箱。历史改写必须单独审批。
 
-1. `cp -r apps/_template apps/new-tool`
-2. 修改 `apps/new-tool/package.json` 中的 `name` 为 `@toolbox/new-tool`
-3. 引用 `@toolbox/theme`（主题）和 `@toolbox/nav`（导航栏）
-4. 在 `turbo.json` 中添加构建任务
-5. 在 `apps/homepage/js/tools.js` 中添加导航卡片
-6. 在 `packages/nav/` 的链接列表中追加新工具
-7. 写 README.md + README.zh-CN.md
-8. `pnpm --filter=new-tool dev` 验证开发环境
-9. `pnpm build` 验证全量构建通过
-10. `pnpm deploy` 部署到 VPS
+## 四、演进顺序
 
-### 每个工具必须包含
+### Phase A — 先建立护栏
 
-| 文件 | 说明 |
-|------|------|
-| `README.md` | 英文说明（功能、技术栈、如何本地运行） |
-| `README.zh-CN.md` | 中文说明 |
-| `package.json` | 含正确的 `name`、`scripts`（React 项目） |
-| 中英双语界面 | 通过 i18n 实现 |
+- 保持 RateLens “自动获取当前汇率但不发送计算输入，失败后要求手动填写”的透明联网契约，并用测试防止回归。
+- 加固手动部署脚本：只允许干净的 `main`、只做 fast-forward、绝不静默切分支。
+- 校验提交身份属于维护者确认公开的邮箱，补 secret / URL 扫描。
+- 将 Homepage 与 Monitor Choice 纳入可执行的 build/lint/smoke 流程。
+- 建立最小跨应用浏览器 smoke，保证现有 v0.1 行为可回归。
 
-### 代码红线（AI agent 不得违反）
+### Phase B — 收敛平台契约
 
-- ❌ 不得引入后端依赖（数据库、API 服务端、需要登录的功能）
-- ❌ 不得引入第三方追踪/分析脚本（除非用户明确要求）
-- ❌ 不得修改 `packages/` 下的文件（除非用户明确要求）
-- ❌ 不得在未告知的情况下修改其他工具的代码
-- ✅ 所有计算逻辑必须能在浏览器离线运行
+- 先冻结 DESIGN_SYSTEM v1 的语义 token 和控件状态。
+- 让一个代表性应用接入 `@toolbox/theme` 并验证无视觉回归，再逐个迁移。
+- 将静态应用迁入 Vite，删除手工复制的 nav/theme 产物。
+- 修复共享导航 hover / focus 行为；移除 SaneUnits 重复的全局控件。
+- 引入 app manifest，统一工具列表来源。
 
----
+### Phase C — 建立“新工具积木”
 
-## 四、测试策略
+- 提供 `apps/_template` 或生成器；模板本身作为可构建、可测试的应用维护。
+- 将 [NEW_TOOL.md](./NEW_TOOL.md) 的 checklist 自动化为 `pnpm check:contracts`。
+- 新工具默认处于 `hidden`，通过自己的测试和全仓门禁后才能变为 `preview` / `stable`。
+- 为 agent / vibe coding 提供固定输入模板：功能目标、输入输出、隐私、边界、验收。
 
-| 层级 | 工具 | 当前 | 目标 |
-|------|------|:--:|:--:|
-| 纯函数单元测试 | 所有 | 部分 | 核心计算逻辑全覆盖 |
-| 组件渲染测试 | React 工具 | rate-lens 有 | 至少冒烟测试 |
-| 端到端测试 | 所有 | 无 | 暂不需要（纯静态工具） |
+### Phase D — 版本与发布治理
 
----
+- 为平台包采用 Changesets 或等价版本策略。
+- 区分应用版本、平台契约版本和仓库 release。
+- `dev` 持续集成，`main` 只接受明确晋级；生产部署只认 tag 或 main SHA，并由维护者显式手动触发。
+- 每次 release 记录可回滚 commit 与应用产物清单。
 
-## 五、未来路线图
+## 五、架构决策记录（ADR）
 
-### 短期（迁移完成后）
+### ADR-1：使用 monorepo
 
-- [ ] 统一 i18n 框架（抽取到 `packages/i18n/`）
-- [ ] 导航栏增强：悬停下拉显示所有工具简介
-- [ ] 每个工具加入 `404.html`
-- [ ] 响应式图片 + 暗色模式 favicon
+**决定**：所有工具和共享能力保留在同一仓库。
 
-### 中期
+**理由**：原子变更、统一 CI、统一契约检查和可发现性优于多仓库；应用隔离由目录、依赖和部署边界保证，而不是靠分仓。
 
-- [ ] PWA / Service Worker（离线可用）
-- [ ] 共享组件库 `packages/ui/`（按钮、输入框、卡片等）
-- [ ] 统一埋点（GA 或隐私友好的自建方案）
-- [ ] 旧域名 301 跳转
+### ADR-2：使用同域路径路由
 
-### 长期
+**决定**：工具位于统一站点下的独立路径。
 
-- [ ] 工具间数据互通（如 RateLens 的价格数据自动同步到其他工具）
-- [ ] 广告接入（AdSense / 赞助链接）
-- [ ] 用户反馈系统（GitHub Issues 集成）
+**理由**：导航和偏好共享简单、静态部署成本低。代价是 localStorage 与全局 CSS 必须有严格命名边界。
 
----
+### ADR-3：保持纯客户端产品边界
 
-## 六、已知技术债务
+**决定**：默认不引入自有后端、数据库或账号系统。
 
-| # | 项目 | 问题 | 优先级 |
-|---|------|------|:--:|
-| 1 | monitor-choice | 零测试覆盖（6,475 行） | 🔴 |
-| 2 | 全部 | i18n 实现碎片化（3 种不同方案） | 🟡 |
-| 3 | rate-lens | 无英文 i18n | 🟡 |
-| 4 | rate-lens | 模型定价数据硬编码，需手动更新 | 🟡 |
-| 5 | chrono-sphere | 测试覆盖偏低（2 测试文件 / 4,263 行） | 🟡 |
-| 6 | sane-units | 使用 Node --test 而非 Vitest，与生态不一致 | 🟢 |
-| 7 | 全部 | 亮暗主题切换按钮位置/图标不统一 | 🟢 |
+**理由**：部署和隐私模型简单。实时外部数据默认采用用户主动请求；获批的自动请求必须是产品核心数据、明确披露、固定来源、最小发送，并有手动或离线失败恢复，而不是静默联网或为此搭建代理后端。
+
+### ADR-4：共享稳定契约，不共享业务页面
+
+**决定**：`packages/` 只承载跨工具基础能力，应用业务组件留在各自目录。
+
+**理由**：避免为了表面复用把工具耦合在一起。只有至少三个应用重复且语义稳定的基础组件，才考虑进入未来的 `packages/ui`。
+
+### ADR-5：新静态工具也使用构建壳
+
+**决定**：新增 Vanilla 工具也优先使用 Vite，而不是继续直接部署源码目录。
+
+**理由**：让所有工具进入统一依赖、构建和契约流程，消除共享文件手工复制。现有两个纯静态工具分阶段迁移，不做一次性重写。
+
+### ADR-6：运行中应用不消费“始终最新”的可变 UI
+
+**决定**：共享代码在构建期打包或以版本化静态资源发布；不在运行时注入未经应用验证的最新脚本。
+
+**理由**：运行时全局更新虽统一，但会让一次平台错误同时破坏所有工具，违背稳定性目标。
+
+### ADR-7：工具链版本使用 catalog 与显式迁移线
+
+**决定**：React、Vite、Vitest、TypeScript 与 Vite React plugin 的版本只在根 `pnpm-workspace.yaml` 定义。默认 catalog 是新工具的稳定线；现存 Vite 7/8 组合用命名 catalog 表示迁移边界。
+
+**理由**：集中版本事实可以防止 package 之间悄悄漂移；命名迁移线允许逐应用收敛，不需要为了表面统一一次性升级所有工具。完整规则与回滚方式见 [DEPENDENCIES.md](./DEPENDENCIES.md)。
+
+## 六、完成定义
+
+当以下条件同时成立时，才可以说 Toolbox 具备“积木式扩展”能力：
+
+- 新工具只新增自己的目录和一条 manifest 记录，不手改多个导航实现。
+- 新工具失败不会阻止稳定应用使用已发布产物，也不会自动进入主导航。
+- light/dark、zh/en、desktop/mobile 的设计和可访问性门禁自动执行。
+- 所有应用都能被根 build/test/lint/smoke 发现。
+- 外部网络访问有 allowlist、明确 UI、最小发送和失败恢复；自动请求有维护者批准记录。
+- 平台包升级是显式、可回滚、带兼容性验证的变更。
+- 部署只从已验证的 `main` commit 或 release tag 发生。

@@ -46,20 +46,21 @@ class MemStorage {
   }
 }
 
-if (typeof (globalThis as any).localStorage === 'undefined') {
-  Object.defineProperty(globalThis, 'localStorage', {
-    value: new MemStorage(),
-    configurable: true,
-    writable: true,
-  })
+function installStorageMock(name: 'localStorage' | 'sessionStorage') {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, name)
+  if (!descriptor || descriptor.configurable) {
+    Object.defineProperty(globalThis, name, {
+      value: new MemStorage(),
+      configurable: true,
+      writable: true,
+    })
+  }
 }
-if (typeof (globalThis as any).sessionStorage === 'undefined') {
-  Object.defineProperty(globalThis, 'sessionStorage', {
-    value: new MemStorage(),
-    configurable: true,
-    writable: true,
-  })
-}
+
+// Avoid invoking Node 26's localStorage getter during capability detection.
+// Tests need worker-local memory, not Node's process-shared persistence file.
+installStorageMock('localStorage')
+installStorageMock('sessionStorage')
 
 // jsdom 26 does not install localStorage/sessionStorage on `window` even when
 // a non-opaque url is configured, but the i18n core reads `window.localStorage`.

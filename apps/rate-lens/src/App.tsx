@@ -36,6 +36,9 @@ const DEFAULT_STATE: AppState = {
   cacheExpanded: false,
 }
 
+const STATE_STORAGE_KEY = 'toolbox.rate-lens.state'
+const LEGACY_STATE_STORAGE_KEY = 'ratelens-state'
+
 const EMPTY_PAID: ReversePaidInput = {
   input: null,
   output: null,
@@ -46,11 +49,12 @@ const EMPTY_PAID: ReversePaidInput = {
 function App() {
   const { t } = useTranslation()
   const { toggle } = useTheme()
-  const { rate, loading, source, setManual, refetch } = useExchangeRate(7.2)
+  const { rate, loading, error, source, setManual, refetch } = useExchangeRate()
 
   const [state, setState] = useLocalStorage<AppState>(
-    'ratelens-state',
+    STATE_STORAGE_KEY,
     DEFAULT_STATE,
+    LEGACY_STATE_STORAGE_KEY,
   )
 
   const patch = useCallback(
@@ -116,6 +120,7 @@ function App() {
         <ExchangeRateDisplay
           rate={rate}
           loading={loading}
+          error={error}
           source={source}
           onManual={setManual}
           onRefetch={refetch}

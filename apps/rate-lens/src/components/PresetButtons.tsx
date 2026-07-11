@@ -20,8 +20,8 @@ const FUNDING_PRESETS: Preset[] = [
 ]
 
 const RATE_PRESETS: Preset[] = [
-  { labelKey: 'preset.rate0.6', groupRate: 0.6 },
-  { labelKey: 'preset.rate1.1', groupRate: 1.1 },
+  { labelKey: 'preset.rate06', groupRate: 0.6 },
+  { labelKey: 'preset.rate11', groupRate: 1.1 },
 ]
 
 export function PresetButtons({ mode, onPreset }: PresetButtonsProps) {

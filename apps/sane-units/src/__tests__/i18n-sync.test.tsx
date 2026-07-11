@@ -27,6 +27,7 @@ function Probe() {
 describe('SaneUnits LanguageProvider — @toolbox/i18n core同步', () => {
   beforeEach(() => {
     localStorage.clear()
+    document.documentElement.lang = 'en'
     act(() => setCoreLang('zh'))
   })
 
@@ -43,21 +44,24 @@ describe('SaneUnits LanguageProvider — @toolbox/i18n core同步', () => {
   it('NavBar 语言按钮（core setLang）触发后页面语言切换生效', () => {
     render(createElement(LanguageProvider, null, createElement(Probe)))
     expect(screen.getByTestId('lang').textContent).toBe('zh-CN')
+    expect(document.documentElement.lang).toBe('zh-CN')
 
     // 模拟 NavBar 语言按钮调用 core 的 setLang('en')
     act(() => setCoreLang('en'))
     expect(screen.getByTestId('lang').textContent).toBe('en')
+    expect(document.documentElement.lang).toBe('en')
 
     // 切回中文也应同步
     act(() => setCoreLang('zh'))
     expect(screen.getByTestId('lang').textContent).toBe('zh-CN')
+    expect(document.documentElement.lang).toBe('zh-CN')
   })
 
-  it('自身 setLang 同步到 core（NavBar 可见）', () => {
+  it('setLang API 同步到 core（NavBar 可见）', () => {
     render(createElement(LanguageProvider, null, createElement(Probe)))
     expect(getLang()).toBe('zh')
 
-    // 点击 SaneUnits 内部的语言按钮
+    // 模拟业务消费者调用 provider API
     act(() => screen.getByTestId('toggle').click())
     expect(screen.getByTestId('lang').textContent).toBe('en')
     // core 也应同步到 'en'，这样 NavBar 的语言按钮状态会跟着变

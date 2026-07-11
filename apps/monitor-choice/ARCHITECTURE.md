@@ -1,21 +1,21 @@
-# monitor-choice — 架构分析
+# Monitor Choice — 当前架构
 
-> 分析日期: 2026-07-09 · 纯分析，未改代码
+> 最后核对：2026-07-11 · Vite workspace 迁移完成
 
 ## 加载顺序与全局依赖
 
-`index.html` 中 17 个 `<script>` 按顺序加载，后加载者依赖前面定义的全局变量：
+`index.html` 只加载 `entry.js`。Vite 按下表顺序执行 side-effect imports，现有业务 IIFE 继续暴露相同全局接口；`entry.js` 在依赖全部注册后统一调用 `init()`，避免 ES module deferred 时序改变页面行为。
 
 | # | 文件 | 定义的全局 | 角色 |
 |---|------|-----------|------|
-| 1 | `toggle.js` | `window.ToolboxTheme` | 共享主题 (repo-level) |
-| 2 | `nav-bar.js` | `window.ToolboxNav` | 共享导航栏 (repo-level) |
+| 1 | `js/platform.js` | `window.ToolboxI18n` | workspace theme/nav/i18n adapter + 手动启动标记 |
+| 2 | `@toolbox/nav/nav-bar.js` | `window.ToolboxNav` | 共享导航栏 workspace runtime |
 | 3 | `js/theme.js` | `window.ThemeManager` | Canvas 主题 (init/toggle/getCanvasBg/getCanvasColor/onChange) |
 | 4 | `js/i18n.js` | `window.I18n` | i18n 引擎 (t/setLocale/refreshDOM/translations) |
 | 5 | `js/i18n-zh.js` | (mutates I18n.translations.zh) | 中文翻译 |
 | 6 | `js/i18n-en.js` | (mutates I18n.translations.en) | 英文翻译 |
 | 7 | `js/constants.js` | `window.Constants` | 静态参考数据 (分辨率、色域、面板类型) |
-| 8 | `js/calc.js` | `window.Calc` | 纯数学函数 (PPI/PPD/FOV/THX/SMPTE) |
+| 8 | `js/calc.js` | ESM exports + `window.Calc` 兼容桥 | 纯数学函数 (PPI/PPD/FOV/THX/SMPTE) |
 | 9 | `js/state.js` | `window.AppState` | 响应式状态 + localStorage |
 | 10 | `js/data-scenarios.js` | `window.Scenarios` | 场景数据 |
 | 11 | `js/data-panels.js` | `window.PanelGuideData` | 面板百科数据 |
@@ -24,7 +24,7 @@
 | 14 | `js/tab-color-lab.js` | `window.TabColorLab` | 色彩空间 Tab (CIE 1931) |
 | 15 | `js/tab-scenarios.js` | `window.TabScenarios` | 场景推荐 Tab |
 | 16 | `js/tab-panel-guide.js` | `window.TabPanelGuide` | 面板百科 Tab |
-| 17 | `script.js` | `window.switchTab` | 入口/编排器 |
+| 17 | `script.js` | `window.switchTab`, `window.MonitorChoice` | 入口/编排器；由 `entry.js` 显式启动 |
 
 > ⚠️ 注意: 原 TASKS.md 提到的 `window.PanelRegistry` 和 `window.State` 在此代码库中不存在。实际等价物是 `window.PanelGuideData` 和 `window.AppState`。
 
@@ -33,7 +33,9 @@
 ```mermaid
 graph TD
   subgraph shared["共享 (repo-level)"]
-    toggle[toggle.js] -->|ToolboxTheme| navbar[nav-bar.js]
+    platform[platform.js] -->|ToolboxTheme| toggle[@toolbox/theme]
+    platform -->|ToolboxI18n| i18ncore[@toolbox/i18n]
+    toggle --> navbar[@toolbox/nav]
   end
 
   subgraph data["数据层 (无依赖)"]
@@ -103,18 +105,18 @@ graph TD
 
 ## 各文件职责
 
-### 共享层 (repo-level)
+### 共享层 (workspace packages)
 
-- **toggle.js** — Toolbox 主题运行时 (UMD)。暴露 `window.ToolboxTheme`，localStorage key 为 `toolbox-theme`。NavBar 主题按钮调其 `toggleTheme()`。
-- **nav-bar.js** — Toolbox 导航栏 (UMD)。自挂载到 `#toolbox-nav`，含品牌下拉、快捷链接、主题按钮、移动端汉堡菜单。根据 `location.pathname` 自动高亮。
+- **`js/platform.js`** — 直接导入 `@toolbox/theme/toggle.js`、`@toolbox/nav/nav-bar.css` 与 `@toolbox/i18n/core`，桥接本应用的 Canvas 主题通知和翻译表。
+- **`@toolbox/nav/nav-bar.js`** — 从 workspace 依赖进入 Vite bundle，自挂载到 `#toolbox-nav`；应用目录不再保存副本。
 
 ### 基础设施
 
 - **theme.js** — Canvas 主题管理器。暴露 `window.ThemeManager` (init/toggle/getStoredTheme/getCanvasBg/getCanvasColor/onChange)。共用 `toolbox-theme` key。提供 `getCanvasBg()`/`getCanvasColor(name)` 供 Canvas 绘制读取 CSS 变量。
-- **i18n.js** — i18n 引擎。暴露 `window.I18n` (t/setLocale/getLocale/onChange/init/refreshDOM)。遍历 DOM 中 `data-i18n` 属性自动替换文本。语言持久化到 `localStorage["monitor-choice-lang"]`。
+- **i18n.js** — i18n 引擎。暴露 `window.I18n` (t/setLocale/getLocale/onChange/init/refreshDOM)。遍历 DOM 中 `data-i18n` 属性并由共享 core 驱动，使用全局 `toolbox-lang`。
 - **i18n-zh.js / i18n-en.js** — 翻译数据，填充 `window.I18n.translations.{zh,en}`。
 - **constants.js** — 静态参考数据：分辨率列表、宽高比、CIE 1931 光谱轨迹、面板类型、接口带宽阈值。零 DOM 依赖。
-- **calc.js** — 纯数学函数：`computePPI`, `computePPD`, `computeRetinaDistance`, `resolveDimensions`, `computeHorizontalFOV`, `computeTHXDistance`, `computeSMPTERange`, `computeInterfaceBandwidth`, `computeDeskConstraint`。**100% 纯函数，所有 Tab 共用**。
+- **calc.js** — 纯数学函数：`computePPI`, `computePPD`, `computeRetinaDistance`, `resolveDimensions`, `computeHorizontalFOV`, `computeTHXDistance`, `computeSMPTERange`, `computeInterfaceBandwidth`, `computeDeskConstraint`。提供 named ESM exports，并保留 `window.Calc` 兼容桥供现有 Tab 使用。
 - **state.js** — 响应式状态存储。暴露 `window.AppState` (get/set/batch/onChange/savePreferences/loadPreferences)。6 个持久化 key: `distance`, `size`, `resolution`, `workPercentage`, `mediaPercentage`, `deskDepth`。Pub/sub 模式。
 
 ### 数据
@@ -132,9 +134,13 @@ graph TD
 - **tab-scenarios.js** — 场景卡片 + 筛选，点击"应用"自动选分辨率并跳转到相关 Tab。
 - **tab-panel-guide.js** — 面板技术手风琴 + 接口带宽实时计算器。
 
+七个 Canvas 都提供本地化 accessible name，并通过 `aria-describedby` 关联同页动态文字结果；视觉绘制不是获取结论的唯一方式。
+
 ### 入口
 
-- **script.js** — 编排器：初始化分辨率选择器、同步输入控件与 AppState、绑定 Tab 导航、保存/清除/语言按钮。实现懒 Tab 生命周期（切换时 destroy → init）。
+- **entry.js** — Vite 单入口，固定全局依赖顺序，完成 ThemeManager → I18n → platform bridge → MonitorChoice 启动。
+- **script.js** — 编排器：初始化分辨率选择器、同步输入控件与 AppState、绑定 Tab 导航、保存/清除。实现懒 Tab 生命周期（切换时 destroy → init）。
+- **styles.css** — 唯一 CSS 入口；六个业务样式必须由 Vite 构建期内联到 hashed CSS，禁止在产物中保留指向源码目录的相对 `@import`。
 
 ## 死代码
 
@@ -157,40 +163,25 @@ graph TD
 | `tab-scenarios.js` | `pickResolutionForScenario(scenario, Resolutions, Calc)` | 场景→分辨率匹配 |
 | `tab-panel-guide.js` | `classifyInterfaces(bw, thresholds)` | 带宽→接口兼容性 |
 
-## ES Modules 迁移方案
+## ES Modules 状态
 
-### Phase 1: 最小迁移（Tab 模块化）
+当前采用低风险的过渡结构：Vite 负责依赖图、hashed assets、base path 和 CI；`calc.js` 已成为显式 ESM，其他业务文件仍用原 IIFE API。这样可以逐个建立测试边界，不在同一阶段重写 Canvas 生命周期。
 
-**目标**: Tab 文件用 ES modules，基础设施保持全局变量。
-
-- 共享文件 `toggle.js` / `nav-bar.js` 保持经典 `<script>`（跨 app 共享，先不动）
-- `constants.js` / `calc.js` / `state.js` / `i18n.js` 保持全局（Tab 依赖它们）
-- 5 个 `tab-*.js` + `script.js` 改为 `type="module"`，通过 `import` 引入依赖
-- `script.js` 改为 `<script type="module">` 单入口，其余 16 个 `<script>` 移除
-- 将 `window.switchTab` 提取为 `tabs.js` 模块，避免 tab-scenarios ↔ script.js 循环引用
-- 语言文件 `i18n-zh.js` / `i18n-en.js` 改为 `export const zh/en = {...}`，`i18n.js` import 它们（反转依赖方向）
-
-### Phase 2: 完全模块化
-
-**目标**: 移除所有全局变量。
-
-- 将 `constants.js` / `calc.js` 改为 `export const/function`
-- 将 `state.js` 改为 `export const AppState = createStore(...)`
-- 将 `i18n.js` 改为 `export function createI18n(translations)`
-- `toggle.js` / `nav-bar.js` 升级为 ES modules（需协调整个 Toolbox repo）
+后续只有在测试边界足够时再逐步把 `AppState`、数据和 Tab 控制器改为显式 exports；不要求一次性移除全部全局变量。`window.Calc` 要等所有 Tab 改用 import 后再删除。
 
 ### 关键风险
 
-- **模块延迟**: ES modules 是 deferred 的（`DOMContentLoaded` 可能已触发）。检查 `document.readyState` 并在 `init()` 中做出防御性处理。
-- **Canvas Tab 生命周期**: `script.js` 调用 `window.TabX.init/destroy` → 改为 `import {TabX}` → 直接调用，无接口变化。
-- **测试**: 纯函数提取后可直接用 vitest 测试，Tab 控制器可用 jsdom + vitest 测试 DOM 渲染。
+- **启动顺序**：`entry.js` 的 import 顺序属于运行时契约，已有 smoke test 固定，不能随意排序。
+- **Canvas 主题**：共享 Nav 的主题按钮必须委托 `ThemeManager.toggle()`，确保活跃 Canvas 收到重绘通知。
+- **全局拆分**：提取模块时保持 Tab 的 `init()/destroy()` 生命周期，避免重复监听器和 resize handler。
 
 ## 总结
 
 | 指标 | 数值 |
 |------|------|
-| 总 JS 文件 | 17 (含 2 共享) |
+| Vite 入口 | 1 (`entry.js`) |
+| workspace 共享依赖 | theme / nav / i18n |
 | 全局变量 | 14 |
 | 纯函数可提测 | ~25 个 |
-| 死代码 | 2 个函数 + 1 个分支 |
-| 迁移影响文件 | 全部 15 个 app-level JS |
+| 自动化测试 | 18 个 Node tests + 1 个生产浏览器 smoke |
+| 生产输出 | `dist/`，base `/monitor-choice/` |

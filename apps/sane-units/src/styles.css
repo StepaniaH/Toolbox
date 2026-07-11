@@ -1,81 +1,14 @@
+/* SaneUnits owns layout; @toolbox/theme owns palette, typography and radii. */
 :root {
-  color-scheme: dark;
-  --base: #303446;
-  --mantle: #292c3c;
-  --crust: #232634;
-  --surface: #414559;
-  --surface-1: #51576d;
-  --surface-2: #626880;
-  --overlay: #737994;
-  --text: #c6d0f5;
-  --muted: #a5adce;
-  --muted-2: #8c93b8;
-  --blue: #8caaee;
-  --teal: #81c8be;
-  --green: #a6d189;
-  --yellow: #e5c890;
-  --peach: #ef9f76;
-  --mauve: #ca9ee6;
-  --red: #e78284;
-  /* RGB components for rgba() composition (dark: Frappe) */
-  --surface-rgb: 65, 69, 89;
-  --mantle-rgb: 41, 44, 60;
-  --surface-1-rgb: 81, 87, 109;
-  --blue-rgb: 140, 170, 238;
-  --red-rgb: 231, 130, 132;
-  --teal-rgb: 129, 200, 190;
-  --text-rgb: 198, 208, 245;
-  --shadow: 0 16px 36px rgba(17, 19, 31, 0.28);
-  --border: rgba(var(--text-rgb), 0.12);
-  --border-strong: rgba(var(--text-rgb), 0.2);
-  --radius: 8px;
-}
-
-/* Bridge --ctp-* variables for @toolbox/nav compatibility */
-:root {
-  --ctp-base: var(--base);
-  --ctp-mantle: var(--mantle);
-  --ctp-text: var(--text);
-  --ctp-blue: var(--blue);
-  --font-sans: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-  --base: #eff1f5;
-  --mantle: #e6e9ef;
-  --crust: #dce0e8;
-  --surface: #ccd0da;
-  --surface-1: #bcc0cc;
-  --surface-2: #acb0be;
-  --overlay: #9ca0b0;
-  --text: #4c4f69;
-  --muted: #5c5f77;
-  --muted-2: #6c6f85;
-  --blue: #1e66f5;
-  --teal: #179299;
-  --green: #40a02b;
-  --yellow: #df8e1d;
-  --peach: #fe640b;
-  --mauve: #8839ef;
-  --red: #d20f39;
-  /* RGB components for rgba() composition (light: Latte) */
-  --surface-rgb: 204, 208, 218;
-  --mantle-rgb: 230, 233, 239;
-  --surface-1-rgb: 188, 192, 204;
-  --blue-rgb: 30, 102, 245;
-  --red-rgb: 210, 15, 57;
-  --teal-rgb: 23, 146, 153;
-  --text-rgb: 76, 79, 105;
-  --shadow: 0 16px 36px rgba(140, 143, 161, 0.18);
-  --border: rgba(var(--text-rgb), 0.12);
-  --border-strong: rgba(var(--text-rgb), 0.2);
+  --mantle: color-mix(in srgb, var(--color-bg) 96%, black);
+  --text: var(--color-text);
+  --muted: var(--color-text-muted);
+  --muted-2: var(--color-text-faint);
+  --blue: var(--color-primary);
+  --yellow: var(--color-warning);
+  --border: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --shadow: 0 16px 36px color-mix(in srgb, var(--color-text) 18%, transparent);
 }
 
 *,
@@ -85,7 +18,7 @@
 }
 
 html {
-  background: var(--crust);
+  background: var(--color-bg);
 }
 
 body {
@@ -93,11 +26,9 @@ body {
   padding-top: 56px;
   min-width: 320px;
   min-height: 100vh;
-  background: var(--base);
-  color: var(--text);
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -125,7 +56,7 @@ a {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
-  background: var(--base);
+  background: var(--color-bg);
 }
 
 .sidebar {
@@ -134,7 +65,7 @@ a {
   height: 100vh;
   padding: 22px 18px;
   background: var(--mantle);
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -150,10 +81,14 @@ a {
 .brand-mark {
   width: 42px;
   height: 42px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, rgba(var(--blue-rgb), 0.18), rgba(var(--teal-rgb), 0.08));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-primary) 18%, transparent),
+    color-mix(in srgb, var(--color-success) 8%, transparent)
+  );
   border: 1px solid var(--border-strong);
   color: var(--blue);
   font-size: 13px;
@@ -190,7 +125,7 @@ a {
 .nav-link {
   min-height: 42px;
   padding: 0 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: transparent;
   display: flex;
@@ -204,22 +139,22 @@ a {
 }
 
 .nav-link:hover {
-  background: rgba(var(--surface-1-rgb), 0.4);
+  background: color-mix(in srgb, var(--color-bg-muted) 40%, transparent);
   color: var(--text);
 }
 
 .nav-link-active {
-  background: rgba(var(--blue-rgb), 0.12);
-  border-color: rgba(var(--blue-rgb), 0.28);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
   color: var(--text);
 }
 
 .sidebar-note {
   margin-top: auto;
   padding: 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: rgba(var(--surface-rgb), 0.55);
+  background: color-mix(in srgb, var(--color-bg-elevated) 55%, transparent);
 }
 
 .sidebar-note p {
@@ -239,54 +174,13 @@ a {
   font-size: 13px;
 }
 
-.sidebar-controls {
-  display: flex;
-  gap: 8px;
-  padding: 0;
-}
-
-.control-btn {
-  min-height: 34px;
-  min-width: 48px;
-  padding: 0 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: rgba(var(--surface-rgb), 0.55);
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.control-btn:hover {
-  background: rgba(var(--surface-1-rgb), 0.65);
-  color: var(--text);
-  border-color: var(--border-strong);
-}
-
-.mobile-controls {
-  display: none;
-}
-
-@media (max-width: 980px) {
-  .mobile-controls {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-  }
-}
-
 .mobile-topbar {
   display: none;
   position: sticky;
   top: 0;
   z-index: 20;
   padding: 14px 16px 12px;
-  background: rgba(var(--mantle-rgb), 0.96);
+  background: color-mix(in srgb, var(--mantle) 96%, transparent);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
@@ -370,8 +264,8 @@ h1 {
 .metric-badge {
   min-width: 132px;
   padding: 12px 14px;
-  border-radius: 8px;
-  background: rgba(var(--surface-rgb), 0.72);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-bg-elevated) 72%, transparent);
   border: 1px solid var(--border);
 }
 
@@ -397,9 +291,9 @@ h1 {
 .home-card {
   min-height: 132px;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: rgba(var(--surface-rgb), 0.72);
+  background: color-mix(in srgb, var(--color-bg-elevated) 72%, transparent);
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -413,8 +307,8 @@ h1 {
 
 .home-card:hover {
   transform: translateY(-1px);
-  border-color: rgba(var(--blue-rgb), 0.28);
-  background: rgba(var(--surface-1-rgb), 0.74);
+  border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+  background: color-mix(in srgb, var(--color-bg-muted) 74%, transparent);
 }
 
 .home-card-meta {
@@ -473,9 +367,9 @@ h1 {
   grid-column: span 4;
   min-width: 0;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: rgba(var(--surface-rgb), 0.78);
+  background: color-mix(in srgb, var(--color-bg-elevated) 78%, transparent);
   box-shadow: var(--shadow);
 }
 
@@ -526,9 +420,9 @@ h1 {
   width: 100%;
   min-height: 42px;
   padding: 0 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(var(--text-rgb), 0.12);
-  background: rgba(var(--mantle-rgb), 0.96);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--mantle) 96%, transparent);
   color: var(--text);
   outline: none;
   transition:
@@ -541,8 +435,8 @@ h1 {
 }
 
 .input:focus {
-  border-color: rgba(var(--blue-rgb), 0.45);
-  box-shadow: 0 0 0 3px rgba(var(--blue-rgb), 0.12);
+  border-color: color-mix(in srgb, var(--color-ring) 45%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ring) 12%, transparent);
 }
 
 .input:disabled {
@@ -579,9 +473,9 @@ h1 {
 .chip {
   min-height: 36px;
   padding: 0 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(var(--text-rgb), 0.12);
-  background: rgba(var(--mantle-rgb), 0.82);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--mantle) 82%, transparent);
   color: var(--muted);
   cursor: pointer;
   transition:
@@ -591,21 +485,21 @@ h1 {
 }
 
 .chip:hover {
-  border-color: rgba(var(--text-rgb), 0.22);
+  border-color: color-mix(in srgb, var(--color-text) 22%, transparent);
   color: var(--text);
 }
 
 .chip-active {
-  background: rgba(var(--blue-rgb), 0.16);
-  border-color: rgba(var(--blue-rgb), 0.36);
+  background: color-mix(in srgb, var(--color-primary) 16%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary) 36%, transparent);
   color: var(--text);
 }
 
 .result-card {
   padding: 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(var(--text-rgb), 0.12);
-  background: rgba(var(--mantle-rgb), 0.92);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--mantle) 92%, transparent);
 }
 
 .result-badge {
@@ -644,9 +538,9 @@ h1 {
 
 .stat-block {
   padding: 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(var(--text-rgb), 0.12);
-  background: rgba(var(--mantle-rgb), 0.8);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--mantle) 80%, transparent);
 }
 
 .stat-label {
@@ -666,19 +560,19 @@ h1 {
 
 .info-box {
   padding: 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(var(--text-rgb), 0.12);
-  background: rgba(var(--mantle-rgb), 0.86);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--mantle) 86%, transparent);
 }
 
 .tone-blue {
-  border-color: rgba(var(--blue-rgb), 0.2);
-  background: rgba(var(--blue-rgb), 0.08);
+  border-color: color-mix(in srgb, var(--color-info) 20%, transparent);
+  background: color-mix(in srgb, var(--color-info) 8%, transparent);
 }
 
 .tone-red {
-  border-color: rgba(var(--red-rgb), 0.28);
-  background: rgba(var(--red-rgb), 0.1);
+  border-color: color-mix(in srgb, var(--color-danger) 28%, transparent);
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
 }
 
 .info-title {
@@ -709,12 +603,11 @@ h1 {
 
 .formula-block {
   padding: 12px 13px;
-  border-radius: 8px;
-  border: 1px solid rgba(var(--text-rgb), 0.12);
-  background: rgba(var(--mantle-rgb), 0.85);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--mantle) 85%, transparent);
   color: var(--text);
-  font-family:
-    "SFMono-Regular", ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.6;
   word-break: break-word;
@@ -736,9 +629,9 @@ h1 {
 .button {
   min-height: 42px;
   padding: 0 14px;
-  border: 1px solid rgba(var(--blue-rgb), 0.28);
-  border-radius: 8px;
-  background: rgba(var(--blue-rgb), 0.14);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
   color: var(--text);
   cursor: pointer;
   transition:
@@ -747,8 +640,8 @@ h1 {
 }
 
 .button:hover {
-  background: rgba(var(--blue-rgb), 0.2);
-  border-color: rgba(var(--blue-rgb), 0.36);
+  background: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary) 36%, transparent);
 }
 
 .examples-list {
@@ -914,7 +807,7 @@ h1 {
   left: 50%;
   transform: translateX(-50%);
   padding: 10px 14px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   background: var(--mantle);
   border: 1px solid var(--border-strong);
   color: var(--text);

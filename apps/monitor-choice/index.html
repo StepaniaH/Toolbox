@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-i18n="app.title">显示器参数实验室</title>
-  <link rel="stylesheet" href="styles.css?v=10">
-  <link rel="stylesheet" href="nav-bar.css" />
+  <link rel="stylesheet" href="./styles.css">
   <script>(function(){try{var k="toolbox-theme",t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 </head>
 <body>
@@ -91,7 +90,7 @@
             <span class="ppd-label" data-i18n="sharp.quality">清晰度等级</span>
             <span class="ppd-target" data-i18n="sharp.target">目标 PPD ≥ 60</span>
           </div>
-          <canvas id="sharp-ppd-meter"></canvas>
+          <canvas id="sharp-ppd-meter" role="img" data-i18n-aria="canvas.sharpMeter" aria-describedby="sharp-retina-callout"><span data-i18n="canvas.fallback">交互式可视化，页面同时提供文字结果。</span></canvas>
           <div class="ppd-scale">
             <span data-i18n="sharp.scale.poor">差</span><span data-i18n="sharp.scale.fair">一般</span><span data-i18n="sharp.scale.good">良好</span><span data-i18n="sharp.scale.excellent">优秀</span><span data-i18n="sharp.scale.retina">视网膜</span>
           </div>
@@ -100,29 +99,29 @@
         <div class="sharp-comparison">
           <div class="sharp-canvas-card" id="sharp-card-0">
             <div class="card-header">
-              <span class="card-title">—</span>
-              <span class="card-subtitle">—</span>
+              <span class="card-title" id="sharp-card-0-title">—</span>
+              <span class="card-subtitle" id="sharp-card-0-summary">—</span>
             </div>
             <div class="canvas-container">
-              <canvas id="sharp-canvas-0" height="180"></canvas>
+              <canvas id="sharp-canvas-0" height="180" role="img" data-i18n-aria="canvas.sharpComparison" aria-describedby="sharp-card-0-title sharp-card-0-summary"><span data-i18n="canvas.fallback">交互式可视化，页面同时提供文字结果。</span></canvas>
             </div>
           </div>
           <div class="sharp-canvas-card" id="sharp-card-1">
             <div class="card-header">
-              <span class="card-title">—</span>
-              <span class="card-subtitle">—</span>
+              <span class="card-title" id="sharp-card-1-title">—</span>
+              <span class="card-subtitle" id="sharp-card-1-summary">—</span>
             </div>
             <div class="canvas-container">
-              <canvas id="sharp-canvas-1" height="180"></canvas>
+              <canvas id="sharp-canvas-1" height="180" role="img" data-i18n-aria="canvas.sharpComparison" aria-describedby="sharp-card-1-title sharp-card-1-summary"><span data-i18n="canvas.fallback">交互式可视化，页面同时提供文字结果。</span></canvas>
             </div>
           </div>
           <div class="sharp-canvas-card" id="sharp-card-2">
             <div class="card-header">
-              <span class="card-title">—</span>
-              <span class="card-subtitle">—</span>
+              <span class="card-title" id="sharp-card-2-title">—</span>
+              <span class="card-subtitle" id="sharp-card-2-summary">—</span>
             </div>
             <div class="canvas-container">
-              <canvas id="sharp-canvas-2" height="180"></canvas>
+              <canvas id="sharp-canvas-2" height="180" role="img" data-i18n-aria="canvas.sharpComparison" aria-describedby="sharp-card-2-title sharp-card-2-summary"><span data-i18n="canvas.fallback">交互式可视化，页面同时提供文字结果。</span></canvas>
             </div>
           </div>
         </div>
@@ -159,7 +158,7 @@
             <h3><span data-i18n="size.3d.title">3D 实景模拟</span> <span class="canvas-hint" data-i18n="size.3d.hint">（拖拽旋转视角）</span></h3>
           </div>
           <div class="canvas-wrap scene3d-wrap">
-            <canvas id="scene3dCanvas" height="360"></canvas>
+            <canvas id="scene3dCanvas" height="360" role="img" data-i18n-aria="canvas.scene3d" aria-describedby="size-dimensions size-fov size-thx size-smpte size-desk"><span data-i18n="canvas.fallback">交互式可视化，页面同时提供文字结果。</span></canvas>
             <div class="scene3d-hint" data-i18n="size.3d.dragHint">🖱️ 拖拽旋转 · 上下限制±30°</div>
           </div>
         </div>
@@ -169,7 +168,7 @@
             <h3><span data-i18n="size.compare.title">屏幕比例对比</span> <span class="canvas-hint" data-i18n="size.compare.hint">（真实尺寸比例）</span></h3>
           </div>
           <div class="canvas-wrap compare-wrap">
-            <canvas id="sizeCanvas" height="200"></canvas>
+            <canvas id="sizeCanvas" height="200" role="img" data-i18n-aria="canvas.sizeComparison" aria-describedby="size-dimensions size-fov size-desk"><span data-i18n="canvas.fallback">交互式可视化，页面同时提供文字结果。</span></canvas>
           </div>
         </div>
 
@@ -192,7 +191,7 @@
             <h3><span data-tooltip-i18n="tooltip.cie" data-i18n="color.cieTitle">CIE 1931 色度图</span></h3>
           </div>
           <div class="canvas-wrap">
-            <canvas id="colorCanvas" height="480"></canvas>
+            <canvas id="colorCanvas" height="480" role="img" data-i18n-aria="canvas.colorSpace" aria-describedby="panelTable gamutNeeds"><span data-i18n="canvas.fallback">交互式可视化，页面同时提供文字结果。</span></canvas>
           </div>
         </div>
         <div class="panel-comparison">
@@ -269,23 +268,6 @@
     </footer>
   </div>
 
-  <!-- ===== Scripts (order matters) ===== -->
-  <script src="toggle.js"></script>
-  <script src="nav-bar.js"></script>
-  <script src="js/theme.js?v=10"></script>
-  <script src="js/i18n.js?v=10"></script>
-  <script src="js/i18n-zh.js?v=10"></script>
-  <script src="js/i18n-en.js?v=10"></script>
-  <script src="js/constants.js?v=10"></script>
-  <script src="js/calc.js?v=10"></script>
-  <script src="js/state.js?v=10"></script>
-  <script src="js/data-scenarios.js?v=10"></script>
-  <script src="js/data-panels.js?v=10"></script>
-  <script src="js/tab-sharpness.js?v=10"></script>
-  <script src="js/tab-size-view.js?v=10"></script>
-  <script src="js/tab-color-lab.js?v=10"></script>
-  <script src="js/tab-scenarios.js?v=10"></script>
-  <script src="js/tab-panel-guide.js?v=10"></script>
-  <script src="script.js?v=10"></script>
+  <script type="module" src="./entry.js"></script>
 </body>
 </html>

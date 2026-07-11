@@ -76,19 +76,22 @@
     "na": "不适用"
   },
   "exchange": {
-    "sourceAuto": "自动获取",
+    "sourceAuto": "实时",
     "sourceManual": "手动",
-    "sourceDefault": "默认（离线）",
-    "realtime": "实时汇率",
+    "rateLabel": "USD/CNY 汇率",
     "confirm": "确认",
     "edit": "编辑汇率",
-    "refetch": "重新获取"
+    "fetchLive": "重新获取实时汇率",
+    "fetching": "正在获取实时汇率",
+    "manualPlaceholder": "请填写当前汇率",
+    "networkDisclosure": "页面打开后会自动连接第三方公开汇率服务 open.er-api.com，失败时回退 jsDelivr；只请求 USD/CNY 汇率，不会发送本页输入、模型选择或计算结果。第三方仍会收到 IP、请求头和访问时间等常规网络信息。",
+    "fetchFailed": "自动获取实时汇率失败，请填写当前 USD/CNY 汇率后继续。"
   },
   "preset": {
     "recharge100arrived100": "充值100到账100",
     "recharge100arrived50": "充值100到账50",
-    "rate0.6": "倍率 0.6",
-    "rate1.1": "倍率 1.1"
+    "rate06": "倍率 0.6",
+    "rate11": "倍率 1.1"
   },
   "provider": {
     "ariaLabel": "模型分类"

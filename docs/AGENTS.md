@@ -1,223 +1,194 @@
-# AGENTS.md — AI Agent 操作规范
+# AGENTS.md — Toolbox 协作规范
 
-> 本文档为所有参与 Toolbox 开发的 AI agent（Codex、OpenCode、Claude Code 等）提供统一的操作指引。
+> 适用于 Codex、Claude Code、OpenCode 等参与本仓库的 agent。
 >
-> **阅读顺序**: 先读本文档（操作规范）→ 再读 [`INDEX.md`](./INDEX.md)（项目全景）→ 再读 [`PLAN.md`](./PLAN.md)（架构方向）→ 再看 [`TASKS.md`](./TASKS.md)（当前任务）。
+> 阅读顺序：本文 → [INDEX.md](./INDEX.md) → [PLAN.md](./PLAN.md) → [TASKS.md](./TASKS.md) → [DEPENDENCIES.md](./DEPENDENCIES.md)（涉及依赖时）→ 目标工具 README / 局部 AGENTS。
 
----
+## 一、开始工作的硬门槛
 
-## 一、仓库结构认知
+任何编辑前必须执行并确认：
 
-```
-Toolbox/
-├── apps/                   ← 各独立工具，横向隔离
-│   ├── homepage/           ← 纯静态 HTML
-│   ├── rate-lens/          ← React + TypeScript
-│   ├── chrono-sphere/      ← React + TypeScript
-│   ├── monitor-choice/     ← 纯静态 Vanilla JS
-│   └── sane-units/         ← React + JavaScript
-│
-├── packages/               ← 共享包，全仓引用
-│   ├── theme/              ← Catppuccin CSS + 切换逻辑
-│   └── nav/                ← 全局导航栏
-│
-├── deploy/                 ← 部署模板（机密信息在 .env 中，gitignored）
-├── docs/                   ← 仓库级文档（INDEX / PLAN / TASKS / AGENTS）
-│
-├── package.json            ← pnpm workspace 根
-├── turbo.json              ← Turborepo 构建编排
-└── pnpm-workspace.yaml
+```bash
+git status --short --branch
+git branch --show-current
 ```
 
----
+- `main` 是已部署的稳定分支，**绝不在 main 编辑或提交**。
+- 日常工作在 `dev`；较大的单功能可以从 `dev` 派生 `feat/*`。
+- 如果当前在 `main`，只有工作区干净时才能切换 `dev`；存在用户改动时先停止并说明。
+- 不覆盖、不清理、不 stash 不属于当前任务的改动。
+- 不自动合并 `main`、改 tag、force push 或部署；这些动作需要维护者明确授权。
 
-## 二、红线（绝对不可违反）
+## 二、仓库边界
 
-### 安全与隐私
+```text
+apps/        各工具应用；彼此是故障隔离单元
+packages/    theme / nav / i18n 等稳定平台契约
+docs/        架构、设计、开发手册和任务进度
+deploy/      公开脚本与占位符模板
+```
 
-| # | 规则 | 说明 |
-|---|------|------|
-| 1 | **不引入后端/数据库/登录** | 所有工具纯客户端运行。不添加任何服务端依赖 |
-| 2 | **不引入第三方追踪** | 无 Google Analytics、无埋点、无遥测——除非用户明确要求并指定 ID |
-| 3 | **不公开 VPS 路径或 SSH 信息** | 机密信息仅在 `deploy/.env`（gitignored）中。如需引用部署路径，使用 `{{PLACEHOLDER}}` 占位符 |
-| 4 | **不在 git 中提交任何密钥/Token/IP/内部域名** | 提交前自查 `git diff --cached`。如果 `deploy/.env` 出现在 staged changes 中，立即 `git reset` |
+### 默认编辑权限
 
-### 架构边界
+- 修改工具 A 时只编辑 `apps/A/`、对应测试与必要文档。
+- 默认不修改 `packages/*`。共享包会影响多个应用，只有任务明确要求平台变更时才能编辑。
+- 跨工具重构、共享包迁移和部署变更要在 [TASKS.md](./TASKS.md) 有独立任务，并分阶段提交。
+- 禁止 `apps/A` import `apps/B`；共享业务逻辑必须经过评审后才可进入 `packages/*`。
+- 全仓只使用根 `pnpm-lock.yaml`；不得在 app 目录生成或提交 `package-lock.json` / `yarn.lock`。
+- React/Vite/Vitest/TypeScript 等受控工具链使用根 workspace catalog；升级和回滚按 [DEPENDENCIES.md](./DEPENDENCIES.md) 执行。
 
-| # | 规则 | 说明 |
-|---|------|------|
-| 5 | **不修改 `packages/` 下的文件** | 共享包是稳定层。除非用户明确说「改 theme 包」或「改 nav 包」 |
-| 6 | **修改工具 A 不动工具 B** | `apps/rate-lens/` 和 `apps/chrono-sphere/` 完全独立。跨工具重构需用户确认 |
-| 7 | **新增工具必须引用共享包** | `@toolbox/theme`（主题）+ `@toolbox/nav`（导航栏），不复制代码 |
+## 三、不可违反的产品红线
+
+### 隐私
+
+1. 默认纯客户端，不引入自有后端、数据库、登录或账号体系。
+2. 不引入追踪、广告脚本、指纹、遥测或远端字体。
+3. 默认不发起外部业务请求。自动实时请求只允许作为维护者明确批准的产品例外，并必须在 UI 披露目标与用途、固定 allowlist、只发送最小请求、不携带页面输入，失败时提供手动或离线恢复；其他实时请求仍由用户主动触发。
+4. 不提交真实 IP、端口、主机名、内部域名、VPN 地址、SSH 信息、部署路径、密钥、Token、个人邮箱、设备路径、日志或浏览器存储转储。
+5. 公开文档只使用 `{{PLACEHOLDER}}`；不记录服务器供应商、机房位置或内部拓扑。
+
+允许公开：公开站点、公开仓库、开源作者署名和通用示例。公开身份与私有运维信息必须明确区分。
+
+### 稳定性
+
+1. 新工具默认不得进入 stable 导航或生产部署。
+2. 新工具只写自己的构建目录、路由和 storage namespace。
+3. 共享包变更必须保持兼容或提供显式迁移，并跑全仓回归。
+4. 不把未经各应用验证的“最新共享脚本”在运行时注入所有工具。
+5. 不以一次大改同时迁移多个应用；逐个完成、验证、提交。
 
 ### 质量
 
-| # | 规则 | 说明 |
-|---|------|------|
-| 8 | **任何逻辑改动必须有测试** | 新增计算函数 → 加单元测试。新增组件 → 加渲染测试。修复 bug → 先写复现测试 |
-| 9 | **破坏性变更必须跑全量测试** | `pnpm test` 必须全绿后再提交 |
-| 10 | **构建不能破** | `pnpm build` 必须全绿后再提交 |
+1. 逻辑修改必须有测试；修 bug 先补复现测试。
+2. 视觉修改必须验证 light/dark、zh/en、mobile/desktop 和 keyboard focus。
+3. 共享包、部署或跨应用修改提交前必须通过 `pnpm build && pnpm test && pnpm lint`。
+4. 五个应用均已进入根质量命令；Canvas、响应式或视觉修改仍必须增加对应浏览器 smoke，不能只依赖单元测试。
+5. lint warning 会使门禁失败；不得用宽松退出码或 ignore 长期掩盖缺口。
 
----
+## 四、已确认的长期设计偏好
 
-## 三、开发工作流
+这些是维护者明确给出的持久约束，所有后续视觉任务必须遵循：
 
-### 3.1 分支策略
+- 全站主题、明暗、语言、设计风格和设计语言保持统一、稳定且优秀。
+- 语言与主题只应由共享全局导航提供，不在工具内部重复一套。
+- 右上角语言与主题按钮在鼠标 hover 时**不出现背景块、边框或选中框**；可以用颜色或图标反馈。
+- 键盘 `:focus-visible` 仍必须有清晰 focus ring，不能因为移除 hover 框而牺牲无障碍。
+- SaneUnits 当前与其他工具的壳层差异较大；后续要统一 token 与全局壳，但保留适合其多计算器结构的业务导航。
 
-```
-main ───────────────────────────── ● (稳定，可直接部署)
-  │
-  └── dev ──────────────────────── ● (日常开发)
-        │
-        └── feat/xxx ───────────── ● (单功能分支)
-```
+完整规范见 [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md)。如果收到新的持久设计反馈，同步更新本节和设计文档。
 
-- **日常开发**: 在 `dev` 分支进行
-- **单独功能**: 从 `dev` 切出 `feat/<功能名>` 分支
-- **合并**: `feat/*` → `dev`（PR）→ `main`（用户确认后）
-- **不直接在 `main` 上提交**
+## 五、工作流程
 
-### 3.2 日常操作命令
+### 5.1 建立事实
+
+1. 读目标目录 README / AGENTS。
+2. 用代码和配置核对文档，不假设旧任务描述仍正确。
+3. 运行最小基线，记录已存在的 failure / warning。
+4. 在 [TASKS.md](./TASKS.md) 标记任务为 `🔄 进行中`。
+
+### 5.2 实现
+
+1. 先写最小复现或契约测试。
+2. 保持 diff 聚焦，不顺手格式化或重写无关文件。
+3. 共享能力先确定契约，再迁移一个代表性应用。
+4. 用户改动与 agent 改动重叠时，停下来说明，不擅自覆盖。
+
+### 5.3 验证
 
 ```bash
-# 安装依赖
-pnpm install
+# 单工具优先
+pnpm --filter=@toolbox/<app> build
+pnpm --filter=@toolbox/<app> test
+pnpm --filter=@toolbox/<app> lint
 
-# 开发单个工具
-pnpm --filter=@toolbox/rate-lens dev
-
-# 构建单个工具
-pnpm --filter=@toolbox/rate-lens build
-
-# 测试单个工具
-pnpm --filter=@toolbox/rate-lens test
-
-# 全量构建（提交前必跑）
+# 跨应用 / 共享 / 发布门禁
+pnpm check:privacy
+pnpm check:contracts
 pnpm build
-
-# 全量测试（提交前必跑）
 pnpm test
+pnpm lint
 ```
 
-### 3.3 提交规范
+视觉任务还需按 DESIGN_SYSTEM 的发布前设计检查执行。新增工具按 [NEW_TOOL.md](./NEW_TOOL.md)。
+
+### 5.4 同步进度
+
+- 完成后将 TASKS 标为 `✅ 已完成` 并勾选真实通过的验收项。
+- 未通过的项保持未勾选，写清阻塞，不把“已实现”当成“已验证”。
+- 已发布结果进入 CHANGELOG；排查日志和本机输出不进入仓库。
+
+## 六、Git 与阶段性提交
+
+### 提交前
 
 ```bash
-# 提交前检查
-pnpm build && pnpm test    # 必须全绿
-git status                  # 确认无 .env 等敏感文件
-git diff --cached           # 逐行自查（见下方隐私自查清单）
+git status --short --branch
+git diff --check
+git diff
+git diff --cached
+git config --get user.email
+pnpm check:privacy
 ```
 
-#### 3.3.1 隐私自查清单
+必须逐行检查 staged diff：
 
-提交前必须逐行检查 `git diff --cached`，**任何一项命中 → 立即 `git reset` 修复**：
+- `.env`、私钥、Token、Authorization header。
+- 公网/内网/VPN IP、端口、主机名和真实路径。
+- `/Users/<name>/`、`/home/<name>/` 等个人路径。
+- 未经维护者确认公开的邮箱、日志、截图元数据和调试转储。
+- 新增外部 URL、fetch、第三方脚本和远端字体。
 
-| 检查项 | 正则 / 特征 |
-|--------|------------|
-| VPS 公网 IP | 非 RFC 1918 的公网地址出现在不该出现的地方 |
-| Tailscale IP（内部） | `100.x.x.x` 段（CGNAT） |
-| 内部主机名 | 局域网/VPN 主机名 |
-| 绝对路径含用户名 | `/home/<user>/` 等包含真实用户名的路径 |
-| SSH 私钥 | `BEGIN OPENSSH PRIVATE KEY` |
-| 密钥 / Token | `sk-`, `Bearer`, `api_key` |
+任何获准的运行时外部请求还必须登记在 `config/external-origins.json`；未登记或已失效的来源会被 `pnpm check:contracts` 拒绝。
 
-#### 3.3.2 文件分类
+提交邮箱可以是 GitHub noreply，也可以是维护者明确作为公开身份使用的 GitHub 邮箱；不得意外使用私人或工作邮箱。既有已发布历史的改写会改变 SHA，只能在维护者明确批准后执行。
 
-| 内容类型 | 存放位置 | git? |
-|----------|---------|:--:|
-| 项目文档 (INDEX, PLAN, TASKS, AGENTS) | `docs/` | ✅ |
-| 部署模板 | `deploy/*.example` | ✅ |
-| CI workflow | `.github/workflows/` | ✅ |
-| **排查/调试记录** | 本地文件 或 发到 Telegram | ❌ |
-| 机密配置 | `deploy/.env` | ❌ |
-| AI agent 工作计划 | `.hermes/` | ❌ |
+### Commit 格式
 
-#### 3.3.3 Commit message 格式
-<type>: <简短描述>
-
-类型: feat / fix / refactor / style / test / docs / chore
-
-示例:
-feat: add global nav bar to all tools
-fix: monitor-choice canvas crash on theme switch
-docs: update deploy instructions
+```text
+feat: ...
+fix: ...
+refactor: ...
+style: ...
+test: ...
+docs: ...
+chore: ...
 ```
 
-### 3.4 任务追踪
+- 一个提交对应一个可回滚阶段。
+- 文档/护栏、平台契约、单应用迁移尽量分开提交。
+- 不在 message 中写个人环境、服务器或内部项目代号。
 
-Agent 执行 TASKS.md 中的任务时，**必须在 TASKS.md 中同步进度**：
+## 七、新工具准入
 
-```markdown
-### T2.2 · 迁移 rate-lens `⏱ 20min` `依赖: T1.5` `🔄 进行中`
-```
+不存在可直接假设可用的 `apps/_template`；以 [NEW_TOOL.md](./NEW_TOOL.md) 为当前事实源。模板或生成器只有在自己能持续 build/test 后才可成为准入路径。
 
-- 开始任务时：将标题后缀改为 `🔄 进行中`
-- 完成任务时：将标题后缀改为 `✅ 已完成`，在对应步骤的 `- [ ]` 改为 `- [x]`
-- 遇到阻塞时：在任务下添加 `**阻塞**: <原因>`，不要强行推进
-- 所有 agent 共享同一份 TASKS.md，**操作前先确认没有其他 agent 在同一任务上**
+核心准入条件：
 
----
+1. Brief 明确输入、输出、假设、隐私、fallback 与 non-goals。
+2. 独立目录、独立 base、独立 build output、独立 storage namespace。
+3. 从第一天使用 theme/nav/i18n 契约，不复制共享实现。
+4. 新工具默认 `hidden`；失败不能进入稳定导航或阻断现有工具。
+5. 单工具与全仓门禁通过，视觉矩阵与隐私检查完成。
+6. 未经维护者确认不合并 `main` 或部署。
 
-## 四、部署流程
+新增 Vanilla 工具也优先使用 Vite 构建壳，以进入 workspace 和质量流水线。
 
-### 4.1 机密管理
+## 八、部署边界
 
-```
-deploy/
-├── .env                  ← gitignored（机密：VPS host、路径）
-├── deploy.sh             ← 公开（构建 + rsync，从 .env 读取变量）
-├── Caddyfile.example     ← 公开（含占位符的模板）
-└── README.md             ← 公开（部署指引）
-```
+- CI 只允许从 `main` 的已验证提交部署；合并 `main` 不自动上线，必须由维护者在 GitHub Actions 显式手动触发生产部署。
+- 手动脚本只应验证当前就是干净、同步的 `main`，不得静默切分支或忽略失败。
+- 所有目标信息来自 gitignored `deploy/.env` 或 CI secrets；公开文件只描述变量名和占位符。
+- 不在文档、commit、CI 日志中回显部署值。
+- agent 不执行生产部署，除非维护者明确要求当前任务进行部署。
 
-**新机器初始化时**，手动创建 `deploy/.env`：
-```bash
-# deploy/.env（不入仓，每台机器自行维护）
-VPS_HOST={{VPS_HOST}}
-VPS_WWW={{VPS_WWW}}
-```
+## 九、文档导航
 
-`deploy.sh` 通过 `source deploy/.env` 读取，脚本本身不硬编码任何机密。
-
-### 4.2 部署命令
-
-```bash
-# 首次部署（需同时更新 Caddy 配置）
-bash deploy/deploy.sh
-
-# 后续日常更新（Caddy 不变，只 rsync 文件）
-bash deploy/deploy.sh
-
-# 更新 Caddy 配置（仅在站点配置变更时需要）
-cat deploy/Caddyfile.example | ssh $VPS_HOST 'cat >> ~/docker_projects/caddy/Caddyfile'
-ssh $VPS_HOST 'docker compose -f ~/docker_projects/caddy/docker-compose.yml restart'
-```
-
----
-
-## 五、新增工具 Checklist
-
-1. `cp -r apps/_template apps/new-tool`
-2. 修改 `apps/new-tool/package.json` → `"name": "@toolbox/new-tool"`
-3. `pnpm --filter=@toolbox/new-tool add @toolbox/theme@workspace:* @toolbox/nav@workspace:*`
-4. 在 `turbo.json` 的 `pipeline` 中添加 `"@toolbox/new-tool#build"` 等任务
-5. 在 `apps/homepage/js/main.js` 的 `tools[]` 数组中添加卡片
-6. 在 `apps/homepage/js/i18n.js` 中添加中英文翻译
-7. 在 `packages/nav/` 的链接列表中追加新工具
-8. 写 `README.md` + `README.zh-CN.md`
-9. 写 `AGENTS.md`（简版：技术栈、入口文件、测试命令）
-10. `pnpm build && pnpm test` — 全量验证
-11. 提交 → PR → 合并到 `dev`
-
----
-
-## 六、文档导航
-
-| 我想… | 读这份 |
-|--------|--------|
-| 了解项目是什么、有哪些工具 | [`INDEX.md`](./INDEX.md) |
-| 了解架构设计、为什么这样决策 | [`PLAN.md`](./PLAN.md) |
-| 执行具体开发任务 | [`TASKS.md`](./TASKS.md) |
-| 了解 agent 操作规则（你正在读） | 本文档 |
-| 了解某个工具的细节 | `apps/<tool>/README.md` |
-| 学习如何部署 | `deploy/README.md` |
+| 需要了解 | 文档 |
+|----------|------|
+| 当前项目事实与质量基线 | [INDEX.md](./INDEX.md) |
+| 架构方向与 ADR | [PLAN.md](./PLAN.md) |
+| 主题、语言、导航与交互 | [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) |
+| 新工具开发流程 | [NEW_TOOL.md](./NEW_TOOL.md) |
+| dev→main→生产发布与回滚 | [RELEASE.md](./RELEASE.md) |
+| 当前任务和状态 | [TASKS.md](./TASKS.md) |
+| 已发布结果 | [../CHANGELOG.md](../CHANGELOG.md) |

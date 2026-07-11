@@ -14,9 +14,12 @@
   "use strict";
 
   var STORAGE_KEY = "toolbox-theme";
+  var CONTRACT_VERSION = 1;
   var ROOT = "documentElement";
+  var ATTRIBUTE = "data-theme";
   var DARK = "dark";
   var LIGHT = "light";
+  var THEMES = Object.freeze([DARK, LIGHT]);
 
   function root() {
     return global.document ? global.document[ROOT] : null;
@@ -41,7 +44,7 @@
         ? global.localStorage.getItem(STORAGE_KEY)
         : null;
       if (isValid(stored)) return stored;
-    } catch (e) {
+    } catch {
       // localStorage may be unavailable (private mode / SSR); ignore.
     }
     return prefersLight() ? LIGHT : DARK;
@@ -54,18 +57,18 @@
     }
     try {
       if (global.localStorage) global.localStorage.setItem(STORAGE_KEY, theme);
-    } catch (e) {
+    } catch {
       /* ignore persistence failures */
     }
     var el = root();
-    if (el) el.setAttribute("data-theme", theme);
+    if (el) el.setAttribute(ATTRIBUTE, theme);
     return theme;
   }
 
   // Flip between dark and light based on the *current* DOM attribute
   // (falls back to getTheme() when the attribute is missing/invalid).
   function toggleTheme() {
-    var current = root() && root().getAttribute("data-theme");
+    var current = root() && root().getAttribute(ATTRIBUTE);
     if (!isValid(current)) current = getTheme();
     return setTheme(current === DARK ? LIGHT : DARK);
   }
@@ -80,14 +83,18 @@
       "if(t!=='light'&&t!=='dark'){",
       "t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';",
       "}",
-      "document.documentElement.setAttribute('data-theme',t);",
-      "}catch(e){document.documentElement.setAttribute('data-theme','dark');}",
+      "document.documentElement.setAttribute('" + ATTRIBUTE + "',t);",
+      "}catch(e){document.documentElement.setAttribute('" + ATTRIBUTE + "','dark');}",
       "})();"
     ].join("");
   }
 
   var api = {
+    CONTRACT_VERSION: CONTRACT_VERSION,
     STORAGE_KEY: STORAGE_KEY,
+    ATTRIBUTE: ATTRIBUTE,
+    DEFAULT_THEME: DARK,
+    THEMES: THEMES,
     getTheme: getTheme,
     setTheme: setTheme,
     toggleTheme: toggleTheme,

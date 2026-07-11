@@ -61,6 +61,12 @@
   zh['sharp.scale.good'] = '良好';
   zh['sharp.scale.excellent'] = '优秀';
   zh['sharp.scale.retina'] = '视网膜';
+  zh['canvas.sharpMeter'] = 'PPD 清晰度等级仪表';
+  zh['canvas.sharpComparison'] = '不同尺寸与分辨率的文字清晰度对比';
+  zh['canvas.scene3d'] = '屏幕尺寸、观看距离与桌面的三维关系图';
+  zh['canvas.sizeComparison'] = '不同屏幕尺寸的真实比例对比';
+  zh['canvas.colorSpace'] = 'CIE 1931 色域与显示器原色范围图';
+  zh['canvas.fallback'] = '交互式可视化，页面同时提供文字结果。';
 
   /* ── Text comfort ── */
   zh['comfort.poor'] = '差';

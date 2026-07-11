@@ -52,6 +52,12 @@
   en['sharp.scale.good'] = 'Good';
   en['sharp.scale.excellent'] = 'Excellent';
   en['sharp.scale.retina'] = 'Retina';
+  en['canvas.sharpMeter'] = 'PPD clarity level meter';
+  en['canvas.sharpComparison'] = 'Text sharpness comparison across display sizes and resolutions';
+  en['canvas.scene3d'] = '3D relationship between screen size, viewing distance, and desk';
+  en['canvas.sizeComparison'] = 'True-scale comparison of different screen sizes';
+  en['canvas.colorSpace'] = 'CIE 1931 gamut and display primary coverage diagram';
+  en['canvas.fallback'] = 'Interactive visualization with equivalent text results on the page.';
 
   /* ── Text comfort ── */
   en['comfort.poor'] = 'Poor';

@@ -1,149 +1,137 @@
-# Toolbox — 全景索引
+# Toolbox — 项目全景
 
-> 最后更新: 2026-07-09
-> 这是 Toolbox monorepo 的入口文档。合并自 5 个独立仓库的 passion projects。
+> 最后核对：2026-07-11 · 当前生产稳定版本：`v0.1` · 待发布版本：`v0.2`
 >
-> **线上**: [tools.s-ark.xyz](https://tools.s-ark.xyz)（部署中）  
-> **源码**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox)
+> `main` 是已部署的稳定线；所有日常修改只在 `dev`（或从 `dev` 派生的功能分支）进行。
 
----
+## 一、项目定位
 
-## 一、这是什么
+Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决一个明确问题，尽量在浏览器本地完成计算，以静态文件独立构建和部署。
 
-**Toolbox** 是一个隐私优先的网页工具集合。每个工具做一件事，算清楚。所有运算在浏览器本地完成——零后端、零追踪、零 Cookie。
+项目的长期目标不是让所有工具长得完全相同，而是同时守住两个不变量：
 
-**标语**: 「别人略过的，工具都算上了。」
+1. 新工具的加入不能降低现有工具的稳定性。
+2. 所有工具共享可靠的主题、明暗模式、语言、导航、交互和无障碍基础。
 
----
+架构路线见 [PLAN.md](./PLAN.md)，界面契约见 [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md)，新增工具流程见 [NEW_TOOL.md](./NEW_TOOL.md)。
 
 ## 二、工具目录
 
-| 工具 | 路径 | 技术栈 | 状态 |
-|------|------|--------|:--:|
-| **首页** | `/` | HTML + CSS + Vanilla JS | ✅ |
-| **RateLens** | `/rate-lens/` | React 19 + TS + Vite + Tailwind + shadcn/ui | ✅ v1.0.0 |
-| **ChronoSphere** | `/chrono-sphere/` | React 19 + TS + Vite + luxon + lunar-javascript | ✅ |
-| **Monitor Choice** | `/monitor-choice/` | HTML + CSS + Vanilla JS (Canvas 2D) | ✅ |
-| **SaneUnits** | `/sane-units/` | React 19 + Vite + Plain CSS | ✅ |
+| 工具 | 路径 | 技术栈 | 主要职责 | 自动化测试 |
+|------|------|--------|----------|:----------:|
+| Homepage | `/` | Vanilla JS + Vite + Plain CSS | 工具目录与项目入口 | 5 |
+| RateLens | `/rate-lens/` | React + TypeScript + Vite + Tailwind | AI 模型价格倍率计算 | 63 |
+| ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 844 |
+| Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 18 |
+| SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 20 |
 
-### RateLens · AI 模型价格倍率计算器
+测试数量只用于说明覆盖现状，不作为质量本身的替代指标。5 个应用当前有 950 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；`pnpm test` 共运行 966 条。`v0.1` 发布时为 910 条。
 
-AI API 中转服务的定价透明工具。支持正算（充值→等效倍率）和反推（扣费→真实倍率）。
+## 三、仓库结构
 
-### ChronoSphere · 日期与时区工具
-
-时区偏移推算、日期间隔计算（明确起止端点）、夏令时审计、中国农历转换。
-
-### Monitor Choice · 显示器选购工具
-
-PPI 清晰度、3D 观看距离、CIE 色度图、面板技术百科——帮你做出自己的选择。
-
-### SaneUnits · 单位换算与现实估算
-
-存储进制混淆、网络带宽换算、视频码率推算、电器功耗估算——不糊弄人。
-
----
-
-## 三、设计哲学
-
-| 原则 | 说明 |
-|------|------|
-| **隐私优先** | 全客户端运算，零后端、零追踪、零 Cookie、零第三方脚本 |
-| **双语** | 每个工具均有中文 / 英文界面 |
-| **Catppuccin 主题** | Frappe（深色·默认）+ Latte（浅色），通过共享主题包统一 |
-| **MIT 开源** | 所有工具 MIT 许可证 |
-| **路径路由** | 统一域名 `tools.s-ark.xyz/<工具名>/`，一个 Caddy 站点块 |
-
----
-
-## 四、仓库结构
-
-```
+```text
 Toolbox/
-├── apps/                       # 各工具应用（独立 Vite 项目或静态文件）
-│   ├── homepage/               # 导航首页（纯静态 HTML）
-│   ├── rate-lens/              # React + TS + Tailwind
-│   ├── chrono-sphere/          # React + TS
-│   ├── monitor-choice/         # Vanilla JS + Canvas（纯静态）
-│   └── sane-units/             # React + JS
-│
-├── packages/                   # 共享包（workspace 依赖）
-│   ├── theme/                  # Catppuccin CSS 变量 + 亮暗切换逻辑
-│   └── nav/                    # 全局导航栏（React 组件 + 纯 HTML 版）
-│
-├── deploy/                     # 部署相关
-│   ├── Caddyfile.example       # Caddy 配置模板
-│   └── deploy.sh               # 部署脚本
-│
-├── docs/                       # 仓库级文档
-│   ├── INDEX.md                # ← 本文档
-│   ├── PLAN.md                 # 发展方向与架构决策
-│   ├── TASKS.md                # 可执行任务列表（给 code agent 看）
-│   └── AGENTS.md               # AI agent 操作规范
-│
-├── package.json                # workspace 根配置
-├── turbo.json                  # Turborepo 流水线
-├── pnpm-workspace.yaml         # pnpm workspace 定义
-├── .env.example                # 环境变量模板
-├── .gitignore
-├── README.md
-├── README.zh-CN.md
-└── LICENSE
+├── apps/                 # 工具应用；应用之间不得直接依赖
+│   ├── homepage/
+│   ├── rate-lens/
+│   ├── chrono-sphere/
+│   ├── monitor-choice/
+│   └── sane-units/
+├── packages/             # 跨应用平台能力
+│   ├── theme/            # 主题 token 与切换运行时
+│   ├── nav/              # React / Vanilla 导航实现
+│   ├── i18n/             # 语言状态与 React Provider
+│   └── app-manifest/     # 应用目录、路径与公开状态
+├── docs/                 # 架构、规范、任务和 agent 约束
+├── deploy/               # 可公开的部署脚本与配置模板
+├── .github/workflows/    # CI 与 main 手动部署流程
+├── package.json
+├── pnpm-workspace.yaml
+├── pnpm-lock.yaml
+└── turbo.json
 ```
 
----
+## 四、当前架构事实
 
-## 五、技术栈
+### 应用隔离
 
-| 层级 | 选择 | 说明 |
+- 五个工具都由 Vite 独立构建，分别输出自己的 `dist/`；Vanilla 与 React 应用使用同一质量流水线。
+- 工具之间没有 `apps/* → apps/*` 依赖，这是当前最重要的稳定性边界。
+- 同一域名下使用路径路由；各应用必须正确设置自己的生产 `base`。
+- 受控工具链版本集中在 `pnpm-workspace.yaml` catalog；当前保留 Vite 6 稳定线与 Vite 7/8 显式迁移线，完整解析结果只由根锁文件记录。
+
+### 共享能力的真实接入状态
+
+| 能力 | React 工具 | 静态工具 | 当前问题 |
+|------|------------|----------|----------|
+| `@toolbox/i18n` | RateLens、ChronoSphere 直接使用；SaneUnits 有兼容桥 | Homepage 使用 core；Monitor Choice 通过 core adapter 驱动自有翻译表 | 翻译资源与调用方式仍不完全统一 |
+| `@toolbox/nav` | 三个工具直接使用 React 组件 | Homepage 与 Monitor Choice 直接使用 workspace Vanilla 运行时 | React / Vanilla API 仍是两种入口 |
+| `@toolbox/theme` | 三个 React 工具均已消费 v1 runtime 契约 | Homepage 与 Monitor Choice 使用 workspace runtime | 所有页面仍保留 app-specific token 映射，语义 CSS token 需逐个迁移 |
+| `@toolbox/app-manifest` | React Nav 统一消费 stable 目录 | Homepage 与 Vanilla Nav 消费同一目录 | 页面专属图标/长文案仍由应用拥有 |
+
+因此，当前是“共享导航/i18n 已部分落地，主题仍主要靠约定保持接近”，而不是完整设计系统。后续要通过版本化契约和自动一致性检查解决，不能只靠继续复制 CSS。
+
+### 用户偏好
+
+- 全局语言键：`toolbox-lang`
+- 全局主题键：`toolbox-theme`
+- 工具私有状态应使用 `toolbox.<app-id>.*` 命名，避免同域名下互相覆盖。
+- 用户内容默认不得离开浏览器；外部请求必须显式说明并最小化。RateLens 是经维护者确认的自动实时数据例外，只请求公开 USD/CNY 汇率，不发送计算输入，并提供手动失败恢复。
+
+## 五、质量基线
+
+2026-07-10 在当前 `dev` 完成基线验证：
+
+| 检查 | 结果 | 备注 |
 |------|------|------|
-| **包管理** | pnpm | workspace 原生支持，严格依赖隔离 |
-| **构建编排** | Turborepo | 缓存构建结果，并行执行 |
-| **React 应用** | Vite + React 19 + TypeScript | rate-lens, chrono-sphere, sane-units |
-| **静态应用** | HTML + CSS + Vanilla JS | homepage, monitor-choice |
-| **主题** | Catppuccin + `@toolbox/theme` | 统一 CSS 变量 + 切换逻辑 |
-| **导航** | `@toolbox/nav` | 工具间跳转的下拉导航栏 |
-| **测试** | Vitest | 统一测试框架 |
-| **部署** | Caddy 静态文件 | 路径路由，一个站点块 |
+| `pnpm build` | 通过 | 5 个 Vite 应用构建成功 |
+| `pnpm test` | 通过 | 966 tests；数量不等同于覆盖率 |
+| `pnpm test:browser` | 通过 | Monitor Choice、RateLens 与 SaneUnits 的生产资源、关键页面、固定网络路径、语言/主题、移动端与 console |
+| `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
+| `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
+| `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |
 
----
+当前最明显的质量缺口：
 
-## 六、本地开发
+- 五个工具都已直接消费 `@toolbox/theme` runtime；页面 token 仍有 app-specific 映射，尚未形成完整单一事实源。
+- SaneUnits 已移除重复偏好控件和本地色板，并有逐页生产 browser smoke；下一项设计系统缺口是五应用截图回归矩阵。
+
+这些问题的执行优先级见 [TASKS.md](./TASKS.md)。
+
+## 六、隐私边界
+
+允许公开的内容：项目公开域名、公开仓库地址、开源作者署名、维护者确认公开的 GitHub 提交邮箱、通用部署示例。
+
+禁止进入仓库或 Git 历史的内容：真实服务器 IP/端口、内网域名、VPN 地址、SSH 信息、真实部署路径、密钥、Token、私有邮箱、个人设备路径和调试转储。
+
+部署文档只描述接口与占位符，不记录服务器供应商、机房位置或内部拓扑。既有 Git 历史的任何改写都属于破坏性操作，必须由维护者明确批准。
+
+## 七、常用命令
 
 ```bash
-# 安装依赖
-pnpm install
-
-# 启动所有应用
-pnpm dev
-
-# 启动单个应用
-pnpm --filter=rate-lens dev
-
-# 构建所有应用
+pnpm install --frozen-lockfile
+pnpm check:privacy
+pnpm check:contracts
 pnpm build
-
-# 测试所有应用
 pnpm test
+pnpm lint
 ```
 
----
+单工具命令使用 workspace 名称，例如：
 
-## 七、部署架构
-
-```
-GitHub (StepaniaH/Toolbox)
-  → pnpm build（本地或 CI）
-    → rsync apps/*/dist/ → VPS (SaltyFish Frankfurt)
-      → tools.s-ark.xyz (Caddy 静态文件 + 自动 HTTPS)
+```bash
+pnpm --filter=@toolbox/rate-lens test
 ```
 
-**旧域名迁移策略**: 新站点 `tools.s-ark.xyz` 上线后，保留旧子域名（`ratelens.s-ark.xyz` 等）运行一段时间。确认无问题后，添加 301 永久重定向到新路径。
+## 八、文档导航
 
----
-
-## 八、各工具详细文档
-
-每个工具的详细说明（功能、架构、已知问题）见各自目录下的 README.md。
-跨项目任务见 [TASKS.md](./docs/TASKS.md)。
-架构决策见 [PLAN.md](./docs/PLAN.md)。
+| 文档 | 用途 |
+|------|------|
+| [AGENTS.md](./AGENTS.md) | 分支、隐私、编辑和验证红线 |
+| [PLAN.md](./PLAN.md) | 当前判断、目标架构、ADR 与演进顺序 |
+| [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | 主题、语言、导航和交互的规范性契约 |
+| [NEW_TOOL.md](./NEW_TOOL.md) | “积木式”新增工具的开发手册 |
+| [DEPENDENCIES.md](./DEPENDENCIES.md) | 工具链 catalog、升级边界与回滚方式 |
+| [RELEASE.md](./RELEASE.md) | 固定的 dev→main→手动生产部署与回滚流程 |
+| [TASKS.md](./TASKS.md) | 当前可执行任务与进度 |
+| [../CHANGELOG.md](../CHANGELOG.md) | 已发布版本的结果记录 |

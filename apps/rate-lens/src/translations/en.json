@@ -76,19 +76,22 @@
     "na": "N/A"
   },
   "exchange": {
-    "sourceAuto": "Auto",
+    "sourceAuto": "Live",
     "sourceManual": "Manual",
-    "sourceDefault": "Default (offline)",
-    "realtime": "Live rate",
+    "rateLabel": "USD/CNY rate",
     "confirm": "Confirm",
     "edit": "Edit rate",
-    "refetch": "Refresh"
+    "fetchLive": "Retry live rate",
+    "fetching": "Fetching live rate",
+    "manualPlaceholder": "Enter the current rate",
+    "networkDisclosure": "Opening this page automatically connects to the public rate service open.er-api.com, with jsDelivr fallback. Only the USD/CNY rate is requested; form inputs, model choices and calculation results are never sent. The services still receive ordinary network metadata such as IP address, request headers and request time.",
+    "fetchFailed": "The live rate could not be fetched. Enter the current USD/CNY rate to continue."
   },
   "preset": {
     "recharge100arrived100": "Recharge 100 → 100",
     "recharge100arrived50": "Recharge 100 → 50",
-    "rate0.6": "Rate 0.6",
-    "rate1.1": "Rate 1.1"
+    "rate06": "Rate 0.6",
+    "rate11": "Rate 1.1"
   },
   "provider": {
     "ariaLabel": "Model category"

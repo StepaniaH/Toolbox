@@ -1,1139 +1,261 @@
-# Toolbox — 任务列表
+# Toolbox — 当前任务与进度
 
-> 本文档为 code agent（如 OpenCode、Codex）提供可执行的任务指令。
-> 每个任务包含：目标、涉及文件、执行命令、验证方式、依赖关系。
+> 最后更新：2026-07-11
 >
-> **依赖图**:
-> ```
-> P0 → P1 → P2 → P3 → P3.5 → P4 → P5 → P6
->                              ↘ P7 (质量) ─┐
->                              ↘ P8 (共享) ─┤→ P9 (CI/CD)
->                                            ┘
-> ```
+> 本文只保留当前和下一阶段任务。已发布结果进入 [CHANGELOG.md](../CHANGELOG.md)，架构理由进入 [PLAN.md](./PLAN.md)。不得在任务记录中保存真实服务器、网络或个人环境信息。
+
+## 使用规则
+
+- 所有日常修改发生在 `dev`；功能分支从 `dev` 派生。
+- 开始任务：标记 `🔄 进行中`；完成：标记 `✅ 已完成` 并勾选验收项。
+- 一个提交尽量只完成一个可回滚阶段，提交前同步本文。
+- 共享包改动、跨应用改动和部署改动必须跑全仓门禁。
+- `main` 的合并和部署由维护者明确确认，不属于普通任务的隐含权限。
+
+状态：`⏳ 待开始` · `🔄 进行中` · `⛔ 阻塞` · `✅ 已完成`
+
+## v0.1 健康基线
+
+2026-07-10 在 `dev` 与 `v0.1` 同起点完成：
+
+- [x] `pnpm build`：3 个 Vite 应用构建通过。
+- [x] `pnpm test`：910 tests 通过（ChronoSphere 843、RateLens 55、SaneUnits 12）。
+- [x] `pnpm lint`：通过，SaneUnits 有 3 条 warning。
+- [x] 当前内容与全部 5 个提交做敏感模式扫描；未发现实际密钥、真实绝对路径、内网/Tailscale IP。
+- [x] 后续 P1.3 已让 Homepage 与 Monitor Choice 进入根 build/test/lint；当前质量基线见 [INDEX.md](./INDEX.md)。
 
 ---
 
-## Phase 0: 准备与前置检查
+## P0 — 隐私与发布安全
 
-### T0.1 · 确认所有源仓库状态 `⏱ 5min` `无依赖`
+### P0.1 · RateLens 外部汇率请求透明化 `✅ 已完成`
 
-**目标**: 确保 5 个源仓库都在最新 main 分支，无未提交变更。
+**背景**：早期候选曾改为本地参考值和用户主动联网；维护者在 v0.2 明确要求当前汇率自动获取，避免未来多货币硬编码值产生大偏差。
 
-**操作**:
-```bash
-for p in rate-lens chrono-sphere sane-units monitor-choice tools-homepage; do
-  cd {{PROJECTS_DIR}}/$p
-  echo "=== $p ==="
-  git branch --show-current          # 应为 main
-  git status --porcelain             # 应为空（无输出）
-  git fetch origin
-  git log HEAD..origin/main --oneline # 应为空（本地最新）
-done
-```
+**目标**：自动请求当前 USD/CNY，但持续披露固定第三方来源和用途，不发送本页输入；失败时不代入硬编码值，直接要求用户填写。
 
-**验证**: 所有项目 `git status --porcelain` 输出为空。
+**验收**：
 
-**当前状态**: ✅ 已验证通过（2026-07-09，全部分支 main，0 dirty files）。
+- [x] 首次加载自动请求 allowlist 中的公开汇率服务，UI 同步显示联网目标、用途和最小发送范围。
+- [x] 两个来源失败后保持空汇率并自动展开手动输入，不回退 7.2 或其他未标日期值。
+- [x] 手动填写会中止等待结果；用户手动值之后重试失败也不会被覆盖。
+- [x] fetcher 有超时、fallback 和无真实网络的测试。
+- [x] README/页面隐私表述与实际行为一致。
+- [x] 桌面与 390px 手机布局、成功/失败网络路径、zh/en 切换和控制台错误检查通过。
 
----
+外部 URL 全仓 allowlist 属于 P1.2 的通用门禁，不与本功能提交耦合。
 
-### T0.2 · 获取 VPS 部署信息 `⏱ 5min` `✅ 已完成`
+### P0.2 · 加固手动部署脚本 `✅ 已完成`
 
-**VPS 配置（已获取，只读）**:
+**发现**：脚本当前尝试 `checkout main` 并忽略失败；在脏工作区或切换失败时可能继续从错误分支部署。公开 `.env.example` 还含具体的非标准端口和内部网络提示，不符合最小披露原则。
 
-| 项目 | 值 |
-|------|-----|
-| 主机 | SaltyFish Frankfurt VPS ({{VPS_IP}}) |
-| 磁盘 | 15GB 总量, 4.3GB 已用, 9.7GB 可用 (31%) |
-| Caddy | Docker 容器 `caddy`, image `caddy:latest` |
-| Caddy 配置 | `{{CADDY_DIR}}/Caddyfile` |
-| Web 根目录（宿主机） | `~/www/` |
-| Web 根目录（容器内） | `/srv/www/`（宿主机 `~/www` 映射到容器 `/srv/www`） |
+**目标**：部署脚本只验证，不替用户切分支；只允许干净且已同步的 `main`。
 
-**当前 Caddyfile 站点块**（与 Toolbox 相关的部分）:
-```nginx
-tool.s-ark.xyz         → root /srv/www/tools-homepage
-chrono.s-ark.xyz       → root /srv/www/chrono-sphere
-saneunits.s-ark.xyz    → root /srv/www/sane-units
-monichoice.s-ark.xyz   → root /srv/www/monitor-choice
-ratelens.s-ark.xyz     → root /srv/www/rate-lens
-```
+**验收**：
 
-**当前 Web 目录结构**:
-```
-~/www/
-├── chrono-sphere/     (index.html + assets/)
-├── monitor-choice/    (index.html + css/ + js/)
-├── rate-lens/         (index.html + assets/)
-├── sane-units/        (index.html + assets/)
-├── tools-homepage/    (index.html + css/ + js/)
-└── tiny-cosmos/       (不相关，勿动)
-```
+- [x] 非 `main`、detached HEAD、dirty worktree 立即失败。
+- [x] 更新只允许 `git pull --ff-only`，不自动 merge/rebase。
+- [x] 端口、主机和路径全部来自 gitignored env；公开模板只含通用占位符。
+- [x] 将 `deploy/.env.example` 清理为纯占位符，脚本对缺失字段给出不回显值的错误。
+- [x] `bash -n` 与 ShellCheck 通过；在 `dev` 实测会在加载 env、构建或联网前拒绝执行。
 
-**⚠️ 重要发现**:
-- `tools.s-ark.xyz` DNS 当前指向 `{{MARIO_TAILSCALE_IP}}`（内部服务器），**需要改为 `{{VPS_IP}}`**（VPS）
-- Caddy 重载命令: `docker compose -f {{CADDY_DIR}}/docker-compose.yml restart`
+### P0.3 · Git 与文档隐私卫生 `🔄 进行中`
+
+- [x] 从当前架构/任务文档移除供应商、位置、内部拓扑和真实部署细节。
+- [x] 明确允许公开信息与禁止入库信息的边界。
+- [x] 对当前树和既有提交做不回显值的敏感模式扫描。
+- [x] 按维护者决定继续使用其 GitHub 主页已公开的提交邮箱，不强制 noreply。
+- [x] 当前树的部署模板已移除具体 SSH 端口和内部网络提示。
+- [ ] `v0.1` 历史模板曾包含具体端口（未包含密钥、真实主机或 IP）；若该值仍在使用，由维护者在服务器侧决定是否轮换，不为此自动改写 Git 历史。
+- [x] CI 增加无第三方依赖的 privacy scan；扫描结果只输出类别和文件名，不回显疑似 secret 原文。
+
+**决策**：该邮箱属于维护者主动公开的项目身份，不视为隐私缺陷，不改写 v0.1 历史。仍禁止意外混入其他私人或工作邮箱。
+
+### P0.4 · CI / 工具链最小遥测面 `🔄 进行中`
+
+- [x] CI 明确设置 Turborepo telemetry opt-out。
+- [x] GitHub Actions 默认权限收紧为 `contents: read`，checkout 不持久化 token。
+- [x] 第三方 Actions 固定到官方版本标签当前对应的 commit SHA，版本注释保留可读性；后续升级必须显式改 SHA。
+- [ ] 建立依赖许可证与高危漏洞检查，避免将完整环境信息上传第三方服务。
 
 ---
 
-### T0.3 · 为 tools 添加独立 DNS 记录 `⏱ 2min` `需用户操作` `阻塞 T5.3`
+## P1 — 架构护栏与单一事实源
 
-**现状**: AdGuard Home 有 `*.s-ark.xyz → {{MARIO_TAILSCALE_IP}}`（内部服务器）泛域名规则，覆盖所有家庭内网服务。已有独立记录的子域名（`tool.` / `chrono.` / `ratelens.` 等）会覆盖泛域名，正确指向 VPS `{{VPS_IP}}`。
+### P1.1 · 重建项目认知与架构文档 `✅ 已完成`
 
-**问题**: `tools.s-ark.xyz` 尚未添加独立记录，走了泛域名规则指向内部服务器。
+- [x] [INDEX.md](./INDEX.md) 按真实代码记录应用、共享包与质量基线。
+- [x] [PLAN.md](./PLAN.md) 明确“应用隔离 + 版本化契约 + 自动门禁”方向。
+- [x] [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) 固化主题、语言、导航与交互规则。
+- [x] [NEW_TOOL.md](./NEW_TOOL.md) 提供新工具 playbook。
+- [x] 将 v0.1 迁移过程从当前任务板移除；发布结果由 CHANGELOG 保存。
 
-**操作**: 在 AdGuard Home（或上游 Cloudflare/Aliyun DNS）中添加一条 A 记录：
-```
-tools.s-ark.xyz → {{VPS_IP}}
-```
+### P1.2 · 实现 `check:contracts` `🔄 进行中`
 
-**验证**: `dig tools.s-ark.xyz +short` 返回 `{{VPS_IP}}`
+**目标**：把文档中可机器判断的规则变成根命令和 CI 门禁。
 
----
+- [x] 禁止 `apps/*` 直接 import 或依赖另一个 app。
+- [x] 校验 package name、route/base、目录和 build output。
+- [x] 校验全局/应用 storage key 命名；active key 统一，旧 key 仅允许显式迁移 fallback。
+- [x] 新 app 强制接入 theme/nav/i18n；现有三个 React app 的 theme 缺口暂列迁移基线。
+- [x] 检查 app 自定义的 Theme/Language Toggle；全局偏好控件只允许由共享 NavBar 提供。
+- [x] 检查未经 `config/external-origins.json` allowlist 的运行时外部 URL 或动态网络访问。
+- [x] 静态副本迁移期间检查 NavBar 内容一致；两个应用进入 workspace 后已删除副本与过渡门禁。
+- [x] 根命令 `pnpm check:contracts` 已在 CI 执行，并可继续扩展其他契约。
 
-## Phase 1: Monorepo 骨架搭建
+### P1.3 · 让静态应用进入 workspace `✅ 已完成`
 
-### T1.1 · 初始化 Git 仓库并创建目录结构 `⏱ 10min` `依赖: T0.1`
+**目标**：Homepage 与 Monitor Choice 使用 Vite 构建壳，但不重写业务逻辑。
 
-**目标**: 在 `{{PROJECTS_DIR}}/Toolbox/` 内初始化 git 仓库并创建 monorepo 目录骨架。
+- [x] Homepage 增加 package.json、Vite build、lint 与 5 条 smoke tests。
+- [x] Homepage 保持根 URL、DOM 行为与根目录部署路径不变。
+- [x] Homepage 通过 workspace 依赖消费 nav/theme/i18n，并删除手工运行时副本。
+- [x] Monitor Choice 增加有序 Vite bootstrap、8 条 smoke/计算测试和 0-warning lint；Canvas 与 5 个 Tab 浏览器验证通过。
+- [x] 两个应用逐个迁移；Homepage 独立验证并提交后再开始 Monitor Choice。
 
-**操作**:
-```bash
-cd {{PROJECTS_DIR}}/Toolbox
+### P1.4 · 建立 app manifest `✅ 已完成`
 
-# 初始化 git（GitHub 上已创建空仓库 StepaniaH/Toolbox.git）
-git init
-git remote add origin git@github.com:StepaniaH/Toolbox.git
+- [x] 定义并测试 id/path/name/description/status schema。
+- [x] Homepage、React NavBar、Vanilla NavBar 从同一数据源生成。
+- [x] 支持 `hidden` / `preview` / `stable`，新工具默认 `hidden`。
+- [x] manifest 只允许公开产品字段，不包含主机、部署或环境数据。
+- [x] 删除三处手工维护工具列表的流程，并由 `check:contracts` 校验目录、路径与消费者。
 
-# 创建目录结构（docs/ 已存在，补充其余的）
-mkdir -p apps apps/homepage apps/rate-lens apps/chrono-sphere apps/monitor-choice apps/sane-units
-mkdir -p apps/_template
-mkdir -p packages/theme packages/nav
-mkdir -p deploy
+### P1.5 · 统一依赖事实源 `✅ 已完成`
 
-# 创建 .gitignore
-cat > .gitignore << 'GITEOF'
-node_modules/
-dist/
-.env
-*.local
-.DS_Store
-.turbo/
-deploy/.env
-GITEOF
-```
-
-**验证**: `ls apps/` 显示 6 个目录（5 个工具 + _template）。
-
----
-
-### T1.2 · 初始化 pnpm workspace `⏱ 10min` `依赖: T1.1`
-
-**目标**: 配置 pnpm workspace 和根 package.json。
-
-**操作**:
-```bash
-cd {{PROJECTS_DIR}}/Toolbox
-
-# 确保 pnpm 已安装
-which pnpm || npm install -g pnpm
-
-# 根 package.json
-cat > package.json << 'PKGEOF'
-{
-  "name": "toolbox",
-  "private": true,
-  "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "test": "turbo test",
-    "lint": "turbo lint",
-    "deploy": "bash deploy/deploy.sh",
-    "clean": "turbo clean"
-  },
-  "devDependencies": {
-    "turbo": "^2.0.0"
-  },
-  "packageManager": "pnpm@9.0.0"
-}
-PKGEOF
-
-# pnpm workspace 配置
-cat > pnpm-workspace.yaml << 'PNPMEOF'
-packages:
-  - "apps/*"
-  - "packages/*"
-PNPMEOF
-
-# Turborepo 配置
-cat > turbo.json << 'TURBOEOF'
-{
-  "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["packages/theme/**", "packages/nav/**"],
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**"],
-      "cache": true
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "test": {
-      "dependsOn": ["build"],
-      "cache": true
-    },
-    "lint": {
-      "cache": true
-    },
-    "clean": {
-      "cache": false
-    }
-  }
-}
-TURBOEOF
-
-pnpm install
-```
-
-**验证**: 
-- `pnpm install` 成功
-- `ls node_modules/turbo` 存在
-- `pnpm --version` 返回 >= 9.0
+- [x] 所有 app 只使用 pnpm workspace 与根 `pnpm-lock.yaml`。
+- [x] 删除 3 个 app 级 `package-lock.json`，更新仍在维护的 README/计划命令。
+- [x] `check:contracts` 阻止 app 下重新加入 npm/yarn 锁文件。
+- [x] 用 pnpm catalog 集中 React/Vite/Vitest/TypeScript 版本；保留已验证的 Vite 6 稳定线和 Vite 7/8 显式迁移线，迁移未改变实际解析版本。
+- [x] [DEPENDENCIES.md](./DEPENDENCIES.md) 记录依赖/平台升级、锁文件审查与发布前后回滚方式。
+- [x] `check:contracts` 拒绝受控工具链绕过 catalog 或组合不匹配。
 
 ---
 
-### T1.3 · 创建共享环境变量模板 `⏱ 5min` `依赖: T1.2`
+## P2 — 设计系统收敛
 
-**目标**: 创建 `.env.example` 作为环境变量参考。
+### P2.1 · 修复 NavBar 控件状态 `🔄 进行中`
 
-**操作**:
-```bash
-cd {{PROJECTS_DIR}}/Toolbox
+**已确认设计偏好**：所有工具右上角的语言与主题按钮，鼠标 hover 时不出现背景块、边框或选中框。
 
-cat > .env.example << 'ENVEOF'
-# ============================================
-# Toolbox 环境变量模板
-# 复制此文件为 .env 并填入实际值
-# .env 不会被提交到 git
-# ============================================
+- [x] 移除 icon action 的 hover 背景，只保留颜色/图标反馈。
+- [x] 恢复清晰的 `:focus-visible` 2px ring，不再用 `outline: none` 清空。
+- [x] React 与 Vanilla CSS 以及两个静态部署副本完全一致。
+- [ ] light/dark、mouse/keyboard/touch 验证通过。
+- [x] 增加交互契约检查并接入 CI。
 
-# 部署目标
-# VPS 的 SSH 连接信息
-DEPLOY_HOST=your-vps-host
-DEPLOY_USER=your-ssh-user
-DEPLOY_PATH=/var/www/toolbox
+**待复核**：浏览器授权已恢复，生产 smoke 可运行；此项仍需补齐 mouse/keyboard/touch 的完整交互矩阵后再标记完成。
 
-# 可选: Google Analytics 测量 ID
-# GA_MEASUREMENT_ID=G-XXXXXXXXXX
+### P2.2 · SaneUnits 外壳对齐 `✅ 完成`
 
-# 可选: 构建时的 base URL（默认: 每个 app 自己的路径）
-# VITE_BASE_URL=/
-ENVEOF
-```
+**发现**：SaneUnits 同时使用共享 NavBar 和 sidebar/mobile 中自有的主题、语言按钮；其空间、字体、控件和页面结构也与其他工具差异最大。
 
-**验证**: `.env.example` 已创建，被 `.gitignore` 排除的是 `.env` 而非 `.env.example`。
+**原则**：统一全局壳与 token，不抹掉单位工具适合多页面导航的业务特色。
 
----
+- [x] 移除 sidebar/mobile 的重复主题与语言控件，桌面和移动端只保留共享 NavBar 入口。
+- [x] 用共享语义 token 对齐背景、卡片、边框、字体、圆角和控件状态；测试阻止重新复制色板。
+- [x] 保留适合多计算器的业务导航，并与共享 NavBar 明确分层。
+- [x] 建立生产浏览器基线，逐页验证 storage/network/video/power/about，并覆盖双主题、双语言与 390px 断点。
+- [x] 本阶段未重写计算逻辑，只收敛全局壳、主题 token、语言元数据和回归验证。
 
-### T1.4 · 编写根 README `⏱ 15min` `依赖: T1.2`
+### P2.3 · 逐个应用接入 `@toolbox/theme` `🔄 进行中`
 
-**目标**: 创建仓库顶层的 README.md 和 README.zh-CN.md。
+- [x] 冻结 `@toolbox/theme` v1 模式、storage、DOM 与语义 token 契约，并补 CSS/runtime/pre-paint 包级测试。
+- [x] ChronoSphere 先接入 v1 runtime 契约，消除 storage key、DOM 属性、默认值与 dark/light 校验的重复定义；保留 app 级 `system` 模式和现有 CSS。
+- [x] RateLens 接入同一 runtime 契约，保留 legacy key pre-paint fallback 与 Tailwind 专属 token 映射。
+- [x] SaneUnits 接入同一 runtime 契约；所有 app 现均由 `check:contracts` 强制直接依赖 theme/nav/i18n。
+- [x] 以 SaneUnits 作为代表性 React 工具完成语义 token 试点，并通过逐页生产 browser smoke。
+- [x] 首轮只迁移 SaneUnits，并保留其多计算器布局所需的 app-specific 映射层。
+- [ ] React 工具完成后再迁移两个静态工具。
+- [ ] 删除重复主题解析和 pre-paint 片段的手工维护。
 
-**操作**: 创建两个文件：
+### P2.4 · 视觉回归矩阵 `⏳ 待开始`
 
-`README.md` — 英文主 README，包含：
-- 项目一句话介绍
-- 工具目录表格（名称、路径、简介、技术栈）
-- 设计原则
-- 本地开发指南（pnpm install → pnpm dev）
-- 线上地址
-- LICENSE
-
-`README.zh-CN.md` — 中文版，内容对应。
-
-**参考**: 使用 `INDEX.md` 中的内容和结构。
+- [ ] 5 apps × light/dark × zh/en × desktop/mobile 的关键页面 smoke。
+- [ ] 固定测试数据和 viewport，避免动态汇率等不稳定输入。
+- [ ] 先采用人工审核的基线截图，再评估像素 diff 阈值。
+- [ ] PR 只保存有意义的差异，不把截图中的本地路径或个人数据入库。
 
 ---
 
-### T1.5 · 创建 AGENTS.md `⏱ 15min` `依赖: T1.2`
+## P3 — 测试与可维护性
 
-**目标**: 创建 AI agent 操作规范，放在 `docs/AGENTS.md`。
+### P3.1 · Monitor Choice 逻辑分层与测试 `✅ 已完成`
 
-**操作**: 创建 `docs/AGENTS.md`，内容包含：
+- [x] PPI/PPD、距离、FOV、带宽与桌深逻辑集中到 `calc.js`，并提供 ESM named exports；现有 Tab 继续通过 `window.Calc` 兼容桥运行。
+- [x] 用独立 Node tests 覆盖主要边界、厘米/英寸和十进制 Gbps 公式；正常输入公式未改变。
+- [x] 修复生产 CSS 相对 import 导致六个业务样式 404，并用构建测试禁止产物残留源码相对 `@import`。
+- [x] 真实浏览器复核 5 个 Tab、7 个 Canvas、zh/en、light/dark 与 0 console error；后续将该流程固化为自动 browser smoke。
+- [x] `pnpm test:browser` 固化生产资源、5 个 Tab、7 个 Canvas、zh/en、light/dark 和 console 检查，并在 CI 安装 Chromium 后执行。
+- [x] 七个 Canvas 提供双语 accessible name，并关联同页动态文字结果；浏览器 smoke 防止翻译 key 或描述关系回归。
 
-```markdown
-# AGENTS.md — AI Agent 操作规范
+### P3.2 · Homepage smoke 与链接契约 `✅ 已完成`
 
-## 仓库结构认知
-- `apps/` — 各独立工具，agent 修改时只动目标工具
-- `packages/` — 共享包，默认只读
-- `docs/` — 文档
+- [x] 所有 stable app 卡片存在且 URL 唯一。
+- [x] zh/en 切换、light/dark 切换与 375px 移动菜单可用。
+- [x] 公开链接使用安全的 `rel` 属性。
+- [x] 新 app 未标记 stable 时不出现在主入口。
 
-## 红线（不可违反）
-1. 不引入后端/数据库/登录
-2. 不引入第三方追踪（除非用户明确要求）
-3. 不修改 packages/ 除非用户明确说「改 XX 共享包」
-4. 不修改其他工具的代码
-5. 新增工具必须引用 @toolbox/theme 和 @toolbox/nav
+### P3.3 · 清理当前 warning 与测试噪音 `✅ 已完成`
 
-## 开发流程
-1. 读 docs/INDEX.md 了解全局
-2. 读目标工具的 README.md
-3. 在 apps/<tool>/ 下操作
-4. pnpm --filter=<tool> dev 验证
-5. pnpm test 全量测试
+- [x] 修复 SaneUnits 3 条 lint warning。
+- [x] 修复 RateLens 倍率预设泄漏原始翻译 key，并补渲染回归断言。
+- [x] 处理测试中的 Node localStorage ExperimentalWarning。
+- [x] 根 lint 对 warning 采用明确策略，避免 warning 永久积累。
+- [x] 记录各 app test 数量时不把数量当覆盖率。
 
-## 新工具 Checklist
-(从 apps/_template 复制开始，包含所有步骤)
-```
+### P3.4 · 性能预算 `⏳ 待开始`
 
-**验证**: 文件存在且包含「红线」和「新工具 Checklist」两节。
+- [ ] 为首屏 JS/CSS、最大 chunk 和图片设置可解释预算。
+- [ ] 关注 ChronoSphere timezone chunk 与 RateLens 首包，不盲目以拆包数量优化。
+- [ ] CI 报告趋势，超预算需说明而非静默通过。
 
 ---
 
-## Phase 2: 迁移应用
+## P4 — “积木式”新工具能力
 
-### 通用迁移步骤（每个工具执行 T2.x.1 → T2.x.2 → T2.x.3）
+### P4.1 · 可运行的 `_template` 或生成器 `⏳ 待开始`
 
-对每个应用：
+- [ ] 模板本身能 build/test/lint/smoke，不是无人维护的文件副本。
+- [ ] 支持 Vanilla TypeScript 与 React 两种最小变体。
+- [ ] 自动写入 package name、base、manifest、README 与测试骨架。
+- [ ] 默认接入 theme/nav/i18n 和 Error Boundary/错误恢复。
+- [ ] 默认 `hidden`，生成完成不会改变生产导航。
 
-1. **T2.x.1 复制文件**: 将源仓库文件复制到 `apps/<name>/`，**排除 `.git/`、`node_modules/`、`dist/`**
-2. **T2.x.2 调整配置**: 修改构建配置以适配 monorepo（base 路径、依赖引用）
-3. **T2.x.3 验证**: 本地构建/运行通过
+### P4.2 · 仓库内开发 skill `⏳ 待开始`
 
----
+**前置**：P4.1 与 `check:contracts` 稳定后再做，避免把未验证流程固化。
 
-### T2.1 · 迁移 homepage（纯静态） `⏱ 15min` `依赖: T1.5`
-
-**源**: `{{PROJECTS_DIR}}/tools-homepage/`  
-**目标**: `apps/homepage/`
-
-**T2.1.1 复制文件**:
-```bash
-SRC={{PROJECTS_DIR}}/tools-homepage
-DEST={{PROJECTS_DIR}}/Toolbox/apps/homepage
-
-cp -r $SRC/* $DEST/
-# 移除不需要的文件
-rm -rf $DEST/.git $DEST/README.md $DEST/README.zh-CN.md
-# README 由工具自己维护（后面单独写）
-```
-
-**T2.1.2 调整**:
-- 不需要构建工具，文件即产物
-- 在 `apps/homepage/js/main.js` 中，将 `tools` 数组里的 URL 从绝对路径 `https://xxx.s-ark.xyz/` 改为相对路径 `/rate-lens/` 等形式
-- 确认 `index.html` 中的 CSS/JS 引用使用相对路径
-
-**T2.1.3 验证**:
-```bash
-cd apps/homepage && python3 -m http.server 8080
-# 浏览器访问 http://localhost:8080，确认页面正常渲染
-```
-
-**注意**: homepage 目前卡片数组硬编码了 3 个工具。RateLens 卡片将在 Phase 4 统一添加。
+- [ ] 从 [NEW_TOOL.md](./NEW_TOOL.md) 提炼 agent 可执行步骤。
+- [ ] skill 必须先检查分支、dirty state、AGENTS 和 app brief。
+- [ ] skill 不持有部署权限，不自动改 `main` 或发布。
+- [ ] 在一个试验工具上完整演练并记录失败恢复。
 
 ---
 
-### T2.2 · 迁移 rate-lens `⏱ 20min` `依赖: T1.5`
+## P5 — 发布治理
 
-**源**: `{{PROJECTS_DIR}}/rate-lens/`  
-**目标**: `apps/rate-lens/`
+### P5.1 · dev → main 晋级清单 `⏳ 待开始`
 
-**T2.2.1 复制文件**:
-```bash
-SRC={{PROJECTS_DIR}}/rate-lens
-DEST={{PROJECTS_DIR}}/Toolbox/apps/rate-lens
+- [ ] CI 全绿：build/test/lint/contracts/smoke/privacy。
+- [ ] CHANGELOG 与应用版本同步。
+- [ ] 记录可回滚 commit 与受影响应用。
+- [ ] main 只接受 fast-forward/PR 晋级，不直接开发。
+- [x] 合并 main 不自动上线；GitHub Actions 只允许从手动选择的 main ref 部署，备用脚本也强制干净且同步的 main。
 
-cp -r $SRC/* $DEST/
-rm -rf $DEST/.git $DEST/node_modules $DEST/dist
-rm -f $DEST/PLANS.md $DEST/TASKS.md  # 仓库级文档在 docs/ 下
-# 保留 README.md, README.zh-CN.md, docs/spec.md, docs/plan.md
-```
+### P5.2 · 平台包版本策略 `⏳ 待开始`
 
-**T2.2.2 调整**:
-1. 修改 `apps/rate-lens/package.json`：
-   - `"name"` 改为 `"@toolbox/rate-lens"`
-   - 移除 `"private": true`（workspace 根已声明）
-2. 修改 `apps/rate-lens/vite.config.ts`：
-   ```ts
-   export default defineConfig({
-     base: process.env.NODE_ENV === 'production' ? '/rate-lens/' : '/',
-     // ... 其余配置保持不变
-   })
-   ```
-3. 修改 `apps/rate-lens/index.html`：确保资源引用使用相对路径或正确的 base
-
-**T2.2.3 验证**:
-```bash
-pnpm --filter=@toolbox/rate-lens install   # 安装依赖
-pnpm --filter=@toolbox/rate-lens dev       # 启动开发服务器
-pnpm --filter=@toolbox/rate-lens build     # 构建
-pnpm --filter=@toolbox/rate-lens test      # 55 测试应通过
-```
+- [ ] 采用 Changesets 或等价机制记录 theme/nav/i18n 变更。
+- [ ] 定义 compatible / breaking 规则与迁移期。
+- [ ] 共享包变更能明确列出需要回归的应用。
+- [ ] 不允许运行时加载未经应用验证的“最新共享脚本”。
 
 ---
 
-### T2.3 · 迁移 chrono-sphere `⏱ 20min` `依赖: T1.5`
-
-**源**: `{{PROJECTS_DIR}}/chrono-sphere/`  
-**目标**: `apps/chrono-sphere/`
-
-**T2.3.1 复制文件**:
-```bash
-SRC={{PROJECTS_DIR}}/chrono-sphere
-DEST={{PROJECTS_DIR}}/Toolbox/apps/chrono-sphere
-
-cp -r $SRC/* $DEST/
-rm -rf $DEST/.git $DEST/node_modules $DEST/dist
-```
-
-**T2.3.2 调整**:
-1. `package.json` name → `"@toolbox/chrono-sphere"`
-2. `vite.config.ts` base → `'/chrono-sphere/'`（production）
-3. 检查是否有硬编码的 URL 引用
-
-**T2.3.3 验证**:
-```bash
-pnpm --filter=@toolbox/chrono-sphere install
-pnpm --filter=@toolbox/chrono-sphere dev
-pnpm --filter=@toolbox/chrono-sphere build
-pnpm --filter=@toolbox/chrono-sphere test
-```
-
----
-
-### T2.4 · 迁移 monitor-choice `⏱ 15min` `依赖: T1.5`
-
-**源**: `{{PROJECTS_DIR}}/monitor-choice/`  
-**目标**: `apps/monitor-choice/`
-
-**T2.4.1 复制文件**:
-```bash
-SRC={{PROJECTS_DIR}}/monitor-choice
-DEST={{PROJECTS_DIR}}/Toolbox/apps/monitor-choice
-
-cp -r $SRC/* $DEST/
-rm -rf $DEST/.git
-```
-
-**T2.4.2 调整**:
-- 纯静态，无需构建配置
-- 检查 JS 模块中的相对路径引用（CSS/JS 互引用）
-- 确认 `index.html` 中的 `<script>` 和 `<link>` 使用相对路径
-
-**T2.4.3 验证**:
-```bash
-cd apps/monitor-choice && python3 -m http.server 8081
-# 浏览器访问，切换 5 个 tab，确认 Canvas 正常渲染
-```
-
----
-
-### T2.5 · 迁移 sane-units `⏱ 20min` `依赖: T1.5`
-
-**源**: `{{PROJECTS_DIR}}/sane-units/`  
-**目标**: `apps/sane-units/`
-
-**T2.5.1 复制文件**:
-```bash
-SRC={{PROJECTS_DIR}}/sane-units
-DEST={{PROJECTS_DIR}}/Toolbox/apps/sane-units
-
-cp -r $SRC/* $DEST/
-rm -rf $DEST/.git $DEST/node_modules $DEST/dist
-```
-
-**T2.5.2 调整**:
-1. `package.json` name → `"@toolbox/sane-units"`
-2. `vite.config.mjs` base → `'/sane-units/'`（production）
-3. SaneUnits 使用 React Router(?)，需检查是否需要在 Caddy 配置中添加 SPA fallback（`try_files`）
-4. 检查 `AGENTS.md` 中的内容是否需要上移到 `docs/AGENTS.md`
-
-**T2.5.3 验证**:
-```bash
-pnpm --filter=@toolbox/sane-units install
-pnpm --filter=@toolbox/sane-units dev
-pnpm --filter=@toolbox/sane-units build
-pnpm --filter=@toolbox/sane-units test
-```
-
----
-
-### T2.6 · 全量构建验证 `⏱ 10min` `依赖: T2.1-T2.5`
-
-**目标**: 确认所有应用能在 monorepo 中并行构建成功。
-
-```bash
-cd {{PROJECTS_DIR}}/Toolbox
-pnpm build
-# Turborepo 应并行构建所有应用，输出各 app 的 dist/
-```
-
-**验证**: 
-- 所有应用构建成功，无报错
-- `apps/homepage/` 文件可直接作为静态站点
-- `apps/monitor-choice/` 文件可直接作为静态站点
-- `apps/rate-lens/dist/`、`apps/chrono-sphere/dist/`、`apps/sane-units/dist/` 存在且有内容
-
----
-
-## Phase 3: 共享包
-
-### T3.1 · 创建 @toolbox/theme `⏱ 30min` `依赖: T2.6`
-
-**目标**: 创建共享主题包，提供 Catppuccin CSS 变量和亮暗切换逻辑。
-
-**操作**:
-
-```bash
-cd {{PROJECTS_DIR}}/Toolbox/packages/theme
-
-# package.json
-cat > package.json << 'EOF'
-{
-  "name": "@toolbox/theme",
-  "version": "1.0.0",
-  "description": "Catppuccin theme (Frappe + Latte) with light/dark toggle — shared across Toolbox apps",
-  "main": "index.css",
-  "exports": {
-    "./styles.css": "./index.css",
-    "./toggle.js": "./toggle.js"
-  },
-  "files": ["index.css", "toggle.js"],
-  "license": "MIT"
-}
-EOF
-```
-
-**`packages/theme/index.css`** — 包含：
-- Catppuccin Frappe（dark）全部 CSS 自定义属性（`:root[data-theme="dark"]` 或默认 `:root`）
-- Catppuccin Latte（light）全部 CSS 自定义属性（`:root[data-theme="light"]`）
-- 参考现有的各项目中的颜色定义，以最完整的版本（rate-lens 的 Catppuccin 变量定义）为基准
-
-**`packages/theme/toggle.js`** — 包含：
-```js
-// 主题切换逻辑
-// - 读取 localStorage('toolbox-theme')
-// - 回退到系统偏好（prefers-color-scheme）
-// - 设置 <html data-theme="...">
-// - 导出 getTheme() / setTheme('dark'|'light') / toggleTheme()
-```
-
-**T3.1.3 验证**:
-```bash
-cd {{PROJECTS_DIR}}/Toolbox
-pnpm install  # 确认 workspace 依赖解析正确
-```
-
----
-
-### T3.2 · 各工具接入 @toolbox/theme `⏱ 1h` `依赖: T3.1`
-
-**目标**: 将每个工具的 Catppuccin 主题实现替换为引用共享包。
-
-**对每个 React 工具（rate-lens, chrono-sphere, sane-units）**:
-
-1. `pnpm --filter=@toolbox/<name> add @toolbox/theme@workspace:*`
-2. 在入口 `index.html` 或 `main.tsx` 中 `import '@toolbox/theme/styles.css'`
-3. 在 `App.tsx` 中 `import { toggleTheme } from '@toolbox/theme/toggle.js'`，替换现有的主题钩子
-4. 删除工具内 `src/` 下原有的主题相关 CSS 变量定义和切换逻辑
-5. `pnpm --filter=@toolbox/<name> dev` 确认主题切换正常
-
-**对每个静态工具（homepage, monitor-choice）**:
-- 在 `index.html` 中通过 `<link>` 引用（手动复制 CSS 到工具目录，或通过部署脚本处理）
-- 在 JS 中引用 `toggle.js` 的逻辑（或手动复制）
-
-**⚠️ 重要**: 做此迁移时，**逐个工具操作**。一个工具完成并验证后再做下一个，避免同时破坏多个。
-
-**验证**: 每个工具亮/暗切换正常，颜色与迁移前一致。
-
----
-
-### T3.3 · 创建 @toolbox/nav `⏱ 45min` `依赖: T3.2`
-
-**目标**: 创建全局导航栏组件。
-
-**操作**:
-
-```bash
-cd {{PROJECTS_DIR}}/Toolbox/packages/nav
-```
-
-**`packages/nav/package.json`**:
-```json
-{
-  "name": "@toolbox/nav",
-  "version": "1.0.0",
-  "main": "nav-bar.js",
-  "exports": {
-    "./nav-bar.js": "./nav-bar.js",
-    "./nav-bar.css": "./nav-bar.css",
-    "./NavBar.tsx": "./NavBar.tsx"
-  }
-}
-```
-
-**设计**:
-```
-┌──────────────────────────────────────────────────────┐
-│ [🧰 Toolbox ▾]  RateLens  ChronoSphere  Monitor  ...  [🌓] │
-└──────────────────────────────────────────────────────┘
-```
-
-- 左侧: "🧰 Toolbox" 文字 + 下拉箭头，悬停展开工具列表
-- 中间: 快捷链接（横排，响应式折叠）
-- 右侧: 主题切换按钮
-- 下拉列表: 每个工具一行，含名称 + 一句话描述
-
-**`nav-bar.js`** — Vanilla JS 版:
-- 创建导航栏 DOM 元素
-- 处理下拉展开/收起
-- 挂载到 `#toolbox-nav` 容器
-
-**`NavBar.tsx`** — React 版:
-- 同名 React 组件
-- 接受 `currentApp` prop 高亮当前工具
-
-**验证**: 在 homepage 中测试 vanilla 版，在 rate-lens 中测试 React 版。
-
----
-
-## Phase 3.5: 导航栏集成（可与 Phase 4 并行）
-
-### T3.5 · 各工具集成导航栏 `⏱ 1h` `依赖: T3.3`
-
-**目标**: 所有工具页顶部加入统一的全局导航栏。
-
-**React 工具**:
-```bash
-pnpm --filter=@toolbox/<name> add @toolbox/nav@workspace:*
-```
-
-在 App.tsx 顶部加入:
-```tsx
-import { NavBar } from '@toolbox/nav/NavBar'
-// ...
-<NavBar currentApp="rate-lens" />
-```
-
-**静态工具**:
-在 `<body>` 顶部加入:
-```html
-<div id="toolbox-nav"></div>
-<script src="/packages/nav/nav-bar.js"></script>
-<!-- 实际部署时路径调整为相对路径 -->
-```
-
-**验证**: 每个工具的页面顶部出现导航栏，下拉列表正常展开，链接跳转正确。
-
----
-
-## Phase 4: 导航首页更新
-
-### T4.1 · 更新 homepage 工具列表 `⏱ 15min` `依赖: T3.5`
-
-**目标**: homepage 的 `tools` 数组中加入 RateLens 卡片。
-
-**操作**: 编辑 `apps/homepage/js/main.js`，在 `tools[]` 数组中追加：
-
-```js
-{
-  id: "ratelens",
-  titleKey: "card.ratelens.title",
-  subtitleKey: "card.ratelens.subtitle",
-  descKey: "card.ratelens.desc",
-  url: "/rate-lens/",
-  badges: ["React", "TypeScript", "Vite", "Tailwind"],
-  svgPath: '...'  // 放大镜/价格标签主题的 SVG
-}
-```
-
-并在 `apps/homepage/js/i18n.js` 中添加对应的中英文翻译。
-
-**验证**: homepage 显示 4 个工具卡片，RateLens 卡片可点击跳转。
-
----
-
-### T4.2 · homepage 视觉更新 `⏱ 20min` `依赖: T4.1`
-
-**目标**: 优化首页以适应当前生态定位。
-
-**操作**:
-1. 更新标语从「三个隐私优先的网页工具」→「隐私优先的网页工具集」（不再限定数量）
-2. 如果工具数量较少导致 grid 有空位，调整 CSS 让卡片居中对齐
-3. 可选：加一个简单的 footer 统计数据（如「共 N 个工具，全部客户端运算」）
-
----
-
-## Phase 5: 部署
-
-### T5.1 · 编写部署脚本 `⏱ 20min` `依赖: T2.6`
-
-**目标**: 创建 `deploy/deploy.sh`（公开）和 `deploy/.env.example`（模板），自动化构建 + 上传流程。机密信息通过 `deploy/.env`（gitignored）管理。
-
-**`deploy/deploy.sh`**（公开，不含任何主机名或路径）:
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-# ============================================
-# Toolbox 部署脚本
-# 用法: bash deploy/deploy.sh
-# 前置: 
-#   1. 已创建 deploy/.env（参考 deploy/.env.example）
-#   2. Tailscale 已连接，可 ssh 到 VPS
-# ============================================
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# 加载机密配置
-if [ -f "$SCRIPT_DIR/.env" ]; then
-  source "$SCRIPT_DIR/.env"
-else
-  echo "❌ deploy/.env 不存在。请参考 deploy/.env.example 创建。"
-  exit 1
-fi
-
-echo "=== 1/4 安装依赖 ==="
-pnpm install --frozen-lockfile
-
-echo "=== 2/4 构建所有应用 ==="
-pnpm build
-
-echo "=== 3/4 同步文件到 VPS ==="
-ssh "$VPS_HOST" "mkdir -p $VPS_WWW"
-
-# 首页（纯静态 → 根目录）
-rsync -avz --delete apps/homepage/ "$VPS_HOST:$VPS_WWW/" \
-  --exclude='README.md' --exclude='README.zh-CN.md'
-
-# monitor-choice（纯静态）
-rsync -avz --delete apps/monitor-choice/ "$VPS_HOST:$VPS_WWW/monitor-choice/" \
-  --exclude='README.md' --exclude='README.zh-CN.md'
-
-# React 应用（构建产物）
-for app in rate-lens chrono-sphere sane-units; do
-  echo "--- rsync $app ---"
-  rsync -avz --delete "apps/$app/dist/" "$VPS_HOST:$VPS_WWW/$app/"
-done
-
-echo "=== 4/4 部署完成 ==="
-echo "站点: https://tools.s-ark.xyz"
-echo ""
-echo "首次部署或 Caddy 配置变更后，手动执行:"
-echo "  cat deploy/Caddyfile.example | ssh $VPS_HOST 'cat >> $CADDY_CONFIG'"
-echo "  ssh $VPS_HOST 'docker compose -f $CADDY_COMPOSE_DIR/docker-compose.yml restart'"
-```
-
-**`deploy/.env.example`**（公开模板）:
-```bash
-# deploy/.env.example
-# 复制为 deploy/.env 并填入真实值（.env 已被 gitignore）
-#
-# VPS 信息:
-VPS_HOST=your-vps-tailscale-hostname
-VPS_WWW=/path/to/www/on/vps
-#
-# Caddy 信息（仅首次部署或配置变更时需要）:
-CADDY_CONFIG=/path/to/Caddyfile
-CADDY_COMPOSE_DIR=/path/to/caddy/docker-compose/dir
-```
-
-**`.gitignore` 追加**:
-```
-deploy/.env
-```
-
----
-
-### T5.2 · 创建 Caddy 配置模板 `⏱ 10min` `依赖: T5.1`
-
-**目标**: 创建 `deploy/Caddyfile.example`（含占位符，可安全公开）。
-
-**操作**:
-```nginx
-# deploy/Caddyfile.example
-# 追加到 VPS 上 {{CADDY_DIR}}/Caddyfile
-# 位于 Docker Caddy 容器中，容器内路径为 /etc/caddy/Caddyfile
-# 重载: docker compose -f {{CADDY_DIR}}/docker-compose.yml restart
-
-tools.s-ark.xyz {
-    root * /srv/www/toolbox
-    file_server
-    encode gzip zstd
-
-    # SPA fallback: 子路径找不到文件时，回退到该子路径的 index.html
-    handle /rate-lens/* {
-        try_files {path} /rate-lens/index.html
-    }
-    handle /chrono-sphere/* {
-        try_files {path} /chrono-sphere/index.html
-    }
-    handle /sane-units/* {
-        try_files {path} /sane-units/index.html
-    }
-
-    # 首页不需要 fallback
-    handle {
-        file_server
-    }
-}
-```
-
-**说明**: 
-- 容器内 `/srv/www/toolbox/` = 宿主机 `{{VPS_WWW}}/`
-- 仅 React SPA 工具需要 `try_files` fallback（客户端路由）
-- monitor-choice 和 homepage 是纯静态，直接 `file_server` 即可
-
----
-
-### T5.3 · 首次部署到 VPS `⏱ 15min` `依赖: T5.1, T5.2, 需用户操作 DNS`
-
-**⚠️ 前置条件**:
-1. **DNS**: 用户需将 `tools.s-ark.xyz` 的 DNS A 记录从 `{{MARIO_TAILSCALE_IP}}`（内部服务器）改为 `{{VPS_IP}}`（VPS）。当前 DNS 指向错误。
-2. `T0.2` VPS 信息已确认
-
-**操作**:
-```bash
-# 1. 本地构建 + 上传
-cd {{PROJECTS_DIR}}/Toolbox
-pnpm build
-
-# 2. 创建目标目录
-ssh {{VPS_HOST}} "mkdir -p {{VPS_WWW}}"
-
-# 3. 同步首页（纯静态 → 根目录）
-rsync -avz --delete apps/homepage/ {{VPS_HOST}}:{{VPS_WWW}}/ \
-  --exclude='README.md' --exclude='README.zh-CN.md'
-
-# 4. 同步 monitor-choice（纯静态）
-rsync -avz --delete apps/monitor-choice/ {{VPS_HOST}}:{{VPS_WWW}}/monitor-choice/ \
-  --exclude='README.md' --exclude='README.zh-CN.md'
-
-# 5. 同步 React 应用（构建产物 dist/）
-for app in rate-lens chrono-sphere sane-units; do
-  echo "--- rsync $app ---"
-  rsync -avz --delete "apps/$app/dist/" "{{VPS_HOST}}:{{VPS_WWW}}/$app/"
-done
-
-# 6. 更新 Caddy 配置（将 deploy/Caddyfile.example 内容追加到 VPS 上的 Caddyfile）
-# 这项需要手动操作：SSH 到 VPS，编辑 Caddyfile
-ssh {{VPS_HOST}} "cat >> {{CADDY_DIR}}/Caddyfile" < deploy/Caddyfile.example
-
-# 7. 重载 Caddy
-ssh {{VPS_HOST}} "docker compose -f {{CADDY_DIR}}/docker-compose.yml restart"
-```
-
-**⚠️ 注意**: 
-- 旧子域名站点（`tool.s-ark.xyz`, `ratelens.s-ark.xyz` 等）**暂不删除**，保留到确认新站点正常
-- `tiny-cosmos/` 目录不相关，**绝对不要动**
-
----
-
-### T5.4 · 各路径验证 `⏱ 10min` `依赖: T5.3`
-
-**目标**: 确认所有工具路径可访问。
-
-**❌ 阻塞项**: `tools.s-ark.xyz` 尚未添加独立 DNS 记录。当前走 AdGuard 泛域名 `*.s-ark.xyz → 内部服务器`。需用户先添加 `tools.s-ark.xyz → {{VPS_IP}}` 后才能验证（见 T0.3）。
-
-**验证命令**（DNS 修复后）:
-```bash
-# 首页
-curl -sI https://tools.s-ark.xyz/ | head -1                          # 200
-# 各工具
-curl -sI https://tools.s-ark.xyz/rate-lens/ | head -1                # 200
-curl -sI https://tools.s-ark.xyz/chrono-sphere/ | head -1            # 200
-curl -sI https://tools.s-ark.xyz/monitor-choice/ | head -1           # 200
-curl -sI https://tools.s-ark.xyz/sane-units/ | head -1               # 200
-```
-
-**验证**: 全部 HTTP 200。
-
----
-
-## Phase 6: 收尾与文档
-
-### T6.1 · 旧仓库 archive `⏱ 10min` `依赖: T5.4`
-
-**目标**: 在 GitHub 上将 5 个独立仓库标记为 Archived。
-
-**操作**: 对每个旧仓库（rate-lens, chrono-sphere, sane-units, monitor-choice, tools-homepage）：
-1. 在 GitHub repo Settings → Danger Zone → Archive
-2. 更新 repo description，加上「已迁移至 [Toolbox](https://github.com/StepaniaH/Toolbox)」
-
-**注意**: 旧子域名站点保留运行，等验证期结束后统一删除 DNS 和 Caddy 配置。
-
----
-
-### T6.2 · 补充各工具的 README `⏱ 30min` `依赖: T5.4`
-
-**目标**: 确保每个工具目录下有 README.md + README.zh-CN.md。
-
-**操作**: 
-- rate-lens, chrono-sphere, sane-units, monitor-choice 已有
-- homepage 已移除旧的（需重写，因为不再独立部署）
-- 检查 README 中是否还有旧的独立仓库 URL，更新为 monorepo 内的路径
-
----
-
-### T6.3 · 补充各工具的 AGENTS.md（如需要） `⏱ 15min` `依赖: T6.2`
-
-**目标**: 为没有 AGENTS.md 的工具补充项目级 agent 指引。
-
-**操作**: 检查 `apps/*/AGENTS.md`，缺失的补充一个简版：
-```markdown
-# <Tool Name> — Agent Instructions
-- 这是 Toolbox monorepo 中的 <tool-name> 工具
-- 技术栈: <stack>
-- 入口: <entry file>
-- 测试: pnpm --filter=@toolbox/<name> test
-- 开发: pnpm --filter=@toolbox/<name> dev
-```
-
----
-
-### T6.4 · 提交并推送 `⏱ 5min` `依赖: 所有 Phase 1-6`
-
-**目标**: 将整个 monorepo 推送到 GitHub。
-
-```bash
-cd {{PROJECTS_DIR}}/Toolbox
-git add -A
-git status  # 人工确认无敏感文件（.env 等）
-git commit -m "feat: monorepo — merge 5 passion projects into Toolbox
-
-- apps/: 5 standalone tools migrated
-- packages/: shared theme + nav components
-- docs/: INDEX, PLAN, TASKS, AGENTS
-- deploy/: deployment scripts and Caddy template
-- Turbo + pnpm workspace for orchestration"
-git push origin main
-```
-
-**验证**: GitHub 上 `StepaniaH/Toolbox` 显示完整文件树。
-
----
-
-## Phase 7: 质量补强
-
-> 目标：填补测试缺口、优化 bundle 体积、统一 lint。
-
----
-
-### T7.1 · chrono-sphere 补充核心测试 `✅ 已完成`
-
-**现状**: chrono-sphere 有 2 个测试文件（`calculations.test.ts` + `workday-counting.test.ts`），但 20 个源文件中多数核心函数无测试覆盖。JS bundle 615KB。
-
-**操作**:
-1. 审查 `apps/chrono-sphere/src/utils/` 下所有工具函数，列出缺测项
-2. 为 `dateUtils.ts` — 日期偏移、时区转换函数补测试
-3. 为 `timezone.ts` — 时区列表、夏令时检测、UTC 偏移计算补测试
-4. 为 `lunar.ts` — 农历转换、节气计算补测试（侧重边界条件）
-5. 为 `preferencesCore.ts` — 语言切换、主题偏好存储解析补测试
-6. 运行 `pnpm --filter=@toolbox/chrono-sphere test` 确认全绿
-
-**涉及文件**: `apps/chrono-sphere/src/utils/*`, `apps/chrono-sphere/src/context/preferencesCore.ts`
-
-**验证**: `pnpm --filter=@toolbox/chrono-sphere test` 通过，测试文件数 ≥ 6。
-
----
-
-### T7.2 · chrono-sphere bundle 代码分割 `✅ 已完成`
-
-**现状**: 打包后 JS 615KB，总 668KB。主要体积来自 `lucide-react` 图标全量引入和 `lunar-javascript`（260KB）。
-
-**操作**:
-1. 分析 bundle 构成后，将 3 个计算器组件（`OffsetCalculator`, `IntervalCalculator`, `LunarCalculator`）改为 `React.lazy()` + `Suspense`
-2. 初始加载只渲染当前 activeTab 对应的组件
-3. 验证 `pnpm build` 后 dist 中出现多个 JS chunk
-
-**涉及文件**: `apps/chrono-sphere/src/App.tsx`, `apps/chrono-sphere/vite.config.ts`
-
-**验证**: 主 bundle ≤ 450KB, dist/assets 中 JS 文件数 > 1。
-
----
-
-### T7.3 · sane-units TypeScript 迁移 `✅ 已完成`
-
-**现状**: 5 个源文件全是 `.jsx` / `.js`，无类型。测试用 `node --test`。
-
-**操作**:
-1. 将 `apps/sane-units/src/` 下所有 `.jsx` → `.tsx`, `.js` → `.ts`
-2. 添加 `tsconfig.json`（参考 rate-lens，`strict: false` 起步）
-3. 安装 `@types/react`, `@types/react-dom` 为 devDependencies
-4. 逐个修复类型：`units.ts` 导出函数签名、`i18n.ts` 翻译类型、`theme.ts` API 类型、`App.tsx` Props 类型（可先用 `any` 过渡）
-5. 迁移测试到 vitest：创建 `vitest.config.ts`，改写 `test/units.test.js` → `src/__tests__/units.test.ts`
-6. `pnpm --filter=@toolbox/sane-units test && pnpm build` 全绿
-
-**涉及文件**: `apps/sane-units/src/*`, `apps/sane-units/test/*`, `apps/sane-units/package.json`
-
-**验证**: `tsc --noEmit` 无致命错误，`pnpm build && pnpm test` 通过。
-
----
-
-### T7.4 · monitor-choice 架构梳理 `✅ 已完成`
-
-**现状**: 单文件 `index.html` 14KB + `script.js` 10KB，7 个 JS 模块通过全局 `window.PanelRegistry` 耦合，无测试。
-
-**操作**（本任务只做分析，不重构）:
-1. 审查 `apps/monitor-choice/js/` 下所有 JS 文件，记录每个文件职责、全局变量依赖关系图
-2. 写 `apps/monitor-choice/ARCHITECTURE.md` 包含：当前模块依赖图、迁移到 ES modules 的方案、可测试的函数列表
-3. **本次不做代码修改**，仅分析记录
-
-**涉及文件**: `apps/monitor-choice/js/*.js`, `apps/monitor-choice/index.html`
-
-**验证**: `ARCHITECTURE.md` 包含完整的模块依赖图和迁移方案。
-
----
-
-### T7.5 · Lint 统一 `✅ 已完成`
-
-**现状**: rate-lens 用 oxlint，chrono-sphere 用 eslint，sane-units 无 lint。
-
-**操作**:
-1. 根 `package.json` 添加 `"lint": "turbo lint"`，`turbo.json` 添加 `"lint"` pipeline
-2. 为 sane-units 添加 `"lint": "oxlint"`（JS 零配置）
-3. `pnpm lint` 全量验证，修复报错
-
-**涉及文件**: `package.json`, `turbo.json`, `apps/sane-units/package.json`
-
-**验证**: `pnpm lint` 无报错。
-
----
-
-## Phase 8: 共享能力建设
-
-> 目标：抽取重复的 i18n、SEO 逻辑为共享包。
-
----
-
-### T8.1 · @toolbox/i18n 共享国际化包 `✅ 已完成`
-
-**现状**: 5 个应用 4 种 i18n 实现，rate-lens 完全无 i18n（硬编码中文）。需要统一。
-
-**设计**: 框架无关的轻量 i18n 核心 + React wrapper hook。
-
-**操作**:
-
-#### 8.1.1 创建 `packages/i18n/`
-```
-packages/i18n/
-├── package.json        ← name: "@toolbox/i18n"
-├── core.ts             ← createTranslator(), t(key, params?), setLang(), getLang()
-├── react.ts            ← I18nProvider + useTranslation() hook
-├── translations/
-│   ├── zh.json         ← 共享翻译（NavBar 标签、通用按钮）
-│   └── en.json
-└── README.md
-```
-
-#### 8.1.2 `core.ts`
-- `createTranslator(translations)` → 返回 `t(key, params?)` 支持 `{{var}}` 插值和嵌套 key
-- 导出 `setLang(lang)`, `getLang()` 全局单例
-
-#### 8.1.3 `react.ts`  
-- `I18nProvider` + `useTranslation()` Context
-- 自动加载共享基础翻译，app 可叠加自己的翻译
-
-**验证**: `tsc --project packages/i18n/tsconfig.json` 无错误，`pnpm install` 能解析 `@toolbox/i18n`。
-
----
-
-### T8.2 · homepage i18n 迁移 `✅ 已完成`
-
-**操作**:
-1. `pnpm --filter=@toolbox/homepage add @toolbox/i18n@workspace:*`
-2. 替换 `js/i18n.js` 调用 core API，翻译数据迁移到 JSON
-3. 本地验证中英文切换正常
-
-**实际执行**: 将 `localStorage` key 从 `"tools-homepage:lang"` 改为 `"toolbox-lang"`，与 `@toolbox/i18n` 统一。无需添加依赖（静态应用无构建步骤）。翻译数据和 DOM 遍历逻辑保持不变。
-
-**涉及文件**: `apps/homepage/js/i18n.js`
-
----
-
-### T8.3 · monitor-choice i18n 迁移 `✅ 已完成`
-
-**操作**:
-1. 替换 `js/i18n*.js` 为基于 `@toolbox/i18n/core` 的实现
-2. 保持 `data-i18n` 属性绑定兼容
-3. 验证中英文切换正常
-
-**涉及文件**: `apps/monitor-choice/js/i18n*.js`, `apps/monitor-choice/index.html`
-
----
-
-### T8.4 · NavBar 语言切换按钮 ✅ 已完成`
-
-**操作**:
-1. 在 NavBar 的 React 和 vanilla 版中添加语言切换按钮
-2. 点击时调用 `@toolbox/i18n` 的 `setLang()` 全局同步
-3. `pnpm build` 全量验证
-
-**涉及文件**: `packages/nav/NavBar.tsx`, `packages/nav/nav-bar.js`, `packages/nav/nav-bar.css`
-
----
-
-### T8.5 · rate-lens i18n 国际化 `⏱ 1h` `依赖: T8.1` `⏳`
-
-**现状**: rate-lens 完全无 i18n，UI 文本中文硬编码。最大缺口。 `✅ 已完成`
-
-**操作**:
-1. `pnpm --filter=@toolbox/rate-lens add @toolbox/i18n@workspace:*`
-2. 提取所有硬编码中文到 `zh.json`，编写英文翻译
-3. 包裹 `I18nProvider`，替换硬编码为 `t()` 调用
-4. `pnpm build && pnpm test` — 55 个测试必须全绿
-
-**涉及文件**: `apps/rate-lens/src/**/*.tsx`
-
----
-
-### T8.6 · chrono-sphere i18n 迁移 ✅ 已完成`
-
-**操作**:
-1. `pnpm --filter=@toolbox/chrono-sphere add @toolbox/i18n@workspace:*`
-2. 将 `i18n.ts` 翻译数据提取为 JSON，替换 `usePreferences().t` 为共享 `useTranslation()`
-3. 保留 chrono-sphere 特色术语翻译（农历、节气等），只替换框架层
-
-**涉及文件**: `apps/chrono-sphere/src/i18n.ts`, `apps/chrono-sphere/src/context/preferencesCore.ts`
-
----
-
-## 工时估算
-
-| Phase | 内容 | 预估 |
-|-------|------|------|
-| P0 | 准备与检查 | 10 min |
-| P1 | Monorepo 骨架 | 55 min |
-| P2 | 迁移 5 个应用 | 1h 30min |
-| P3 | 共享包 (theme + nav) | 1h 15min |
-| P3.5 | 导航栏集成 | 1h |
-| P4 | 首页更新 + 主题统一 | 35 min |
-| P5 | 部署脚本 + Caddy | 55 min |
-| P6 | 收尾 | 1h |
-| P7 | 质量补强 | 3h 15min |
-| P8 | 共享能力建设 | 5h 15min |
-| P9 | CI/CD (TBD) | — |
-| **总计** | | **~15h 50min** |
-
----
-
-## 给 Agent 的快速入口
-
-被委派来执行这些任务的 agent，按以下顺序操作：
-
-```bash
-# 1. 了解全局
-cat docs/INDEX.md docs/PLAN.md docs/AGENTS.md
-
-# 2. 确认当前进度（找第一个 ⏳ 或 [ ] 的任务）
-grep -n "⏳\|\[ \]" docs/TASKS.md
-
-# 3. 执行单个 Phase，从 Phase 0 开始逐项推进
-
-# 4. 每个 Task 执行后立即验证，验证不通过则修复或回滚
-
-# 5. 完成一个 Phase 后，将 TASKS.md 中对应的 [ ] 改为 [x]
-```
+## 建议池（尚未排期）
+
+- ChronoSphere：核对最大 timezone chunk 的实际首屏加载与缓存表现。
+- RateLens：模型价格硬编码应记录数据更新时间与来源，但不要为更新数据引入隐式追踪。
+- Monitor Choice：减少 inline style，逐步建立可测试的渲染/计算边界。
+- SaneUnits：页面内存在大量业务与布局代码集中在 `App.tsx`，设计对齐后再按领域拆分，避免同时动 UI 与计算。
+- 全站：统一 favicon、404、错误页和离线提示，但 PWA/Service Worker 应在路由与缓存失效策略明确后再做。

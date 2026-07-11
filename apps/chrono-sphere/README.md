@@ -23,18 +23,18 @@ This is a static site. Deploy `dist/` to Caddy, Nginx, or any static host. If yo
 
 ## Development
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm --filter=@toolbox/chrono-sphere dev
 ```
 
 Production build:
 ```bash
-npm run build
+pnpm --filter=@toolbox/chrono-sphere build
 ```
 
 Preview the production build locally:
 ```bash
-npm run preview
+pnpm --filter=@toolbox/chrono-sphere preview
 ```
 
 ## License

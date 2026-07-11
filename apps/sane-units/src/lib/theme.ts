@@ -1,8 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
+import {
+  isTheme,
+  THEME_ATTRIBUTE,
+  THEME_STORAGE_KEY,
+} from "@toolbox/theme/contract";
+import type { ToolboxTheme } from "@toolbox/theme/contract";
 
-export type ThemeMode = "dark" | "light";
+export type ThemeMode = ToolboxTheme;
 
-export const THEME_STORAGE_KEY = "saneunits.theme";
+export { THEME_STORAGE_KEY };
+export const LEGACY_THEME_STORAGE_KEY = "saneunits.theme";
 
 export interface UseThemeResult {
   theme: ThemeMode;
@@ -14,9 +21,9 @@ export interface UseThemeResult {
 export function useTheme(): UseThemeResult {
   const [isDark, setIsDark] = useState(() => {
     try {
-      const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-      if (stored === "light") return false;
-      if (stored === "dark") return true;
+      const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
+        ?? window.localStorage.getItem(LEGACY_THEME_STORAGE_KEY);
+      if (isTheme(stored)) return stored === "dark";
     } catch {
       // Ignore storage failures.
     }
@@ -25,7 +32,7 @@ export function useTheme(): UseThemeResult {
 
   useEffect(() => {
     const theme = isDark ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.setAttribute(THEME_ATTRIBUTE, theme);
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, theme);
     } catch {

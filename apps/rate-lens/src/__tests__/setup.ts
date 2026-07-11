@@ -40,17 +40,19 @@ class MemStorage {
   }
 }
 
-if (typeof globalThis.localStorage === 'undefined') {
-  Object.defineProperty(globalThis, 'localStorage', {
-    value: new MemStorage(),
-    configurable: true,
-    writable: true,
-  })
+function installStorageMock(name: 'localStorage' | 'sessionStorage') {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, name)
+  if (!descriptor || descriptor.configurable) {
+    Object.defineProperty(globalThis, name, {
+      value: new MemStorage(),
+      configurable: true,
+      writable: true,
+    })
+  }
 }
-if (typeof globalThis.sessionStorage === 'undefined') {
-  Object.defineProperty(globalThis, 'sessionStorage', {
-    value: new MemStorage(),
-    configurable: true,
-    writable: true,
-  })
-}
+
+// Do not read Node's localStorage getter during capability detection. Node 26
+// throws when no --localstorage-file is configured, while tests need isolated
+// in-memory state instead of a process-shared persistence file.
+installStorageMock('localStorage')
+installStorageMock('sessionStorage')

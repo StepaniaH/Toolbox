@@ -30,7 +30,7 @@
   function getStoredTheme() {
     try {
       return localStorage.getItem(STORAGE_KEY);
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -39,7 +39,7 @@
   function setStoredTheme(theme) {
     try {
       localStorage.setItem(STORAGE_KEY, theme);
-    } catch (e) {
+    } catch {
       /* Ignore quota / privacy errors. */
     }
   }
@@ -66,7 +66,7 @@
   /** Call all registered change listeners with the new theme name. */
   function notifyListeners(theme) {
     listeners.forEach(function (fn) {
-      try { fn(theme); } catch (e) {}
+      try { fn(theme); } catch {}
     });
   }
 
@@ -85,7 +85,7 @@
       return getComputedStyle(document.documentElement)
         .getPropertyValue('--bg-canvas')
         .trim() || '#232634';
-    } catch (e) {
+    } catch {
       return '#232634';
     }
   }
@@ -97,7 +97,7 @@
         .getPropertyValue('--canvas-' + name)
         .trim();
       return val || '';
-    } catch (e) {
+    } catch {
       return '';
     }
   }
@@ -136,10 +136,12 @@
     onChange: onChange
   };
 
-  // Auto-init on DOM ready (runs before other modules)
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  // Classic-script compatibility; the Vite entry owns ordered startup.
+  if (!window.__MONITOR_CHOICE_MANUAL_BOOT__) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   }
 })();

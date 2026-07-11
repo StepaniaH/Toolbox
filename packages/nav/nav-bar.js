@@ -11,54 +11,23 @@
 // toggle.js). The current app is auto-detected from `location.pathname`
 // unless overridden via `mount(el, { currentApp: "rate-lens" })`.
 //
-// Tools list lives in TOOLS below — update here when a tool is added, per
-// the repo's new-tool checklist (docs/AGENTS.md §五).
+// Tool identity, routes and public labels come from @toolbox/app-manifest.
+
+import { getStableApps } from "@toolbox/app-manifest";
 
 (function (global) {
   "use strict";
 
-  var TOOLS = [
-    {
-      id: "home",
-      label: "首页",
-      labelEn: "Home",
-      href: "/",
-      desc: "Toolbox 导航中心",
-      descEn: "Toolbox navigation hub"
-    },
-    {
-      id: "rate-lens",
-      label: "RateLens",
-      labelEn: "RateLens",
-      href: "/rate-lens/",
-      desc: "AI 模型价格倍率计算器",
-      descEn: "AI model pricing calculator"
-    },
-    {
-      id: "chrono-sphere",
-      label: "ChronoSphere",
-      labelEn: "ChronoSphere",
-      href: "/chrono-sphere/",
-      desc: "日期与时区工具",
-      descEn: "Date & timezone utility"
-    },
-    {
-      id: "monitor-choice",
-      label: "Monitor Choice",
-      labelEn: "Monitor Choice",
-      href: "/monitor-choice/",
-      desc: "显示器参数实验室",
-      descEn: "Display parameter lab"
-    },
-    {
-      id: "sane-units",
-      label: "SaneUnits",
-      labelEn: "SaneUnits",
-      href: "/sane-units/",
-      desc: "单位换算与实感估算",
-      descEn: "Unit conversion & estimation"
-    }
-  ];
+  var TOOLS = getStableApps().map(function (app) {
+    return {
+      id: app.navId,
+      label: app.navLabel.zh,
+      labelEn: app.navLabel.en,
+      href: app.path,
+      desc: app.description.zh,
+      descEn: app.description.en
+    };
+  });
 
   var LANG_KEY = "toolbox-lang";
   var LANG_EVENT = "toolbox-lang-change";
@@ -71,7 +40,7 @@
         ? global.localStorage.getItem(LANG_KEY)
         : null;
       if (saved === ZH || saved === EN) return saved === ZH;
-    } catch (e) {
+    } catch {
       /* ignore */
     }
     return (
@@ -107,7 +76,7 @@
     }
     try {
       if (global.localStorage) global.localStorage.setItem(LANG_KEY, lang);
-    } catch (e) {
+    } catch {
       /* ignore persistence failures */
     }
     if (typeof global.CustomEvent === "function" && global.dispatchEvent) {
@@ -277,9 +246,32 @@
     refs.langBtn.setAttribute("title", title);
   }
 
+  function renderToolLabels(refs) {
+    var desktopItems = refs.root.querySelectorAll(".toolbox-nav-dropdown-item");
+    var mobileItems = refs.root.querySelectorAll(".toolbox-nav-mobile-link");
+    for (var i = 0; i < TOOLS.length; i++) {
+      var tool = TOOLS[i];
+      var desktop = desktopItems[i];
+      var mobile = mobileItems[i];
+      if (desktop) {
+        desktop.querySelector(".toolbox-nav-item-title").textContent = labelOf(tool);
+        desktop.querySelector(".toolbox-nav-item-desc").textContent = descOf(tool);
+      }
+      if (mobile) {
+        mobile.children[0].textContent = labelOf(tool);
+        mobile.querySelector(".toolbox-nav-mobile-desc").textContent = descOf(tool);
+      }
+    }
+  }
+
+  function renderLanguage(refs) {
+    renderLangButton(refs);
+    renderToolLabels(refs);
+  }
+
   // Wire up interactions for a built tree.
   function wire(refs, options) {
-    renderLangButton(refs);
+    renderLanguage(refs);
 
     var onToggleTheme = options && typeof options.onToggleTheme === "function"
       ? options.onToggleTheme
@@ -338,13 +330,13 @@
     refs.langBtn.addEventListener("click", function () {
       var next = currentLang() === ZH ? EN : ZH;
       applyLang(next);
-      renderLangButton(refs);
+      renderLanguage(refs);
     });
 
     // Refresh the button when the language changes elsewhere (another script
     // calling setLang, or our own fallback custom event).
     var onLangChange = function () {
-      renderLangButton(refs);
+      renderLanguage(refs);
     };
     if (
       global.ToolboxI18n &&
