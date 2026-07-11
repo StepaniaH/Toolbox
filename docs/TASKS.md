@@ -180,14 +180,14 @@
 
 ## P3 — 测试与可维护性
 
-### P3.1 · Monitor Choice 逻辑分层与测试 `🔄 进行中`
+### P3.1 · Monitor Choice 逻辑分层与测试 `✅ 已完成`
 
 - [x] PPI/PPD、距离、FOV、带宽与桌深逻辑集中到 `calc.js`，并提供 ESM named exports；现有 Tab 继续通过 `window.Calc` 兼容桥运行。
 - [x] 用独立 Node tests 覆盖主要边界、厘米/英寸和十进制 Gbps 公式；正常输入公式未改变。
 - [x] 修复生产 CSS 相对 import 导致六个业务样式 404，并用构建测试禁止产物残留源码相对 `@import`。
 - [x] 真实浏览器复核 5 个 Tab、7 个 Canvas、zh/en、light/dark 与 0 console error；后续将该流程固化为自动 browser smoke。
 - [x] `pnpm test:browser` 固化生产资源、5 个 Tab、7 个 Canvas、zh/en、light/dark 和 console 检查，并在 CI 安装 Chromium 后执行。
-- [ ] Canvas 提供可读的文本结果或摘要。
+- [x] 七个 Canvas 提供双语 accessible name，并关联同页动态文字结果；浏览器 smoke 防止翻译 key 或描述关系回归。
 
 ### P3.2 · Homepage smoke 与链接契约 `✅ 已完成`
 

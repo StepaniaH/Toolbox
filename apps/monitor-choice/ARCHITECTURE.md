@@ -134,6 +134,8 @@ graph TD
 - **tab-scenarios.js** — 场景卡片 + 筛选，点击"应用"自动选分辨率并跳转到相关 Tab。
 - **tab-panel-guide.js** — 面板技术手风琴 + 接口带宽实时计算器。
 
+七个 Canvas 都提供本地化 accessible name，并通过 `aria-describedby` 关联同页动态文字结果；视觉绘制不是获取结论的唯一方式。
+
 ### 入口
 
 - **entry.js** — Vite 单入口，固定全局依赖顺序，完成 ThemeManager → I18n → platform bridge → MonitorChoice 启动。
@@ -181,5 +183,5 @@ graph TD
 | workspace 共享依赖 | theme / nav / i18n |
 | 全局变量 | 14 |
 | 纯函数可提测 | ~25 个 |
-| 自动化测试 | 17 个 Node tests + 1 个生产浏览器 smoke |
+| 自动化测试 | 18 个 Node tests + 1 个生产浏览器 smoke |
 | 生产输出 | `dist/`，base `/monitor-choice/` |

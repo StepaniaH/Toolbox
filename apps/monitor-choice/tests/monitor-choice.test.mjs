@@ -14,6 +14,18 @@ test('monitor choice keeps its route shell and secure public links', () => {
   assert.match(html, /rel="noopener noreferrer"/)
 })
 
+test('every canvas exposes a localized text alternative', () => {
+  const html = read('index.html')
+  const canvases = [...html.matchAll(/<canvas\b[^>]*>/g)].map((match) => match[0])
+  assert.equal(canvases.length, 7)
+  for (const canvas of canvases) {
+    assert.match(canvas, /role="img"/)
+    assert.match(canvas, /data-i18n-aria="canvas\.[^"]+"/)
+    assert.match(canvas, /aria-describedby="[^"]+"/)
+  }
+  assert.match(html, /data-i18n="canvas\.fallback"/)
+})
+
 test('bootstrap preserves the legacy dependency order', () => {
   const entry = read('entry.js')
   const imports = [

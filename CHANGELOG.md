@@ -45,6 +45,7 @@
 - Converted Monitor Choice display calculations to explicit ESM exports while retaining the existing global bridge; focused tests now cover PPI/PPD, dimensions, FOV, cinema distances, comfort scores, bandwidth, and desk constraints.
 - Fixed Monitor Choice production builds leaving six source-relative CSS imports under the hashed asset directory; Vite now bundles all business styles, and a regression test rejects unresolved CSS imports.
 - Added a Monitor Choice production browser smoke for failed resources, all five tabs, seven canvases, language/theme switching, and console errors; CI now installs Chromium and runs it.
+- Added localized accessible names and dynamic text-result descriptions for all seven Monitor Choice canvases, so visual plots are not the only way to understand results.
 
 ## v0.1 (2026-07-10)
 

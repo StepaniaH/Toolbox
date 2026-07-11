@@ -22,10 +22,10 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | Homepage | `/` | Vanilla JS + Vite + Plain CSS | 工具目录与项目入口 | 5 |
 | RateLens | `/rate-lens/` | React + TypeScript + Vite + Tailwind | AI 模型价格倍率计算 | 62 |
 | ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 844 |
-| Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 17 |
+| Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 18 |
 | SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 18 |
 
-测试数量只用于说明覆盖现状，不作为质量本身的替代指标。5 个应用当前有 946 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；`pnpm test` 共运行 962 条。`v0.1` 发布时为 910 条。
+测试数量只用于说明覆盖现状，不作为质量本身的替代指标。5 个应用当前有 947 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；`pnpm test` 共运行 963 条。`v0.1` 发布时为 910 条。
 
 ## 三、仓库结构
 
@@ -85,7 +85,7 @@ Toolbox/
 | 检查 | 结果 | 备注 |
 |------|------|------|
 | `pnpm build` | 通过 | 5 个 Vite 应用构建成功 |
-| `pnpm test` | 通过 | 962 tests；数量不等同于覆盖率 |
+| `pnpm test` | 通过 | 963 tests；数量不等同于覆盖率 |
 | `pnpm test:browser` | 通过 | Monitor Choice 生产资源、5 Tabs、7 Canvas、语言/主题与 console |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |

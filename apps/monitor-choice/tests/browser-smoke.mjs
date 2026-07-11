@@ -97,12 +97,19 @@ try {
 
     const canvases = section.locator('canvas')
     assert.equal(await canvases.count(), expectedCanvasCount)
-    const canvasSizes = await canvases.evaluateAll((elements) =>
-      Array.from(elements).map((canvas) => ({ width: canvas.width, height: canvas.height })),
+    const canvasStates = await canvases.evaluateAll((elements) =>
+      Array.from(elements).map((canvas) => ({
+        width: canvas.width,
+        height: canvas.height,
+        label: canvas.getAttribute('aria-label'),
+        describedBy: canvas.getAttribute('aria-describedby'),
+      })),
     )
-    for (const size of canvasSizes) {
-      assert.ok(size.width > 0)
-      assert.ok(size.height > 0)
+    for (const canvas of canvasStates) {
+      assert.ok(canvas.width > 0)
+      assert.ok(canvas.height > 0)
+      assert.ok(canvas.label && !canvas.label.startsWith('canvas.'))
+      assert.ok(canvas.describedBy)
     }
   }
 
