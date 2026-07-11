@@ -53,11 +53,11 @@ describe('SaneUnits LanguageProvider — @toolbox/i18n core同步', () => {
     expect(screen.getByTestId('lang').textContent).toBe('zh-CN')
   })
 
-  it('自身 setLang 同步到 core（NavBar 可见）', () => {
+  it('setLang API 同步到 core（NavBar 可见）', () => {
     render(createElement(LanguageProvider, null, createElement(Probe)))
     expect(getLang()).toBe('zh')
 
-    // 点击 SaneUnits 内部的语言按钮
+    // 模拟业务消费者调用 provider API
     act(() => screen.getByTestId('toggle').click())
     expect(screen.getByTestId('lang').textContent).toBe('en')
     // core 也应同步到 'en'，这样 NavBar 的语言按钮状态会跟着变

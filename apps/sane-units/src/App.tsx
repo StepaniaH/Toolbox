@@ -85,7 +85,7 @@ function App() {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [route]);
 
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
   const { toggleTheme } = useTheme();
 
   useEffect(() => {
@@ -133,10 +133,6 @@ function App() {
           </ul>
         </div>
 
-        <div className="sidebar-controls">
-          <ThemeToggle />
-          <LanguageToggle lang={lang} />
-        </div>
       </aside>
 
       <div className="mobile-topbar">
@@ -155,10 +151,6 @@ function App() {
               <span>{item.label}</span>
             </NavLink>
           ))}
-        </div>
-        <div className="mobile-controls">
-          <ThemeToggle />
-          <LanguageToggle lang={lang} />
         </div>
       </div>
 
@@ -185,37 +177,6 @@ function AppRoot() {
     LanguageProvider,
     null,
     React.createElement(App),
-  );
-}
-
-function ThemeToggle() {
-  const { isDark, toggleTheme } = useTheme();
-  return (
-    <button
-      type="button"
-      className="control-btn"
-      onClick={toggleTheme}
-      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
-      title={isDark ? "Switch to light theme" : "Switch to dark theme"}
-    >
-      {isDark ? "\u263C" : "\u263E"}
-    </button>
-  );
-}
-
-function LanguageToggle({ lang }: any) {
-  const { setLang } = useTranslation();
-  const nextLang = lang === "zh-CN" ? "en" : "zh-CN";
-  return (
-    <button
-      type="button"
-      className="control-btn"
-      onClick={() => setLang(nextLang)}
-      aria-label={lang === "zh-CN" ? "Switch to English" : "切换到中文"}
-      title={lang === "zh-CN" ? "Switch to English" : "切换到中文"}
-    >
-      {lang === "zh-CN" ? "中/EN" : "EN/中"}
-    </button>
   );
 }
 

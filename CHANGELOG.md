@@ -46,6 +46,7 @@
 - Fixed Monitor Choice production builds leaving six source-relative CSS imports under the hashed asset directory; Vite now bundles all business styles, and a regression test rejects unresolved CSS imports.
 - Added a Monitor Choice production browser smoke for failed resources, all five tabs, seven canvases, language/theme switching, and console errors; CI now installs Chromium and runs it.
 - Added localized accessible names and dynamic text-result descriptions for all seven Monitor Choice canvases, so visual plots are not the only way to understand results.
+- Removed SaneUnits' duplicate sidebar and mobile theme/language buttons; shared navigation is now the only global preference surface, enforced by the contract checker.
 
 ## v0.1 (2026-07-10)
 

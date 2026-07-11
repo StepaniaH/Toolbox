@@ -364,11 +364,24 @@ for (const file of storageFiles) {
 
 const sourceExtensions = new Set(['.css', '.js', '.jsx', '.ts', '.tsx'])
 const importPattern = /(?:\bfrom\s*|\bimport\s*(?:\(\s*)?|\brequire\s*\(|@import\s*(?:url\(\s*)?)\s*['"]([^'"]+)['"]/g
+const appPreferenceControlPattern = /\b(?:function|const)\s+(?:Theme|Language)Toggle\b/
 
 for (const file of appFiles) {
   if (!sourceExtensions.has(extname(file))) continue
   const currentApp = file.split('/')[1]
   const content = read(file)
+
+  if (
+    ['.js', '.jsx', '.ts', '.tsx'].includes(extname(file)) &&
+    !file.includes('/__tests__/') &&
+    appPreferenceControlPattern.test(content)
+  ) {
+    fail(
+      'global-preference-control-contract',
+      file,
+      'theme and language controls belong to the shared NavBar',
+    )
+  }
 
   for (const match of content.matchAll(importPattern)) {
     const specifier = match[1]

@@ -98,7 +98,7 @@
 - [x] 校验 package name、route/base、目录和 build output。
 - [x] 校验全局/应用 storage key 命名；active key 统一，旧 key 仅允许显式迁移 fallback。
 - [x] 新 app 强制接入 theme/nav/i18n；现有三个 React app 的 theme 缺口暂列迁移基线。
-- [ ] 检查重复的全局偏好控件。
+- [x] 检查 app 自定义的 Theme/Language Toggle；全局偏好控件只允许由共享 NavBar 提供。
 - [x] 检查未经 `config/external-origins.json` allowlist 的运行时外部 URL 或动态网络访问。
 - [x] 静态副本迁移期间检查 NavBar 内容一致；两个应用进入 workspace 后已删除副本与过渡门禁。
 - [x] 根命令 `pnpm check:contracts` 已在 CI 执行，并可继续扩展其他契约。
@@ -146,13 +146,13 @@
 
 **待复核**：本轮浏览器服务器启动因环境授权额度不足被拒绝；没有绕过。自动契约、build/test/lint 可继续通过，真实浏览器矩阵待额度恢复后补做再标记完成。
 
-### P2.2 · SaneUnits 外壳对齐 `⏳ 待开始`
+### P2.2 · SaneUnits 外壳对齐 `🔄 进行中`
 
 **发现**：SaneUnits 同时使用共享 NavBar 和 sidebar/mobile 中自有的主题、语言按钮；其空间、字体、控件和页面结构也与其他工具差异最大。
 
 **原则**：统一全局壳与 token，不抹掉单位工具适合多页面导航的业务特色。
 
-- [ ] 移除 sidebar/mobile 的重复全局偏好控件。
+- [x] 移除 sidebar/mobile 的重复主题与语言控件，桌面和移动端只保留共享 NavBar 入口。
 - [ ] 用共享语义 token 对齐背景、卡片、边框、字体、圆角和控件状态。
 - [ ] 保留适合多计算器的业务导航，但与共享 NavBar 明确分层。
 - [ ] 建立迁移前视觉基线，逐页验证 storage/network/video/power/about。
