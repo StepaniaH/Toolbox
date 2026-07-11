@@ -48,6 +48,7 @@
 - Added localized accessible names and dynamic text-result descriptions for all seven Monitor Choice canvases, so visual plots are not the only way to understand results.
 - Removed SaneUnits' duplicate sidebar and mobile theme/language buttons; shared navigation is now the only global preference surface, enforced by the contract checker.
 - Replaced SaneUnits' copied dark/light palette with the shared theme stylesheet and semantic background, text, border, state, typography, and radius tokens.
+- Added a SaneUnits production browser smoke covering all five calculator/about routes, shared language/theme switching, semantic style tokens, duplicate-control absence, and the 390px layout; language changes now also keep `<html lang>` accurate.
 
 ## v0.1 (2026-07-10)
 

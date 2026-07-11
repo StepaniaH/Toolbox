@@ -144,9 +144,9 @@
 - [ ] light/dark、mouse/keyboard/touch 验证通过。
 - [x] 增加交互契约检查并接入 CI。
 
-**待复核**：本轮浏览器服务器启动因环境授权额度不足被拒绝；没有绕过。自动契约、build/test/lint 可继续通过，真实浏览器矩阵待额度恢复后补做再标记完成。
+**待复核**：浏览器授权已恢复，生产 smoke 可运行；此项仍需补齐 mouse/keyboard/touch 的完整交互矩阵后再标记完成。
 
-### P2.2 · SaneUnits 外壳对齐 `🔄 进行中`
+### P2.2 · SaneUnits 外壳对齐 `✅ 完成`
 
 **发现**：SaneUnits 同时使用共享 NavBar 和 sidebar/mobile 中自有的主题、语言按钮；其空间、字体、控件和页面结构也与其他工具差异最大。
 
@@ -155,8 +155,8 @@
 - [x] 移除 sidebar/mobile 的重复主题与语言控件，桌面和移动端只保留共享 NavBar 入口。
 - [x] 用共享语义 token 对齐背景、卡片、边框、字体、圆角和控件状态；测试阻止重新复制色板。
 - [x] 保留适合多计算器的业务导航，并与共享 NavBar 明确分层。
-- [ ] 建立迁移前视觉基线，逐页验证 storage/network/video/power/about。
-- [ ] 不在一次提交中同时重写计算逻辑。
+- [x] 建立生产浏览器基线，逐页验证 storage/network/video/power/about，并覆盖双主题、双语言与 390px 断点。
+- [x] 本阶段未重写计算逻辑，只收敛全局壳、主题 token、语言元数据和回归验证。
 
 ### P2.3 · 逐个应用接入 `@toolbox/theme` `🔄 进行中`
 
@@ -164,8 +164,8 @@
 - [x] ChronoSphere 先接入 v1 runtime 契约，消除 storage key、DOM 属性、默认值与 dark/light 校验的重复定义；保留 app 级 `system` 模式和现有 CSS。
 - [x] RateLens 接入同一 runtime 契约，保留 legacy key pre-paint fallback 与 Tailwind 专属 token 映射。
 - [x] SaneUnits 接入同一 runtime 契约；所有 app 现均由 `check:contracts` 强制直接依赖 theme/nav/i18n。
-- [ ] 选一个代表性 React 工具试点，确保无视觉回归。
-- [ ] 每次只迁移一个工具并保留 app-specific token 映射层。
+- [x] 以 SaneUnits 作为代表性 React 工具完成语义 token 试点，并通过逐页生产 browser smoke。
+- [x] 首轮只迁移 SaneUnits，并保留其多计算器布局所需的 app-specific 映射层。
 - [ ] React 工具完成后再迁移两个静态工具。
 - [ ] 删除重复主题解析和 pre-paint 片段的手工维护。
 
