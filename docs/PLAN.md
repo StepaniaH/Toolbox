@@ -38,7 +38,7 @@ Toolbox 要成为可以持续加入新工具的稳定平台，而不是一组碰
 ### 已经成立的基础
 
 - monorepo 与路径路由已经落地，应用目录天然形成边界。
-- `main` 只承载稳定发布，CI 只从 `main` 部署。
+- `main` 只承载稳定发布；合并不会自动上线，生产部署只能从 `main` 手动触发。
 - 五个应用都有可运行的 build/test/lint 基线。
 - 共享 nav、theme runtime 与 i18n core 已经覆盖 React 和 Vanilla 工具。
 - 所有应用都能静态部署，无自有后端或数据库。
@@ -158,7 +158,7 @@ type ToolboxApp = {
 
 - 为平台包采用 Changesets 或等价版本策略。
 - 区分应用版本、平台契约版本和仓库 release。
-- `dev` 持续集成，`main` 只接受明确晋级；生产部署只认 tag 或 main SHA。
+- `dev` 持续集成，`main` 只接受明确晋级；生产部署只认 tag 或 main SHA，并由维护者显式手动触发。
 - 每次 release 记录可回滚 commit 与应用产物清单。
 
 ## 五、架构决策记录（ADR）

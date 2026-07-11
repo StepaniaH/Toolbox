@@ -39,6 +39,44 @@ function trackedFiles(path) {
     .filter((file) => existsSync(resolve(root, file)))
 }
 
+// ── GitHub Actions supply-chain and release contract ─────
+const workflowFiles = trackedFiles('.github/workflows')
+  .filter((file) => /\.ya?ml$/.test(file))
+
+for (const file of workflowFiles) {
+  const content = read(file)
+  for (const match of content.matchAll(/^\s*(?:-\s*)?uses:\s*([^@\s#]+)@([^\s#]+)/gm)) {
+    const action = match[1]
+    const reference = match[2]
+    if (action.startsWith('./') || /^[0-9a-f]{40}$/.test(reference)) continue
+    fail(
+      'github-action-pin-contract',
+      file,
+      `${action} must use an immutable 40-character commit SHA`,
+    )
+  }
+}
+
+const ciWorkflow = read('.github/workflows/ci.yml')
+const deployJob = ciWorkflow.split(/\n  deploy:\s*\n/, 2)[1] ?? ''
+for (const requirement of [
+  "github.event_name == 'workflow_dispatch'",
+  "github.ref == 'refs/heads/main'",
+  'inputs.deploy_production == true',
+  'environment: production',
+]) {
+  if (!deployJob.includes(requirement)) {
+    fail('manual-production-deploy-contract', '.github/workflows/ci.yml', `missing ${requirement}`)
+  }
+}
+if (deployJob.includes("github.event_name == 'push'")) {
+  fail(
+    'manual-production-deploy-contract',
+    '.github/workflows/ci.yml',
+    'a push to main must not deploy production automatically',
+  )
+}
+
 // ── Nav interaction and deploy-copy contract ─────────────
 const navCss = read('packages/nav/nav-bar.css')
 const actionBase = ruleBody(navCss, '.toolbox-nav-icon-btn')
@@ -460,5 +498,5 @@ if (failures.length > 0) {
   for (const failure of failures.sort()) console.error(`[contracts] ${failure}`)
   process.exitCode = 1
 } else {
-  console.log(`[contracts] Passed app isolation, base-path, network and NavBar contracts for ${appIds.length} apps.`)
+  console.log(`[contracts] Passed app isolation, base-path, network, NavBar and release contracts for ${appIds.length} apps.`)
 }

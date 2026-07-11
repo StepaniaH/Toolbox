@@ -175,7 +175,7 @@ chore: ...
 
 ## 八、部署边界
 
-- CI 只允许从 `main` 的已验证提交部署。
+- CI 只允许从 `main` 的已验证提交部署；合并 `main` 不自动上线，必须由维护者在 GitHub Actions 显式手动触发生产部署。
 - 手动脚本只应验证当前就是干净、同步的 `main`，不得静默切分支或忽略失败。
 - 所有目标信息来自 gitignored `deploy/.env` 或 CI secrets；公开文件只描述变量名和占位符。
 - 不在文档、commit、CI 日志中回显部署值。
@@ -189,5 +189,6 @@ chore: ...
 | 架构方向与 ADR | [PLAN.md](./PLAN.md) |
 | 主题、语言、导航与交互 | [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) |
 | 新工具开发流程 | [NEW_TOOL.md](./NEW_TOOL.md) |
+| dev→main→生产发布与回滚 | [RELEASE.md](./RELEASE.md) |
 | 当前任务和状态 | [TASKS.md](./TASKS.md) |
 | 已发布结果 | [../CHANGELOG.md](../CHANGELOG.md) |

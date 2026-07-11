@@ -46,7 +46,7 @@ pnpm build                              # 构建所有工具
 pnpm test                               # 测试所有工具
 ```
 
-完整项目概览见 [`docs/INDEX.md`](./docs/INDEX.md)，架构方向见 [`docs/PLAN.md`](./docs/PLAN.md)，新增工具流程见 [`docs/NEW_TOOL.md`](./docs/NEW_TOOL.md)，开发规范见 [`docs/AGENTS.md`](./docs/AGENTS.md)。
+完整项目概览见 [`docs/INDEX.md`](./docs/INDEX.md)，架构方向见 [`docs/PLAN.md`](./docs/PLAN.md)，固定发布与回滚流程见 [`docs/RELEASE.md`](./docs/RELEASE.md)，新增工具流程见 [`docs/NEW_TOOL.md`](./docs/NEW_TOOL.md)，开发规范见 [`docs/AGENTS.md`](./docs/AGENTS.md)。
 
 ---
 

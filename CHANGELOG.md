@@ -49,6 +49,7 @@
 - Removed SaneUnits' duplicate sidebar and mobile theme/language buttons; shared navigation is now the only global preference surface, enforced by the contract checker.
 - Replaced SaneUnits' copied dark/light palette with the shared theme stylesheet and semantic background, text, border, state, typography, and radius tokens.
 - Added a SaneUnits production browser smoke covering all five calculator/about routes, shared language/theme switching, semantic style tokens, duplicate-control absence, and the 390px layout; language changes now also keep `<html lang>` accurate.
+- Changed production release to an explicit manual GitHub Actions step after main CI, pinned every Action to an immutable official commit SHA, and documented the fixed dev-to-main deployment and rollback flow.
 
 ## v0.1 (2026-07-10)
 

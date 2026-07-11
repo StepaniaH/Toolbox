@@ -75,7 +75,7 @@
 
 - [x] CI 明确设置 Turborepo telemetry opt-out。
 - [x] GitHub Actions 默认权限收紧为 `contents: read`，checkout 不持久化 token。
-- [ ] 第三方 Actions 固定到审核过的 commit SHA 或使用受控更新策略。
+- [x] 第三方 Actions 固定到官方版本标签当前对应的 commit SHA，版本注释保留可读性；后续升级必须显式改 SHA。
 - [ ] 建立依赖许可证与高危漏洞检查，避免将完整环境信息上传第三方服务。
 
 ---
@@ -241,7 +241,7 @@
 - [ ] CHANGELOG 与应用版本同步。
 - [ ] 记录可回滚 commit 与受影响应用。
 - [ ] main 只接受 fast-forward/PR 晋级，不直接开发。
-- [ ] 部署只接受 main commit 或 release tag。
+- [x] 合并 main 不自动上线；GitHub Actions 只允许从手动选择的 main ref 部署，备用脚本也强制干净且同步的 main。
 
 ### P5.2 · 平台包版本策略 `⏳ 待开始`
 

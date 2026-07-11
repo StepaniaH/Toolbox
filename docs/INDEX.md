@@ -23,9 +23,9 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | RateLens | `/rate-lens/` | React + TypeScript + Vite + Tailwind | AI 模型价格倍率计算 | 62 |
 | ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 844 |
 | Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 18 |
-| SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 18 |
+| SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 20 |
 
-测试数量只用于说明覆盖现状，不作为质量本身的替代指标。5 个应用当前有 947 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；`pnpm test` 共运行 963 条。`v0.1` 发布时为 910 条。
+测试数量只用于说明覆盖现状，不作为质量本身的替代指标。5 个应用当前有 949 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；`pnpm test` 共运行 965 条。`v0.1` 发布时为 910 条。
 
 ## 三、仓库结构
 
@@ -44,7 +44,7 @@ Toolbox/
 │   └── app-manifest/     # 应用目录、路径与公开状态
 ├── docs/                 # 架构、规范、任务和 agent 约束
 ├── deploy/               # 可公开的部署脚本与配置模板
-├── .github/workflows/    # CI 与 main 部署流程
+├── .github/workflows/    # CI 与 main 手动部署流程
 ├── package.json
 ├── pnpm-workspace.yaml
 ├── pnpm-lock.yaml
@@ -85,8 +85,8 @@ Toolbox/
 | 检查 | 结果 | 备注 |
 |------|------|------|
 | `pnpm build` | 通过 | 5 个 Vite 应用构建成功 |
-| `pnpm test` | 通过 | 963 tests；数量不等同于覆盖率 |
-| `pnpm test:browser` | 通过 | Monitor Choice 生产资源、5 Tabs、7 Canvas、语言/主题与 console |
+| `pnpm test` | 通过 | 965 tests；数量不等同于覆盖率 |
+| `pnpm test:browser` | 通过 | Monitor Choice 与 SaneUnits 的生产资源、关键页面、语言/主题、移动端与 console |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 | `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |
@@ -132,5 +132,6 @@ pnpm --filter=@toolbox/rate-lens test
 | [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | 主题、语言、导航和交互的规范性契约 |
 | [NEW_TOOL.md](./NEW_TOOL.md) | “积木式”新增工具的开发手册 |
 | [DEPENDENCIES.md](./DEPENDENCIES.md) | 工具链 catalog、升级边界与回滚方式 |
+| [RELEASE.md](./RELEASE.md) | 固定的 dev→main→手动生产部署与回滚流程 |
 | [TASKS.md](./TASKS.md) | 当前可执行任务与进度 |
 | [../CHANGELOG.md](../CHANGELOG.md) | 已发布版本的结果记录 |

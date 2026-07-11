@@ -1,4 +1,4 @@
-name: CI & Deploy
+name: CI & Manual Deploy
 
 permissions:
   contents: read
@@ -12,6 +12,12 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      deploy_production:
+        description: 'Deploy the selected main commit to production after all checks pass'
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   # ── Public: runs on every push/PR, zero secrets needed ──
@@ -19,13 +25,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           persist-credentials: false
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
           cache: 'pnpm'
@@ -39,20 +45,27 @@ jobs:
       - run: pnpm test:browser
       - run: pnpm lint
 
-  # ── Deploy: only on push to main, after tests pass ──
+  # ── Deploy: explicit manual action on main, after tests pass ──
   deploy:
     needs: build-and-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/main' &&
+      inputs.deploy_production == true
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment: production
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           persist-credentials: false
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
           cache: 'pnpm'
@@ -61,7 +74,7 @@ jobs:
       - run: pnpm build
 
       - name: Connect to Tailscale
-        uses: tailscale/github-action@v3
+        uses: tailscale/github-action@6cae46e2d796f265265cfcf628b72a32b4d7cade # v3
         with:
           oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TAILSCALE_OAUTH_CLIENT_SECRET }}
