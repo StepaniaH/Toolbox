@@ -94,7 +94,7 @@ Toolbox/
 当前最明显的质量缺口：
 
 - 五个工具都已直接消费 `@toolbox/theme` runtime；页面 token 仍有 app-specific 映射，尚未形成完整单一事实源。
-- SaneUnits 的重复主题/语言控件已移除；页面骨架和 token 与其他工具的差异仍最大。
+- SaneUnits 已移除重复偏好控件和本地色板；其多页面业务骨架仍最独特，逐页视觉基线尚待自动化。
 
 这些问题的执行优先级见 [TASKS.md](./TASKS.md)。
 

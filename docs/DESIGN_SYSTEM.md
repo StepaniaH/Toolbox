@@ -209,7 +209,7 @@ App Surface（工具自己拥有）
 |------|------|------|
 | Theme | 五个工具已消费 runtime 契约；页面仍未消费完整共享语义 CSS token | 逐个应用迁移到语义 token，并有视觉回归 |
 | Homepage / Monitor | 已使用构建期 nav/theme runtime；页面 token 仍各自维护 | 在不改变视觉的前提下逐步改用共享语义 token |
-| SaneUnits | 重复偏好控件已移除；页面壳与 token 仍较独特 | 业务导航保持自身特色，逐步对齐共享语义 token |
+| SaneUnits | 重复偏好控件与本地色板已移除；业务侧栏仍为应用专属 | 保持多计算器导航特色，补齐可持续的逐页视觉基线 |
 | Visual QA | 没有跨主题/语言/视口矩阵 | CI 生成 smoke 截图并做人工/自动审查 |
 
 ## 十二、发布前设计检查
