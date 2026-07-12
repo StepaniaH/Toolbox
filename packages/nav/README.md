@@ -141,6 +141,21 @@ Responsive behavior:
 
 `prefers-reduced-motion` shortens all transitions to ~0ms.
 
+### Browser geometry contract
+
+Production browser tests import `@toolbox/nav/browser-contract.mjs` so every
+application verifies the same shell geometry instead of maintaining five
+slightly different assertions. The contract fixes two representative
+viewports:
+
+- `1440 × 1100`: the navigation content is centered at `1280px`, the Toolbox
+  brand starts at `96px`, the footer stays horizontal, and the page does not
+  overflow.
+- `390 × 844`: Toolbox remains the only tool switcher, the footer stacks, and
+  the document does not overflow horizontally.
+
+This is a test-only Node module. It is never imported by production bundles.
+
 ## Privacy
 
 Like the rest of Toolbox, this package is fully client-side — no network

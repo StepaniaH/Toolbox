@@ -11,6 +11,10 @@
 
 - Rebuilt SaneUnits around the same vertical page rhythm as the other tools: app identity, one horizontal calculator navigation, centered page content and the shared footer. The permanent desktop sidebar and separate mobile header are gone, while all calculator routes remain available.
 
+### Quality
+
+- Added one shared production-browser geometry contract across all five applications for the centered 1440px NavBar axis, the 390px single tool entry, responsive footer direction and document overflow.
+
 ## v0.2.1 (2026-07-12)
 
 ### Fixed

@@ -13,6 +13,7 @@
     "./app-icon.js": "./app-icon.js",
     "./ToolboxFooter.tsx": "./ToolboxFooter.tsx",
     "./toolbox-footer.js": "./toolbox-footer.js",
+    "./browser-contract.mjs": "./browser-contract.mjs",
     "./README.md": "./README.md"
   },
   "peerDependencies": {
@@ -30,6 +31,7 @@
     "app-icon.js",
     "ToolboxFooter.tsx",
     "toolbox-footer.js",
+    "browser-contract.mjs",
     "README.md"
   ],
   "scripts": {
