@@ -96,7 +96,7 @@ function App() {
       <div className="mx-auto max-w-4xl px-4 pb-12">
         <Header />
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4" data-testid="rate-lens-calculator">
         <GlossaryPanel />
 
         <div className="flex justify-center">

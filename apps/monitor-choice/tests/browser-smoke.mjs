@@ -71,7 +71,17 @@ try {
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(page)
   await assertAppMarkStyle(page)
-  await assertSharedPreferenceMatrix(page)
+  const assertSharpnessSurface = async () => {
+    const section = page.locator('.tab-content[data-tab="sharpness"]')
+    assert.equal(await section.count(), 1)
+    assert.equal(await section.evaluate((element) => getComputedStyle(element).display !== 'none'), true)
+    assert.equal(await section.locator('canvas').count(), 4)
+    assert.equal(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      true,
+    )
+  }
+  await assertSharedPreferenceMatrix(page, assertSharpnessSurface)
   const styleState = await page.evaluate(() => ({
     bodyBackground: getComputedStyle(document.body).backgroundColor,
     textToken: getComputedStyle(document.documentElement)
@@ -143,7 +153,8 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 })
   await assertMobileSharedShell(page)
-  await assertSharedPreferenceMatrix(page)
+  await page.locator('.tab-nav-btn[data-tab="sharpness"]').click()
+  await assertSharedPreferenceMatrix(page, assertSharpnessSurface)
 
   assert.deepEqual(runtimeFailures, [])
   console.log('[browser-smoke] Monitor Choice production build passed')

@@ -13,6 +13,7 @@
 ### Quality
 
 - Expanded the shared browser contract so all five applications traverse all four language/theme combinations at both 1440px and 390px, then restore their initial preferences.
+- Kept one representative business surface mounted and overflow-free through every combination: Homepage cards, Monitor Choice sharpness, RateLens calculator, ChronoSphere interval results and SaneUnits storage.
 
 ## v0.2.2 (2026-07-12)
 

@@ -76,7 +76,6 @@ try {
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(page)
   await assertAppMarkStyle(page)
-  await assertSharedPreferenceMatrix(page)
   assert.equal(await page.locator('.toolbox-app-icon').count() >= 1, true)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
@@ -94,6 +93,16 @@ try {
   await page.getByRole('tab', { name: '日期区间计算' }).click()
   const absoluteTime = page.locator('.absolute-time-value')
   await absoluteTime.waitFor()
+  const assertIntervalSurface = async () => {
+    assert.equal(await page.locator('.main-card').count(), 1)
+    assert.equal(await absoluteTime.isVisible(), true)
+    assert.ok((await absoluteTime.textContent()).trim().length > 0)
+    assert.equal(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      true,
+    )
+  }
+  await assertSharedPreferenceMatrix(page, assertIntervalSurface)
   assert.match((await absoluteTime.textContent()).trim(), /^-?\d+ 天 \d+ 小时$/)
 
   const languageButton = page.locator('.toolbox-nav-lang')
@@ -118,7 +127,7 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 })
   await assertMobileSharedShell(page)
-  await assertSharedPreferenceMatrix(page)
+  await assertSharedPreferenceMatrix(page, assertIntervalSurface)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   assert.equal(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),

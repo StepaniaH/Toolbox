@@ -100,7 +100,15 @@ try {
   await desktop.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(desktop)
   await assertAppMarkStyle(desktop)
-  await assertSharedPreferenceMatrix(desktop)
+  const assertDesktopCalculator = async () => {
+    assert.equal(await desktop.getByTestId('rate-lens-calculator').count(), 1)
+    assert.ok(await desktop.locator('input').count() >= 2)
+    assert.equal(
+      await desktop.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      true,
+    )
+  }
+  await assertSharedPreferenceMatrix(desktop, assertDesktopCalculator)
 
   assert.equal(await desktop.locator('.toolbox-nav-theme').count(), 1)
   assert.equal(await desktop.locator('.toolbox-nav-lang').count(), 1)
@@ -134,7 +142,15 @@ try {
   )
   await mobile.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertMobileSharedShell(mobile)
-  await assertSharedPreferenceMatrix(mobile)
+  const assertMobileCalculator = async () => {
+    assert.equal(await mobile.getByTestId('rate-lens-calculator').count(), 1)
+    assert.ok(await mobile.locator('input').count() >= 2)
+    assert.equal(
+      await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      true,
+    )
+  }
+  await assertSharedPreferenceMatrix(mobile, assertMobileCalculator)
 
   assert.equal(failureRequests.length, 2)
   assert.ok(failureRequests[0].startsWith('https://open.er-api.com/'))

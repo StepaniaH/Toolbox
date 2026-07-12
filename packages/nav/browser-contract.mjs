@@ -148,30 +148,37 @@ async function toggleTheme(page, previousTheme) {
   )
 }
 
-export async function assertSharedPreferenceMatrix(page) {
+export async function assertSharedPreferenceMatrix(page, assertSurface) {
   const initial = await readPreferenceState(page)
   assert.ok(initial.theme === 'dark' || initial.theme === 'light')
   const alternateLanguage = initial.lang === 'zh' ? 'en' : 'zh'
   const alternateTheme = initial.theme === 'dark' ? 'light' : 'dark'
 
+  const assertState = async (expected) => {
+    assert.deepEqual(await readPreferenceState(page), expected)
+    if (assertSurface) await assertSurface(expected)
+  }
+
+  await assertState(initial)
+
   await selectLanguage(page, alternateLanguage)
-  assert.deepEqual(await readPreferenceState(page), {
+  await assertState({
     lang: alternateLanguage,
     theme: initial.theme,
   })
 
   await toggleTheme(page, initial.theme)
-  assert.deepEqual(await readPreferenceState(page), {
+  await assertState({
     lang: alternateLanguage,
     theme: alternateTheme,
   })
 
   await selectLanguage(page, initial.lang)
-  assert.deepEqual(await readPreferenceState(page), {
+  await assertState({
     lang: initial.lang,
     theme: alternateTheme,
   })
 
   await toggleTheme(page, alternateTheme)
-  assert.deepEqual(await readPreferenceState(page), initial)
+  await assertState(initial)
 }

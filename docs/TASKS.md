@@ -194,7 +194,7 @@
 - [x] 五个稳定应用均有生产 browser smoke；Homepage 已覆盖共享壳、四张工具卡、语言/主题、390px 单一工具入口、页脚与横向溢出。
 - [x] 五应用共同消费共享壳浏览器契约，固定 1440px 居中导航轴、390px 唯一工具入口、Footer 方向和页面级横向溢出；全局 CSS 漂移会在根门禁中同时暴露。
 - [x] 五应用共享壳在 1440/390px 均遍历中/英 × 暗/亮四组合并恢复初始状态；共享 i18n core 同步 `<html lang>`，防止可见语言与页面元数据分离。
-- [ ] 5 apps × light/dark × zh/en × desktop/mobile 的关键页面 smoke。
+- [x] 5 apps × light/dark × zh/en × desktop/mobile 的代表业务页 smoke：Homepage 卡片、Monitor 清晰度实验室、RateLens 主计算区、ChronoSphere 日期区间、SaneUnits 存储页。
 - [ ] 固定测试数据和 viewport，避免动态汇率等不稳定输入。
 - [ ] 先采用人工审核的基线截图，再评估像素 diff 阈值。
 - [ ] PR 只保存有意义的差异，不把截图中的本地路径或个人数据入库。
