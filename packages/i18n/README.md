@@ -42,5 +42,6 @@ function Tool() {
 - `{{variable}}` interpolation
 - Nested key lookup (`nav.about`)
 - SSR-safe (no `window` access during server render)
+- Keeps `<html lang>` synchronized on initialization and every language change
 - Shared translations: NavBar labels & common actions (zh/en)
 - App-level translation overlay via `I18nProvider`

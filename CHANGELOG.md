@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.2.3 (2026-07-12)
+
+### Fixed
+
+- Synchronized `<html lang>` from the shared i18n core on initialization and every language change, fixing RateLens declaring Chinese metadata while rendering English.
+
+### Changed
+
+- Language choices now keep their native names (`中文（简体）`, `English`) in both React and Vanilla navigation, so users can always recognize the language they want to switch to.
+
+### Quality
+
+- Expanded the shared browser contract so all five applications traverse all four language/theme combinations at both 1440px and 390px, then restore their initial preferences.
+- Kept one representative business surface mounted and overflow-free through every combination: Homepage cards, Monitor Choice sharpness, RateLens calculator, ChronoSphere interval results and SaneUnits storage.
+- Made the ChronoSphere interval browser fixture deterministic with a fixed Asia/Shanghai timezone and fixed date range, while RateLens continues to mock both successful and failed exchange-rate responses.
+
 ## v0.2.2 (2026-07-12)
 
 ### Fixed

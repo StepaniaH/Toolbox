@@ -193,8 +193,9 @@
 
 - [x] 五个稳定应用均有生产 browser smoke；Homepage 已覆盖共享壳、四张工具卡、语言/主题、390px 单一工具入口、页脚与横向溢出。
 - [x] 五应用共同消费共享壳浏览器契约，固定 1440px 居中导航轴、390px 唯一工具入口、Footer 方向和页面级横向溢出；全局 CSS 漂移会在根门禁中同时暴露。
-- [ ] 5 apps × light/dark × zh/en × desktop/mobile 的关键页面 smoke。
-- [ ] 固定测试数据和 viewport，避免动态汇率等不稳定输入。
+- [x] 五应用共享壳在 1440/390px 均遍历中/英 × 暗/亮四组合并恢复初始状态；共享 i18n core 同步 `<html lang>`，防止可见语言与页面元数据分离。
+- [x] 5 apps × light/dark × zh/en × desktop/mobile 的代表业务页 smoke：Homepage 卡片、Monitor 清晰度实验室、RateLens 主计算区、ChronoSphere 日期区间、SaneUnits 存储页。
+- [x] 固定测试数据和 viewport：桌面/移动端采用 1440/390px，RateLens mock 汇率成功与失败，ChronoSphere 固定 Asia/Shanghai 时区及日期区间，其余应用沿用稳定默认输入。
 - [ ] 先采用人工审核的基线截图，再评估像素 diff 阈值。
 - [ ] PR 只保存有意义的差异，不把截图中的本地路径或个人数据入库。
 
@@ -203,7 +204,7 @@
 **范围**：维护者反馈 2、6、7、9；React 与 Vanilla 实现必须保持同一契约。
 
 - [x] 品牌、桌面入口与控件字号略微增大，不影响 1024px 布局。
-- [x] 语言改为独立图标 + hover/focus/tap 下拉列表，当前语言显示选中状态，结构可扩展到更多语言。
+- [x] 语言改为独立图标 + hover/focus/tap 下拉列表，当前语言显示选中状态；语言名始终使用原生自称（`中文（简体）`、`English`），结构可扩展到更多语言。
 - [x] 主题改为与当前状态一致的太阳/月亮图标，移除旋转并复位的 emoji 动画。
 - [x] 手机端移除右侧重复工具目录按钮；左侧 Toolbox 菜单仍支持 tap、键盘和当前工具状态。
 - [x] 双实现有契约测试，并通过 light/dark、zh/en、390/1440px 与 keyboard/touch 验证。

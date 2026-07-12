@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { assertDesktopSharedShell, assertMobileSharedShell } from '@toolbox/nav/browser-contract.mjs'
+import { assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
@@ -71,10 +71,19 @@ try {
 
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(page)
+  const assertHomepageSurface = async () => {
+    assert.equal(await page.locator('.tool-card').count(), 4)
+    assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 4)
+    assert.equal(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      true,
+    )
+  }
+  await assertSharedPreferenceMatrix(page, assertHomepageSurface)
   assert.equal(await page.locator('.tool-card').count(), 4)
   assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 4)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
-  assert.equal(await page.getByText('v0.2.2', { exact: true }).count(), 1)
+  assert.equal(await page.getByText('v0.2.3', { exact: true }).count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
 
   const languageButton = page.locator('.toolbox-nav-lang')
@@ -103,6 +112,7 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 })
   await assertMobileSharedShell(page)
+  await assertSharedPreferenceMatrix(page, assertHomepageSurface)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   const brandButton = page.locator('.toolbox-nav-brand-btn')
   await brandButton.click()

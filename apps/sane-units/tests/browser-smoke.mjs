@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell } from '@toolbox/nav/browser-contract.mjs'
+import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
@@ -98,6 +98,18 @@ try {
     ['/power', 7],
     ['/about', 3],
   ]
+  const storageLink = page.locator('.section-nav a[href="/storage"]')
+  assert.equal(await storageLink.count(), 1)
+  await storageLink.click()
+  const assertStorageSurface = async () => {
+    assert.equal(await page.locator('.calculator-grid-storage').count(), 1)
+    assert.equal(await page.locator('.panel').count(), 7)
+    assert.equal(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      true,
+    )
+  }
+  await assertSharedPreferenceMatrix(page, assertStorageSurface)
   for (const [route, expectedPanels] of routeCases) {
     const link = page.locator(`.section-nav a[href="${route}"]`)
     assert.equal(await link.count(), 1)
@@ -148,6 +160,8 @@ try {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertMobileSharedShell(page)
+  await page.locator('.section-nav a[href="/storage"]').click()
+  await assertSharedPreferenceMatrix(page, assertStorageSurface)
   assert.equal(await page.locator('.sidebar, .mobile-topbar').count(), 0)
   assert.equal(await page.locator('.sane-app-header').isVisible(), true)
   assert.equal(await page.locator('.section-nav').isVisible(), true)

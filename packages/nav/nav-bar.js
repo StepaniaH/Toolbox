@@ -34,8 +34,8 @@ import { getStableApps } from "@toolbox/app-manifest";
   var ZH = "zh";
   var EN = "en";
   var LANGUAGES = [
-    { code: ZH, zh: "简体中文", en: "Chinese (Simplified)" },
-    { code: EN, zh: "English", en: "English" }
+    { code: ZH, label: "中文（简体）", lang: "zh-CN" },
+    { code: EN, label: "English", lang: "en" }
   ];
 
   function isZh() {
@@ -231,7 +231,7 @@ import { getStableApps } from "@toolbox/app-manifest";
       option.type = "button";
       option.setAttribute("role", "menuitemradio");
       option.setAttribute("data-lang", languageDefinition.code);
-      option.setAttribute("lang", languageDefinition.code === ZH ? "zh-CN" : EN);
+      option.setAttribute("lang", languageDefinition.lang);
       option.appendChild(el("span", "toolbox-nav-language-label"));
       option.appendChild(el("span", "toolbox-nav-language-check"));
       languageMenu.appendChild(option);
@@ -283,7 +283,7 @@ import { getStableApps } from "@toolbox/app-manifest";
       option.classList.toggle("is-active", selected);
       option.setAttribute("aria-checked", selected ? "true" : "false");
       option.querySelector(".toolbox-nav-language-label").textContent =
-        current === ZH ? definition.zh : definition.en;
+        definition.label;
       var check = option.querySelector(".toolbox-nav-language-check");
       check.replaceChildren();
       if (selected) check.appendChild(checkIcon());

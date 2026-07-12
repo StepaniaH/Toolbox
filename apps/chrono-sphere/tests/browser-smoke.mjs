@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell } from '@toolbox/nav/browser-contract.mjs'
+import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
@@ -54,6 +54,7 @@ try {
   browser = await chromium.launch({ headless: true })
   const context = await browser.newContext({
     locale: 'zh-CN',
+    timezoneId: 'Asia/Shanghai',
     viewport: { width: 1440, height: 1100 },
   })
   const page = await context.newPage()
@@ -91,9 +92,26 @@ try {
   assert.equal(compositingState.bodyBackgroundAttachment.includes('fixed'), false)
 
   await page.getByRole('tab', { name: '日期区间计算' }).click()
+  await page.waitForFunction(
+    () => document.querySelectorAll('.interval-config-box input[type="date"]').length === 2,
+  )
+  const dateInputs = page.locator('.interval-config-box input[type="date"]')
+  assert.equal(await dateInputs.count(), 2)
+  await dateInputs.nth(0).fill('2026-03-01')
+  await dateInputs.nth(1).fill('2026-03-11')
   const absoluteTime = page.locator('.absolute-time-value')
   await absoluteTime.waitFor()
-  assert.match((await absoluteTime.textContent()).trim(), /^-?\d+ 天 \d+ 小时$/)
+  const assertIntervalSurface = async () => {
+    assert.equal(await page.locator('.main-card').count(), 1)
+    assert.equal(await absoluteTime.isVisible(), true)
+    assert.ok((await absoluteTime.textContent()).trim().length > 0)
+    assert.equal(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      true,
+    )
+  }
+  await assertSharedPreferenceMatrix(page, assertIntervalSurface)
+  assert.equal((await absoluteTime.textContent()).trim(), '10 天 0 小时')
 
   const languageButton = page.locator('.toolbox-nav-lang')
   await languageButton.click()
@@ -117,6 +135,7 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 })
   await assertMobileSharedShell(page)
+  await assertSharedPreferenceMatrix(page, assertIntervalSurface)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   assert.equal(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),

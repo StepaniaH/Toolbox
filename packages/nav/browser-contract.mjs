@@ -103,3 +103,82 @@ export async function assertAppMarkStyle(page) {
   assert.notEqual(state.backgroundColor, 'rgba(0, 0, 0, 0)')
   assert.equal(state.boxShadow, 'none')
 }
+
+async function readPreferenceState(page) {
+  return page.evaluate(() => ({
+    lang: document.documentElement.lang.toLowerCase().startsWith('zh') ? 'zh' : 'en',
+    theme: document.documentElement.getAttribute('data-theme'),
+  }))
+}
+
+async function selectLanguage(page, target) {
+  const button = page.locator('.toolbox-nav-lang')
+  assert.equal(await button.count(), 1)
+  await button.click()
+
+  const menu = page.locator('.toolbox-nav-language-menu')
+  await menu.waitFor({ state: 'visible' })
+  const chineseLabel = menu.locator('[data-lang="zh"] .toolbox-nav-language-label')
+  const englishLabel = menu.locator('[data-lang="en"] .toolbox-nav-language-label')
+  assert.equal(await chineseLabel.count(), 1)
+  assert.equal(await englishLabel.count(), 1)
+  assert.equal((await chineseLabel.textContent()).trim(), '中文（简体）')
+  assert.equal((await englishLabel.textContent()).trim(), 'English')
+  assert.equal(
+    await menu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
+    1,
+  )
+
+  const option = menu.locator(`[data-lang="${target}"]`)
+  assert.equal(await option.count(), 1)
+  await option.click()
+  await page.waitForFunction(
+    (language) => document.documentElement.lang.toLowerCase().startsWith(language),
+    target,
+  )
+}
+
+async function toggleTheme(page, previousTheme) {
+  const button = page.locator('.toolbox-nav-theme')
+  assert.equal(await button.count(), 1)
+  await button.click()
+  await page.waitForFunction(
+    (theme) => document.documentElement.getAttribute('data-theme') !== theme,
+    previousTheme,
+  )
+}
+
+export async function assertSharedPreferenceMatrix(page, assertSurface) {
+  const initial = await readPreferenceState(page)
+  assert.ok(initial.theme === 'dark' || initial.theme === 'light')
+  const alternateLanguage = initial.lang === 'zh' ? 'en' : 'zh'
+  const alternateTheme = initial.theme === 'dark' ? 'light' : 'dark'
+
+  const assertState = async (expected) => {
+    assert.deepEqual(await readPreferenceState(page), expected)
+    if (assertSurface) await assertSurface(expected)
+  }
+
+  await assertState(initial)
+
+  await selectLanguage(page, alternateLanguage)
+  await assertState({
+    lang: alternateLanguage,
+    theme: initial.theme,
+  })
+
+  await toggleTheme(page, initial.theme)
+  await assertState({
+    lang: alternateLanguage,
+    theme: alternateTheme,
+  })
+
+  await selectLanguage(page, initial.lang)
+  await assertState({
+    lang: initial.lang,
+    theme: alternateTheme,
+  })
+
+  await toggleTheme(page, alternateTheme)
+  await assertState(initial)
+}
