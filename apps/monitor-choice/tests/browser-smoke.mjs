@@ -116,7 +116,17 @@ try {
   const languageButton = page.locator('.toolbox-nav-lang')
   assert.equal(await languageButton.count(), 1)
   const languageBefore = await page.locator('html').getAttribute('lang')
-  await languageButton.click()
+  await languageButton.focus()
+  await page.keyboard.press('Enter')
+  const languageMenu = page.locator('.toolbox-nav-language-menu')
+  await languageMenu.waitFor({ state: 'visible' })
+  assert.equal(await languageMenu.isVisible(), true)
+  assert.equal(
+    await languageMenu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
+    1,
+  )
+  const targetLanguage = languageBefore?.startsWith('zh') ? 'en' : 'zh'
+  await languageMenu.locator(`[data-lang="${targetLanguage}"]`).click()
   const languageAfter = await page.locator('html').getAttribute('lang')
   assert.notEqual(languageAfter, languageBefore)
 

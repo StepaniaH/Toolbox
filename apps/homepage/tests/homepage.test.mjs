@@ -11,7 +11,9 @@ test('homepage keeps its public root shell and secure source link', () => {
   assert.match(html, /id="toolbox-nav"/)
   assert.match(html, /id="tools-grid"/)
   assert.match(html, /<script type="module" src="\.\/js\/main\.js"><\/script>/)
-  assert.match(html, /target="_blank" rel="noopener"/)
+  assert.match(html, /data-toolbox-footer="homepage"/)
+  assert.match(read('js/main.js'), /@toolbox\/nav\/toolbox-footer\.js/)
+  assert.match(read('../../packages/nav/toolbox-footer.js'), /noopener noreferrer/)
 })
 
 test('homepage lists every stable tool path exactly once', () => {

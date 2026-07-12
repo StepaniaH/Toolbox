@@ -5,6 +5,11 @@ export type LocalizedText = Readonly<{
   en: string
 }>
 
+export type AppIcon = Readonly<{
+  viewBox: string
+  svg: string
+}>
+
 export type ToolboxApp = Readonly<{
   id: string
   navId: string
@@ -12,6 +17,7 @@ export type ToolboxApp = Readonly<{
   name: string
   navLabel: LocalizedText
   description: LocalizedText
+  icon: AppIcon
   status: AppStatus
 }>
 
@@ -21,6 +27,7 @@ export type ToolboxAppInput = Omit<ToolboxApp, 'navId' | 'status'> & {
 }
 
 export const APP_STATUSES: readonly AppStatus[]
+export const TOOLBOX_RELEASE: string
 export const TOOLBOX_APPS: readonly ToolboxApp[]
 export function defineApp(input: ToolboxAppInput): ToolboxApp
 export function getStableApps(): ToolboxApp[]

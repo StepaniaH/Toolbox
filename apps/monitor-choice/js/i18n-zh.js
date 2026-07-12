@@ -7,7 +7,7 @@
   var zh = window.I18n.translations.zh;
 
   /* ── App header ── */
-  zh['app.title'] = '显示器参数实验室';
+  zh['app.title'] = 'Monitor Choice';
   zh['app.subtitle'] = '理解每个参数的意义，做出自己的选择';
   zh['app.logo.label'] = '显示器';
 

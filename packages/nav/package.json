@@ -9,6 +9,10 @@
     "./nav-bar.js": "./nav-bar.js",
     "./nav-bar.css": "./nav-bar.css",
     "./NavBar.tsx": "./NavBar.tsx",
+    "./AppIcon.tsx": "./AppIcon.tsx",
+    "./app-icon.js": "./app-icon.js",
+    "./ToolboxFooter.tsx": "./ToolboxFooter.tsx",
+    "./toolbox-footer.js": "./toolbox-footer.js",
     "./README.md": "./README.md"
   },
   "peerDependencies": {
@@ -22,6 +26,10 @@
     "nav-bar.js",
     "nav-bar.css",
     "NavBar.tsx",
+    "AppIcon.tsx",
+    "app-icon.js",
+    "ToolboxFooter.tsx",
+    "toolbox-footer.js",
     "README.md"
   ],
   "scripts": {

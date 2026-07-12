@@ -91,7 +91,7 @@
     "errorPlaceholder": "起始日期或结束日期无效",
     "negativeNote": "（起始日晚于结束日，计算结果为负）",
     "totalDaysUnit": "天",
-    "hoursUnit": "天 {{days}} 小时 {{hours}}",
+    "hoursUnit": "{{days}} 天 {{hours}} 小时",
     "invalid": "计算出错"
   },
   "lunar": {

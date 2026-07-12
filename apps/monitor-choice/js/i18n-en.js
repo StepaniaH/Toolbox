@@ -8,7 +8,7 @@
   var en = window.I18n.translations.en;
 
   /* ── App header ── */
-  en['app.title'] = 'Monitor Parameter Lab';
+  en['app.title'] = 'Monitor Choice';
   en['app.subtitle'] = 'Understand what each parameter means and make your own choice';
 
   /* ── Input panel ── */

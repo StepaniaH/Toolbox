@@ -1,5 +1,5 @@
-import { Telescope } from 'lucide-react'
 import { useTranslation } from '@toolbox/i18n/react'
+import { AppIcon } from '@toolbox/nav/AppIcon.tsx'
 
 export function Header() {
   const { t } = useTranslation()
@@ -10,7 +10,7 @@ export function Header() {
           className="flex size-10 items-center justify-center rounded-xl bg-blue/15 text-blue"
           aria-hidden
         >
-          <Telescope className="size-5" />
+          <AppIcon appId="rate-lens" className="size-6" />
         </span>
         <div>
           <h1 className="text-xl font-bold tracking-tight text-fg sm:text-2xl">

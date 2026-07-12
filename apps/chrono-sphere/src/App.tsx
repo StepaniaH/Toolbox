@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { Calendar, RefreshCw, Layers, Sparkles, ShieldCheck } from 'lucide-react';
+import { RefreshCw, Layers, Sparkles, ShieldCheck } from 'lucide-react';
 import { NavBar } from '@toolbox/nav';
+import { AppIcon } from '@toolbox/nav/AppIcon.tsx';
+import { ToolboxFooter } from '@toolbox/nav/ToolboxFooter.tsx';
 import { useTranslation } from '@toolbox/i18n/react';
 import { usePreferences } from './context/usePreferences';
 import '@toolbox/nav/nav-bar.css';
@@ -58,7 +60,9 @@ function App() {
       <header className="app-header">
         <div className="app-header-row">
           <div className="logo-container">
-            <Calendar className="logo-icon" size={36} />
+            <span className="logo-mark">
+              <AppIcon appId="chrono-sphere" className="logo-icon" />
+            </span>
             <h1 className="app-title">ChronoSphere</h1>
           </div>
         </div>
@@ -111,24 +115,7 @@ function App() {
         </span>
       </section>
 
-      <footer className="app-footer">
-        <div className="app-footer-line">
-          <span>{t('footer.license')}</span>
-          <span className="footer-separator">·</span>
-          <span>
-            {t('footer.repository')}:
-            {' '}
-            <a
-              className="footer-link"
-              href="https://github.com/StepaniaH/Toolbox"
-              target="_blank"
-              rel="noreferrer"
-            >
-              StepaniaH/Toolbox
-            </a>
-          </span>
-        </div>
-      </footer>
+      <ToolboxFooter appId="chrono-sphere" />
     </div>
     </>
   );

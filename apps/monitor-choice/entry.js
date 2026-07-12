@@ -1,5 +1,7 @@
 import { connectPlatform } from './js/platform.js'
 import '@toolbox/nav/nav-bar.js'
+import { mountAppIcon } from '@toolbox/nav/app-icon.js'
+import { autoMountToolboxFooters } from '@toolbox/nav/toolbox-footer.js'
 import './js/theme.js'
 import './js/i18n.js'
 import './js/i18n-zh.js'
@@ -19,5 +21,7 @@ import './script.js'
 window.ThemeManager.init()
 window.I18n.init()
 connectPlatform()
+mountAppIcon('.app-header .logo', 'monitor-choice')
+autoMountToolboxFooters()
 window.MonitorChoice.init()
 delete window.__MONITOR_CHOICE_MANUAL_BOOT__

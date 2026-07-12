@@ -8,7 +8,7 @@
   --yellow: var(--color-warning);
   --border: var(--color-border);
   --border-strong: var(--color-border-strong);
-  --shadow: 0 16px 36px color-mix(in srgb, var(--color-text) 18%, transparent);
+  --shadow: 0 8px 22px color-mix(in srgb, var(--color-text) 7%, transparent);
 }
 
 *,
@@ -53,7 +53,7 @@ a {
 }
 
 .app-shell {
-  min-height: 100vh;
+  min-height: calc(100vh - 56px);
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   background: var(--color-bg);
@@ -61,8 +61,8 @@ a {
 
 .sidebar {
   position: sticky;
-  top: 0;
-  height: 100vh;
+  top: 56px;
+  height: calc(100vh - 56px);
   padding: 22px 18px;
   background: var(--mantle);
   border-right: 1px solid var(--color-border);
@@ -91,10 +91,17 @@ a {
   );
   border: 1px solid var(--border-strong);
   color: var(--blue);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
   flex: 0 0 auto;
+}
+
+.brand-mark .toolbox-app-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.brand-mark-small .toolbox-app-icon {
+  width: 21px;
+  height: 21px;
 }
 
 .brand-mark-small {
@@ -229,6 +236,28 @@ a {
   padding: 4px 0 2px;
 }
 
+.page-title-lockup {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.page-title-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  color: var(--blue);
+}
+
+.page-title-icon .toolbox-app-icon {
+  width: 24px;
+  height: 24px;
+}
+
 h1,
 h2,
 p {
@@ -236,9 +265,10 @@ p {
 }
 
 h1 {
-  font-size: 30px;
-  line-height: 1.08;
-  letter-spacing: 0;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 700;
 }
 
 .lead {
@@ -353,7 +383,7 @@ h1 {
 }
 
 .page-header h1 {
-  font-size: 28px;
+  font-size: 24px;
 }
 
 .calculator-grid,
@@ -722,39 +752,26 @@ h1 {
   }
 }
 
-.app-footer {
+.sane-footer {
   grid-column: 2;
-  padding: 16px 22px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.app-footer a {
-  color: var(--muted);
-  text-decoration: none;
-}
-
-.app-footer a:hover {
-  color: var(--text);
+  width: auto;
+  margin: 0 22px;
 }
 
 @media (max-width: 980px) {
-  .app-footer {
+  .sane-footer {
     grid-column: 1;
+    margin: 0 16px;
   }
 }
 
 @media (max-width: 700px) {
   h1 {
-    font-size: 26px;
+    font-size: 22px;
   }
 
   .page-header h1 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .result-line {

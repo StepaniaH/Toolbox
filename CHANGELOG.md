@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.2.1 (2026-07-12)
+
+### Fixed
+
+- Corrected ChronoSphere's Chinese absolute-time result from the malformed “天 11 小时 0” order to “11 天 0 小时”, with translation and production-browser regression coverage.
+- Removed the duplicate mobile tool directory; the left Toolbox menu is now the single tool switcher at every viewport.
+
+### Changed
+
+- Replaced the binary language toggle with an extensible language-icon menu that marks the current language, and replaced the rotating `🌓` emoji with state-aware sun/moon icons.
+- Slightly increased the shared navigation typography and aligned the Toolbox brand to the true left edge of the application shell.
+- Added canonical application icons to the manifest so Homepage cards and in-tool titles use the same mark.
+- Unified all five footers around an app-specific one-line description and shared GitHub, MIT and release metadata.
+- Aligned ChronoSphere, Monitor Choice and SaneUnits title hierarchy with RateLens; reduced SaneUnits business-card glow and corrected its sidebar/nav geometry.
+
 ## v0.2 (2026-07-11)
 
 ### Release highlights

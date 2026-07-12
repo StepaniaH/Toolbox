@@ -11,7 +11,9 @@ test('monitor choice keeps its route shell and secure public links', () => {
   assert.match(html, /id="sharp-ppd-meter"/)
   assert.match(html, /<script type="module" src="\.\/entry\.js"><\/script>/)
   assert.doesNotMatch(html, /<script src=/)
-  assert.match(html, /rel="noopener noreferrer"/)
+  assert.match(html, /data-toolbox-footer="monitor-choice"/)
+  assert.match(read('entry.js'), /@toolbox\/nav\/toolbox-footer\.js/)
+  assert.match(read('../../packages/nav/toolbox-footer.js'), /noopener noreferrer/)
 })
 
 test('every canvas exposes a localized text alternative', () => {

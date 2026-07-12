@@ -4,8 +4,8 @@
    and convenience variables (--font-sans, --radius-*, etc.) resolve.
 
    Layout:
-     [ 🧰 Toolbox ▾ ]   RateLens  ChronoSphere  Monitor Choice  SaneUnits   [ 🌓 ][ ☰ ]
-     |-- left drop --| |----------- center quick links -----------| |-- right --|
+     [ 🧰 Toolbox ▾ ]                                        [ ◎ ][ ☾ ]
+     |-- single tool switcher --|                    | language | theme |
 
    All rules are scoped under `.toolbox-nav` so this file is safe to import
    into any app without leaking styles. Apps should reserve top spacing via
@@ -23,7 +23,7 @@
   border-bottom: 1px solid var(--border-subtle, var(--ctp-surface-1));
   color: var(--ctp-text);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1;
   user-select: none;
   transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -39,6 +39,19 @@
 .toolbox-nav a {
   color: inherit;
   text-decoration: none;
+}
+
+.toolbox-app-icon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.toolbox-app-icon .app-icon-fill {
+  fill: currentColor;
+  stroke: none;
 }
 
 .toolbox-nav button {
@@ -59,8 +72,7 @@
   align-items: center;
   gap: 12px;
   height: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
+  width: 100%;
   padding: 0 16px;
 }
 
@@ -79,6 +91,7 @@
   border-radius: var(--radius-sm);
   color: var(--ctp-text);
   font-weight: 600;
+  font-size: 15px;
   letter-spacing: 0.01em;
   transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -110,12 +123,15 @@
   color: var(--ctp-blue);
 }
 
-/* Dropdown menu — revealed by :hover, :focus-within, or .is-open (touch) */
+/* Dropdown menu — revealed by pointer hover or explicit open state. Menu
+   buttons use Enter/Space to set `.is-open`, so Escape can close reliably. */
 .toolbox-nav-dropdown-menu {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  min-width: 260px;
+  width: max-content;
+  min-width: min(280px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
   padding: 6px;
   background: var(--ctp-mantle);
   border: 1px solid var(--ctp-surface-1);
@@ -132,7 +148,6 @@
 }
 
 .toolbox-nav-dropdown:hover .toolbox-nav-dropdown-menu,
-.toolbox-nav-dropdown:focus-within .toolbox-nav-dropdown-menu,
 .toolbox-nav-dropdown.is-open .toolbox-nav-dropdown-menu {
   opacity: 1;
   visibility: visible;
@@ -218,7 +233,7 @@
 }
 
 /* ──────────────────────────────────────────────────────────────
-   Right · actions (theme toggle + hamburger)
+   Right · language menu + theme toggle
    ────────────────────────────────────────────────────────────── */
 .toolbox-nav-actions {
   display: flex;
@@ -231,8 +246,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-sm);
   color: var(--ctp-subtext-1);
   font-size: 16px;
@@ -253,151 +268,134 @@
   outline-offset: 2px;
 }
 
-.toolbox-nav-theme.is-animating {
-  animation: toolbox-nav-spin 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+.toolbox-nav-icon-btn > svg,
+.toolbox-nav-theme-icon > svg,
+.toolbox-nav-language-check > svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-@keyframes toolbox-nav-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(180deg); }
+.toolbox-nav-theme {
+  position: relative;
 }
 
-/* Language toggle — circular icon button with flag + target-language label.
-   Shows the language you'll switch *to* (🇬🇧 EN when current is zh,
-   🇨🇳 中 when current is en). */
+.toolbox-nav-theme-icon {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.78);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.toolbox-nav-theme-moon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+html[data-theme="light"] .toolbox-nav-theme-sun {
+  opacity: 1;
+  transform: scale(1);
+}
+
+html[data-theme="light"] .toolbox-nav-theme-moon {
+  opacity: 0;
+  transform: scale(0.78);
+}
+
+html[data-theme="dark"] .toolbox-nav-theme-sun {
+  opacity: 0;
+  transform: scale(0.78);
+}
+
+/* Language icon + scalable menu. */
+.toolbox-nav-language {
+  position: relative;
+}
+
 .toolbox-nav-lang {
-  flex-direction: row;
-  gap: 3px;
-  width: auto;
-  min-width: 36px;
-  height: 36px;
-  padding: 0 10px;
-  border-radius: 9999px; /* fully circular ends → pill/"circular icon" */
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  color: var(--ctp-subtext-1);
 }
 
 .toolbox-nav-lang:hover {
   color: var(--ctp-blue);
 }
 
-.toolbox-nav-lang-flag {
-  font-size: 15px;
-  line-height: 1;
-}
-
-.toolbox-nav-lang-text {
-  font-size: 11px;
-  line-height: 1;
-  color: var(--ctp-subtext-1);
-  transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.toolbox-nav-lang:hover .toolbox-nav-lang-text {
-  color: var(--ctp-blue);
-}
-
-/* Hamburger — hidden on desktop, shown on narrow screens */
-.toolbox-nav-hamburger {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.toolbox-nav-hamburger:hover {
-  background: var(--ctp-surface-0);
-}
-
-.toolbox-nav-hamburger span {
-  display: block;
-  width: 18px;
-  height: 2px;
-  margin: 0 auto;
-  border-radius: 2px;
-  background: var(--ctp-text);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.toolbox-nav-hamburger.is-open span:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-.toolbox-nav-hamburger.is-open span:nth-child(2) {
-  opacity: 0;
-}
-.toolbox-nav-hamburger.is-open span:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
-}
-
-/* ──────────────────────────────────────────────────────────────
-   Mobile drawer — slides down from the bar
-   ────────────────────────────────────────────────────────────── */
-.toolbox-nav-mobile {
+.toolbox-nav-language-menu {
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: calc(100% + 6px);
   right: 0;
+  width: max-content;
+  min-width: 190px;
   background: var(--ctp-mantle);
-  border-bottom: 1px solid var(--ctp-surface-1);
+  border: 1px solid var(--ctp-surface-1);
+  border-radius: var(--radius-md);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
-  padding: 8px 16px 14px;
+  padding: 6px;
   display: grid;
   gap: 2px;
-  max-height: calc(100vh - var(--toolbox-nav-height));
-  overflow-y: auto;
-  transform-origin: top;
-  transform: scaleY(0);
   opacity: 0;
   visibility: hidden;
-  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
-    visibility 0.22s linear;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease,
+    visibility 0.18s linear;
 }
 
-.toolbox-nav-mobile.is-open {
-  transform: scaleY(1);
+.toolbox-nav-language:hover .toolbox-nav-language-menu,
+.toolbox-nav-language.is-open .toolbox-nav-language-menu {
   opacity: 1;
   visibility: visible;
+  transform: translateY(0);
 }
 
-.toolbox-nav-mobile-link {
+.toolbox-nav-language-option {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 16px;
+  width: 100%;
+  padding: 9px 10px !important;
   border-radius: var(--radius-sm);
   color: var(--ctp-subtext-1);
+  text-align: left;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.toolbox-nav-mobile-link:hover,
-.toolbox-nav-mobile-link:focus-visible {
+.toolbox-nav-language-option:hover,
+.toolbox-nav-language-option:focus-visible {
   background: var(--ctp-surface-0);
   color: var(--ctp-text);
   outline: none;
 }
 
-.toolbox-nav-mobile-link.is-active {
+.toolbox-nav-language-option.is-active {
   color: var(--ctp-blue);
   background: color-mix(in srgb, var(--ctp-blue) 12%, transparent);
   font-weight: 600;
 }
 
-.toolbox-nav-mobile-desc {
-  font-size: 12px;
-  color: var(--ctp-overlay-0);
-  font-weight: 400;
+.toolbox-nav-language-check {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.toolbox-nav-language-check > svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.2;
 }
 
 /* ──────────────────────────────────────────────────────────────
-   Responsive — collapse center links into hamburger at ≤ 768px
+   Responsive — Toolbox remains the single tool switcher at ≤ 768px
    ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .toolbox-nav-inner {
@@ -411,10 +409,6 @@
     display: none;
   }
 
-  .toolbox-nav-hamburger {
-    display: flex;
-  }
-
   /* On touch screens, disable hover-reveal so a tap is required. */
   @media (hover: none) {
     .toolbox-nav-dropdown:hover .toolbox-nav-dropdown-menu {
@@ -423,6 +417,18 @@
       transform: translateY(-6px);
     }
     .toolbox-nav-dropdown.is-open .toolbox-nav-dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .toolbox-nav-language:hover .toolbox-nav-language-menu {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+    }
+
+    .toolbox-nav-language.is-open .toolbox-nav-language-menu {
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
@@ -439,5 +445,59 @@
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+/* Shared application footer: one app-specific line + stable platform meta. */
+.toolbox-footer {
+  width: 100%;
+  padding: 20px 0;
+  border-top: 1px solid var(--color-border, var(--ctp-surface-1));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  color: var(--color-text-muted, var(--ctp-subtext-0));
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.toolbox-footer-description {
+  margin: 0;
+}
+
+.toolbox-footer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.toolbox-footer a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.toolbox-footer a:hover {
+  color: var(--color-text, var(--ctp-text));
+}
+
+.toolbox-footer a:focus-visible {
+  outline: 2px solid var(--color-ring, var(--ctp-blue));
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (max-width: 640px) {
+  .toolbox-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .toolbox-footer-meta {
+    justify-content: flex-start;
   }
 }
