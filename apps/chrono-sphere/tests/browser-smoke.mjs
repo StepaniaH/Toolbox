@@ -54,6 +54,7 @@ try {
   browser = await chromium.launch({ headless: true })
   const context = await browser.newContext({
     locale: 'zh-CN',
+    timezoneId: 'Asia/Shanghai',
     viewport: { width: 1440, height: 1100 },
   })
   const page = await context.newPage()
@@ -91,6 +92,13 @@ try {
   assert.equal(compositingState.bodyBackgroundAttachment.includes('fixed'), false)
 
   await page.getByRole('tab', { name: '日期区间计算' }).click()
+  await page.waitForFunction(
+    () => document.querySelectorAll('.interval-config-box input[type="date"]').length === 2,
+  )
+  const dateInputs = page.locator('.interval-config-box input[type="date"]')
+  assert.equal(await dateInputs.count(), 2)
+  await dateInputs.nth(0).fill('2026-03-01')
+  await dateInputs.nth(1).fill('2026-03-11')
   const absoluteTime = page.locator('.absolute-time-value')
   await absoluteTime.waitFor()
   const assertIntervalSurface = async () => {
@@ -103,7 +111,7 @@ try {
     )
   }
   await assertSharedPreferenceMatrix(page, assertIntervalSurface)
-  assert.match((await absoluteTime.textContent()).trim(), /^-?\d+ 天 \d+ 小时$/)
+  assert.equal((await absoluteTime.textContent()).trim(), '10 天 0 小时')
 
   const languageButton = page.locator('.toolbox-nav-lang')
   await languageButton.click()

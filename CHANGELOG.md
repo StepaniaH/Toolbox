@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.2.3 (2026-07-12)
 
 ### Fixed
 
@@ -14,6 +14,7 @@
 
 - Expanded the shared browser contract so all five applications traverse all four language/theme combinations at both 1440px and 390px, then restore their initial preferences.
 - Kept one representative business surface mounted and overflow-free through every combination: Homepage cards, Monitor Choice sharpness, RateLens calculator, ChronoSphere interval results and SaneUnits storage.
+- Made the ChronoSphere interval browser fixture deterministic with a fixed Asia/Shanghai timezone and fixed date range, while RateLens continues to mock both successful and failed exchange-rate responses.
 
 ## v0.2.2 (2026-07-12)
 
