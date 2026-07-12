@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell } from '@toolbox/nav/browser-contract.mjs'
+import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
@@ -100,6 +100,7 @@ try {
   await desktop.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(desktop)
   await assertAppMarkStyle(desktop)
+  await assertSharedPreferenceMatrix(desktop)
 
   assert.equal(await desktop.locator('.toolbox-nav-theme').count(), 1)
   assert.equal(await desktop.locator('.toolbox-nav-lang').count(), 1)
@@ -133,6 +134,7 @@ try {
   )
   await mobile.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertMobileSharedShell(mobile)
+  await assertSharedPreferenceMatrix(mobile)
 
   assert.equal(failureRequests.length, 2)
   assert.ok(failureRequests[0].startsWith('https://open.er-api.com/'))

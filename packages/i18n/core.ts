@@ -25,6 +25,12 @@ export type TranslateFn = (key: string, params?: TranslateParams) => string;
 
 const listeners = new Set<(lang: Lang) => void>();
 
+function applyDocumentLang(lang: Lang): void {
+  if (typeof document !== "undefined") {
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+  }
+}
+
 function detectInitialLang(): Lang {
   if (typeof window === "undefined") return "zh";
   try {
@@ -41,6 +47,7 @@ function detectInitialLang(): Lang {
 }
 
 let currentLang: Lang = detectInitialLang();
+applyDocumentLang(currentLang);
 
 /** Current active language ("zh" | "en"). */
 export function getLang(): Lang {
@@ -52,6 +59,7 @@ export function setLang(lang: Lang): Lang {
   if (lang !== "zh" && lang !== "en") {
     throw new Error(`setLang: expected "zh" or "en", got ${String(lang)}`);
   }
+  applyDocumentLang(lang);
   if (lang === currentLang) return lang;
   currentLang = lang;
   if (typeof window !== "undefined") {

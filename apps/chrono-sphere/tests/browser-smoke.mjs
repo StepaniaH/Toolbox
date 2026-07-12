@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell } from '@toolbox/nav/browser-contract.mjs'
+import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
@@ -76,6 +76,7 @@ try {
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(page)
   await assertAppMarkStyle(page)
+  await assertSharedPreferenceMatrix(page)
   assert.equal(await page.locator('.toolbox-app-icon').count() >= 1, true)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
@@ -117,6 +118,7 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 })
   await assertMobileSharedShell(page)
+  await assertSharedPreferenceMatrix(page)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   assert.equal(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),

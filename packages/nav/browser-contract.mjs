@@ -103,3 +103,69 @@ export async function assertAppMarkStyle(page) {
   assert.notEqual(state.backgroundColor, 'rgba(0, 0, 0, 0)')
   assert.equal(state.boxShadow, 'none')
 }
+
+async function readPreferenceState(page) {
+  return page.evaluate(() => ({
+    lang: document.documentElement.lang.toLowerCase().startsWith('zh') ? 'zh' : 'en',
+    theme: document.documentElement.getAttribute('data-theme'),
+  }))
+}
+
+async function selectLanguage(page, target) {
+  const button = page.locator('.toolbox-nav-lang')
+  assert.equal(await button.count(), 1)
+  await button.click()
+
+  const menu = page.locator('.toolbox-nav-language-menu')
+  await menu.waitFor({ state: 'visible' })
+  assert.equal(
+    await menu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
+    1,
+  )
+
+  const option = menu.locator(`[data-lang="${target}"]`)
+  assert.equal(await option.count(), 1)
+  await option.click()
+  await page.waitForFunction(
+    (language) => document.documentElement.lang.toLowerCase().startsWith(language),
+    target,
+  )
+}
+
+async function toggleTheme(page, previousTheme) {
+  const button = page.locator('.toolbox-nav-theme')
+  assert.equal(await button.count(), 1)
+  await button.click()
+  await page.waitForFunction(
+    (theme) => document.documentElement.getAttribute('data-theme') !== theme,
+    previousTheme,
+  )
+}
+
+export async function assertSharedPreferenceMatrix(page) {
+  const initial = await readPreferenceState(page)
+  assert.ok(initial.theme === 'dark' || initial.theme === 'light')
+  const alternateLanguage = initial.lang === 'zh' ? 'en' : 'zh'
+  const alternateTheme = initial.theme === 'dark' ? 'light' : 'dark'
+
+  await selectLanguage(page, alternateLanguage)
+  assert.deepEqual(await readPreferenceState(page), {
+    lang: alternateLanguage,
+    theme: initial.theme,
+  })
+
+  await toggleTheme(page, initial.theme)
+  assert.deepEqual(await readPreferenceState(page), {
+    lang: alternateLanguage,
+    theme: alternateTheme,
+  })
+
+  await selectLanguage(page, initial.lang)
+  assert.deepEqual(await readPreferenceState(page), {
+    lang: initial.lang,
+    theme: alternateTheme,
+  })
+
+  await toggleTheme(page, alternateTheme)
+  assert.deepEqual(await readPreferenceState(page), initial)
+}

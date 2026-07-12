@@ -160,6 +160,8 @@ viewports:
   the document does not overflow horizontally.
 
 This is a test-only Node module. It is never imported by production bundles.
+The same contract traverses all four language/theme combinations at each
+viewport and restores the page's initial preferences before returning.
 
 ## Privacy
 

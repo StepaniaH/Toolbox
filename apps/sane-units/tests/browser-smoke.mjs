@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell } from '@toolbox/nav/browser-contract.mjs'
+import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
@@ -72,6 +72,7 @@ try {
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(page)
   await assertAppMarkStyle(page)
+  await assertSharedPreferenceMatrix(page)
   const styleState = await page.evaluate(() => {
     const rootStyle = getComputedStyle(document.documentElement)
     return {
@@ -148,6 +149,7 @@ try {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertMobileSharedShell(page)
+  await assertSharedPreferenceMatrix(page)
   assert.equal(await page.locator('.sidebar, .mobile-topbar').count(), 0)
   assert.equal(await page.locator('.sane-app-header').isVisible(), true)
   assert.equal(await page.locator('.section-nav').isVisible(), true)

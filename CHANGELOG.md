@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Synchronized `<html lang>` from the shared i18n core on initialization and every language change, fixing RateLens declaring Chinese metadata while rendering English.
+
+### Quality
+
+- Expanded the shared browser contract so all five applications traverse all four language/theme combinations at both 1440px and 390px, then restore their initial preferences.
+
 ## v0.2.2 (2026-07-12)
 
 ### Fixed
