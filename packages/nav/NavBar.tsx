@@ -2,9 +2,8 @@
 //
 // Drop-in `<NavBar />` for the React + Vite apps (rate-lens, chrono-sphere,
 // sane-units). Mirrors the vanilla `nav-bar.js` bar: left Toolbox dropdown
-// (active tool highlighted) and right theme + language toggles (+ hamburger
-// on narrow screens). The center quick-link row was removed in favor of the
-// dropdown.
+// (active tool highlighted) and right theme + language controls. The left
+// dropdown is the single tool switcher on both desktop and mobile.
 //
 // Pair with `@toolbox/nav/nav-bar.css` and `@toolbox/theme` (index.css +
 // toggle.js). The theme toggle delegates to `window.ToolboxTheme.toggleTheme`
@@ -14,6 +13,45 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { setLang, getLang, onChange } from "@toolbox/i18n";
 import { getStableApps } from "@toolbox/app-manifest";
+
+const LANGUAGES = [
+  { code: "zh", zh: "简体中文", en: "Chinese (Simplified)" },
+  { code: "en", zh: "English", en: "English" },
+] as const;
+
+function GlobeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
+    </svg>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m5 12 4 4L19 6" />
+    </svg>
+  );
+}
 
 export type NavApp = {
   id: string;
@@ -64,8 +102,7 @@ export function NavBar({
 }: NavBarProps) {
   const rootRef = useRef<HTMLElement | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [spinning, setSpinning] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
   const [resolvedLang, setResolvedLang] = useState<"zh" | "en">(
     lang ?? getLang,
   );
@@ -82,32 +119,27 @@ export function NavBar({
 
   const preferEn = resolvedLang === "en";
 
-  // Close on outside click / Escape / viewport widening.
+  // Close on outside click or Escape.
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     const onDocClick = (e: MouseEvent) => {
       if (!root.contains(e.target as Node)) {
         setDropdownOpen(false);
-        setMobileOpen(false);
+        setLanguageOpen(false);
       }
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setDropdownOpen(false);
-        setMobileOpen(false);
+        setLanguageOpen(false);
       }
-    };
-    const onResize = () => {
-      if (window.innerWidth > 768) setMobileOpen(false);
     };
     document.addEventListener("click", onDocClick);
     document.addEventListener("keydown", onKey);
-    window.addEventListener("resize", onResize);
     return () => {
       document.removeEventListener("click", onDocClick);
       document.removeEventListener("keydown", onKey);
-      window.removeEventListener("resize", onResize);
     };
   }, []);
 
@@ -121,15 +153,10 @@ export function NavBar({
             .ToolboxTheme.toggleTheme
         : undefined);
     fn?.();
-    setSpinning(false);
-    requestAnimationFrame(() => setSpinning(true));
   };
 
   const themeTitle = preferEn ? "Toggle theme" : "切换明暗主题";
-  const menuLabel = preferEn ? "Menu" : "菜单";
-  // Language toggle: button shows the *target* language (opposite of current).
-  const targetLang = resolvedLang === "zh" ? "en" : "zh";
-  const langTitle = preferEn ? "切换到中文" : "Switch to English";
+  const langTitle = preferEn ? "Choose language" : "选择语言";
 
   return (
     <header
@@ -149,7 +176,7 @@ export function NavBar({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setMobileOpen(false);
+              setLanguageOpen(false);
               setDropdownOpen((v) => !v);
             }}
           >
@@ -184,81 +211,75 @@ export function NavBar({
         {/* Right: actions */}
         <div className="toolbox-nav-actions">
           {rightSlot}
-          <button
-            type="button"
-            className="toolbox-nav-icon-btn toolbox-nav-lang"
-            aria-label={langTitle}
-            title={langTitle}
-            onClick={() => setLang(targetLang)}
-          >
-            <span className="toolbox-nav-lang-flag" aria-hidden="true">
-              {targetLang === "en" ? "🇬🇧" : "🇨🇳"}
-            </span>
-            <span className="toolbox-nav-lang-text">
-              {targetLang === "en" ? "EN" : "中"}
-            </span>
-          </button>
-          <button
-            type="button"
+          <div
             className={
-              spinning
-                ? "toolbox-nav-icon-btn toolbox-nav-theme is-animating"
-                : "toolbox-nav-icon-btn toolbox-nav-theme"
+              languageOpen
+                ? "toolbox-nav-language is-open"
+                : "toolbox-nav-language"
             }
+          >
+            <button
+              type="button"
+              className="toolbox-nav-icon-btn toolbox-nav-lang"
+              aria-label={langTitle}
+              title={langTitle}
+              aria-haspopup="menu"
+              aria-expanded={languageOpen}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setDropdownOpen(false);
+                setLanguageOpen((value) => !value);
+              }}
+            >
+              <GlobeIcon />
+            </button>
+            <div className="toolbox-nav-language-menu" role="menu">
+              {LANGUAGES.map((language) => {
+                const selected = language.code === resolvedLang;
+                return (
+                  <button
+                    type="button"
+                    key={language.code}
+                    role="menuitemradio"
+                    aria-checked={selected}
+                    data-lang={language.code}
+                    lang={language.code === "zh" ? "zh-CN" : "en"}
+                    className={
+                      selected
+                        ? "toolbox-nav-language-option is-active"
+                        : "toolbox-nav-language-option"
+                    }
+                    onClick={() => {
+                      setLang(language.code);
+                      setLanguageOpen(false);
+                    }}
+                  >
+                    <span>{preferEn ? language.en : language.zh}</span>
+                    <span className="toolbox-nav-language-check">
+                      {selected ? <CheckIcon /> : null}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <button
+            type="button"
+            className="toolbox-nav-icon-btn toolbox-nav-theme"
             aria-label={themeTitle}
             title={themeTitle}
             onClick={toggleTheme}
           >
-            <span aria-hidden="true">🌓</span>
-          </button>
-          <button
-            type="button"
-            className={
-              mobileOpen ? "toolbox-nav-hamburger is-open" : "toolbox-nav-hamburger"
-            }
-            aria-label={menuLabel}
-            aria-expanded={mobileOpen}
-            aria-controls="toolbox-nav-mobile"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setDropdownOpen(false);
-              setMobileOpen((v) => !v);
-            }}
-          >
-            <span />
-            <span />
-            <span />
+            <span className="toolbox-nav-theme-icon toolbox-nav-theme-sun">
+              <SunIcon />
+            </span>
+            <span className="toolbox-nav-theme-icon toolbox-nav-theme-moon">
+              <MoonIcon />
+            </span>
           </button>
         </div>
       </div>
-
-      {/* Mobile drawer */}
-      <nav
-        id="toolbox-nav-mobile"
-        className={mobileOpen ? "toolbox-nav-mobile is-open" : "toolbox-nav-mobile"}
-        aria-label="Toolbox tools (mobile)"
-        hidden={undefined}
-      >
-        {apps.map((a) => (
-          <a
-            key={a.id}
-            href={a.href}
-            data-app={a.id}
-            className={
-              a.id === currentApp
-                ? "toolbox-nav-mobile-link is-active"
-                : "toolbox-nav-mobile-link"
-            }
-            onClick={() => setMobileOpen(false)}
-          >
-            <span>{pick(a.label, a.labelEn, preferEn)}</span>
-            <span className="toolbox-nav-mobile-desc">
-              {pick(a.desc, a.descEn, preferEn)}
-            </span>
-          </a>
-        ))}
-      </nav>
     </header>
   );
 }

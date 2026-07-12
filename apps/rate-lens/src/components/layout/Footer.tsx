@@ -1,23 +1,14 @@
 import { useTranslation } from '@toolbox/i18n/react'
+import { ToolboxFooter } from '@toolbox/nav/ToolboxFooter.tsx'
 
 export function Footer() {
   const { t } = useTranslation()
   return (
-    <footer className="mt-12 border-t border-line py-6 text-center text-xs text-faint">
-      <p>
-        {t('footer.tagline')}{' '}
-        <a
-          href="https://github.com/StepaniaH/Toolbox"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline transition-colors hover:text-fg"
-        >
-          GitHub
-        </a>
-      </p>
-      <p className="mt-1">
+    <div className="mt-12">
+      <p className="mb-4 text-center text-xs text-faint">
         {t('footer.disclaimer')}
       </p>
-    </footer>
+      <ToolboxFooter appId="rate-lens" />
+    </div>
   )
 }

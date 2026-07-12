@@ -2,7 +2,11 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { basename, dirname, extname, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { APP_STATUSES, TOOLBOX_APPS } from '../packages/app-manifest/manifest.js'
+import {
+  APP_STATUSES,
+  TOOLBOX_APPS,
+  TOOLBOX_RELEASE,
+} from '../packages/app-manifest/manifest.js'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const failures = []
@@ -13,6 +17,15 @@ function read(path) {
 
 function fail(category, file, message) {
   failures.push(`${category}: ${file}${message ? ` (${message})` : ''}`)
+}
+
+const rootPackage = JSON.parse(read('package.json'))
+if (TOOLBOX_RELEASE !== `v${rootPackage.version}`) {
+  fail(
+    'release-version-contract',
+    'package.json',
+    `manifest ${TOOLBOX_RELEASE} must match v${rootPackage.version}`,
+  )
 }
 
 function ruleBody(css, selector) {
@@ -79,6 +92,8 @@ if (deployJob.includes("github.event_name == 'push'")) {
 
 // ── Nav interaction and deploy-copy contract ─────────────
 const navCss = read('packages/nav/nav-bar.css')
+const navReact = read('packages/nav/NavBar.tsx')
+const navVanilla = read('packages/nav/nav-bar.js')
 const actionBase = ruleBody(navCss, '.toolbox-nav-icon-btn')
 const actionHover = ruleBody(navCss, '.toolbox-nav-icon-btn:hover')
 const actionFocus = ruleBody(navCss, '.toolbox-nav-icon-btn:focus-visible')
@@ -95,6 +110,39 @@ if (
   /outline\s*:\s*(?:none|0)\b/.test(actionFocus)
 ) {
   fail('nav-focus-contract', 'packages/nav/nav-bar.css', 'focus-visible lacks the 2px blue outline')
+}
+
+for (const selector of [
+  '.toolbox-nav-language-menu',
+  '.toolbox-nav-language-option',
+  '.toolbox-nav-theme-sun',
+  '.toolbox-nav-theme-moon',
+]) {
+  if (!navCss.includes(selector)) {
+    fail('nav-control-contract', 'packages/nav/nav-bar.css', `missing ${selector}`)
+  }
+}
+for (const [file, content] of [
+  ['packages/nav/NavBar.tsx', navReact],
+  ['packages/nav/nav-bar.js', navVanilla],
+]) {
+  for (const requirement of [
+    'toolbox-nav-language-menu',
+    'menuitemradio',
+    'data-lang',
+    'toolbox-nav-theme-sun',
+    'toolbox-nav-theme-moon',
+  ]) {
+    if (!content.includes(requirement)) {
+      fail('nav-control-contract', file, `missing ${requirement}`)
+    }
+  }
+  if (content.includes('toolbox-nav-hamburger') || content.includes('toolbox-nav-mobile')) {
+    fail('nav-mobile-contract', file, 'duplicates the Toolbox tool switcher on mobile')
+  }
+  if (content.includes('🌓') || content.includes('is-animating')) {
+    fail('nav-theme-contract', file, 'uses the legacy rotating emoji theme control')
+  }
 }
 
 // ── App isolation, package and base-path contract ─────────
@@ -114,6 +162,7 @@ const allowedManifestFields = new Set([
   'name',
   'navLabel',
   'description',
+  'icon',
   'status',
 ])
 for (const app of TOOLBOX_APPS) {
@@ -131,6 +180,9 @@ for (const app of TOOLBOX_APPS) {
     if (!allowedManifestFields.has(field)) {
       fail('app-manifest-contract', 'packages/app-manifest/manifest.js', `${app.id} has non-public field ${field}`)
     }
+  }
+  if (!app.icon?.viewBox || !app.icon?.svg) {
+    fail('app-manifest-contract', 'packages/app-manifest/manifest.js', `${app.id} is missing its canonical icon`)
   }
 }
 
@@ -152,6 +204,22 @@ for (const consumer of [
   for (const app of TOOLBOX_APPS) {
     if (app.path !== '/' && content.includes(app.path)) {
       fail('app-manifest-consumer', consumer, `duplicates route ${app.path}`)
+    }
+  }
+}
+
+for (const [file, requirements] of [
+  ['apps/homepage/js/main.js', ['app.icon', 'toolbox-footer.js']],
+  ['apps/monitor-choice/entry.js', ['mountAppIcon', 'autoMountToolboxFooters']],
+  ['apps/rate-lens/src/components/layout/Header.tsx', ['AppIcon', 'rate-lens']],
+  ['apps/rate-lens/src/components/layout/Footer.tsx', ['ToolboxFooter', 'rate-lens']],
+  ['apps/chrono-sphere/src/App.tsx', ['AppIcon', 'ToolboxFooter', 'chrono-sphere']],
+  ['apps/sane-units/src/App.tsx', ['AppIcon', 'ToolboxFooter', 'sane-units']],
+]) {
+  const content = read(file)
+  for (const requirement of requirements) {
+    if (!content.includes(requirement)) {
+      fail('shared-shell-identity-contract', file, `missing ${requirement}`)
     }
   }
 }

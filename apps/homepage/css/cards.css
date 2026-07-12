@@ -42,6 +42,16 @@
   height: 48px;
   color: var(--accent-primary);
   flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.card-icon .app-icon-fill {
+  fill: currentColor;
+  stroke: none;
 }
 
 /* ---- Card text ---- */

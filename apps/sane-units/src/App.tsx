@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { NavBar } from "@toolbox/nav";
+import { AppIcon } from "@toolbox/nav/AppIcon.tsx";
+import { ToolboxFooter } from "@toolbox/nav/ToolboxFooter.tsx";
 import "@toolbox/nav/nav-bar.css";
 import {
   NETWORK_SCENARIOS,
@@ -108,7 +110,7 @@ function App() {
       <aside className="sidebar">
         <div className="brand-lockup">
           <div className="brand-mark" aria-hidden="true">
-            SU
+            <AppIcon appId="sane-units" />
           </div>
           <div>
             <div className="brand-name">{t("brand.name")}</div>
@@ -138,7 +140,7 @@ function App() {
       <div className="mobile-topbar">
         <div className="mobile-brand">
           <div className="brand-mark brand-mark-small" aria-hidden="true">
-            SU
+            <AppIcon appId="sane-units" />
           </div>
           <div>
             <div className="brand-name">{t("brand.name")}</div>
@@ -163,10 +165,7 @@ function App() {
         {route === "/about" ? <AboutPage /> : null}
       </main>
 
-      <footer className="app-footer">
-        <a href="https://github.com/StepaniaH/Toolbox/blob/master/LICENSE">{t("footer.mitLicense")}</a>
-        <a href="https://github.com/StepaniaH/Toolbox" target="_blank" rel="noopener noreferrer">{t("footer.github")}</a>
-      </footer>
+      <ToolboxFooter appId="sane-units" className="sane-footer" />
     </div>
       </>
   );
@@ -187,9 +186,14 @@ function HomePage({ onNavigate }: any) {
   return (
     <section className="page page-home">
       <header className="hero-block">
-        <div>
-          <h1>{t("home.heroTitle")}</h1>
-          <p className="lead">{t("home.heroLead")}</p>
+        <div className="page-title-lockup">
+          <span className="page-title-icon">
+            <AppIcon appId="sane-units" />
+          </span>
+          <div>
+            <h1>{t("home.heroTitle")}</h1>
+            <p className="lead">{t("home.heroLead")}</p>
+          </div>
         </div>
 
         <div className="hero-metrics" aria-label={t("home.metricShareable")}>
@@ -1003,9 +1007,14 @@ function AboutPage() {
 function PageHeader({ title, description }: any) {
   return (
     <header className="page-header">
-      <div>
-        <h1>{title}</h1>
-        <p className="lead compact">{description}</p>
+      <div className="page-title-lockup">
+        <span className="page-title-icon">
+          <AppIcon appId="sane-units" />
+        </span>
+        <div>
+          <h1>{title}</h1>
+          <p className="lead compact">{description}</p>
+        </div>
       </div>
     </header>
   );

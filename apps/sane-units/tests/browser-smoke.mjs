@@ -107,6 +107,15 @@ try {
   const languageBefore = await page.locator('html').getAttribute('lang')
   const copyBefore = await page.locator('.lead').textContent()
   await languageButton.click()
+  const languageMenu = page.locator('.toolbox-nav-language-menu')
+  await languageMenu.waitFor({ state: 'visible' })
+  assert.equal(await languageMenu.isVisible(), true)
+  assert.equal(
+    await languageMenu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
+    1,
+  )
+  const targetLanguage = languageBefore?.startsWith('zh') ? 'en' : 'zh'
+  await languageMenu.locator(`[data-lang="${targetLanguage}"]`).click()
   await page.waitForFunction(
     (previousLanguage) => document.documentElement.lang !== previousLanguage,
     languageBefore,
@@ -138,6 +147,22 @@ try {
   assert.equal(await page.locator('.mobile-topbar').isVisible(), true)
   assert.equal(await page.locator('.toolbox-nav-theme').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-lang').count(), 1)
+  assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
+  const brandButton = page.locator('.toolbox-nav-brand-btn')
+  await brandButton.click()
+  const toolMenu = page.locator('.toolbox-nav-dropdown-menu')
+  await toolMenu.waitFor({ state: 'visible' })
+  assert.equal(await brandButton.getAttribute('aria-expanded'), 'true')
+  await page.keyboard.press('Escape')
+  await page.mouse.move(389, 843)
+  await toolMenu.waitFor({ state: 'hidden' })
+
+  for (const [route, expectedPanels] of routeCases) {
+    const link = page.locator(`.mobile-nav a[href="${route}"]`)
+    assert.equal(await link.count(), 1)
+    await link.click()
+    assert.equal(await page.locator('.panel').count(), expectedPanels)
+  }
   assert.equal(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     true,

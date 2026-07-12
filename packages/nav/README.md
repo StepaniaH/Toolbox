@@ -9,12 +9,14 @@ entries from `@toolbox/app-manifest` over the same CSS:
 Both render the same layout:
 
 ```
-[ 🧰 Toolbox ▾ ]                                            [ 🌐 ][ 🌓 ][ ☰ ]
-|-- tool menu --|                                           |--- actions ---|
+[ 🧰 Toolbox ▾ ]                                                 [ ◎ ][ ☾ ]
+|-- single tool menu --|                                | language | theme |
 ```
 
 - **Left** — `🧰 Toolbox` dropdown. Hover (desktop) or tap (touch) to expand the full tool list with one-line descriptions.
-- **Right** — language + theme actions, plus a hamburger that opens the tool list on narrow screens.
+- **Right** — a language icon that opens an extensible, current-selection menu plus a sun/moon theme action.
+
+The Toolbox dropdown remains the only tool switcher at narrow widths, so mobile users do not see a duplicate hamburger directory.
 
 Language/theme actions intentionally have no background box on pointer hover; hover uses color only. Keyboard `focus-visible` uses a 2px blue outline. `pnpm check:contracts` enforces this behavior and verifies manifest consumption.
 
@@ -134,8 +136,8 @@ Responsive behavior:
 
 | viewport | behavior |
 |----------|----------|
-| `> 768px` | Full bar: brand dropdown + inline quick links + theme toggle. Dropdown opens on hover (and on click/focus). |
-| `≤ 768px` | Quick links collapse into a hamburger drawer. Brand dropdown becomes tap-only (`@media (hover: none)` disables hover-reveal). |
+| `> 768px` | Brand tool dropdown + language menu + theme toggle. Menus open on hover, click or keyboard activation. |
+| `≤ 768px` | The same controls remain; Toolbox is the single tap-to-open tool menu and no duplicate directory is rendered. |
 
 `prefers-reduced-motion` shortens all transitions to ~0ms.
 

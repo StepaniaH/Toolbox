@@ -4,8 +4,8 @@
 // (or any element passed to mount()). Renders two slots:
 //   left  → 🧰 Toolbox dropdown (hover on desktop, tap on touch);
 //           the active tool is highlighted with `.is-active` + `.active`
-//   right → theme + language toggles (theme delegates to @toolbox/theme's
-//           window.ToolboxTheme) + hamburger (narrow screens only)
+//   right → language menu + theme toggle (theme delegates to
+//           @toolbox/theme's window.ToolboxTheme)
 //
 // Pair with `@toolbox/nav/nav-bar.css` and `@toolbox/theme` (index.css +
 // toggle.js). The current app is auto-detected from `location.pathname`
@@ -33,6 +33,10 @@ import { getStableApps } from "@toolbox/app-manifest";
   var LANG_EVENT = "toolbox-lang-change";
   var ZH = "zh";
   var EN = "en";
+  var LANGUAGES = [
+    { code: ZH, zh: "简体中文", en: "Chinese (Simplified)" },
+    { code: EN, zh: "English", en: "English" }
+  ];
 
   function isZh() {
     try {
@@ -87,11 +91,11 @@ import { getStableApps } from "@toolbox/app-manifest";
   }
 
   function labelOf(tool) {
-    return isZh() ? tool.label : tool.labelEn;
+    return currentLang() === ZH ? tool.label : tool.labelEn;
   }
 
   function descOf(tool) {
-    return isZh() ? tool.desc : tool.descEn;
+    return currentLang() === ZH ? tool.desc : tool.descEn;
   }
 
   // Pick the active tool id from the URL path. Matches a tool when its
@@ -129,6 +133,47 @@ import { getStableApps } from "@toolbox/app-manifest";
     var a = el("a", cls, text);
     a.setAttribute("href", href);
     return a;
+  }
+
+  function svgIcon(paths) {
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    for (var i = 0; i < paths.length; i++) {
+      var definition = paths[i];
+      var node = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        definition[0]
+      );
+      var attrs = definition[1];
+      for (var key in attrs) node.setAttribute(key, attrs[key]);
+      svg.appendChild(node);
+    }
+    return svg;
+  }
+
+  function globeIcon() {
+    return svgIcon([
+      ["circle", { cx: "12", cy: "12", r: "9" }],
+      ["path", { d: "M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" }]
+    ]);
+  }
+
+  function sunIcon() {
+    return svgIcon([
+      ["circle", { cx: "12", cy: "12", r: "4" }],
+      ["path", { d: "M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" }]
+    ]);
+  }
+
+  function moonIcon() {
+    return svgIcon([
+      ["path", { d: "M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z" }]
+    ]);
+  }
+
+  function checkIcon() {
+    return svgIcon([["path", { d: "m5 12 4 4L19 6" }]]);
   }
 
   // Build the full nav DOM tree. `current` is the active tool id.
@@ -169,103 +214,99 @@ import { getStableApps } from "@toolbox/app-manifest";
     // ---- Right: actions ----
     var actions = el("div", "toolbox-nav-actions");
 
+    var language = el("div", "toolbox-nav-language");
     var langBtn = el("button", "toolbox-nav-icon-btn toolbox-nav-lang");
     langBtn.type = "button";
-    var langFlag = el("span", "toolbox-nav-lang-flag");
-    var langText = el("span", "toolbox-nav-lang-text");
-    langBtn.appendChild(langFlag);
-    langBtn.appendChild(langText);
-    actions.appendChild(langBtn);
+    langBtn.setAttribute("aria-haspopup", "menu");
+    langBtn.setAttribute("aria-expanded", "false");
+    langBtn.appendChild(globeIcon());
+    language.appendChild(langBtn);
+
+    var languageMenu = el("div", "toolbox-nav-language-menu");
+    languageMenu.setAttribute("role", "menu");
+    var languageOptions = [];
+    for (var j = 0; j < LANGUAGES.length; j++) {
+      var languageDefinition = LANGUAGES[j];
+      var option = el("button", "toolbox-nav-language-option");
+      option.type = "button";
+      option.setAttribute("role", "menuitemradio");
+      option.setAttribute("data-lang", languageDefinition.code);
+      option.setAttribute("lang", languageDefinition.code === ZH ? "zh-CN" : EN);
+      option.appendChild(el("span", "toolbox-nav-language-label"));
+      option.appendChild(el("span", "toolbox-nav-language-check"));
+      languageMenu.appendChild(option);
+      languageOptions.push(option);
+    }
+    language.appendChild(languageMenu);
+    actions.appendChild(language);
 
     var themeBtn = el("button", "toolbox-nav-icon-btn toolbox-nav-theme");
     themeBtn.type = "button";
-    themeBtn.setAttribute("aria-label", "切换明暗主题");
-    themeBtn.setAttribute("title", "切换明暗主题");
-    themeBtn.textContent = "🌓";
+    var sun = el("span", "toolbox-nav-theme-icon toolbox-nav-theme-sun");
+    sun.appendChild(sunIcon());
+    var moon = el("span", "toolbox-nav-theme-icon toolbox-nav-theme-moon");
+    moon.appendChild(moonIcon());
+    themeBtn.appendChild(sun);
+    themeBtn.appendChild(moon);
     actions.appendChild(themeBtn);
-
-    var burger = el("button", "toolbox-nav-hamburger");
-    burger.type = "button";
-    burger.setAttribute("aria-label", "菜单");
-    burger.setAttribute("aria-expanded", "false");
-    burger.setAttribute("aria-controls", "toolbox-nav-mobile");
-    burger.appendChild(el("span", null, ""));
-    burger.appendChild(el("span", null, ""));
-    burger.appendChild(el("span", null, ""));
-    actions.appendChild(burger);
 
     inner.appendChild(actions);
     nav.appendChild(inner);
-
-    // ---- Mobile drawer (all tools) ----
-    var mobile = el("nav", "toolbox-nav-mobile");
-    mobile.id = "toolbox-nav-mobile";
-    mobile.setAttribute("aria-label", "Toolbox tools (mobile)");
-    for (var k = 0; k < TOOLS.length; k++) {
-      var m = TOOLS[k];
-      var ml = link(m.href, "toolbox-nav-mobile-link");
-      ml.setAttribute("data-app", m.id);
-      if (m.id === current) ml.classList.add("is-active");
-      ml.appendChild(el("span", null, labelOf(m)));
-      ml.appendChild(el("span", "toolbox-nav-mobile-desc", descOf(m)));
-      mobile.appendChild(ml);
-    }
-    nav.appendChild(mobile);
 
     return {
       root: nav,
       dropdown: dropdown,
       brandBtn: brandBtn,
+      language: language,
       langBtn: langBtn,
-      langFlag: langFlag,
-      langText: langText,
+      languageOptions: languageOptions,
       themeBtn: themeBtn,
-      burger: burger,
-      mobile: mobile
     };
   }
 
   function closeAll(refs) {
     refs.dropdown.classList.remove("is-open");
     refs.brandBtn.setAttribute("aria-expanded", "false");
-    refs.burger.classList.remove("is-open");
-    refs.burger.setAttribute("aria-expanded", "false");
-    refs.mobile.classList.remove("is-open");
+    refs.language.classList.remove("is-open");
+    refs.langBtn.setAttribute("aria-expanded", "false");
   }
 
-  // Paint the language button to reflect the *target* language (the one a
-  // click will switch to): 🇬🇧 EN when current is zh, 🇨🇳 中 when current is en.
-  function renderLangButton(refs) {
+  function renderLanguageMenu(refs) {
     var current = currentLang();
-    var target = current === ZH ? EN : ZH;
-    refs.langFlag.textContent = target === EN ? "🇬🇧" : "🇨🇳";
-    refs.langText.textContent = target === EN ? "EN" : "中";
-    var title =
-      current === ZH ? "Switch to English" : "切换到中文";
+    var title = current === ZH ? "选择语言" : "Choose language";
     refs.langBtn.setAttribute("aria-label", title);
     refs.langBtn.setAttribute("title", title);
+    for (var i = 0; i < refs.languageOptions.length; i++) {
+      var option = refs.languageOptions[i];
+      var definition = LANGUAGES[i];
+      var selected = definition.code === current;
+      option.classList.toggle("is-active", selected);
+      option.setAttribute("aria-checked", selected ? "true" : "false");
+      option.querySelector(".toolbox-nav-language-label").textContent =
+        current === ZH ? definition.zh : definition.en;
+      var check = option.querySelector(".toolbox-nav-language-check");
+      check.replaceChildren();
+      if (selected) check.appendChild(checkIcon());
+    }
+    var themeTitle = current === ZH ? "切换明暗主题" : "Toggle theme";
+    refs.themeBtn.setAttribute("aria-label", themeTitle);
+    refs.themeBtn.setAttribute("title", themeTitle);
   }
 
   function renderToolLabels(refs) {
     var desktopItems = refs.root.querySelectorAll(".toolbox-nav-dropdown-item");
-    var mobileItems = refs.root.querySelectorAll(".toolbox-nav-mobile-link");
     for (var i = 0; i < TOOLS.length; i++) {
       var tool = TOOLS[i];
       var desktop = desktopItems[i];
-      var mobile = mobileItems[i];
       if (desktop) {
         desktop.querySelector(".toolbox-nav-item-title").textContent = labelOf(tool);
         desktop.querySelector(".toolbox-nav-item-desc").textContent = descOf(tool);
-      }
-      if (mobile) {
-        mobile.children[0].textContent = labelOf(tool);
-        mobile.querySelector(".toolbox-nav-mobile-desc").textContent = descOf(tool);
       }
     }
   }
 
   function renderLanguage(refs) {
-    renderLangButton(refs);
+    renderLanguageMenu(refs);
     renderToolLabels(refs);
   }
 
@@ -287,10 +328,8 @@ import { getStableApps } from "@toolbox/app-manifest";
       e.preventDefault();
       e.stopPropagation();
       var willOpen = !refs.dropdown.classList.contains("is-open");
-      // Close the mobile drawer if open — the dropdown is its own surface.
-      refs.mobile.classList.remove("is-open");
-      refs.burger.classList.remove("is-open");
-      refs.burger.setAttribute("aria-expanded", "false");
+      refs.language.classList.remove("is-open");
+      refs.langBtn.setAttribute("aria-expanded", "false");
       refs.dropdown.classList.toggle("is-open", willOpen);
       refs.brandBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
     });
@@ -303,34 +342,29 @@ import { getStableApps } from "@toolbox/app-manifest";
       }
     });
 
-    // Hamburger toggles the mobile drawer.
-    refs.burger.addEventListener("click", function (e) {
+    // Language icon opens a scalable list instead of toggling a hard-coded pair.
+    refs.langBtn.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      var willOpen = !refs.mobile.classList.contains("is-open");
+      var willOpen = !refs.language.classList.contains("is-open");
       refs.dropdown.classList.remove("is-open");
       refs.brandBtn.setAttribute("aria-expanded", "false");
-      refs.burger.classList.toggle("is-open", willOpen);
-      refs.burger.setAttribute("aria-expanded", willOpen ? "true" : "false");
-      refs.mobile.classList.toggle("is-open", willOpen);
+      refs.language.classList.toggle("is-open", willOpen);
+      refs.langBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
     });
 
-    // Theme toggle — delegate to @toolbox/theme with a little spin animation.
+    refs.language.addEventListener("click", function (e) {
+      var option = e.target.closest(".toolbox-nav-language-option");
+      if (!option) return;
+      applyLang(option.getAttribute("data-lang"));
+      refs.language.classList.remove("is-open");
+      refs.langBtn.setAttribute("aria-expanded", "false");
+      renderLanguage(refs);
+    });
+
+    // Theme toggle — the CSS swaps the sun/moon state without emoji rotation.
     refs.themeBtn.addEventListener("click", function () {
       onToggleTheme();
-      refs.themeBtn.classList.remove("is-animating");
-      void refs.themeBtn.offsetWidth; // restart animation
-      refs.themeBtn.classList.add("is-animating");
-    });
-
-    // Language toggle — flip the global language and refresh the button.
-    // The shared @toolbox/i18n core (if present) handles persistence + its own
-    // onChange broadcast; otherwise applyLang dispatches "toolbox-lang-change"
-    // so other scripts can react.
-    refs.langBtn.addEventListener("click", function () {
-      var next = currentLang() === ZH ? EN : ZH;
-      applyLang(next);
-      renderLanguage(refs);
     });
 
     // Refresh the button when the language changes elsewhere (another script
@@ -355,11 +389,6 @@ import { getStableApps } from "@toolbox/app-manifest";
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") closeAll(refs);
-    });
-
-    // Close on viewport widening past the hamburger breakpoint.
-    global.addEventListener("resize", function () {
-      if (global.innerWidth > 768) closeAll(refs);
     });
   }
 

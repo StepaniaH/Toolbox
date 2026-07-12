@@ -107,21 +107,5 @@
 
 /* ---- Footer ---- */
 .site-footer {
-  text-align: center;
-  padding: 24px 0 8px;
-  font-size: 13px;
-  color: var(--text-muted);
-  opacity: 0.6;
-  letter-spacing: 0.03em;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.site-footer a {
-  color: var(--text-muted);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.site-footer a:hover {
-  color: var(--text-secondary);
+  margin-top: auto;
 }

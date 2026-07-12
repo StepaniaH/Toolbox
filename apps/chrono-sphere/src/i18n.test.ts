@@ -18,7 +18,7 @@ describe('chrono-sphere i18n — @toolbox/i18n core integration', () => {
 
   it('interpolates multiple {{var}} placeholders', () => {
     const zh = translate('zh', 'interval.hoursUnit', { days: 3, hours: 4 });
-    expect(zh).toBe('天 3 小时 4');
+    expect(zh).toBe('3 天 4 小时');
     const en = translate('en', 'interval.hoursUnit', { days: 3, hours: 4 });
     expect(en).toBe('3 days 4 hours');
   });
