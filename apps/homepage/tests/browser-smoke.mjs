@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell } from '@toolbox/nav/browser-contract.mjs'
+import { assertDesktopSharedShell, assertMobileSharedShell } from '@toolbox/nav/browser-contract.mjs'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
@@ -8,26 +8,23 @@ import { chromium } from 'playwright'
 
 const appRoot = fileURLToPath(new URL('../', import.meta.url))
 const viteCli = fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url))
-const externalPreviewUrl = process.env.CHRONO_SPHERE_PREVIEW_URL
-const previewUrl = externalPreviewUrl ?? 'http://127.0.0.1:19882/chrono-sphere/'
-const preview = externalPreviewUrl
-  ? null
-  : spawn(
-    process.execPath,
-    [viteCli, 'preview', '--host', '127.0.0.1', '--port', '19882', '--strictPort'],
-    {
-      cwd: appRoot,
-      env: { ...process.env, NO_COLOR: '1' },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    },
-  )
+const previewUrl = 'http://127.0.0.1:19883/'
+const preview = spawn(
+  process.execPath,
+  [viteCli, 'preview', '--host', '127.0.0.1', '--port', '19883', '--strictPort'],
+  {
+    cwd: appRoot,
+    env: { ...process.env, NO_COLOR: '1' },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  },
+)
 let previewOutput = ''
-preview?.stdout.on('data', (chunk) => { previewOutput += chunk })
-preview?.stderr.on('data', (chunk) => { previewOutput += chunk })
+preview.stdout.on('data', (chunk) => { previewOutput += chunk })
+preview.stderr.on('data', (chunk) => { previewOutput += chunk })
 
 async function waitForPreview() {
   for (let attempt = 0; attempt < 100; attempt += 1) {
-    if (preview?.exitCode !== null && preview?.exitCode !== undefined) {
+    if (preview.exitCode !== null) {
       throw new Error(`preview exited early (${preview.exitCode})\n${previewOutput}`)
     }
     try {
@@ -42,7 +39,7 @@ async function waitForPreview() {
 }
 
 async function stopPreview() {
-  if (!preview || preview.exitCode !== null) return
+  if (preview.exitCode !== null) return
   preview.kill('SIGTERM')
   await Promise.race([once(preview, 'exit'), delay(2000)])
   if (preview.exitCode === null) preview.kill('SIGKILL')
@@ -52,11 +49,10 @@ let browser
 try {
   await waitForPreview()
   browser = await chromium.launch({ headless: true })
-  const context = await browser.newContext({
+  const page = await browser.newPage({
     locale: 'zh-CN',
     viewport: { width: 1440, height: 1100 },
   })
-  const page = await context.newPage()
   const runtimeFailures = []
 
   page.on('console', (message) => {
@@ -75,55 +71,58 @@ try {
 
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(page)
-  await assertAppMarkStyle(page)
-  assert.equal(await page.locator('.toolbox-app-icon').count() >= 1, true)
+  assert.equal(await page.locator('.tool-card').count(), 4)
+  assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 4)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
+  assert.equal(await page.getByText('v0.2.2', { exact: true }).count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
-  assert.equal(await page.locator('.toolbox-nav-theme-sun').count(), 1)
-  assert.equal(await page.locator('.toolbox-nav-theme-moon').count(), 1)
-  const compositingState = await page.evaluate(() => ({
-    appTransform: getComputedStyle(document.querySelector('.app-container')).transform,
-    tabsBackdrop: getComputedStyle(document.querySelector('.tabs-container')).backdropFilter,
-    bodyBackgroundAttachment: getComputedStyle(document.body).backgroundAttachment,
-  }))
-  assert.equal(compositingState.appTransform, 'none')
-  assert.equal(compositingState.tabsBackdrop, 'none')
-  assert.equal(compositingState.bodyBackgroundAttachment.includes('fixed'), false)
-
-  await page.getByRole('tab', { name: '日期区间计算' }).click()
-  const absoluteTime = page.locator('.absolute-time-value')
-  await absoluteTime.waitFor()
-  assert.match((await absoluteTime.textContent()).trim(), /^-?\d+ 天 \d+ 小时$/)
 
   const languageButton = page.locator('.toolbox-nav-lang')
-  await languageButton.click()
+  const titleBefore = await page.locator('.site-title').textContent()
+  await languageButton.focus()
+  await page.keyboard.press('Enter')
   const languageMenu = page.locator('.toolbox-nav-language-menu')
   await languageMenu.waitFor({ state: 'visible' })
-  assert.equal(await languageMenu.isVisible(), true)
   assert.equal(
     await languageMenu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
     1,
   )
-  await languageMenu.locator('[role="menuitemradio"][lang="en"]').click()
+  await languageMenu.locator('[data-lang="en"]').click()
   await page.waitForFunction(() => document.documentElement.lang === 'en')
-  assert.match((await absoluteTime.textContent()).trim(), /^-?\d+ days \d+ hours$/)
+  assert.notEqual(await page.locator('.site-title').textContent(), titleBefore)
+  assert.equal(await page.locator('.toolbox-footer-description').textContent(), 'Toolbox navigation hub')
 
   const themeBefore = await page.locator('html').getAttribute('data-theme')
+  const backgroundBefore = await page.evaluate(() => getComputedStyle(document.body).backgroundColor)
   await page.locator('.toolbox-nav-theme').click()
   await page.waitForFunction(
     (previousTheme) => document.documentElement.getAttribute('data-theme') !== previousTheme,
     themeBefore,
   )
+  assert.notEqual(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), backgroundBefore)
 
   await page.setViewportSize({ width: 390, height: 844 })
   await assertMobileSharedShell(page)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
+  const brandButton = page.locator('.toolbox-nav-brand-btn')
+  await brandButton.click()
+  const toolMenu = page.locator('.toolbox-nav-dropdown-menu')
+  await toolMenu.waitFor({ state: 'visible' })
+  assert.equal(await brandButton.getAttribute('aria-expanded'), 'true')
+  await page.keyboard.press('Escape')
+  await page.mouse.move(389, 843)
+  await toolMenu.waitFor({ state: 'hidden' })
   assert.equal(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     true,
   )
+  assert.equal(
+    await page.locator('.toolbox-footer').evaluate((element) => getComputedStyle(element).flexDirection),
+    'column',
+  )
+
   assert.deepEqual(runtimeFailures, [])
-  console.log('[browser-smoke] ChronoSphere interval and shared shell passed')
+  console.log('[browser-smoke] Homepage production shell passed')
 } finally {
   await browser?.close()
   await stopPreview()

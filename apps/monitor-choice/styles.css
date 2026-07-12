@@ -79,19 +79,6 @@ button {
 
 .app-header .logo {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background: var(--gradient-accent);
-  display: grid;
-  place-items: center;
-  color: var(--accent-blue);
-  box-shadow: none;
-}
-
-.app-header .logo .toolbox-app-icon {
-  width: 24px;
-  height: 24px;
 }
 
 .app-header .header-text {
@@ -575,7 +562,6 @@ button {
     gap: var(--space-md);
   }
 
-  .app-header .logo { width: 40px; height: 40px; }
 }
 
 @media (max-width: 560px) {

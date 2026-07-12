@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell } from '@toolbox/nav/browser-contract.mjs'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
@@ -68,6 +69,8 @@ try {
   })
 
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
+  await assertDesktopSharedShell(page)
+  await assertAppMarkStyle(page)
   const styleState = await page.evaluate(() => ({
     bodyBackground: getComputedStyle(document.body).backgroundColor,
     textToken: getComputedStyle(document.documentElement)
@@ -136,6 +139,9 @@ try {
   await themeButton.click()
   const themeAfter = await page.locator('html').getAttribute('data-theme')
   assert.notEqual(themeAfter, themeBefore)
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await assertMobileSharedShell(page)
 
   assert.deepEqual(runtimeFailures, [])
   console.log('[browser-smoke] Monitor Choice production build passed')

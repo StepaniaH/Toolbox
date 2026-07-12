@@ -56,11 +56,11 @@ function App() {
   return (
     <>
       <NavBar currentApp="chrono-sphere" onToggleTheme={toggleTheme} />
-      <div className="app-container fade-in">
+      <div className="app-container">
       <header className="app-header">
         <div className="app-header-row">
           <div className="logo-container">
-            <span className="logo-mark">
+            <span className="toolbox-app-mark">
               <AppIcon appId="chrono-sphere" className="logo-icon" />
             </span>
             <h1 className="app-title">ChronoSphere</h1>

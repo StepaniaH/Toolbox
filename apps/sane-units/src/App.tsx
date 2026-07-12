@@ -107,67 +107,38 @@ function App() {
     <>
       <NavBar currentApp="sane-units" onToggleTheme={toggleTheme} />
       <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand-lockup">
-          <div className="brand-mark" aria-hidden="true">
-            <AppIcon appId="sane-units" />
+        <header className="sane-app-header">
+          <div className="brand-lockup">
+            <div className="brand-mark toolbox-app-mark" aria-hidden="true">
+              <AppIcon appId="sane-units" />
+            </div>
+            <div>
+              <h1 className="brand-name">{t("brand.name")}</h1>
+              <p className="brand-subtitle">{t("home.heroLead")}</p>
+            </div>
           </div>
-          <div>
-            <div className="brand-name">{t("brand.name")}</div>
-            <div className="brand-subtitle">{t("brand.subtitle")}</div>
-          </div>
-        </div>
 
-        <nav className="side-nav" aria-label={t("nav.home")}>
-          {routes.map((item) => (
-            <NavLink key={item.path} to={item.path} active={route === item.path} onNavigate={navigate}>
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
-        </nav>
+          <nav className="section-nav" aria-label={t("nav.home")}>
+            {routes.map((item) => (
+              <NavLink key={item.path} to={item.path} active={route === item.path} onNavigate={navigate}>
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </header>
 
-        <div className="sidebar-note">
-          <p>{t("sidebar.note")}</p>
-          <ul>
-            <li>{t("sidebar.tbNote")}</li>
-            <li>{t("sidebar.mbpsNote")}</li>
-            <li>{t("sidebar.wattNote")}</li>
-          </ul>
-        </div>
+        <main className="workspace">
+          {route === "/" ? <HomePage onNavigate={navigate} /> : null}
+          {route === "/storage" ? <StoragePage /> : null}
+          {route === "/network" ? <NetworkPage /> : null}
+          {route === "/video" ? <VideoPage /> : null}
+          {route === "/power" ? <PowerPage /> : null}
+          {route === "/about" ? <AboutPage /> : null}
+        </main>
 
-      </aside>
-
-      <div className="mobile-topbar">
-        <div className="mobile-brand">
-          <div className="brand-mark brand-mark-small" aria-hidden="true">
-            <AppIcon appId="sane-units" />
-          </div>
-          <div>
-            <div className="brand-name">{t("brand.name")}</div>
-            <div className="brand-subtitle">{t("brand.subtitleShort")}</div>
-          </div>
-        </div>
-        <div className="mobile-nav" role="tablist" aria-label={t("nav.home")}>
-          {routes.map((item) => (
-            <NavLink key={item.path} to={item.path} active={route === item.path} onNavigate={navigate}>
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
-        </div>
+        <ToolboxFooter appId="sane-units" className="sane-footer" />
       </div>
-
-      <main className="workspace">
-        {route === "/" ? <HomePage onNavigate={navigate} /> : null}
-        {route === "/storage" ? <StoragePage /> : null}
-        {route === "/network" ? <NetworkPage /> : null}
-        {route === "/video" ? <VideoPage /> : null}
-        {route === "/power" ? <PowerPage /> : null}
-        {route === "/about" ? <AboutPage /> : null}
-      </main>
-
-      <ToolboxFooter appId="sane-units" className="sane-footer" />
-    </div>
-      </>
+    </>
   );
 }
 
@@ -185,17 +156,7 @@ function HomePage({ onNavigate }: any) {
 
   return (
     <section className="page page-home">
-      <header className="hero-block">
-        <div className="page-title-lockup">
-          <span className="page-title-icon">
-            <AppIcon appId="sane-units" />
-          </span>
-          <div>
-            <h1>{t("home.heroTitle")}</h1>
-            <p className="lead">{t("home.heroLead")}</p>
-          </div>
-        </div>
-
+      <header className="hero-block home-summary">
         <div className="hero-metrics" aria-label={t("home.metricShareable")}>
           <MetricBadge label={t("home.metricPureFrontend")} value={t("home.metricPureFrontendValue")} />
           <MetricBadge label={t("home.metricShareable")} value={t("home.metricShareableValue")} />
@@ -218,6 +179,15 @@ function HomePage({ onNavigate }: any) {
           </button>
         ))}
       </div>
+
+      <aside className="principles-note">
+        <p>{t("sidebar.note")}</p>
+        <ul>
+          <li>{t("sidebar.tbNote")}</li>
+          <li>{t("sidebar.mbpsNote")}</li>
+          <li>{t("sidebar.wattNote")}</li>
+        </ul>
+      </aside>
     </section>
   );
 }
@@ -1008,11 +978,11 @@ function PageHeader({ title, description }: any) {
   return (
     <header className="page-header">
       <div className="page-title-lockup">
-        <span className="page-title-icon">
+        <span className="page-title-icon toolbox-app-mark">
           <AppIcon appId="sane-units" />
         </span>
         <div>
-          <h1>{title}</h1>
+          <h2>{title}</h2>
           <p className="lead compact">{description}</p>
         </div>
       </div>
@@ -1025,7 +995,7 @@ function Panel({ title, subtitle, children, className = "" }: any) {
     <section className={`panel ${className}`.trim()}>
       <div className="panel-head">
         <div>
-          <h2>{title}</h2>
+          <h3>{title}</h3>
           {subtitle ? <p>{subtitle}</p> : null}
         </div>
       </div>

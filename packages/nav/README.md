@@ -20,6 +20,11 @@ The Toolbox dropdown remains the only tool switcher at narrow widths, so mobile 
 
 Language/theme actions intentionally have no background box on pointer hover; hover uses color only. Keyboard `focus-visible` uses a 2px blue outline. `pnpm check:contracts` enforces this behavior and verifies manifest consumption.
 
+Tool headers wrap their manifest icon in `.toolbox-app-mark`: a canonical 40px
+square with a 12px radius, 15% accent surface, 24px icon and no border,
+gradient or shadow. The production browser contract checks this geometry and
+surface across all four tools.
+
 ## Tool list
 
 | id | label | href | description |
@@ -140,6 +145,21 @@ Responsive behavior:
 | `≤ 768px` | The same controls remain; Toolbox is the single tap-to-open tool menu and no duplicate directory is rendered. |
 
 `prefers-reduced-motion` shortens all transitions to ~0ms.
+
+### Browser geometry contract
+
+Production browser tests import `@toolbox/nav/browser-contract.mjs` so every
+application verifies the same shell geometry instead of maintaining five
+slightly different assertions. The contract fixes two representative
+viewports:
+
+- `1440 × 1100`: the navigation content is centered at `1280px`, the Toolbox
+  brand starts at `96px`, the footer stays horizontal, and the page does not
+  overflow.
+- `390 × 844`: Toolbox remains the only tool switcher, the footer stacks, and
+  the document does not overflow horizontally.
+
+This is a test-only Node module. It is never imported by production bundles.
 
 ## Privacy
 

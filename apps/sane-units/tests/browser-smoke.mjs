@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell } from '@toolbox/nav/browser-contract.mjs'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
@@ -69,6 +70,8 @@ try {
   })
 
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
+  await assertDesktopSharedShell(page)
+  await assertAppMarkStyle(page)
   const styleState = await page.evaluate(() => {
     const rootStyle = getComputedStyle(document.documentElement)
     return {
@@ -84,8 +87,9 @@ try {
   assert.equal(await page.locator('.toolbox-nav-theme').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-lang').count(), 1)
   assert.equal(await page.locator('.control-btn, .sidebar-controls, .mobile-controls').count(), 0)
-  assert.equal(await page.locator('.sidebar').isVisible(), true)
-  assert.equal(await page.locator('.mobile-topbar').isVisible(), false)
+  assert.equal(await page.locator('.sidebar, .mobile-topbar').count(), 0)
+  assert.equal(await page.locator('.sane-app-header').isVisible(), true)
+  assert.equal(await page.locator('.section-nav').isVisible(), true)
 
   const routeCases = [
     ['/storage', 7],
@@ -95,17 +99,17 @@ try {
     ['/about', 3],
   ]
   for (const [route, expectedPanels] of routeCases) {
-    const link = page.locator(`.side-nav a[href="${route}"]`)
+    const link = page.locator(`.section-nav a[href="${route}"]`)
     assert.equal(await link.count(), 1)
     await link.click()
-    assert.ok((await page.locator('h1').textContent()).trim().length > 0)
+    assert.ok((await page.locator('.page-header h2').textContent()).trim().length > 0)
     assert.equal(await page.locator('.panel').count(), expectedPanels)
   }
 
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   const languageButton = page.locator('.toolbox-nav-lang')
   const languageBefore = await page.locator('html').getAttribute('lang')
-  const copyBefore = await page.locator('.lead').textContent()
+  const copyBefore = await page.locator('.brand-subtitle').textContent()
   await languageButton.click()
   const languageMenu = page.locator('.toolbox-nav-language-menu')
   await languageMenu.waitFor({ state: 'visible' })
@@ -121,7 +125,7 @@ try {
     languageBefore,
   )
   assert.notEqual(await page.locator('html').getAttribute('lang'), languageBefore)
-  assert.notEqual(await page.locator('.lead').textContent(), copyBefore)
+  assert.notEqual(await page.locator('.brand-subtitle').textContent(), copyBefore)
 
   const themeButton = page.locator('.toolbox-nav-theme')
   const themeBefore = await page.locator('html').getAttribute('data-theme')
@@ -143,8 +147,10 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
-  assert.equal(await page.locator('.sidebar').isVisible(), false)
-  assert.equal(await page.locator('.mobile-topbar').isVisible(), true)
+  await assertMobileSharedShell(page)
+  assert.equal(await page.locator('.sidebar, .mobile-topbar').count(), 0)
+  assert.equal(await page.locator('.sane-app-header').isVisible(), true)
+  assert.equal(await page.locator('.section-nav').isVisible(), true)
   assert.equal(await page.locator('.toolbox-nav-theme').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-lang').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
@@ -158,7 +164,7 @@ try {
   await toolMenu.waitFor({ state: 'hidden' })
 
   for (const [route, expectedPanels] of routeCases) {
-    const link = page.locator(`.mobile-nav a[href="${route}"]`)
+    const link = page.locator(`.section-nav a[href="${route}"]`)
     assert.equal(await link.count(), 1)
     await link.click()
     assert.equal(await page.locator('.panel').count(), expectedPanels)
