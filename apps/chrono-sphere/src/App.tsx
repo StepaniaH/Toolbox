@@ -60,7 +60,7 @@ function App() {
       <header className="app-header">
         <div className="app-header-row">
           <div className="logo-container">
-            <span className="logo-mark">
+            <span className="toolbox-app-mark">
               <AppIcon appId="chrono-sphere" className="logo-icon" />
             </span>
             <h1 className="app-title">ChronoSphere</h1>

@@ -1,6 +1,6 @@
 # Toolbox Design System
 
-> 状态：Draft v0.2.1 · 规范性文档
+> 状态：Draft v0.2.2 · 规范性文档
 >
 > 本文定义所有 Toolbox 工具必须共享的视觉与交互基础。工具可以保留自己的信息架构和个性，但不能另造全局主题、语言或导航行为。
 
@@ -215,7 +215,7 @@ App Surface（工具自己拥有）
 | Homepage / Monitor | 已使用构建期 nav/theme runtime；页面 token 仍各自维护 | 在不改变视觉的前提下逐步改用共享语义 token |
 | SaneUnits | 已移除永久左右分栏，采用应用标题、单一横向业务导航、居中内容和共享页脚的纵向骨架；业务页 card glow 已收敛 | 保持多计算器导航特色并防止重新引入独立桌面/移动壳 |
 | Shared shell | 已采用 1280px 居中导航内容轴、略大的字体、可扩展语言菜单、状态主题图标和单一移动工具入口 | 后续新增语言只扩展菜单数据，不另造控件 |
-| Identity / footer | manifest 图标、RateLens 标题层级和共享页脚骨架已覆盖五个应用 | 新工具必须从首版消费同一事实源 |
+| Identity / footer | manifest 图标、共享 40px 标题标志容器、RateLens 标题层级和统一页脚骨架已覆盖五个应用 | 新工具必须从首版消费同一事实源 |
 | Visual QA | 五个稳定应用均有生产 browser smoke，并共享 1440/390px 壳层几何契约；尚无 light/dark × zh/en 的五应用截图矩阵 | CI 生成 smoke 截图并做人工/自动审查 |
 
 ## 十二、发布前设计检查

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.2.2 (2026-07-12)
 
 ### Fixed
 
@@ -10,6 +10,7 @@
 ### Changed
 
 - Rebuilt SaneUnits around the same vertical page rhythm as the other tools: app identity, one horizontal calculator navigation, centered page content and the shared footer. The permanent desktop sidebar and separate mobile header are gone, while all calculator routes remain available.
+- Standardized RateLens, ChronoSphere, Monitor Choice and SaneUnits title marks on ChronoSphere's quiet 40px, 12px-radius, single-accent surface while preserving each tool's own icon.
 
 ### Quality
 

@@ -70,3 +70,36 @@ export async function assertMobileSharedShell(page) {
   closeTo(state.navInnerRect.width, MOBILE_WIDTH, 'mobile NavBar content width')
   closeTo(state.brandRect.left, 12, 'mobile Toolbox brand left edge')
 }
+
+export async function assertAppMarkStyle(page) {
+  const state = await page.evaluate(() => {
+    const mark = document.querySelector('.toolbox-app-mark')
+    const icon = mark?.querySelector('.toolbox-app-icon')
+    if (!mark || !icon) return null
+    const markStyle = getComputedStyle(mark)
+    return {
+      count: document.querySelectorAll('.toolbox-app-mark').length,
+      width: mark.getBoundingClientRect().width,
+      height: mark.getBoundingClientRect().height,
+      borderRadius: markStyle.borderRadius,
+      borderWidth: markStyle.borderTopWidth,
+      backgroundColor: markStyle.backgroundColor,
+      backgroundImage: markStyle.backgroundImage,
+      boxShadow: markStyle.boxShadow,
+      iconWidth: icon.getBoundingClientRect().width,
+      iconHeight: icon.getBoundingClientRect().height,
+    }
+  })
+
+  assert.ok(state, 'missing canonical .toolbox-app-mark with an application icon')
+  assert.ok(state.count >= 1)
+  closeTo(state.width, 40, 'application mark width')
+  closeTo(state.height, 40, 'application mark height')
+  closeTo(state.iconWidth, 24, 'application icon width')
+  closeTo(state.iconHeight, 24, 'application icon height')
+  assert.equal(state.borderRadius, '12px')
+  assert.equal(state.borderWidth, '0px')
+  assert.equal(state.backgroundImage, 'none')
+  assert.notEqual(state.backgroundColor, 'rgba(0, 0, 0, 0)')
+  assert.equal(state.boxShadow, 'none')
+}

@@ -7,10 +7,10 @@ export function Header() {
     <header className="flex items-center justify-between gap-4 py-6">
       <div className="flex items-center gap-3">
         <span
-          className="flex size-10 items-center justify-center rounded-xl bg-blue/15 text-blue"
+          className="toolbox-app-mark"
           aria-hidden
         >
-          <AppIcon appId="rate-lens" className="size-6" />
+          <AppIcon appId="rate-lens" />
         </span>
         <div>
           <h1 className="text-xl font-bold tracking-tight text-fg sm:text-2xl">

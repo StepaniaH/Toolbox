@@ -109,7 +109,7 @@ function App() {
       <div className="app-shell">
         <header className="sane-app-header">
           <div className="brand-lockup">
-            <div className="brand-mark" aria-hidden="true">
+            <div className="brand-mark toolbox-app-mark" aria-hidden="true">
               <AppIcon appId="sane-units" />
             </div>
             <div>
@@ -978,7 +978,7 @@ function PageHeader({ title, description }: any) {
   return (
     <header className="page-header">
       <div className="page-title-lockup">
-        <span className="page-title-icon">
+        <span className="page-title-icon toolbox-app-mark">
           <AppIcon appId="sane-units" />
         </span>
         <div>

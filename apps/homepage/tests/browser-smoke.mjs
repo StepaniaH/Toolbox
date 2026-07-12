@@ -74,7 +74,7 @@ try {
   assert.equal(await page.locator('.tool-card').count(), 4)
   assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 4)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
-  assert.equal(await page.getByText('v0.2.1', { exact: true }).count(), 1)
+  assert.equal(await page.getByText('v0.2.2', { exact: true }).count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
 
   const languageButton = page.locator('.toolbox-nav-lang')

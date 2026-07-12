@@ -20,6 +20,11 @@ The Toolbox dropdown remains the only tool switcher at narrow widths, so mobile 
 
 Language/theme actions intentionally have no background box on pointer hover; hover uses color only. Keyboard `focus-visible` uses a 2px blue outline. `pnpm check:contracts` enforces this behavior and verifies manifest consumption.
 
+Tool headers wrap their manifest icon in `.toolbox-app-mark`: a canonical 40px
+square with a 12px radius, 15% accent surface, 24px icon and no border,
+gradient or shadow. The production browser contract checks this geometry and
+surface across all four tools.
+
 ## Tool list
 
 | id | label | href | description |
