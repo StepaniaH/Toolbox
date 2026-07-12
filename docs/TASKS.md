@@ -88,6 +88,16 @@
 - [x] 先修正翻译回归测试，再验证日期区间实际结果卡。
 - [x] zh/en、桌面/手机端结果均无拆行歧义或溢出。
 
+### P0.6 · ChronoSphere 刷新后标签条分层闪烁 `✅ 已完成`
+
+**发现**：部分刷新首帧中，标签条下半部分会暂时变亮，等待或滚动触发重绘后恢复。标签条位于保留 transform 的入场动画内，同时使用 fixed 多层背景和 `backdrop-filter`，形成浏览器分块合成伪影。
+
+**验收**：
+
+- [x] 应用根容器不再保留 transform 合成层，标签条不再使用局部背景模糊，页面背景随文档滚动。
+- [x] 标签条改用现有主题的稳定 panel 表面，light/dark 视觉层级仍清楚。
+- [x] 生产 browser smoke 固化 `transform: none`、无 tabs backdrop filter、无 fixed body background，并继续覆盖中文区间结果。
+
 ---
 
 ## P1 — 架构护栏与单一事实源
@@ -211,8 +221,9 @@
 **范围**：维护者反馈 1、5；保留多计算器业务导航。
 
 - [x] 除首页外各业务页显著降低 card glow，层级与其他工具一致。
-- [x] 共享 NavBar、标题、sidebar 与主内容的左边界/内容宽度重新对齐，Toolbox 品牌保持标准左上位置感。
-- [x] 保留适合多计算器的 sidebar/mobile 业务导航，但不让双栏网格支配全局壳定位。
+- [x] 纠正“把 Toolbox 贴到视口左边”这一错误理解，恢复共享 NavBar 的 1280px 居中内容轴。
+- [x] 移除永久桌面 sidebar 和另一套 mobile header，改为应用标题、单一横向业务导航、居中内容和统一页脚的纵向骨架。
+- [x] 保留多计算器业务导航；窄屏仅让导航条自身横向滚动，不造成页面级横向溢出。
 - [x] storage/network/video/power/about 在 light/dark、zh/en、390/1440px 下通过浏览器回归。
 
 ---

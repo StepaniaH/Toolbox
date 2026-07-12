@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Removed ChronoSphere's refresh-time tab-strip repaint seam by taking the tabs out of the fixed-background, backdrop-filter and retained-transform compositing path; the production browser smoke now guards that stable rendering contract.
+- Restored the shared NavBar's centered 1280px content axis after v0.2.1 incorrectly pinned most Toolbox brands to the viewport edge.
+
+### Changed
+
+- Rebuilt SaneUnits around the same vertical page rhythm as the other tools: app identity, one horizontal calculator navigation, centered page content and the shared footer. The permanent desktop sidebar and separate mobile header are gone, while all calculator routes remain available.
+
 ## v0.2.1 (2026-07-12)
 
 ### Fixed

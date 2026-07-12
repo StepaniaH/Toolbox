@@ -94,9 +94,22 @@ if (deployJob.includes("github.event_name == 'push'")) {
 const navCss = read('packages/nav/nav-bar.css')
 const navReact = read('packages/nav/NavBar.tsx')
 const navVanilla = read('packages/nav/nav-bar.js')
+const navInner = ruleBody(navCss, '.toolbox-nav-inner')
 const actionBase = ruleBody(navCss, '.toolbox-nav-icon-btn')
 const actionHover = ruleBody(navCss, '.toolbox-nav-icon-btn:hover')
 const actionFocus = ruleBody(navCss, '.toolbox-nav-icon-btn:focus-visible')
+
+if (
+  !navInner ||
+  !/max-width\s*:\s*1280px/.test(navInner) ||
+  !/margin\s*:\s*0\s+auto/.test(navInner)
+) {
+  fail(
+    'nav-content-axis-contract',
+    'packages/nav/nav-bar.css',
+    'shared navigation must keep its centered 1280px content axis',
+  )
+}
 
 if (!actionBase || /outline\s*:\s*(?:none|0)\b/.test(actionBase)) {
   fail('nav-focus-contract', 'packages/nav/nav-bar.css', 'base action suppresses outlines')

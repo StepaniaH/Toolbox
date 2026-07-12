@@ -99,12 +99,11 @@
 .tabs-container {
   display: flex;
   justify-content: center;
-  background: var(--surface-raised);
+  background: var(--surface-panel);
   border: 1px solid var(--glass-border);
   padding: 6px;
   border-radius: var(--radius-md);
   margin: 0 auto 10px;
-  backdrop-filter: blur(10px);
   max-width: 640px;
 }
 

@@ -213,8 +213,8 @@ App Surface（工具自己拥有）
 |------|------|------|
 | Theme | 五个工具已消费 runtime 契约；页面仍未消费完整共享语义 CSS token | 逐个应用迁移到语义 token，并有视觉回归 |
 | Homepage / Monitor | 已使用构建期 nav/theme runtime；页面 token 仍各自维护 | 在不改变视觉的前提下逐步改用共享语义 token |
-| SaneUnits | 顶部对齐、业务页 card glow、共享标题/图标/页脚已二次收敛，逐页 browser smoke 已落地 | 保持多计算器业务导航特色并防止视觉回退 |
-| Shared shell | 已采用略大的导航、可扩展语言菜单、状态主题图标和单一移动工具入口 | 后续新增语言只扩展菜单数据，不另造控件 |
+| SaneUnits | 已移除永久左右分栏，采用应用标题、单一横向业务导航、居中内容和共享页脚的纵向骨架；业务页 card glow 已收敛 | 保持多计算器导航特色并防止重新引入独立桌面/移动壳 |
+| Shared shell | 已采用 1280px 居中导航内容轴、略大的字体、可扩展语言菜单、状态主题图标和单一移动工具入口 | 后续新增语言只扩展菜单数据，不另造控件 |
 | Identity / footer | manifest 图标、RateLens 标题层级和共享页脚骨架已覆盖五个应用 | 新工具必须从首版消费同一事实源 |
 | Visual QA | 五个稳定应用均有生产 browser smoke；Homepage 已覆盖共享壳、卡片和 390px 布局，尚无五应用截图矩阵 | CI 生成 smoke 截图并做人工/自动审查 |
 

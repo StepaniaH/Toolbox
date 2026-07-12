@@ -56,7 +56,7 @@ function App() {
   return (
     <>
       <NavBar currentApp="chrono-sphere" onToggleTheme={toggleTheme} />
-      <div className="app-container fade-in">
+      <div className="app-container">
       <header className="app-header">
         <div className="app-header-row">
           <div className="logo-container">

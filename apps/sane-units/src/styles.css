@@ -54,27 +54,23 @@ a {
 
 .app-shell {
   min-height: calc(100vh - 56px);
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   background: var(--color-bg);
 }
 
-.sidebar {
-  position: sticky;
-  top: 56px;
-  height: calc(100vh - 56px);
-  padding: 22px 18px;
-  background: var(--mantle);
-  border-right: 1px solid var(--color-border);
+.sane-app-header {
+  width: min(1200px, calc(100% - 44px));
+  margin: 0 auto;
+  padding-top: 36px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
 }
 
-.brand-lockup,
-.mobile-brand {
+.brand-lockup {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
 }
 
@@ -99,34 +95,32 @@ a {
   height: 24px;
 }
 
-.brand-mark-small .toolbox-app-icon {
-  width: 21px;
-  height: 21px;
-}
-
-.brand-mark-small {
-  width: 36px;
-  height: 36px;
-}
-
 .brand-name {
-  font-size: 16px;
+  margin: 0;
+  font-size: 24px;
   line-height: 1.2;
   font-weight: 700;
   color: var(--text);
+  letter-spacing: -0.02em;
 }
 
 .brand-subtitle {
-  margin-top: 2px;
-  font-size: 12px;
-  line-height: 1.35;
+  max-width: 70ch;
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
   color: var(--muted);
 }
 
-.side-nav {
+.section-nav {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  gap: 4px;
+  padding: 6px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-bg-elevated) 72%, transparent);
+  scrollbar-width: thin;
 }
 
 .nav-link {
@@ -137,8 +131,11 @@ a {
   background: transparent;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 92px;
   color: var(--muted);
+  white-space: nowrap;
   transition:
     background 0.15s ease,
     border-color 0.15s ease,
@@ -156,62 +153,40 @@ a {
   color: var(--text);
 }
 
-.sidebar-note {
-  margin-top: auto;
+.principles-note {
   padding: 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--color-bg-elevated) 55%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.sidebar-note p {
-  margin: 0 0 10px;
+.principles-note p {
+  margin: 0;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
 }
 
-.sidebar-note ul {
+.principles-note ul {
   margin: 0;
   padding: 0;
   list-style: none;
-  display: grid;
-  gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
   color: var(--text);
   font-size: 13px;
 }
 
-.mobile-topbar {
-  display: none;
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  padding: 14px 16px 12px;
-  background: color-mix(in srgb, var(--mantle) 96%, transparent);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-}
-
-.mobile-nav {
-  margin-top: 12px;
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
-
-.mobile-nav .nav-link {
-  min-height: 38px;
-  justify-content: center;
-  padding: 0 10px;
-  font-size: 13px;
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
 .workspace {
   min-width: 0;
-  padding: 22px;
+  width: 100%;
+  padding: 24px 22px 0;
 }
 
 .page {
@@ -234,6 +209,10 @@ a {
 
 .hero-block {
   padding: 4px 0 2px;
+}
+
+.home-summary .hero-metrics {
+  width: 100%;
 }
 
 .page-title-lockup {
@@ -260,6 +239,7 @@ a {
 
 h1,
 h2,
+h3,
 p {
   margin: 0;
 }
@@ -382,7 +362,7 @@ h1 {
   margin-bottom: 16px;
 }
 
-.page-header h1 {
+.page-header h2 {
   font-size: 24px;
 }
 
@@ -415,7 +395,7 @@ h1 {
   margin-bottom: 14px;
 }
 
-.panel-head h2 {
+.panel-head h3 {
   font-size: 16px;
   line-height: 1.25;
 }
@@ -708,16 +688,14 @@ h1 {
 }
 
 @media (max-width: 980px) {
-  .app-shell {
-    grid-template-columns: 1fr;
+  .sane-app-header {
+    width: calc(100% - 32px);
+    padding-top: 24px;
+    gap: 18px;
   }
 
-  .sidebar {
-    display: none;
-  }
-
-  .mobile-topbar {
-    display: block;
+  .section-nav .nav-link {
+    flex: 0 0 auto;
   }
 
   .workspace {
@@ -753,24 +731,45 @@ h1 {
 }
 
 .sane-footer {
-  grid-column: 2;
-  width: auto;
-  margin: 0 22px;
+  width: min(1200px, calc(100% - 44px));
+  margin: 0 auto;
 }
 
 @media (max-width: 980px) {
   .sane-footer {
-    grid-column: 1;
-    margin: 0 16px;
+    width: calc(100% - 32px);
+  }
+
+  .principles-note {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .principles-note ul {
+    justify-content: flex-start;
   }
 }
 
 @media (max-width: 700px) {
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+  }
+
+  .brand-name {
+    font-size: 22px;
+  }
+
+  .brand-subtitle {
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
   h1 {
     font-size: 22px;
   }
 
-  .page-header h1 {
+  .page-header h2 {
     font-size: 22px;
   }
 

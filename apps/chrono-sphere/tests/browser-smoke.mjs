@@ -78,6 +78,14 @@ try {
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   assert.equal(await page.locator('.toolbox-nav-theme-sun').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-theme-moon').count(), 1)
+  const compositingState = await page.evaluate(() => ({
+    appTransform: getComputedStyle(document.querySelector('.app-container')).transform,
+    tabsBackdrop: getComputedStyle(document.querySelector('.tabs-container')).backdropFilter,
+    bodyBackgroundAttachment: getComputedStyle(document.body).backgroundAttachment,
+  }))
+  assert.equal(compositingState.appTransform, 'none')
+  assert.equal(compositingState.tabsBackdrop, 'none')
+  assert.equal(compositingState.bodyBackgroundAttachment.includes('fixed'), false)
 
   await page.getByRole('tab', { name: '日期区间计算' }).click()
   const absoluteTime = page.locator('.absolute-time-value')
