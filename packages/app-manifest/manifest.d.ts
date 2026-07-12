@@ -5,6 +5,11 @@ export type LocalizedText = Readonly<{
   en: string
 }>
 
+export type LocalizedKeywords = Readonly<{
+  zh: readonly string[]
+  en: readonly string[]
+}>
+
 export type AppIcon = Readonly<{
   viewBox: string
   svg: string
@@ -17,6 +22,7 @@ export type ToolboxApp = Readonly<{
   name: string
   navLabel: LocalizedText
   description: LocalizedText
+  keywords: LocalizedKeywords
   icon: AppIcon
   status: AppStatus
 }>

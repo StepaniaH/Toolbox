@@ -60,7 +60,7 @@ src/
 └── __tests__/     # unit + render tests (9 files, 59 tests)
 ```
 
-Design spec: [`docs/spec.md`](./docs/spec.md) · Implementation plan: [`docs/plan.md`](./docs/plan.md) · Repository tasks: [`../../docs/TASKS.md`](../../docs/TASKS.md)
+Repository tasks: [`../../docs/TASKS.md`](../../docs/TASKS.md) · Shared design contract: [`../../docs/DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md)
 
 ## Testing
 

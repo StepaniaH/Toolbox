@@ -9,8 +9,8 @@
 :root {
   /* ── Frappé (dark) — default ── */
   --bg-base: #303446;
-  --bg-card: rgba(65, 69, 89, 0.55);
-  --bg-card-strong: rgba(81, 87, 109, 0.78);
+  --bg-card: #414559;
+  --bg-card-strong: #51576d;
   --bg-canvas: #232634;
   --bg-tooltip: #292c3c;
   --bg-input: rgba(35, 38, 52, 0.92);
@@ -84,8 +84,10 @@
   --shadow-card: 0 20px 80px rgba(0, 0, 0, 0.25);
   --shadow-sticky: 0 12px 40px rgba(0, 0, 0, 0.35);
   --gradient-accent: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-  --glass-bg: linear-gradient(145deg, var(--bg-card), rgba(255, 255, 255, 0.04));
-  --glass-bg-strong: linear-gradient(145deg, var(--bg-card-strong), rgba(255, 255, 255, 0.06));
+  /* Legacy variable names retained for selectors; values are intentionally
+     opaque to avoid expensive backdrop compositing around live canvases. */
+  --glass-bg: var(--bg-card);
+  --glass-bg-strong: var(--bg-card-strong);
 }
 
 /* ---------------------------------------------------------------------
@@ -93,10 +95,10 @@
    --------------------------------------------------------------------- */
 [data-theme="light"] {
   --bg-base: #eff1f5;
-  --glass-bg: linear-gradient(145deg, var(--bg-card), rgba(76, 79, 105, 0.04));
-  --glass-bg-strong: linear-gradient(145deg, var(--bg-card-strong), rgba(76, 79, 105, 0.06));
-  --bg-card: rgba(204, 208, 218, 0.55);
-  --bg-card-strong: rgba(188, 192, 204, 0.75);
+  --glass-bg: var(--bg-card);
+  --glass-bg-strong: var(--bg-card-strong);
+  --bg-card: #ccd0da;
+  --bg-card-strong: #bcc0cc;
   --bg-canvas: #e6e9ef;
   --bg-tooltip: #dce0e8;
   --bg-input: rgba(230, 233, 239, 0.92);

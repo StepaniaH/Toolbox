@@ -10,7 +10,7 @@ import {
 } from './manifest.js'
 
 test('manifest ids and paths are unique', () => {
-  assert.equal(TOOLBOX_RELEASE, 'v0.2.3')
+  assert.equal(TOOLBOX_RELEASE, 'v0.2.4')
   assert.equal(new Set(TOOLBOX_APPS.map((app) => app.id)).size, TOOLBOX_APPS.length)
   assert.equal(new Set(TOOLBOX_APPS.map((app) => app.path)).size, TOOLBOX_APPS.length)
 })
@@ -28,6 +28,7 @@ test('new entries default to hidden', () => {
     name: 'Draft Tool',
     navLabel: { zh: '草稿', en: 'Draft' },
     description: { zh: '草稿工具', en: 'Draft tool' },
+    keywords: { zh: ['草稿'], en: ['draft'] },
     icon: { viewBox: '0 0 24 24', svg: '<circle cx="12" cy="12" r="8"/>' },
   })
   assert.equal(app.status, 'hidden')
@@ -45,6 +46,9 @@ test('manifest entries and nested public text are immutable', () => {
   assert.equal(homepage.navId, 'home')
   assert.ok(Object.isFrozen(homepage))
   assert.ok(Object.isFrozen(homepage.description))
+  assert.ok(Object.isFrozen(homepage.keywords))
+  assert.ok(Object.isFrozen(homepage.keywords.zh))
+  assert.ok(TOOLBOX_APPS.every((app) => app.keywords.zh.length > 0 && app.keywords.en.length > 0))
   assert.ok(Object.isFrozen(homepage.icon))
   assert.match(homepage.icon.svg, /<path/)
 })

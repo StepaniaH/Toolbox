@@ -1,8 +1,9 @@
 # Toolbox — 项目全景
 
-> 最后核对：2026-07-11 · 当前生产稳定版本：`v0.1` · 待发布版本：`v0.2`
+> 最后核对：2026-07-12 · 当前生产稳定版本：`v0.2.3` · 当前 dev 候选：`v0.2.4`
 >
-> `main` 是已部署的稳定线；所有日常修改只在 `dev`（或从 `dev` 派生的功能分支）进行。
+> `main` 是已部署的稳定线；`dev` 是审核集成线；新工具只在从 `dev` 派生的
+> `newdev/<tool-id>` 分支实现。
 
 ## 一、项目定位
 
@@ -67,7 +68,7 @@ Toolbox/
 | `@toolbox/i18n` | RateLens、ChronoSphere 直接使用；SaneUnits 有兼容桥 | Homepage 使用 core；Monitor Choice 通过 core adapter 驱动自有翻译表 | 翻译资源与调用方式仍不完全统一 |
 | `@toolbox/nav` | 三个工具直接使用 React 组件 | Homepage 与 Monitor Choice 直接使用 workspace Vanilla 运行时 | React / Vanilla API 仍是两种入口 |
 | `@toolbox/theme` | 三个 React 工具均已消费 v1 runtime 契约 | Homepage 与 Monitor Choice 使用 workspace runtime | 所有页面仍保留 app-specific token 映射，语义 CSS token 需逐个迁移 |
-| `@toolbox/app-manifest` | React Nav 统一消费 stable 目录 | Homepage 与 Vanilla Nav 消费同一目录 | 页面专属图标/长文案仍由应用拥有 |
+| `@toolbox/app-manifest` | React Nav 统一消费 stable 目录 | Homepage 与 Vanilla Nav 消费同一目录 | 名称、描述、图标和双语搜索关键词已集中；页面长文案仍由应用拥有 |
 
 因此，当前是“共享导航/i18n 已部分落地，主题仍主要靠约定保持接近”，而不是完整设计系统。后续要通过版本化契约和自动一致性检查解决，不能只靠继续复制 CSS。
 

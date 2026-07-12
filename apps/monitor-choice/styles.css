@@ -1,6 +1,6 @@
 /* =====================================================================
    monitor-choice — Global Stylesheet
-   Dark glassmorphism theme · vanilla CSS · zero external resources
+   Solid Catppuccin surfaces · vanilla CSS · zero external resources
    ===================================================================== */
 
 @import './css/theme.css';
@@ -102,15 +102,13 @@ button {
 }
 
 /* ---------------------------------------------------------------------
-   Reusable glass card utility (used across tabs)
+   Reusable surface card utility (legacy class name, used across tabs)
    --------------------------------------------------------------------- */
 .glass-card {
   border: 1px solid var(--border);
   background: var(--glass-bg);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
 }
 
 /* ---------------------------------------------------------------------
@@ -124,8 +122,6 @@ button {
   background: var(--glass-bg-strong);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sticky);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   padding: var(--space-lg);
   margin-bottom: var(--space-2xl);
   display: flex;

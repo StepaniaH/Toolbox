@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.2.4 (2026-07-12)
+
+### Fixed
+
+- Removed the repeated SaneUnits application icon from the storage, network, video, power,
+  and about subpage headings while preserving the single canonical icon beside the main
+  SaneUnits title.
+
+### Changed
+
+- Made the Toolbox brand a direct home link with a separate accessible tool-menu trigger;
+  brand, language, and theme hover states now use color without a background selection box.
+- Added localized in-menu tool search backed by canonical manifest names, descriptions, and
+  Chinese/English keywords, including a localized empty state.
+- Replaced Monitor Choice's many live backdrop-blur surfaces with opaque Catppuccin surfaces
+  to reduce GPU compositing work during scrolling and Canvas updates.
+- Rebuilt the new-tool workflow around isolated `newdev/<tool-id>` branches, a repository
+  development skill, explicit handoff cleanup, privacy rules, and single-tool preview commands.
+
+### Quality
+
+- Root browser tests now discover every workspace that provides `test:browser`; new tools no
+  longer require a hard-coded root script update.
+- Contract checks now require the full app script surface and localized search keywords.
+- Added production-browser coverage for Toolbox search and SaneUnits' single-icon hierarchy,
+  plus a build regression check that prevents Monitor Choice backdrop filters returning.
+- Removed obsolete pre-monorepo RateLens planning documents and one-time SaneUnits prototype
+  instructions; retained all active tests.
+
 ## v0.2.3 (2026-07-12)
 
 ### Fixed

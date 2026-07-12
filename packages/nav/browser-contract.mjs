@@ -15,7 +15,7 @@ async function readSharedShell(page) {
   return page.evaluate(() => {
     const nav = document.querySelector('.toolbox-nav')
     const navInner = document.querySelector('.toolbox-nav-inner')
-    const brand = document.querySelector('.toolbox-nav-brand-btn')
+    const brand = document.querySelector('.toolbox-nav-brand-link')
     const footer = document.querySelector('.toolbox-footer')
     const rect = (element) => element?.getBoundingClientRect().toJSON() ?? null
 

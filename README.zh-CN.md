@@ -48,6 +48,10 @@ pnpm test                               # 测试所有工具
 
 完整项目概览见 [`docs/INDEX.md`](./docs/INDEX.md)，架构方向见 [`docs/PLAN.md`](./docs/PLAN.md)，固定发布与回滚流程见 [`docs/RELEASE.md`](./docs/RELEASE.md)，新增工具流程见 [`docs/NEW_TOOL.md`](./docs/NEW_TOOL.md)，开发规范见 [`docs/AGENTS.md`](./docs/AGENTS.md)。
 
+新增工具必须从 `dev` 创建 `newdev/<tool-id>`，并显式使用仓库内
+[`$develop-toolbox-tool`](./.agents/skills/develop-toolbox-tool/SKILL.md)；开发 Agent 不直接修改或
+合并 `dev`/`main`。
+
 ---
 
 ## 许可证

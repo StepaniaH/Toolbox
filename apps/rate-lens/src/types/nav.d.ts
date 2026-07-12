@@ -6,8 +6,12 @@ declare module '@toolbox/nav' {
   export interface NavApp {
     id: string
     label: string
+    labelEn?: string
     href: string
-    description?: string
+    desc: string
+    descEn?: string
+    keywords: readonly string[]
+    keywordsEn?: readonly string[]
   }
   
   export interface NavBarProps {

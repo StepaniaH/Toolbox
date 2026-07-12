@@ -48,6 +48,10 @@ pnpm test                               # test all tools
 
 See [`docs/INDEX.md`](./docs/INDEX.md) for the project overview, [`docs/PLAN.md`](./docs/PLAN.md) for the architecture direction, [`docs/RELEASE.md`](./docs/RELEASE.md) for the fixed release and rollback flow, [`docs/NEW_TOOL.md`](./docs/NEW_TOOL.md) for the new-tool playbook, and [`docs/AGENTS.md`](./docs/AGENTS.md) for development conventions.
 
+Every new tool must start on `newdev/<tool-id>` from `dev` and explicitly use the repository
+[`$develop-toolbox-tool`](./.agents/skills/develop-toolbox-tool/SKILL.md). A development agent
+does not edit or merge `dev`/`main`.
+
 ---
 
 ## License
