@@ -15,8 +15,8 @@ import { setLang, getLang, onChange } from "@toolbox/i18n";
 import { getStableApps } from "@toolbox/app-manifest";
 
 const LANGUAGES = [
-  { code: "zh", zh: "简体中文", en: "Chinese (Simplified)" },
-  { code: "en", zh: "English", en: "English" },
+  { code: "zh", label: "中文（简体）", lang: "zh-CN" },
+  { code: "en", label: "English", lang: "en" },
 ] as const;
 
 function GlobeIcon() {
@@ -244,7 +244,7 @@ export function NavBar({
                     role="menuitemradio"
                     aria-checked={selected}
                     data-lang={language.code}
-                    lang={language.code === "zh" ? "zh-CN" : "en"}
+                    lang={language.lang}
                     className={
                       selected
                         ? "toolbox-nav-language-option is-active"
@@ -255,7 +255,9 @@ export function NavBar({
                       setLanguageOpen(false);
                     }}
                   >
-                    <span>{preferEn ? language.en : language.zh}</span>
+                    <span className="toolbox-nav-language-label">
+                      {language.label}
+                    </span>
                     <span className="toolbox-nav-language-check">
                       {selected ? <CheckIcon /> : null}
                     </span>

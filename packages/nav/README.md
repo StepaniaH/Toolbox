@@ -14,7 +14,7 @@ Both render the same layout:
 ```
 
 - **Left** — `🧰 Toolbox` dropdown. Hover (desktop) or tap (touch) to expand the full tool list with one-line descriptions.
-- **Right** — a language icon that opens an extensible, current-selection menu plus a sun/moon theme action.
+- **Right** — a language icon that opens an extensible, current-selection menu plus a sun/moon theme action. Language choices always use native names (`中文（简体）`, `English`) instead of translating the target language into the current UI language.
 
 The Toolbox dropdown remains the only tool switcher at narrow widths, so mobile users do not see a duplicate hamburger directory.
 

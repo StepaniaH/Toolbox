@@ -6,6 +6,10 @@
 
 - Synchronized `<html lang>` from the shared i18n core on initialization and every language change, fixing RateLens declaring Chinese metadata while rendering English.
 
+### Changed
+
+- Language choices now keep their native names (`中文（简体）`, `English`) in both React and Vanilla navigation, so users can always recognize the language they want to switch to.
+
 ### Quality
 
 - Expanded the shared browser contract so all five applications traverse all four language/theme combinations at both 1440px and 390px, then restore their initial preferences.

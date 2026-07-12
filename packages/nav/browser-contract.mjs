@@ -118,6 +118,12 @@ async function selectLanguage(page, target) {
 
   const menu = page.locator('.toolbox-nav-language-menu')
   await menu.waitFor({ state: 'visible' })
+  const chineseLabel = menu.locator('[data-lang="zh"] .toolbox-nav-language-label')
+  const englishLabel = menu.locator('[data-lang="en"] .toolbox-nav-language-label')
+  assert.equal(await chineseLabel.count(), 1)
+  assert.equal(await englishLabel.count(), 1)
+  assert.equal((await chineseLabel.textContent()).trim(), '中文（简体）')
+  assert.equal((await englishLabel.textContent()).trim(), 'English')
   assert.equal(
     await menu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
     1,
