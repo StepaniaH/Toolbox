@@ -216,7 +216,7 @@ App Surface（工具自己拥有）
 | SaneUnits | 顶部对齐、业务页 card glow、共享标题/图标/页脚已二次收敛，逐页 browser smoke 已落地 | 保持多计算器业务导航特色并防止视觉回退 |
 | Shared shell | 已采用略大的导航、可扩展语言菜单、状态主题图标和单一移动工具入口 | 后续新增语言只扩展菜单数据，不另造控件 |
 | Identity / footer | manifest 图标、RateLens 标题层级和共享页脚骨架已覆盖五个应用 | 新工具必须从首版消费同一事实源 |
-| Visual QA | ChronoSphere、Monitor Choice、RateLens 与 SaneUnits 已有生产 browser smoke；尚无五应用截图矩阵 | CI 生成 smoke 截图并做人工/自动审查 |
+| Visual QA | 五个稳定应用均有生产 browser smoke；Homepage 已覆盖共享壳、卡片和 390px 布局，尚无五应用截图矩阵 | CI 生成 smoke 截图并做人工/自动审查 |
 
 ## 十二、发布前设计检查
 

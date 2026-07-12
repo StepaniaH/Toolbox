@@ -86,7 +86,7 @@ Toolbox/
 |------|------|------|
 | `pnpm build` | 通过 | 5 个 Vite 应用构建成功 |
 | `pnpm test` | 通过 | 966 tests；数量不等同于覆盖率 |
-| `pnpm test:browser` | 通过 | Monitor Choice、RateLens 与 SaneUnits 的生产资源、关键页面、固定网络路径、语言/主题、移动端与 console |
+| `pnpm test:browser` | 通过 | 五个稳定应用均有生产态回归，覆盖共享壳、关键页面/路径、语言/主题、移动端与 console；完整截图矩阵仍待建设 |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 | `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |

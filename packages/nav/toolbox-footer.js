@@ -20,6 +20,13 @@ function link(href, text) {
   return anchor;
 }
 
+function separator() {
+  var node = document.createElement("span");
+  node.setAttribute("aria-hidden", "true");
+  node.textContent = "·";
+  return node;
+}
+
 export function mountToolboxFooter(target, appId) {
   var node = typeof target === "string" ? document.querySelector(target) : target;
   var app = getAppById(appId);
@@ -32,10 +39,12 @@ export function mountToolboxFooter(target, appId) {
   var meta = document.createElement("div");
   meta.className = "toolbox-footer-meta";
   meta.appendChild(link("https://github.com/StepaniaH/Toolbox", "GitHub"));
-  meta.append(" · ");
+  meta.appendChild(separator());
   meta.appendChild(link("https://github.com/StepaniaH/Toolbox/blob/main/LICENSE", "MIT"));
-  meta.append(" · ");
-  meta.append(TOOLBOX_RELEASE);
+  meta.appendChild(separator());
+  var release = document.createElement("span");
+  release.textContent = TOOLBOX_RELEASE;
+  meta.appendChild(release);
   node.replaceChildren(description, meta);
 
   var render = function () {
