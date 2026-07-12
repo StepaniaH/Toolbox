@@ -1,12 +1,12 @@
 {
   "name": "toolbox",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": true,
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
     "test": "turbo test",
-    "test:browser": "pnpm --filter=@toolbox/chrono-sphere --filter=@toolbox/homepage --filter=@toolbox/monitor-choice --filter=@toolbox/rate-lens --filter=@toolbox/sane-units run test:browser",
+    "test:browser": "pnpm -r --if-present run test:browser",
     "check:privacy": "node scripts/check-privacy.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
     "deploy": "bash deploy/deploy.sh",

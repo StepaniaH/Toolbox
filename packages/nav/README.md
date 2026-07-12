@@ -9,14 +9,16 @@ entries from `@toolbox/app-manifest` over the same CSS:
 Both render the same layout:
 
 ```
-[ 🧰 Toolbox ▾ ]                                                 [ ◎ ][ ☾ ]
-|-- single tool menu --|                                | language | theme |
+[ 🧰 Toolbox ][ ▾ ]                                             [ ◎ ][ ☾ ]
+|-- home link --| | tool menu |                       | language | theme |
 ```
 
-- **Left** — `🧰 Toolbox` dropdown. Hover (desktop) or tap (touch) to expand the full tool list with one-line descriptions.
+- **Left** — `🧰 Toolbox` links directly home. The adjacent caret opens the tool menu on
+  touch/keyboard, while hovering the group opens it on desktop. The menu starts with a
+  localized search field backed by manifest labels, descriptions, and keywords.
 - **Right** — a language icon that opens an extensible, current-selection menu plus a sun/moon theme action. Language choices always use native names (`中文（简体）`, `English`) instead of translating the target language into the current UI language.
 
-The Toolbox dropdown remains the only tool switcher at narrow widths, so mobile users do not see a duplicate hamburger directory.
+The Toolbox menu remains the only tool switcher at narrow widths, so mobile users do not see a duplicate hamburger directory.
 
 Language/theme actions intentionally have no background box on pointer hover; hover uses color only. Keyboard `focus-visible` uses a 2px blue outline. `pnpm check:contracts` enforces this behavior and verifies manifest consumption.
 
@@ -36,7 +38,8 @@ surface across all four tools.
 | `sane-units` | SaneUnits | `/sane-units/` | Unit conversion & estimation |
 
 This table is generated in code from `@toolbox/app-manifest`. Add a single
-manifest entry (default `hidden`); do not edit `TOOLS` or `NAV_APPS` manually.
+manifest entry with localized keywords (default `hidden`); do not edit `TOOLS` or
+`NAV_APPS` manually.
 
 ## Setup
 

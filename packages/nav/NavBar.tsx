@@ -10,7 +10,7 @@
 // by default — pass `onToggleTheme` to override. `currentApp` highlights the
 // matching link and should match a `NavApp["id"]` from `NAV_APPS` below.
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { setLang, getLang, onChange } from "@toolbox/i18n";
 import { getStableApps } from "@toolbox/app-manifest";
 
@@ -60,6 +60,8 @@ export type NavApp = {
   href: string;
   desc: string;
   descEn?: string;
+  keywords: readonly string[];
+  keywordsEn?: readonly string[];
 };
 
 /** Navigation projection of the canonical public app manifest. */
@@ -70,6 +72,8 @@ export const NAV_APPS: NavApp[] = getStableApps().map((app) => ({
   href: app.path,
   desc: app.description.zh,
   descEn: app.description.en,
+  keywords: app.keywords.zh,
+  keywordsEn: app.keywords.en,
 }));
 
 /** Resolve `?lang=`-aware label/desc. Apps without an i18n context just get zh. */
@@ -101,8 +105,10 @@ export function NavBar({
   className,
 }: NavBarProps) {
   const rootRef = useRef<HTMLElement | null>(null);
+  const searchRef = useRef<HTMLInputElement | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
+  const [toolQuery, setToolQuery] = useState("");
   const [resolvedLang, setResolvedLang] = useState<"zh" | "en">(
     lang ?? getLang,
   );
@@ -118,6 +124,20 @@ export function NavBar({
   }, [lang]);
 
   const preferEn = resolvedLang === "en";
+  const normalizedQuery = toolQuery.trim().normalize("NFKC").toLocaleLowerCase();
+  const filteredApps = useMemo(
+    () => apps.filter((app) => {
+      if (!normalizedQuery) return true;
+      const keywords = pick(app.keywords, app.keywordsEn, preferEn);
+      const text = [
+        pick(app.label, app.labelEn, preferEn),
+        pick(app.desc, app.descEn, preferEn),
+        ...keywords,
+      ].join(" ").normalize("NFKC").toLocaleLowerCase();
+      return text.includes(normalizedQuery);
+    }),
+    [apps, normalizedQuery, preferEn],
+  );
 
   // Close on outside click or Escape.
   useEffect(() => {
@@ -157,6 +177,8 @@ export function NavBar({
 
   const themeTitle = preferEn ? "Toggle theme" : "切换明暗主题";
   const langTitle = preferEn ? "Choose language" : "选择语言";
+  const toolMenuTitle = preferEn ? "Open tool menu" : "打开工具菜单";
+  const searchTitle = preferEn ? "Search tools" : "搜索工具";
 
   return (
     <header
@@ -167,25 +189,48 @@ export function NavBar({
       <div className="toolbox-nav-inner">
         {/* Left: brand + dropdown */}
         <div className={dropdownOpen ? "toolbox-nav-dropdown is-open" : "toolbox-nav-dropdown"}>
-          <button
-            type="button"
-            className="toolbox-nav-brand-btn"
-            aria-haspopup="true"
-            aria-expanded={dropdownOpen}
-            aria-label="Toolbox"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setLanguageOpen(false);
-              setDropdownOpen((v) => !v);
-            }}
-          >
-            <span className="toolbox-nav-logo" aria-hidden="true">🧰</span>
-            <span className="toolbox-nav-brand-text">Toolbox</span>
-            <span className="toolbox-nav-caret" aria-hidden="true">▾</span>
-          </button>
+          <div className="toolbox-nav-brand-group">
+            <a className="toolbox-nav-brand-link" href="/" aria-label="Toolbox — Home">
+              <span className="toolbox-nav-logo" aria-hidden="true">🧰</span>
+              <span className="toolbox-nav-brand-text">Toolbox</span>
+            </a>
+            <button
+              type="button"
+              className="toolbox-nav-menu-btn"
+              aria-haspopup="true"
+              aria-expanded={dropdownOpen}
+              aria-label={toolMenuTitle}
+              title={toolMenuTitle}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const shouldFocusSearch = !dropdownOpen && event.detail === 0;
+                setLanguageOpen(false);
+                setDropdownOpen((value) => !value);
+                if (shouldFocusSearch) {
+                  window.requestAnimationFrame(() => searchRef.current?.focus());
+                }
+              }}
+            >
+              <span className="toolbox-nav-caret" aria-hidden="true">▾</span>
+            </button>
+          </div>
           <div className="toolbox-nav-dropdown-menu" role="menu">
-            {apps.map((a) => (
+            <label className="toolbox-nav-search">
+              <span className="toolbox-nav-search-icon" aria-hidden="true">⌕</span>
+              <input
+                ref={searchRef}
+                className="toolbox-nav-search-input"
+                type="search"
+                autoComplete="off"
+                spellCheck={false}
+                aria-label={searchTitle}
+                placeholder={preferEn ? "Search tools or tasks…" : "搜索工具或用途…"}
+                value={toolQuery}
+                onChange={(event) => setToolQuery(event.target.value)}
+              />
+            </label>
+            {filteredApps.map((a) => (
               <a
                 key={a.id}
                 href={a.href}
@@ -205,6 +250,11 @@ export function NavBar({
                 </span>
               </a>
             ))}
+            {filteredApps.length === 0 ? (
+              <p className="toolbox-nav-search-empty">
+                {preferEn ? "No matching tools" : "没有匹配的工具"}
+              </p>
+            ) : null}
           </div>
         </div>
 

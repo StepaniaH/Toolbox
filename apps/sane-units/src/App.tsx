@@ -977,14 +977,9 @@ function AboutPage() {
 function PageHeader({ title, description }: any) {
   return (
     <header className="page-header">
-      <div className="page-title-lockup">
-        <span className="page-title-icon toolbox-app-mark">
-          <AppIcon appId="sane-units" />
-        </span>
-        <div>
-          <h2>{title}</h2>
-          <p className="lead compact">{description}</p>
-        </div>
+      <div>
+        <h2>{title}</h2>
+        <p className="lead compact">{description}</p>
       </div>
     </header>
   );

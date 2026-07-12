@@ -89,6 +89,8 @@ try {
   assert.equal(await page.locator('.control-btn, .sidebar-controls, .mobile-controls').count(), 0)
   assert.equal(await page.locator('.sidebar, .mobile-topbar').count(), 0)
   assert.equal(await page.locator('.sane-app-header').isVisible(), true)
+  assert.equal(await page.locator('.sane-app-header .toolbox-app-mark').count(), 1)
+  assert.equal(await page.locator('.page-header .toolbox-app-mark').count(), 0)
   assert.equal(await page.locator('.section-nav').isVisible(), true)
 
   const routeCases = [
@@ -115,6 +117,7 @@ try {
     assert.equal(await link.count(), 1)
     await link.click()
     assert.ok((await page.locator('.page-header h2').textContent()).trim().length > 0)
+    assert.equal(await page.locator('.page-header .toolbox-app-mark').count(), 0)
     assert.equal(await page.locator('.panel').count(), expectedPanels)
   }
 
@@ -168,7 +171,7 @@ try {
   assert.equal(await page.locator('.toolbox-nav-theme').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-lang').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
-  const brandButton = page.locator('.toolbox-nav-brand-btn')
+  const brandButton = page.locator('.toolbox-nav-menu-btn')
   await brandButton.click()
   const toolMenu = page.locator('.toolbox-nav-dropdown-menu')
   await toolMenu.waitFor({ state: 'visible' })

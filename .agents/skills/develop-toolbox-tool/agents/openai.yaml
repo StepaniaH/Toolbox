@@ -1,0 +1,4 @@
+interface:
+  display_name: "Develop Toolbox Tool"
+  short_description: "Build isolated Toolbox apps with shared contracts"
+  default_prompt: "Use $develop-toolbox-tool to create a new isolated Toolbox app from dev."

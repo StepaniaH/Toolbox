@@ -90,6 +90,7 @@ test('built stylesheet bundles every business stylesheet', () => {
   const css = read(`dist/assets/${cssAssets[0]}`)
   assert.doesNotMatch(css, /@import/)
   assert.doesNotMatch(css, /\.\/css\//)
+  assert.doesNotMatch(css, /backdrop-filter/)
   for (const selector of [
     ':root',
     '.sharpness-panel',

@@ -98,6 +98,7 @@ const navInner = ruleBody(navCss, '.toolbox-nav-inner')
 const actionBase = ruleBody(navCss, '.toolbox-nav-icon-btn')
 const actionHover = ruleBody(navCss, '.toolbox-nav-icon-btn:hover')
 const actionFocus = ruleBody(navCss, '.toolbox-nav-icon-btn:focus-visible')
+const brandHover = ruleBody(navCss, '.toolbox-nav-brand-link:hover')
 
 if (
   !navInner ||
@@ -116,6 +117,9 @@ if (!actionBase || /outline\s*:\s*(?:none|0)\b/.test(actionBase)) {
 }
 if (!actionHover || /background(?:-color)?\s*:/.test(actionHover)) {
   fail('nav-hover-contract', 'packages/nav/nav-bar.css', 'hover draws a background box')
+}
+if (!brandHover || /background(?:-color)?\s*:/.test(brandHover)) {
+  fail('nav-brand-hover-contract', 'packages/nav/nav-bar.css', 'Toolbox brand hover draws a background box')
 }
 if (
   !actionFocus ||
@@ -140,6 +144,9 @@ for (const [file, content] of [
   ['packages/nav/nav-bar.js', navVanilla],
 ]) {
   for (const requirement of [
+    'toolbox-nav-brand-link',
+    'toolbox-nav-menu-btn',
+    'toolbox-nav-search-input',
     'toolbox-nav-language-menu',
     'menuitemradio',
     'data-lang',
@@ -156,6 +163,9 @@ for (const [file, content] of [
   if (content.includes('🌓') || content.includes('is-animating')) {
     fail('nav-theme-contract', file, 'uses the legacy rotating emoji theme control')
   }
+}
+if (!navReact.includes('href="/"') || !navVanilla.includes('link("/", "toolbox-nav-brand-link")')) {
+  fail('nav-brand-home-contract', 'packages/nav', 'Toolbox brand must link directly to / in both implementations')
 }
 
 // ── App isolation, package and base-path contract ─────────
@@ -175,6 +185,7 @@ const allowedManifestFields = new Set([
   'name',
   'navLabel',
   'description',
+  'keywords',
   'icon',
   'status',
 ])
@@ -196,6 +207,11 @@ for (const app of TOOLBOX_APPS) {
   }
   if (!app.icon?.viewBox || !app.icon?.svg) {
     fail('app-manifest-contract', 'packages/app-manifest/manifest.js', `${app.id} is missing its canonical icon`)
+  }
+  for (const lang of ['zh', 'en']) {
+    if (!Array.isArray(app.keywords?.[lang]) || app.keywords[lang].length === 0) {
+      fail('app-manifest-contract', 'packages/app-manifest/manifest.js', `${app.id} is missing ${lang} search keywords`)
+    }
   }
 }
 
@@ -252,7 +268,7 @@ for (const appId of appIds) {
   if (manifest.name !== `@toolbox/${appId}`) {
     fail('app-package-contract', packagePath, 'package name must match the app directory')
   }
-  for (const script of ['build', 'test', 'lint']) {
+  for (const script of ['dev', 'build', 'preview', 'test', 'test:browser', 'lint']) {
     if (typeof manifest.scripts?.[script] !== 'string') {
       fail('app-package-contract', packagePath, `missing ${script} script`)
     }

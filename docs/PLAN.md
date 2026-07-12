@@ -99,6 +99,7 @@ type ToolboxApp = {
   path: `/${string}/` | '/'
   name: string
   description: { zh: string; en: string }
+  keywords: { zh: readonly string[]; en: readonly string[] }
   status: 'stable' | 'preview' | 'hidden'
 }
 ```
@@ -154,10 +155,13 @@ type ToolboxApp = {
 
 ### Phase C — 建立“新工具积木”
 
-- 提供 `apps/_template` 或生成器；模板本身作为可构建、可测试的应用维护。
-- 将 [NEW_TOOL.md](./NEW_TOOL.md) 的 checklist 自动化为 `pnpm check:contracts`。
+- 已用根 `AGENTS.md`、`newdev/<tool-id>` 分支契约、[NEW_TOOL.md](./NEW_TOOL.md) 和仓库内
+  `$develop-toolbox-tool` skill 隔离较弱开发模型与 `dev`/`main`。
+- 已将 app scripts、双语搜索关键词与大部分 checklist 自动化为 `pnpm check:contracts`，
+  browser 根命令会自动发现新 workspace。
+- 下一步提供生成器；生成器本身必须可构建、可测试，并先在实验工具分支完整演练。
 - 新工具默认处于 `hidden`，通过自己的测试和全仓门禁后才能变为 `preview` / `stable`。
-- 为 agent / vibe coding 提供固定输入模板：功能目标、输入输出、隐私、边界、验收。
+- Brief 与 `NEW_TOOL_HANDOFF.md` 已固定功能目标、输入输出、隐私、边界、验收和合并清理。
 
 ### Phase D — 版本与发布治理
 

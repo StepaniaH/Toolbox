@@ -194,12 +194,6 @@ a {
   width: 100%;
 }
 
-.page-title-lockup {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
 h1,
 h2,
 h3,

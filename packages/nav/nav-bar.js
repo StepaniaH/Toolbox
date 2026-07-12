@@ -25,7 +25,9 @@ import { getStableApps } from "@toolbox/app-manifest";
       labelEn: app.navLabel.en,
       href: app.path,
       desc: app.description.zh,
-      descEn: app.description.en
+      descEn: app.description.en,
+      keywords: app.keywords.zh,
+      keywordsEn: app.keywords.en
     };
   });
 
@@ -96,6 +98,17 @@ import { getStableApps } from "@toolbox/app-manifest";
 
   function descOf(tool) {
     return currentLang() === ZH ? tool.desc : tool.descEn;
+  }
+
+  function searchTextOf(tool) {
+    var terms = currentLang() === ZH ? tool.keywords : tool.keywordsEn;
+    return [labelOf(tool), descOf(tool)].concat(terms).join(" ")
+      .normalize("NFKC")
+      .toLocaleLowerCase();
+  }
+
+  function normalizeQuery(value) {
+    return value.trim().normalize("NFKC").toLocaleLowerCase();
   }
 
   // Pick the active tool id from the URL path. Matches a tool when its
@@ -184,18 +197,31 @@ import { getStableApps } from "@toolbox/app-manifest";
 
     // ---- Left: brand + dropdown ----
     var dropdown = el("div", "toolbox-nav-dropdown");
-    var brandBtn = el("button", "toolbox-nav-brand-btn");
-    brandBtn.type = "button";
-    brandBtn.setAttribute("aria-haspopup", "true");
-    brandBtn.setAttribute("aria-expanded", "false");
-    brandBtn.setAttribute("aria-label", "Toolbox");
-    brandBtn.appendChild(el("span", "toolbox-nav-logo", "🧰"));
-    brandBtn.appendChild(el("span", "toolbox-nav-brand-text", "Toolbox"));
-    brandBtn.appendChild(el("span", "toolbox-nav-caret", "▾"));
-    dropdown.appendChild(brandBtn);
+    var brandGroup = el("div", "toolbox-nav-brand-group");
+    var brandLink = link("/", "toolbox-nav-brand-link");
+    brandLink.setAttribute("aria-label", "Toolbox — Home");
+    brandLink.appendChild(el("span", "toolbox-nav-logo", "🧰"));
+    brandLink.appendChild(el("span", "toolbox-nav-brand-text", "Toolbox"));
+    brandGroup.appendChild(brandLink);
+    var menuBtn = el("button", "toolbox-nav-menu-btn");
+    menuBtn.type = "button";
+    menuBtn.setAttribute("aria-haspopup", "true");
+    menuBtn.setAttribute("aria-expanded", "false");
+    menuBtn.appendChild(el("span", "toolbox-nav-caret", "▾"));
+    brandGroup.appendChild(menuBtn);
+    dropdown.appendChild(brandGroup);
 
     var menu = el("div", "toolbox-nav-dropdown-menu");
     menu.setAttribute("role", "menu");
+    var search = el("label", "toolbox-nav-search");
+    search.appendChild(el("span", "toolbox-nav-search-icon", "⌕"));
+    var searchInput = el("input", "toolbox-nav-search-input");
+    searchInput.type = "search";
+    searchInput.autocomplete = "off";
+    searchInput.spellcheck = false;
+    search.appendChild(searchInput);
+    menu.appendChild(search);
+    var toolItems = [];
     for (var i = 0; i < TOOLS.length; i++) {
       var t = TOOLS[i];
       var item = link(t.href, "toolbox-nav-dropdown-item");
@@ -207,7 +233,11 @@ import { getStableApps } from "@toolbox/app-manifest";
       item.appendChild(el("span", "toolbox-nav-item-title", labelOf(t)));
       item.appendChild(el("span", "toolbox-nav-item-desc", descOf(t)));
       menu.appendChild(item);
+      toolItems.push(item);
     }
+    var noResults = el("p", "toolbox-nav-search-empty");
+    noResults.hidden = true;
+    menu.appendChild(noResults);
     dropdown.appendChild(menu);
     inner.appendChild(dropdown);
 
@@ -256,7 +286,11 @@ import { getStableApps } from "@toolbox/app-manifest";
     return {
       root: nav,
       dropdown: dropdown,
-      brandBtn: brandBtn,
+      brandLink: brandLink,
+      menuBtn: menuBtn,
+      searchInput: searchInput,
+      toolItems: toolItems,
+      noResults: noResults,
       language: language,
       langBtn: langBtn,
       languageOptions: languageOptions,
@@ -266,7 +300,7 @@ import { getStableApps } from "@toolbox/app-manifest";
 
   function closeAll(refs) {
     refs.dropdown.classList.remove("is-open");
-    refs.brandBtn.setAttribute("aria-expanded", "false");
+    refs.menuBtn.setAttribute("aria-expanded", "false");
     refs.language.classList.remove("is-open");
     refs.langBtn.setAttribute("aria-expanded", "false");
   }
@@ -294,15 +328,38 @@ import { getStableApps } from "@toolbox/app-manifest";
   }
 
   function renderToolLabels(refs) {
-    var desktopItems = refs.root.querySelectorAll(".toolbox-nav-dropdown-item");
+    var menuTitle = currentLang() === ZH ? "打开工具菜单" : "Open tool menu";
+    refs.menuBtn.setAttribute("aria-label", menuTitle);
+    refs.menuBtn.setAttribute("title", menuTitle);
     for (var i = 0; i < TOOLS.length; i++) {
       var tool = TOOLS[i];
-      var desktop = desktopItems[i];
+      var desktop = refs.toolItems[i];
       if (desktop) {
         desktop.querySelector(".toolbox-nav-item-title").textContent = labelOf(tool);
         desktop.querySelector(".toolbox-nav-item-desc").textContent = descOf(tool);
       }
     }
+    refs.searchInput.setAttribute(
+      "placeholder",
+      currentLang() === ZH ? "搜索工具或用途…" : "Search tools or tasks…"
+    );
+    refs.searchInput.setAttribute(
+      "aria-label",
+      currentLang() === ZH ? "搜索工具" : "Search tools"
+    );
+    refs.noResults.textContent = currentLang() === ZH ? "没有匹配的工具" : "No matching tools";
+    applyToolFilter(refs);
+  }
+
+  function applyToolFilter(refs) {
+    var query = normalizeQuery(refs.searchInput.value);
+    var visible = 0;
+    for (var i = 0; i < TOOLS.length; i++) {
+      var matches = !query || searchTextOf(TOOLS[i]).includes(query);
+      refs.toolItems[i].hidden = !matches;
+      if (matches) visible += 1;
+    }
+    refs.noResults.hidden = visible !== 0;
   }
 
   function renderLanguage(refs) {
@@ -322,23 +379,28 @@ import { getStableApps } from "@toolbox/app-manifest";
           }
         };
 
-    // Brand dropdown: click toggles (works for both touch and mouse);
-    // CSS handles hover-reveal on desktop. Click also closes on outside tap.
-    refs.brandBtn.addEventListener("click", function (e) {
+    // The brand itself always returns home. The adjacent caret opens the tool
+    // switcher for touch/keyboard; CSS still provides hover reveal on desktop.
+    refs.menuBtn.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
       var willOpen = !refs.dropdown.classList.contains("is-open");
       refs.language.classList.remove("is-open");
       refs.langBtn.setAttribute("aria-expanded", "false");
       refs.dropdown.classList.toggle("is-open", willOpen);
-      refs.brandBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+      refs.menuBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+      if (willOpen && e.detail === 0) refs.searchInput.focus();
+    });
+
+    refs.searchInput.addEventListener("input", function () {
+      applyToolFilter(refs);
     });
 
     // Close dropdown when a menu item is chosen (touch) or on outside click.
     refs.dropdown.addEventListener("click", function (e) {
       if (e.target.closest(".toolbox-nav-dropdown-item")) {
         refs.dropdown.classList.remove("is-open");
-        refs.brandBtn.setAttribute("aria-expanded", "false");
+        refs.menuBtn.setAttribute("aria-expanded", "false");
       }
     });
 
@@ -348,7 +410,7 @@ import { getStableApps } from "@toolbox/app-manifest";
       e.stopPropagation();
       var willOpen = !refs.language.classList.contains("is-open");
       refs.dropdown.classList.remove("is-open");
-      refs.brandBtn.setAttribute("aria-expanded", "false");
+      refs.menuBtn.setAttribute("aria-expanded", "false");
       refs.language.classList.toggle("is-open", willOpen);
       refs.langBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
     });

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
     "test": "vite build && node --test tests/*.test.mjs",
     "test:browser": "vite build && node tests/browser-smoke.mjs",
     "lint": "oxlint --deny-warnings",

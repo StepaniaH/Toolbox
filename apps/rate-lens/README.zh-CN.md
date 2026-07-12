@@ -60,7 +60,7 @@ src/
 └── __tests__/     # 单元 + 渲染测试（9 文件，59 用例）
 ```
 
-设计规格：[`docs/spec.md`](./docs/spec.md) · 实施计划：[`docs/plan.md`](./docs/plan.md) · 全仓任务：[`../../docs/TASKS.md`](../../docs/TASKS.md)
+全仓任务：[`../../docs/TASKS.md`](../../docs/TASKS.md) · 共享设计契约：[`../../docs/DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md)
 
 ## 测试
 
