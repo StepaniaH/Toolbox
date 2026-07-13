@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { calculateDimensions, isAcceptedImage, outputMime, sanitizeSvg } from "../lib/convert";
+import { calculateDimensions, calculateOutputDimensions, isAcceptedImage, outputMime, sanitizeSvg } from "../lib/convert";
 import type { ConversionSettings } from "../lib/types";
 
 const base: ConversionSettings = {
   format: "webp", quality: .82, resizeMode: "original", scale: 100, maxWidth: 1920, maxHeight: 1080,
-  preventUpscale: true, background: "#fff", keepSmallerOriginal: false, preserveFolders: true,
+  preventUpscale: true, rotation: 0, flipHorizontal: false, flipVertical: false,
+  background: "#fff", keepSmallerOriginal: false, preserveFolders: true,
 };
 
 describe("conversion contracts", () => {
@@ -22,6 +23,13 @@ describe("conversion contracts", () => {
     expect(calculateDimensions(320, 200, { ...base, resizeMode: "fit", maxWidth: 1920, maxHeight: 1080 })).toEqual({ width: 320, height: 200 });
     expect(() => calculateDimensions(20000, 100, base)).toThrow("image-too-large");
     expect(() => calculateDimensions(10000, 10000, base)).toThrow("image-too-large");
+  });
+
+  it("swaps output dimensions only for quarter-turn rotations", () => {
+    expect(calculateOutputDimensions(1200, 800, 0)).toEqual({ width: 1200, height: 800 });
+    expect(calculateOutputDimensions(1200, 800, 90)).toEqual({ width: 800, height: 1200 });
+    expect(calculateOutputDimensions(1200, 800, 180)).toEqual({ width: 1200, height: 800 });
+    expect(calculateOutputDimensions(1200, 800, 270)).toEqual({ width: 800, height: 1200 });
   });
 
   it("maps output formats to browser MIME types", () => {

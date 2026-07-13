@@ -23,7 +23,7 @@ const TOOLS: Record<FileFamily, Tool[]> = {
     { id: "metadata", status: "available", action: "image" },
     { id: "base64", status: "available", action: "base64" },
     { id: "compose", status: "available", action: "gif" },
-    { id: "crop", status: "planned" }, { id: "rotate", status: "planned" },
+    { id: "rotate", status: "available", action: "image" }, { id: "crop", status: "planned" },
     { id: "stitch", status: "planned" }, { id: "favicon", status: "planned" }, { id: "watermark", status: "planned" },
   ],
   gif: [

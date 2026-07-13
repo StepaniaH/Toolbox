@@ -98,9 +98,15 @@ try {
   await page.locator('.home-file-list > div').first().locator('button').first().click()
   assert.match(await page.locator('.file-summary').textContent(), /PNG/)
   assert.equal(await page.locator('.capability.planned').count() > 0, true)
+  const rotateTool = page.locator('.tool-row').filter({ hasText: /Rotate & flip|旋转与翻转/ })
+  assert.match(await rotateTool.textContent(), /Available|可用/)
+  assert.equal(await rotateTool.getByRole('button', { name: /Open tool|打开工具/ }).count(), 1)
   await page.locator('.tool-row').first().getByRole('button', { name: /Open tool|打开工具/ }).click()
   assert.equal(await workspaceTab.getAttribute('aria-selected'), 'true')
   assert.equal(await page.locator('.file-row').count(), 1)
+  await page.waitForFunction(() => document.querySelector('.file-row')?.textContent.includes('2 × 2'))
+  await page.locator('.image-info summary').click()
+  assert.match(await page.locator('.image-info').textContent(), /4 px|4 pixels|4 像素/)
   assert.match(await page.locator('.tab-privacy').textContent(), /Image conversion privacy|图片格式转换隐私说明/)
   const uploadBox = await page.locator('.drop-zone').boundingBox()
   const queueBox = await page.locator('.queue-panel').boundingBox()
@@ -146,6 +152,8 @@ try {
   await page.getByRole('button', { name: /Advanced regex naming|高级正则命名/ }).click()
   await page.getByRole('button', { name: /Clean camera names|整理相机命名/ }).click()
   assert.match(await page.locator('.preview-heading').textContent(), /1 \/ 1/)
+  await page.getByRole('button', { name: '90°' }).click()
+  assert.equal(await page.getByRole('button', { name: '90°' }).getAttribute('aria-pressed'), 'true')
   await page.getByRole('button', { name: /Convert images|开始转换/ }).click()
   await page.locator('.status-badge.done').waitFor()
   assert.equal(await page.locator('.file-output strong').count(), 1)
@@ -171,6 +179,22 @@ try {
   await page.locator('.download-control').getByRole('button', { name: /^Download$|^下载$/ }).click()
   await page.waitForFunction(() => window.__formtranDownloads.length === 2)
   assert.match(await page.evaluate(() => window.__formtranDownloads[1]), /\.zip$/)
+
+  await page.locator('.queue-panel').getByRole('button', { name: /^Clear$|^清空$/ }).click()
+  await page.locator('.drop-zone input[type=file]').first().setInputFiles({
+    name: 'portrait.svg', mimeType: 'image/svg+xml', buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="2" height="3"><rect width="2" height="3" fill="red"/></svg>'),
+  })
+  await page.getByRole('button', { name: /Convert images|开始转换/ }).click()
+  await page.locator('.status-badge.done').waitFor()
+  assert.match(await page.locator('.file-output small').textContent(), /3 × 2/)
+
+  await page.evaluate(() => window.ToolboxTheme.setTheme('light'))
+  const lightSurfaces = await page.evaluate(() => ({
+    panel: getComputedStyle(document.querySelector('.settings-panel')).backgroundColor,
+    muted: getComputedStyle(document.querySelector('.segmented')).backgroundColor,
+  }))
+  assert.notEqual(lightSurfaces.panel, 'rgb(204, 208, 218)')
+  assert.notEqual(lightSurfaces.muted, 'rgb(188, 192, 204)')
 
   await textTab.click()
   assert.match(await page.locator('.tab-privacy').textContent(), /Text and markup privacy|文本与标记转换隐私说明/)

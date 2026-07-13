@@ -19,6 +19,8 @@ The expansion is staged. Image conversion, GIF composition, text/markup conversi
 - Input: up to 500 supported images, 512 MB per file, and 2 GB total per queue.
 - Output: PNG (lossless + transparency), JPEG (lossy, no transparency), or WebP (lossy + transparency).
 - Resize: original dimensions, percentage, or fit within maximum width/height; optional no-upscale protection.
+- Transform: batch rotation at 0°/90°/180°/270° plus horizontal and vertical flips in the final output orientation.
+- Image information: decoded pixel dimensions, pixel count, aspect ratio, browser MIME type, and file size are available from the queue before conversion for safely previewable raster inputs.
 - Folder intake reports every skipped file and reason in an on-demand detail panel instead of silently ignoring it.
 - Naming: clickable token templates or guided regular-expression replacement with presets, capture-group feedback, live per-file matching, padded sequences, portable filename sanitization, and automatic conflict suffixes.
 - Folder uploads can preserve their relative directories inside the ZIP.
@@ -72,6 +74,7 @@ The app works offline once its static assets are available. Unsupported browser 
 - SVG scripts, event handlers, embedded HTML, and external references are removed before decoding; raw SVG is not previewed before sanitization.
 - Output is capped at 16,384 pixels per side and 80 megapixels to reduce browser memory crashes.
 - Actual input decoding support depends on the browser version.
+- A rotated or flipped image is always re-encoded; FormTran never substitutes an unchanged smaller original for a requested transform.
 - GIF composition does not preserve source animation, per-frame transparency, disposal modes, or source-specific timing.
 - Markup conversion covers a practical common subset and is not a full CommonMark, Sphinx, Org Babel, or AsciiDoc processor.
 

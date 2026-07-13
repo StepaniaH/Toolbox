@@ -1,6 +1,7 @@
 export type OutputFormat = "png" | "jpeg" | "webp";
 export type ResizeMode = "original" | "scale" | "fit";
 export type RenameMode = "template" | "regex";
+export type ImageRotation = 0 | 90 | 180 | 270;
 
 export type ConversionSettings = {
   format: OutputFormat;
@@ -10,6 +11,9 @@ export type ConversionSettings = {
   maxWidth: number;
   maxHeight: number;
   preventUpscale: boolean;
+  rotation: ImageRotation;
+  flipHorizontal: boolean;
+  flipVertical: boolean;
   background: string;
   keepSmallerOriginal: boolean;
   preserveFolders: boolean;
@@ -47,6 +51,7 @@ export type QueueItem = {
   outputUrl?: string;
   width?: number;
   height?: number;
+  sourceInfoUnavailable?: boolean;
   outputWidth?: number;
   outputHeight?: number;
   error?: string;
