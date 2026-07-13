@@ -79,6 +79,7 @@ try {
   await homeTab.click()
   assert.equal(await homeTab.getAttribute('aria-selected'), 'true')
   assert.equal(await page.getByRole('heading', { level: 1 }).textContent(), 'FormTran')
+  assert.match(await page.locator('.brand-lockup p').textContent(), /从识别到处理，每一步都留在本机|From identification to processing, every step stays on your device/)
   assert.match(await page.locator('.tab-privacy').textContent(), /File home privacy|文件首页隐私说明/)
   assert.equal(await page.locator('.gif-page').isVisible(), false)
   assert.equal(await page.locator('.text-page').isVisible(), false)

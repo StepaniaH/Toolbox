@@ -25,7 +25,7 @@ Language/theme actions intentionally have no background box on pointer hover; ho
 Tool headers wrap their manifest icon in `.toolbox-app-mark`: a canonical 40px
 square with a 12px radius, 15% accent surface, 24px icon and no border,
 gradient or shadow. The production browser contract checks this geometry and
-surface across all four tools.
+surface across all six tools.
 
 ## Tool list
 
@@ -36,6 +36,7 @@ surface across all four tools.
 | `chrono-sphere` | ChronoSphere | `/chrono-sphere/` | Date & timezone utility |
 | `monitor-choice` | Monitor Choice | `/monitor-choice/` | Display parameter lab |
 | `sane-units` | SaneUnits | `/sane-units/` | Unit conversion & estimation |
+| `image-converter` | FormTran | `/image-converter/` | Local file identification and processing |
 
 This table is generated in code from `@toolbox/app-manifest`. Add a single
 manifest entry with localized keywords (default `hidden`); do not edit `TOOLS` or
@@ -152,7 +153,7 @@ Responsive behavior:
 ### Browser geometry contract
 
 Production browser tests import `@toolbox/nav/browser-contract.mjs` so every
-application verifies the same shell geometry instead of maintaining five
+application verifies the same shell geometry instead of maintaining six
 slightly different assertions. The contract fixes two representative
 viewports:
 

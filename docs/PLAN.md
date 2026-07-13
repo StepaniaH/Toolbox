@@ -67,7 +67,7 @@ main 稳定线
 
 已经成立的基础：
 
-- 五个工具独立构建，根 build/test/lint/browser 自动发现 workspace。
+- 六个工具独立构建，根 build/test/lint/browser 自动发现 workspace。
 - theme/nav/i18n/manifest 已同时覆盖 React 与 Vanilla 工具。
 - 共享导航、双语关键词搜索、canonical icon、页脚和偏好状态已有生产浏览器门禁。
 - privacy/contracts 能检查应用隔离、base/output、受控依赖、storage、网络 allowlist 和脚本面。

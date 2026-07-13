@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.2.5 (2026-07-13)
+
+### Added
+
+- Added FormTran, a browser-local file workspace for file identification, image conversion,
+  GIF composition, text/markup conversion, lightweight PDF inspection, and bounded ZIP
+  listing and extraction.
+- Added FormTran to the canonical navigation, Homepage catalog, and verified production
+  deployment list.
+
+### Changed
+
+- Unified file-selection controls across FormTran's file home, image, GIF, text, PDF, and
+  archive workspaces, including geometry, focus behavior, icons, and accessible names.
+- Refined FormTran's bilingual subtitle to emphasize that every processing step stays on the
+  user's device.
+- Updated the default Vite 6 line from 6.4.2 to the 6.4.3 security patch.
+
+### Security and quality
+
+- Hardened Markdown links, SVG references, ZIP path/header/size/CRC handling, bounded Deflate
+  extraction, and persisted-setting recovery for malformed local values.
+- Verified six production builds, 1,012 tests, zero-warning lint, privacy and application
+  contracts, six browser smoke suites, and a production dependency audit with no known
+  vulnerabilities before promotion.
+
 ## v0.2.4 (2026-07-12)
 
 ### Fixed

@@ -16,6 +16,8 @@ function leaves(value: unknown, prefix = ""): string[] {
 describe("application shell", () => {
   it("keeps Chinese and English translation keys aligned", () => {
     expect(leaves(translations.zh).sort()).toEqual(leaves(translations.en).sort());
+    expect(translations.zh.brand.subtitle).toBe("从识别到处理，每一步都留在本机");
+    expect(translations.en.brand.subtitle).toBe("From identification to processing, every step stays on your device");
   });
 
   it("recovers from corrupt persisted settings and renders one shared shell", () => {

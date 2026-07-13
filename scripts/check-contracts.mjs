@@ -72,6 +72,7 @@ for (const file of workflowFiles) {
 
 const ciWorkflow = read('.github/workflows/ci.yml')
 const deployJob = ciWorkflow.split(/\n  deploy:\s*\n/, 2)[1] ?? ''
+const localDeploy = read('deploy/deploy.sh')
 for (const requirement of [
   "github.event_name == 'workflow_dispatch'",
   "github.ref == 'refs/heads/main'",
@@ -211,6 +212,14 @@ for (const app of TOOLBOX_APPS) {
   for (const lang of ['zh', 'en']) {
     if (!Array.isArray(app.keywords?.[lang]) || app.keywords[lang].length === 0) {
       fail('app-manifest-contract', 'packages/app-manifest/manifest.js', `${app.id} is missing ${lang} search keywords`)
+    }
+  }
+  if (app.status === 'stable' && app.path !== '/') {
+    if (!deployJob.includes(app.id)) {
+      fail('stable-deploy-contract', '.github/workflows/ci.yml', `missing stable app ${app.id}`)
+    }
+    if (!localDeploy.includes(app.id)) {
+      fail('stable-deploy-contract', 'deploy/deploy.sh', `missing stable app ${app.id}`)
     }
   }
 }

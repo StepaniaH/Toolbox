@@ -17,7 +17,7 @@ const extraKnowledgeEn = {
 export const translations: Record<"zh" | "en", Translations> = {
   zh: {
     meta: { title: "FormTran · Toolbox", description: "在浏览器本地识别文件，并使用转换、压缩、编辑、编码、解析和信息查看工具" },
-    brand: { title: "FormTran", subtitle: "先识别文件，再选择工具；所有处理留在本机" },
+    brand: { title: "FormTran", subtitle: "从识别到处理，每一步都留在本机" },
     tabs: { label: "FormTran 功能页面", home: "文件首页", image: "图片格式转换", gif: "GIF 合成", text: "文本与标记转换", pdf: "PDF 工具", archive: "压缩包", knowledge: "知识库" },
     privacy: {
       home: { title: "文件首页隐私说明", detail: "文件首页只在当前浏览器读取分类所需的少量头部字节，不上传、不自动处理，也不保存文件、文件名或识别结果。" },
@@ -140,7 +140,7 @@ export const translations: Record<"zh" | "en", Translations> = {
   },
   en: {
     meta: { title: "FormTran · Toolbox", description: "Identify files and use local conversion, compression, editing, encoding, parsing, and inspection tools" },
-    brand: { title: "FormTran", subtitle: "Identify first, choose a tool, and keep every operation on your device" },
+    brand: { title: "FormTran", subtitle: "From identification to processing, every step stays on your device" },
     tabs: { label: "FormTran pages", home: "File home", image: "Image conversion", gif: "GIF composer", text: "Text & markup", pdf: "PDF tools", archive: "Archives", knowledge: "Knowledge base" },
     privacy: {
       home: { title: "File home privacy", detail: "File home reads only a small local prefix needed for classification. It never uploads, automatically processes, or saves files, filenames, or identification results." },

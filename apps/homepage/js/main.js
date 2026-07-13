@@ -36,6 +36,13 @@ const CARD_PRESENTATION = {
     descKey: "card.sane.desc",
     badges: ["React", "Vite"],
   },
+  "image-converter": {
+    id: "formtran",
+    titleKey: "card.formtran.title",
+    subtitleKey: "card.formtran.subtitle",
+    descKey: "card.formtran.desc",
+    badges: ["React", "TypeScript", "Vite"],
+  },
 };
 
 const tools = getStableApps()
