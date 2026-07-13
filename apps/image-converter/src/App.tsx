@@ -26,7 +26,8 @@ import { createZip } from "./lib/zip";
 const SETTINGS_STORAGE_KEY = "toolbox.image-converter.settings";
 const DEFAULT_SETTINGS: ConversionSettings = {
   format: "webp", quality: 0.82, resizeMode: "original", scale: 100, maxWidth: 1920, maxHeight: 1080,
-  preventUpscale: true, background: "#ffffff", keepSmallerOriginal: true, preserveFolders: true,
+  preventUpscale: true, rotation: 0, flipHorizontal: false, flipVertical: false,
+  background: "#ffffff", keepSmallerOriginal: true, preserveFolders: true,
 };
 const DEFAULT_RENAME: RenameSettings = {
   mode: "template", template: "{name}", pattern: "^IMG_(.*)$", replacement: "photo-$1-{index}",
@@ -80,6 +81,9 @@ function readSettings(): StoredSettings {
         maxWidth: boundedNumber(conversion.maxWidth, DEFAULT_SETTINGS.maxWidth, 1, 16384, true),
         maxHeight: boundedNumber(conversion.maxHeight, DEFAULT_SETTINGS.maxHeight, 1, 16384, true),
         preventUpscale: booleanValue(conversion.preventUpscale, DEFAULT_SETTINGS.preventUpscale),
+        rotation: [0, 90, 180, 270].includes(conversion.rotation as number) ? conversion.rotation as ConversionSettings["rotation"] : DEFAULT_SETTINGS.rotation,
+        flipHorizontal: booleanValue(conversion.flipHorizontal, DEFAULT_SETTINGS.flipHorizontal),
+        flipVertical: booleanValue(conversion.flipVertical, DEFAULT_SETTINGS.flipVertical),
         background: typeof conversion.background === "string" && /^#[0-9a-f]{6}$/i.test(conversion.background) ? conversion.background : DEFAULT_SETTINGS.background,
         keepSmallerOriginal: booleanValue(conversion.keepSmallerOriginal, DEFAULT_SETTINGS.keepSmallerOriginal),
         preserveFolders: booleanValue(conversion.preserveFolders, DEFAULT_SETTINGS.preserveFolders),
@@ -162,6 +166,15 @@ function AppSurface() {
       status: "ready",
     }));
     if (accepted.length) setItems((current) => [...current, ...accepted]);
+  }, []);
+
+  const recordDimensions = useCallback((id: string, width: number, height: number) => {
+    if (!width || !height) return;
+    setItems((current) => updateItem(current, id, { width, height, sourceInfoUnavailable: false }));
+  }, []);
+
+  const recordDimensionFailure = useCallback((id: string) => {
+    setItems((current) => updateItem(current, id, { sourceInfoUnavailable: true }));
   }, []);
 
   const removeItem = (id: string) => {
@@ -287,7 +300,7 @@ function AppSurface() {
                   </div>
                   {!items.length ? <div className="empty-state"><span aria-hidden="true">▧</span><p>{t("queue.emptyCompact")}</p></div> : (
                     <div className="file-list">
-                      {items.map((item) => <FileRow key={item.id} item={item} onRemove={() => removeItem(item.id)} onPreview={() => setPreviewId(item.id)} disabled={running} />)}
+                      {items.map((item) => <FileRow key={item.id} item={item} onDimensions={(width, height) => recordDimensions(item.id, width, height)} onDimensionsUnavailable={() => recordDimensionFailure(item.id)} onRemove={() => removeItem(item.id)} onPreview={() => setPreviewId(item.id)} disabled={running} />)}
                     </div>
                   )}
                 </section>
@@ -364,6 +377,7 @@ function RejectionNotice({ files, onDismiss }: { files: RejectedFile[]; onDismis
 function SettingsPanel({ settings, onChange, onReset }: { settings: ConversionSettings; onChange: (next: ConversionSettings) => void; onReset: () => void }) {
   const { t } = useTranslation();
   const patch = (next: Partial<ConversionSettings>) => onChange({ ...settings, ...next });
+  const hasTransform = settings.rotation !== 0 || settings.flipHorizontal || settings.flipVertical;
   return <section className="panel settings-panel">
     <div className="section-heading"><h2>{t("settings.title")}</h2><button className="text-button" type="button" onClick={onReset}>{t("settings.reset")}</button></div>
     <fieldset><legend>{t("settings.format")}</legend><div className="segmented">
@@ -374,8 +388,9 @@ function SettingsPanel({ settings, onChange, onReset }: { settings: ConversionSe
     {settings.resizeMode === "scale" && <Field label={t("settings.percent")}><input type="number" min="1" max="800" value={settings.scale} onChange={(event) => patch({ scale: clamp(Number(event.target.value), 1, 800) })} /></Field>}
     {settings.resizeMode === "fit" && <div className="field-pair"><Field label={t("settings.maxWidth")}><input type="number" min="1" max="16384" value={settings.maxWidth} onChange={(event) => patch({ maxWidth: clamp(Number(event.target.value), 1, 16384) })} /></Field><Field label={t("settings.maxHeight")}><input type="number" min="1" max="16384" value={settings.maxHeight} onChange={(event) => patch({ maxHeight: clamp(Number(event.target.value), 1, 16384) })} /></Field></div>}
     <label className="check-row"><input type="checkbox" checked={settings.preventUpscale} onChange={(event) => patch({ preventUpscale: event.target.checked })} />{t("settings.noUpscale")}</label>
+    <fieldset className="image-transform"><legend>{t("settings.transform")}</legend><p>{t("settings.transformTip")}</p><div className="transform-controls"><div><span className="field-label">{t("settings.rotation")}</span><div className="segmented rotation-options">{([0, 90, 180, 270] as const).map((rotation) => <button type="button" key={rotation} aria-pressed={settings.rotation === rotation} className={settings.rotation === rotation ? "active" : ""} onClick={() => patch({ rotation })}>{rotation}°</button>)}</div></div><div><span className="field-label">{t("settings.flip")}</span><div className="flip-options"><button type="button" aria-pressed={settings.flipHorizontal} className={settings.flipHorizontal ? "active" : ""} onClick={() => patch({ flipHorizontal: !settings.flipHorizontal })}>{t("settings.flipHorizontal")}</button><button type="button" aria-pressed={settings.flipVertical} className={settings.flipVertical ? "active" : ""} onClick={() => patch({ flipVertical: !settings.flipVertical })}>{t("settings.flipVertical")}</button></div></div></div></fieldset>
     {settings.format === "jpeg" && <Field label={t("settings.background")} tip={t("settings.backgroundTip")}><div className="color-row"><input type="color" value={settings.background} onChange={(event) => patch({ background: event.target.value })} /><input value={settings.background} pattern="#[0-9a-fA-F]{6}" onChange={(event) => /^#[0-9a-fA-F]{6}$/.test(event.target.value) && patch({ background: event.target.value })} /></div></Field>}
-    <label className="check-row"><input type="checkbox" checked={settings.keepSmallerOriginal} onChange={(event) => patch({ keepSmallerOriginal: event.target.checked })} />{t("settings.keepSmaller")}</label>
+    <label className="check-row"><input type="checkbox" checked={settings.keepSmallerOriginal} disabled={hasTransform} onChange={(event) => patch({ keepSmallerOriginal: event.target.checked })} />{t(hasTransform ? "settings.keepSmallerTransform" : "settings.keepSmaller")}</label>
     <label className="check-row"><input type="checkbox" checked={settings.preserveFolders} onChange={(event) => patch({ preserveFolders: event.target.checked })} />{t("settings.preserveFolders")}</label>
   </section>;
 }
@@ -428,14 +443,17 @@ function TokenChips({ onInsert }: { onInsert: (token: string) => void }) {
   return <div className="token-picker"><span>{t("rename.tokens")}</span><div>{RENAME_TOKENS.map((token) => <button type="button" key={token} onClick={() => onInsert(token)} title={t(`rename.token.${token.slice(1, -1)}`)}><code>{token}</code><small>{t(`rename.token.${token.slice(1, -1)}`)}</small></button>)}</div></div>;
 }
 
-function FileRow({ item, onRemove, onPreview, disabled }: { item: QueueItem; onRemove: () => void; onPreview: () => void; disabled: boolean }) {
-  const { t } = useTranslation();
+function FileRow({ item, onDimensions, onDimensionsUnavailable, onRemove, onPreview, disabled }: { item: QueueItem; onDimensions: (width: number, height: number) => void; onDimensionsUnavailable: () => void; onRemove: () => void; onPreview: () => void; disabled: boolean }) {
+  const { lang, t } = useTranslation();
   const extension = getFileExtension(item.file.name);
   const canPreviewSource = extension !== "svg";
   const statusLabel = item.status === "error" ? t("queue.error") : t(`queue.${item.status}`);
+  const dimensions = item.width && item.height ? `${item.width} × ${item.height}` : null;
+  const pixels = item.width && item.height ? new Intl.NumberFormat(lang === "zh" ? "zh-CN" : "en").format(item.width * item.height) : null;
+  const aspect = item.width && item.height ? simplifyRatio(item.width, item.height) : null;
   return <article className={`file-row status-${item.status}`}>
-    <div className="thumbnail">{canPreviewSource ? <img src={item.sourceUrl} alt="" /> : <span>SVG</span>}</div>
-    <div className="file-main"><strong title={item.relativePath}>{item.relativePath}</strong><div className="file-meta"><span>{formatBytes(item.file.size)}</span><span>{item.width ? `${item.width} × ${item.height}` : t("queue.unknownSize")}</span>{extension === "gif" && <span className="warning">{t("queue.firstFrame")}</span>}{extension === "svg" && <span className="warning">{t("queue.svgSafe")}</span>}</div>{item.outputName && <code title={item.outputName}>{item.outputName}</code>}{item.error && <p className="field-error">{item.error}</p>}</div>
+    <div className="thumbnail">{canPreviewSource ? <img src={item.sourceUrl} alt="" onLoad={(event) => onDimensions(event.currentTarget.naturalWidth, event.currentTarget.naturalHeight)} onError={onDimensionsUnavailable} /> : <span>SVG</span>}</div>
+    <div className="file-main"><strong title={item.relativePath}>{item.relativePath}</strong><div className="file-meta"><span>{extension.toUpperCase()}</span><span>{formatBytes(item.file.size)}</span><span>{dimensions ?? t(item.sourceInfoUnavailable || !canPreviewSource ? "queue.sizeUnavailable" : "queue.readingSize")}</span>{extension === "gif" && <span className="warning">{t("queue.firstFrame")}</span>}{extension === "svg" && <span className="warning">{t("queue.svgSafe")}</span>}</div>{dimensions && pixels && aspect && <details className="image-info"><summary>{t("queue.info")}</summary><dl><div><dt>{t("queue.dimensions")}</dt><dd>{dimensions}</dd></div><div><dt>{t("queue.pixels")}</dt><dd>{t("queue.pixelValue", { count: pixels })}</dd></div><div><dt>{t("queue.aspect")}</dt><dd>{aspect}</dd></div><div><dt>{t("queue.mime")}</dt><dd>{item.file.type || t("queue.mimeUnknown")}</dd></div></dl></details>}{item.outputName && <code title={item.outputName}>{item.outputName}</code>}{item.error && <p className="field-error">{item.error}</p>}</div>
     <div className="file-output"><span className={`status-badge ${item.status}`}>{statusLabel}</span>{item.output && <><strong>{formatBytes(item.output.size)}</strong><small>{item.outputWidth} × {item.outputHeight}{item.keptOriginal ? ` · ${t("queue.kept")}` : ""}</small><button className="text-button" type="button" onClick={onPreview}>{t("preview.open")}</button></>}{item.output && item.outputName && <button className="text-button" type="button" onClick={() => triggerDownload(item.output!, item.outputName!.split("/").pop()!)}>{t("queue.download")}</button>}</div>
     <button className="icon-button" type="button" onClick={onRemove} disabled={disabled} aria-label={`${t("queue.remove")} ${item.file.name}`}>×</button>
   </article>;
@@ -526,6 +544,13 @@ function previewOutputPath(item: QueueItem, index: number, settings: ConversionS
   return slash >= 0 ? `${item.relativePath.slice(0, slash + 1)}${filename}` : filename;
 }
 function updateItem(items: QueueItem[], id: string, patch: Partial<QueueItem>): QueueItem[] { return items.map((item) => item.id === id ? { ...item, ...patch } : item); }
+
+function simplifyRatio(width: number, height: number): string {
+  let left = Math.round(width);
+  let right = Math.round(height);
+  while (right) [left, right] = [right, left % right];
+  return `${Math.round(width) / left}:${Math.round(height) / left}`;
+}
 function clamp(value: number, min: number, max: number): number { return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : min; }
 function formatBytes(bytes: number): string { if (bytes < 1024) return `${bytes} B`; const units = ["KB", "MB", "GB"]; let value = bytes / 1024; let unit = units[0]; for (let i = 1; value >= 1024 && i < units.length; i += 1) { value /= 1024; unit = units[i]; } return `${value.toFixed(value >= 10 ? 1 : 2)} ${unit}`; }
 export function App() { return <I18nProvider translations={translations}><AppSurface /></I18nProvider>; }

@@ -31,12 +31,12 @@ describe("application shell", () => {
 
   it("normalizes valid JSON with unsafe persisted setting values", () => {
     localStorage.setItem("toolbox.image-converter.settings", JSON.stringify({
-      conversion: { format: "gif", quality: 9, maxWidth: -5, background: "red", preserveFolders: "yes" },
+      conversion: { format: "gif", quality: 9, maxWidth: -5, rotation: 45, flipHorizontal: "yes", background: "red", preserveFolders: "yes" },
       rename: { mode: "wildcard", pattern: 42, padding: 99 },
     }));
     render(<App />);
     const stored = JSON.parse(localStorage.getItem("toolbox.image-converter.settings") ?? "{}");
-    expect(stored.conversion).toMatchObject({ format: "webp", quality: 1, maxWidth: 1, background: "#ffffff", preserveFolders: true });
+    expect(stored.conversion).toMatchObject({ format: "webp", quality: 1, maxWidth: 1, rotation: 0, flipHorizontal: false, flipVertical: false, background: "#ffffff", preserveFolders: true });
     expect(stored.rename).toMatchObject({ mode: "template", pattern: "^IMG_(.*)$", padding: 8 });
   });
 

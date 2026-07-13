@@ -1,6 +1,6 @@
 # Toolbox — 项目全景
 
-> 最后核对：2026-07-13 · 当前生产稳定版本：`v0.2.3` · 当前 dev 候选：`v0.2.5`
+> 最后核对：2026-07-13 · 当前生产稳定版本：`v0.2.3` · 当前 dev 候选：`v0.2.6`
 >
 > `main` 是已部署的稳定线；`dev` 是审核集成线；新工具只在从 `dev` 派生的
 > `newdev/<tool-id>` 分支实现。
@@ -25,9 +25,9 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 844 |
 | Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 18 |
 | SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 20 |
-| FormTran | `/image-converter/` | React + TypeScript + Vite + Plain CSS | 浏览器本地文件识别、转换与检查工作台 | 46 |
+| FormTran | `/image-converter/` | React + TypeScript + Vite + Plain CSS | 浏览器本地文件识别、转换与检查工作台 | 47 |
 
-测试数量只用于说明覆盖现状，不作为质量本身的替代指标。6 个应用当前有 996 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；完整工作区共运行 1,012 条。`v0.1` 发布时为 910 条。
+测试数量只用于说明覆盖现状，不作为质量本身的替代指标。6 个应用当前有 997 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；完整工作区共运行 1,013 条。`v0.1` 发布时为 910 条。
 
 ## 三、仓库结构
 
@@ -88,7 +88,7 @@ Toolbox/
 | 检查 | 结果 | 备注 |
 |------|------|------|
 | `pnpm build` | 通过 | 6 个 Vite 应用构建成功 |
-| `pnpm test` | 通过 | 1,012 tests；数量不等同于覆盖率 |
+| `pnpm test` | 通过 | 1,013 tests；数量不等同于覆盖率 |
 | `pnpm test:browser` | 通过 | 六个应用均有生产态回归，覆盖共享壳、关键页面/路径、语言/主题、移动端与 console；完整截图矩阵仍待建设 |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |

@@ -10,7 +10,7 @@ import {
 } from './manifest.js'
 
 test('manifest ids and paths are unique', () => {
-  assert.equal(TOOLBOX_RELEASE, 'v0.2.5')
+  assert.equal(TOOLBOX_RELEASE, 'v0.2.6')
   assert.equal(new Set(TOOLBOX_APPS.map((app) => app.id)).size, TOOLBOX_APPS.length)
   assert.equal(new Set(TOOLBOX_APPS.map((app) => app.path)).size, TOOLBOX_APPS.length)
 })

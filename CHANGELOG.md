@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.2.6 (2026-07-13)
+
+### Added
+
+- Added local batch rotation at 0°/90°/180°/270° plus horizontal and vertical flipping to
+  FormTran's image workspace.
+- Added pre-conversion image details for safely previewable raster inputs, including decoded
+  dimensions, pixel count, aspect ratio, browser MIME type, and file size.
+
+### Changed
+
+- Reworked FormTran's light-theme surface mapping so tabs, cards, inputs, secondary actions,
+  notices, and popovers use a brighter hierarchy without changing the shared theme contract.
+- Promoted Rotate & Flip from FormTran's planned file-home actions to an available local tool.
+
+### Security and quality
+
+- Invalid persisted transform values recover to safe defaults, requested transforms always
+  re-encode instead of returning an unchanged original, and production-browser coverage checks
+  a real non-square rotation plus the light-surface regression.
+- Verified six production builds, 1,013 tests, zero-warning lint, privacy and application
+  contracts, and all six production browser suites before pushing the `dev` candidate.
+
 ## v0.2.5 (2026-07-13)
 
 ### Added

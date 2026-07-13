@@ -1,4 +1,4 @@
-import type { ConversionSettings, OutputFormat } from "./types";
+import type { ConversionSettings, ImageRotation, OutputFormat } from "./types";
 
 export const ACCEPTED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif", "bmp", "avif", "svg"] as const;
 export const ACCEPT_ATTRIBUTE = ACCEPTED_EXTENSIONS.map((extension) => `.${extension}`).join(",");
@@ -51,6 +51,10 @@ export function calculateDimensions(
     throw new Error("image-too-large");
   }
   return { width: nextWidth, height: nextHeight };
+}
+
+export function calculateOutputDimensions(width: number, height: number, rotation: ImageRotation): { width: number; height: number } {
+  return rotation === 90 || rotation === 270 ? { width: height, height: width } : { width, height };
 }
 
 export function sanitizeSvg(source: string): string {
@@ -118,9 +122,10 @@ export async function convertImage(file: File, settings: ConversionSettings): Pr
   const decoded = await decode(sourceBlob);
   try {
     const dimensions = calculateDimensions(decoded.width, decoded.height, settings);
+    const outputDimensions = calculateOutputDimensions(dimensions.width, dimensions.height, settings.rotation);
     const canvas = document.createElement("canvas");
-    canvas.width = dimensions.width;
-    canvas.height = dimensions.height;
+    canvas.width = outputDimensions.width;
+    canvas.height = outputDimensions.height;
     const context = canvas.getContext("2d", { alpha: settings.format !== "jpeg" });
     if (!context) throw new Error("canvas-unavailable");
     if (settings.format === "jpeg") {
@@ -129,19 +134,25 @@ export async function convertImage(file: File, settings: ConversionSettings): Pr
     }
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = "high";
-    context.drawImage(decoded.drawable, 0, 0, dimensions.width, dimensions.height);
+    context.translate(canvas.width / 2, canvas.height / 2);
+    context.scale(settings.flipHorizontal ? -1 : 1, settings.flipVertical ? -1 : 1);
+    context.rotate(settings.rotation * Math.PI / 180);
+    context.drawImage(decoded.drawable, -dimensions.width / 2, -dimensions.height / 2, dimensions.width, dimensions.height);
     const encoded = await canvasToBlob(canvas, outputMime(settings.format), settings.quality);
     const canKeep = settings.keepSmallerOriginal
       && sourceBlob.type === outputMime(settings.format)
       && dimensions.width === decoded.width
       && dimensions.height === decoded.height
+      && settings.rotation === 0
+      && !settings.flipHorizontal
+      && !settings.flipVertical
       && sourceBlob.size < encoded.size;
     return {
       blob: canKeep ? sourceBlob : encoded,
       sourceWidth: decoded.width,
       sourceHeight: decoded.height,
-      outputWidth: dimensions.width,
-      outputHeight: dimensions.height,
+      outputWidth: outputDimensions.width,
+      outputHeight: outputDimensions.height,
       keptOriginal: canKeep,
     };
   } finally {
