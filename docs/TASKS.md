@@ -111,13 +111,13 @@
 
 ### P2.3 · 语义 token 收敛 `🔄 进行中`
 
-- [x] 五个应用直接消费 `@toolbox/theme` runtime；SaneUnits 已完成代表性语义 token 迁移。
+- [x] 六个应用直接消费 `@toolbox/theme` runtime；SaneUnits 已完成代表性语义 token 迁移。
 - [ ] 逐个迁移 Homepage、Monitor Choice、ChronoSphere、RateLens 的 app-specific token 映射。
 - [ ] 删除各应用重复主题解析和 pre-paint 片段，只保留必要兼容 fallback。
 
 ### P2.4 · 视觉回归基线 `🔄 进行中`
 
-- [x] 五应用 production smoke 覆盖 1440/390px、zh/en、light/dark、代表业务页、共享壳与溢出。
+- [x] 六应用 production smoke 覆盖 1440/390px、zh/en、light/dark、代表业务页、共享壳与溢出。
 - [ ] 生成并人工审核固定数据截图，再决定像素 diff 阈值。
 - [ ] 截图只保存有意义差异，不包含本地路径、个人数据或动态第三方响应。
 

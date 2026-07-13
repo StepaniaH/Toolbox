@@ -64,19 +64,20 @@ acceptance:
 
 ## Verification results
 
-- `node_modules/.bin/vite build` — passed; latest measured production JS 356.83 kB / 114.12 kB gzip, CSS 69.21 kB / 12.23 kB gzip.
+- `node_modules/.bin/vite build` — passed; latest measured production JS 356.14 kB / 113.86 kB gzip, CSS 69.21 kB / 12.23 kB gzip.
 - `node_modules/.bin/vitest run` — passed, 11 files / 46 tests, including unified file pickers, persisted-setting normalization, unsafe markup/SVG rejection, duplicate ZIP paths, bounded stream extraction, and the existing file-workbench flows.
 - `node_modules/.bin/tsc -b` — passed after tightening the existing GIF Blob and markup fence types.
 - `node_modules/.bin/oxlint --deny-warnings src tests` — passed, 0 warnings.
 - `node tests/browser-smoke.mjs` — passed with equal-height file pickers across six processing tabs, XLSX non-archive routing, PDF/archive controls across light/dark and zh/en, exact text editor top alignment, five-category knowledge comparisons, mobile overflow checks, and real image/GIF conversion coverage.
-- `node scripts/check-privacy.mjs` — passed for 288 tracked or unignored files at the latest check.
+- `node scripts/check-privacy.mjs` — passed for 289 tracked or unignored files at the latest check.
 - `node scripts/check-contracts.mjs` — passed for 6 apps.
 - `pnpm build` — passed, 6 app builds.
-- `pnpm test` — passed, 986 tests across the workspace after this candidate.
+- `pnpm test` — passed, 1,012 tests across the workspace after this candidate.
 - `pnpm lint` — passed, 0 warnings.
 - `pnpm test:browser` — passed for all 6 application suites.
+- `pnpm audit --prod --audit-level high` — initially found the default Vite 6.4.2 Windows dev-server path-bypass advisory; the default catalog was upgraded separately to 6.4.3 and the rerun reported no known vulnerabilities.
 - `git diff --check` — passed.
-- Current workspace aggregate rerun was attempted twice, but the managed `pnpm` launcher tried to revalidate/download already-installed packages and could not reach the registry. The current app, manifest, privacy, and contract checks were therefore rerun directly and passed; the last complete 6-app workspace gates above remain the baseline.
+- The managed `pnpm` launcher attempted an extra registry revalidation before workspace scripts, so the same locked package build/test/lint targets were also executed directly. All six builds, 1,012 tests, zero-warning lint targets, six production browser suites, privacy, and contract checks passed after the Vite patch.
 
 ## Visual matrix
 
