@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildOutputName, makeUniquePath, sanitizeFilename, splitFilename, validateRename } from "../lib/rename";
+import { buildOutputName, insertToken, inspectRegexMatch, makeUniquePath, sanitizeFilename, splitFilename, validateRename } from "../lib/rename";
 import type { RenameSettings } from "../lib/types";
 
 const template: RenameSettings = {
@@ -26,6 +26,24 @@ describe("filename generation", () => {
   it("reports invalid expressions without throwing", () => {
     expect(validateRename({ ...template, mode: "regex", pattern: "[", replacement: "x" })).toBe("invalid-regex");
     expect(validateRename({ ...template, template: "" })).toBe("empty-template");
+  });
+
+  it("inserts variable chips at the current selection", () => {
+    expect(insertToken("photo--final", "{index}", 6, 6)).toBe("photo-{index}-final");
+    expect(insertToken("photo", "{format}")).toBe("photo{format}");
+  });
+
+  it("keeps the filename preview available while a regex is incomplete", () => {
+    expect(buildOutputName(
+      { filename: "IMG_sample.png", index: 1, format: "webp" },
+      { ...template, mode: "regex", pattern: "(" },
+    )).toBe("IMG_sample.webp");
+  });
+
+  it("reports regex match state and capture groups for visual feedback", () => {
+    const regex: RenameSettings = { ...template, mode: "regex", pattern: "^IMG_(.+)-(\\d+)$", replacement: "$1" };
+    expect(inspectRegexMatch("IMG_trip-42.jpg", regex)).toEqual({ matched: true, groups: ["trip", "42"] });
+    expect(inspectRegexMatch("cover.jpg", regex)).toEqual({ matched: false, groups: [] });
   });
 
   it("sanitizes portable filenames and resolves case-insensitive conflicts", () => {

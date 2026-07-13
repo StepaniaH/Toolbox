@@ -1,5 +1,5 @@
 import React from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "../App";
 import { translations } from "../i18n";
@@ -24,5 +24,15 @@ describe("application shell", () => {
     expect(container.querySelectorAll(".toolbox-nav")).toHaveLength(1);
     expect(container.querySelectorAll(".toolbox-footer")).toHaveLength(1);
     expect((screen.getByRole("button", { name: /Convert images|开始转换/ }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("exposes the workspace and knowledge base as accessible tabs", () => {
+    render(<App />);
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs).toHaveLength(2);
+    expect(tabs[0].getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(tabs[1]);
+    expect(tabs[1].getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tabpanel").id).toBe("panel-knowledge");
   });
 });

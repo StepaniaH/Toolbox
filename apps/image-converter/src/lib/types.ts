@@ -27,6 +27,14 @@ export type RenameSettings = {
 };
 
 export type QueueStatus = "ready" | "converting" | "done" | "error";
+export type RejectReason = "unsupported" | "empty" | "too-large" | "duplicate" | "max-files" | "total-size";
+
+export type RejectedFile = {
+  name: string;
+  relativePath: string;
+  size: number;
+  reason: RejectReason;
+};
 
 export type QueueItem = {
   id: string;

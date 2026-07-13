@@ -15,6 +15,8 @@ acceptance:
   - 模板与正则命名提供实时预览、捕获组、序号、变量、文件夹保留和重名消解。
   - 完成项可单独下载或生成保留 UTF-8 文件名的 ZIP。
   - 中英文、明暗主题、桌面/移动端、键盘焦点和悬浮知识说明可用。
+  - 未加入文件可查看逐项原因；转换结果有前后对比图库；命名变量可点击插入。
+  - 正则命名提供三步引导、常用预设、命中状态和捕获组反馈；知识库位于独立 Tab。
   - 隐私/契约、单工具与全仓质量门禁通过，manifest 保持 hidden。
 ---
 
@@ -25,6 +27,7 @@ acceptance:
 - New isolated React + TypeScript + Vite app under `apps/image-converter/`.
 - One hidden canonical identity entry in `packages/app-manifest/manifest.js`.
 - `docs/PLAN.md` records the requested future browser-local converter family; `docs/TASKS.md` tracks this candidate.
+- Text and markup conversion is planned as a separate local-first app so image conversion does not absorb document parsing and round-trip syntax concerns.
 - Core conversion, rename, dimension, SVG sanitization, and store-only ZIP code remain app-local. No shared package API changed.
 
 ## Data-flow audit
@@ -37,14 +40,14 @@ acceptance:
 
 ## Verification results
 
-- `pnpm --filter=@toolbox/image-converter build` — passed; production JS 239.32 kB / 77.00 kB gzip, CSS 27.81 kB / 5.93 kB gzip.
-- `pnpm --filter=@toolbox/image-converter test` — passed, 4 files / 14 tests.
+- `pnpm --filter=@toolbox/image-converter build` — passed; production JS 260.02 kB / 83.44 kB gzip, CSS 38.50 kB / 7.50 kB gzip.
+- `pnpm --filter=@toolbox/image-converter test` — passed, 5 files / 20 tests.
 - `pnpm --filter=@toolbox/image-converter lint` — passed, 0 warnings.
-- `pnpm --filter=@toolbox/image-converter test:browser` — passed with a real PNG → WebP conversion.
-- `pnpm check:privacy` — passed for 267 tracked or unignored files at the time of the check.
+- `pnpm --filter=@toolbox/image-converter test:browser` — passed with mixed-file rejection details, token insertion, regex presets, a real PNG → WebP conversion, result gallery, comparison dialog, and knowledge tabs.
+- `pnpm check:privacy` — passed for 269 tracked or unignored files at the time of the check.
 - `pnpm check:contracts` — passed for 6 apps.
 - `pnpm build` — passed, 6 app builds.
-- `pnpm test` — passed, 980 tests across the workspace after this candidate.
+- `pnpm test` — passed, 986 tests across the workspace after this candidate.
 - `pnpm lint` — passed, 0 warnings.
 - `pnpm test:browser` — passed for all 6 application suites.
 - `git diff --check` — passed.
@@ -52,7 +55,7 @@ acceptance:
 ## Visual matrix
 
 - Automated: light/dark × zh/en at 1440 × 1100 and 390 × 844; shared shell, canonical mark, focusable controls, overflow, console/page/request failures, and real conversion covered.
-- Manual: English/light desktop with two queued images and English/light mobile with one queued image inspected; information hierarchy, controls, queue, knowledge cards, footer, and responsive stacking were readable with no overlap after the queue action-bar correction.
+- Manual: English/light desktop workspace and knowledge views plus the 390 × 844 mobile workspace were inspected after this refinement; tabs, upload panel, settings, token controls, knowledge cards/table, queue, action bar, and footer remained readable without horizontal overflow or overlap.
 - Temporary screenshots were written outside the repository and were not retained as candidate files.
 
 ## Known limits and integration cleanup

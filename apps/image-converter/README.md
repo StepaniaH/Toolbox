@@ -1,14 +1,17 @@
 # Image Converter
 
-A private, browser-only image conversion workspace for individual files and folders. It converts browser-decodable JPEG, PNG, WebP, GIF, BMP, AVIF, and sanitized SVG sources to PNG, JPEG, or WebP, with resize, quality, transparency background, preview, batch rename, conflict handling, individual downloads, and ZIP export.
+A private, browser-only image conversion workspace for individual files and folders. It converts browser-decodable JPEG, PNG, WebP, GIF, BMP, AVIF, and sanitized SVG sources to PNG, JPEG, or WebP, with resize, quality, transparency background, before/after previews, guided batch rename, conflict handling, individual downloads, and ZIP export.
 
 ## Input and output
 
 - Input: up to 500 supported images, 512 MB per file, and 2 GB total per queue.
 - Output: PNG (lossless + transparency), JPEG (lossy, no transparency), or WebP (lossy + transparency).
 - Resize: original dimensions, percentage, or fit within maximum width/height; optional no-upscale protection.
-- Naming: token templates or regular-expression replacement with capture groups, live preview, padded sequences, portable filename sanitization, and automatic conflict suffixes.
+- Folder intake reports every skipped file and reason in an on-demand detail panel instead of silently ignoring it.
+- Naming: clickable token templates or guided regular-expression replacement with presets, capture-group feedback, live per-file matching, padded sequences, portable filename sanitization, and automatic conflict suffixes.
 - Folder uploads can preserve their relative directories inside the ZIP.
+- Converted results appear in a gallery and open in a keyboard-navigable before/after viewer.
+- A separate Knowledge Base tab includes a purpose guide, seven format references, a capability table, and conversion boundaries.
 
 ## Privacy and network behavior
 

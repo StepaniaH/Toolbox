@@ -31,6 +31,23 @@ export function validateRename(settings: RenameSettings): string | null {
   return null;
 }
 
+export function insertToken(value: string, token: string, start = value.length, end = start): string {
+  const safeStart = Math.max(0, Math.min(value.length, start));
+  const safeEnd = Math.max(safeStart, Math.min(value.length, end));
+  return `${value.slice(0, safeStart)}${token}${value.slice(safeEnd)}`;
+}
+
+export function inspectRegexMatch(filename: string, settings: RenameSettings): { matched: boolean; groups: string[] } {
+  if (settings.mode !== "regex") return { matched: true, groups: [] };
+  try {
+    const regex = compileRenameRegex(settings);
+    const match = regex?.exec(splitFilename(filename).stem);
+    return { matched: Boolean(match), groups: match ? match.slice(1).map((value) => value ?? "") : [] };
+  } catch {
+    return { matched: false, groups: [] };
+  }
+}
+
 type RenameContext = {
   filename: string;
   index: number;
@@ -70,8 +87,13 @@ export function buildOutputName(
   let stem: string;
   if (settings.mode === "regex") {
     const sourceStem = splitFilename(context.filename).stem;
-    const regex = compileRenameRegex(settings);
-    stem = regex ? sourceStem.replace(regex, settings.replacement) : sourceStem;
+    try {
+      const regex = compileRenameRegex(settings);
+      stem = regex ? sourceStem.replace(regex, settings.replacement) : sourceStem;
+    } catch {
+      // Keep previews usable while the user is still composing a regular expression.
+      stem = sourceStem;
+    }
     stem = applyTokens(stem, tokenContext, sequence);
   } else {
     stem = applyTokens(settings.template, tokenContext, sequence);

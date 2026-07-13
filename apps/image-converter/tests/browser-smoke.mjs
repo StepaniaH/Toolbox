@@ -55,14 +55,46 @@ try {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
   })
 
+  const workspaceTab = page.getByRole('tab', { name: /Conversion workspace|转换工作台/ })
+  const knowledgeTab = page.getByRole('tab', { name: /Knowledge base|知识库/ })
+  assert.equal(await workspaceTab.getAttribute('aria-selected'), 'true')
+  await knowledgeTab.click()
+  assert.equal(await knowledgeTab.getAttribute('aria-selected'), 'true')
+  assert.equal(await page.locator('.format-cards article').count(), 7)
+  assert.equal(await page.locator('.comparison table').isVisible(), true)
+  await knowledgeTab.press('ArrowLeft')
+  assert.equal(await workspaceTab.getAttribute('aria-selected'), 'true')
+
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAD0lEQVR42mNkYPj/n4GBgQEABgAB/oc6WQAAAABJRU5ErkJggg==', 'base64')
-  await page.locator('input[type=file]').first().setInputFiles({ name: 'IMG_sample.png', mimeType: 'image/png', buffer: png })
+  // The pure selection suite covers relative folder paths; here a mixed multi-file
+  // selection exercises the same rejection UI without creating fixture files.
+  await page.locator('input[type=file]').first().setInputFiles([
+    { name: 'IMG_sample.png', mimeType: 'image/png', buffer: png },
+    { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('not an image') },
+  ])
   assert.equal(await page.locator('.file-row').count(), 1)
+  const rejectedSummary = page.locator('.rejection-summary')
+  assert.equal(await rejectedSummary.isVisible(), true)
+  await rejectedSummary.focus()
+  assert.match(await page.locator('.rejection-popover').textContent(), /notes\.txt/)
+  assert.match(await page.locator('.rejection-popover').textContent(), /Unsupported|不支持/)
   assert.match(await page.locator('.rename-preview code').textContent(), /IMG_sample\.webp/)
+  await page.getByRole('button', { name: /Padded sequence|补零序号/ }).click()
+  assert.match(await page.locator('.rename-panel input').first().inputValue(), /\{index\}/)
+  await page.getByRole('button', { name: /Regex replace|正则替换/ }).click()
+  await page.getByRole('button', { name: /Clean camera names|整理相机命名/ }).click()
+  assert.match(await page.locator('.preview-heading').textContent(), /1 \/ 1/)
   await page.getByRole('button', { name: /Convert images|开始转换/ }).click()
   await page.locator('.status-badge.done').waitFor()
   assert.equal(await page.locator('.file-output strong').count(), 1)
   assert.equal(await page.locator('.file-row img').count() > 0, true)
+  assert.equal(await page.locator('.result-gallery button').count(), 1)
+  await page.locator('.result-gallery button').click()
+  const dialog = page.getByRole('dialog')
+  assert.equal(await dialog.isVisible(), true)
+  assert.equal(await dialog.locator('.compare-grid figure').count(), 2)
+  await page.keyboard.press('Escape')
+  assert.equal(await dialog.count(), 0)
   assert.equal(await page.getByRole('button', { name: /Download ZIP|下载 ZIP/ }).isEnabled(), true)
 
   await page.setViewportSize({ width: 390, height: 844 })
