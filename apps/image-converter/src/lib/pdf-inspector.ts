@@ -32,7 +32,6 @@ export async function inspectPdf(file: Blob): Promise<PdfInspection> {
     mediaBox: Number.isFinite(width) && Number.isFinite(height) ? [width, height] : undefined,
   };
 }
-
 function readBlob(blob: Blob): Promise<ArrayBuffer> {
   if (typeof blob.arrayBuffer === "function") return blob.arrayBuffer();
   return new Promise((resolve, reject) => {
@@ -40,4 +39,3 @@ function readBlob(blob: Blob): Promise<ArrayBuffer> {
     reader.onerror = () => reject(reader.error ?? new Error("blob-read-failed")); reader.readAsArrayBuffer(blob);
   });
 }
-

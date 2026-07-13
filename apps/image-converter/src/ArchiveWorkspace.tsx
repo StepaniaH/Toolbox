@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { useTranslation } from "@toolbox/i18n/react";
+import { FilePicker } from "./FilePicker";
 import { triggerDownload } from "./lib/download";
 import { createZip } from "./lib/zip";
 import { extractZipEntry, readZipDirectory, type ZipDirectory } from "./lib/zip-reader";
@@ -29,14 +30,17 @@ export function ArchiveWorkspace({ hidden, incoming }: { hidden?: boolean; incom
     if (!file || !directory || !selected.size) return;
     setBusy(true); setError(null);
     try {
-      const entries = await Promise.all(directory.entries.filter((item) => selected.has(item.id)).map(async (item) => ({ name: item.name, blob: await extractZipEntry(file, item) })));
+      const entries: Array<{ name: string; blob: Blob }> = [];
+      for (const item of directory.entries.filter((entry) => selected.has(entry.id))) {
+        entries.push({ name: item.name, blob: await extractZipEntry(file, item) });
+      }
       if (entries.length === 1) triggerDownload(entries[0].blob, entries[0].name.split("/").pop() || "extracted-file");
       else triggerDownload(await createZip(entries), `${file.name.replace(/\.zip$/i, "")}-selected.zip`);
     } catch (reason) { const key = reason instanceof Error ? reason.message : "unknown"; setError(t(`archive.errors.${key}`)); }
     finally { setBusy(false); }
   };
   return <section className="family-page" role="tabpanel" id="panel-archive" aria-labelledby="tab-archive" hidden={hidden}>
-    <header className="family-header"><div><span className="eyebrow">ARCHIVE WORKSPACE</span><h2>{t("archive.title")}</h2><p>{t("archive.intro")}</p></div><div className="family-actions"><label className="family-upload"><span aria-hidden="true">＋</span><strong>{t("archive.open")}</strong><input type="file" accept=".zip,application/zip" onChange={onInput}/></label>{file && <button className="family-clear" type="button" onClick={clear}><span aria-hidden="true">×</span>{t("archive.clear")}</button>}</div></header>
+    <header className="family-header"><div><span className="eyebrow">ARCHIVE WORKSPACE</span><h2>{t("archive.title")}</h2><p>{t("archive.intro")}</p></div><div className="family-actions"><FilePicker label={t("archive.open")} accept=".zip,application/zip" onChange={onInput}/>{file && <button className="button secondary" type="button" onClick={clear}>{t("archive.clear")}</button>}</div></header>
     {!file ? <div className="family-empty"><span>ZIP</span><h3>{t("archive.emptyTitle")}</h3><p>{t("archive.emptyDetail")}</p></div> : <div className="archive-workbench">
       <header className="archive-summary"><div><span className="family-dot family-archive"/><strong>{file.name}</strong><small>{directory ? t("archive.entryCount", { count: directory.entries.length }) : t("archive.reading")}</small></div>{directory && <div className="section-actions"><button className="text-button" type="button" onClick={toggleAll}>{t(selected.size === safeEntries.length && safeEntries.length ? "archive.deselectAll" : "archive.selectAll")}</button><button className="button secondary" type="button" disabled={!selected.size || busy} onClick={() => void extract()}>{t("archive.extract", { count: selected.size })}</button></div>}</header>
       {error && <p className="field-error" role="alert">{error}</p>}

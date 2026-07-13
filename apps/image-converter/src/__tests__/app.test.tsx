@@ -27,6 +27,30 @@ describe("application shell", () => {
     expect(screen.getByRole("heading", { name: /Drop a file|把文件拖进来/ })).toBeTruthy();
   });
 
+  it("normalizes valid JSON with unsafe persisted setting values", () => {
+    localStorage.setItem("toolbox.image-converter.settings", JSON.stringify({
+      conversion: { format: "gif", quality: 9, maxWidth: -5, background: "red", preserveFolders: "yes" },
+      rename: { mode: "wildcard", pattern: 42, padding: 99 },
+    }));
+    render(<App />);
+    const stored = JSON.parse(localStorage.getItem("toolbox.image-converter.settings") ?? "{}");
+    expect(stored.conversion).toMatchObject({ format: "webp", quality: 1, maxWidth: 1, background: "#ffffff", preserveFolders: true });
+    expect(stored.rename).toMatchObject({ mode: "template", pattern: "^IMG_(.*)$", padding: 8 });
+  });
+
+  it("uses one accessible file-picker contract in every workspace", () => {
+    const { container } = render(<App />);
+    fireEvent.click(screen.getAllByRole("tab")[1]);
+    expect(container.querySelectorAll('input[type="file"]').length).toBeGreaterThan(0);
+    expect(container.querySelectorAll('.file-picker input[type="file"]')).toHaveLength(container.querySelectorAll('input[type="file"]').length);
+    expect(container.querySelectorAll(".family-upload")).toHaveLength(0);
+    for (const picker of container.querySelectorAll(".file-picker")) {
+      expect(picker.classList.contains("button")).toBe(true);
+      expect(picker.querySelector(".file-picker-icon")).toBeTruthy();
+      expect(picker.querySelector("input")?.getAttribute("aria-label")).toBeTruthy();
+    }
+  });
+
   it("exposes automatic routing plus manual family workspaces", () => {
     render(<App />);
     const tabs = screen.getAllByRole("tab");

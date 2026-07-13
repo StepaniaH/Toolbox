@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import { useTranslation } from "@toolbox/i18n/react";
+import { FilePicker } from "./FilePicker";
 import {
   FILE_HOME_MAX_FILES, FILE_HOME_MAX_TOTAL_BYTES, identifyFile,
   type FileFamily, type IdentifiedFile,
@@ -130,7 +131,7 @@ export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText, onOpenPdf
   return <section className="file-home" role="tabpanel" id="panel-home" aria-labelledby="tab-home" hidden={hidden}>
     <div className={`file-home-intake ${dragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
       <div><span className="eyebrow">LOCAL FILE ROUTER</span><h2>{t("home.title")}</h2><p>{t("home.intro")}</p></div>
-      <div className="home-intake-actions"><label className="button primary">{t("home.chooseFiles")}<input type="file" multiple onChange={onInput}/></label><label className="button secondary">{t("home.chooseFolder")}<input type="file" multiple {...({ webkitdirectory: "" } as Record<string, string>)} onChange={onInput}/></label></div>
+      <div className="home-intake-actions"><FilePicker label={t("home.chooseFiles")} multiple onChange={onInput}/><FilePicker label={t("home.chooseFolder")} multiple directory variant="secondary" onChange={onInput}/></div>
     </div>
     {notice && <p className="home-notice" role="status">{notice}</p>}
     {!items.length ? <EmptyOverview/> : <div className="file-router">

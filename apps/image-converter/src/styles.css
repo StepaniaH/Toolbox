@@ -41,12 +41,15 @@ button, label.button { -webkit-tap-highlight-color: transparent; }
 .drop-zone p { margin: 0; color: var(--color-text-secondary); font-size: .82rem; line-height: 1.45; }
 .drop-zone small { color: var(--color-text-muted); }
 .upload-actions, .action-buttons { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
-.upload-actions input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .button { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 8px; padding: 9px 15px; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; font-weight: 700; text-decoration: none; transition: transform .14s ease, background .14s ease, border-color .14s ease; }
 .button:hover:not(:disabled) { transform: translateY(-1px); }
 .button.primary { background: var(--color-primary); color: var(--color-primary-contrast); }
 .button.secondary { border-color: var(--color-border); background: var(--color-surface-raised); color: var(--color-text); }
 .button:disabled { cursor: not-allowed; opacity: .48; }
+.file-picker { position: relative; white-space: nowrap; }
+.file-picker input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.file-picker-icon { display: grid; width: 22px; height: 22px; place-items: center; border-radius: 7px; background: color-mix(in srgb, currentColor 13%, transparent); font-size: 1rem; line-height: 1; }
+.file-picker:focus-within { outline: 2px solid var(--color-ring); outline-offset: 2px; }
 .button:focus-visible, .text-button:focus-visible, .icon-button:focus-visible, .segmented button:focus-visible, .app-tabs button:focus-visible, .rejection-summary:focus-visible, .token-picker button:focus-visible, .preset-buttons button:focus-visible, .result-gallery button:focus-visible, .advanced-toggle:focus-visible, .file-home button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, .info-tip:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
 .notice { margin: -10px 0 0; padding: 10px 14px; border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface)); color: var(--color-text); }
 .import-feedback { display: grid; gap: 2px; padding: 9px 12px; border: 1px solid color-mix(in srgb, var(--color-warning) 40%, var(--color-border)); border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-warning) 8%, var(--color-surface)); font-size: .76rem; }
@@ -68,7 +71,6 @@ button, label.button { -webkit-tap-highlight-color: transparent; }
 .file-home-intake h2 { margin: 0; font-size: clamp(1.35rem, 2.2vw, 1.9rem); letter-spacing: -.025em; }
 .file-home-intake p { max-width: 720px; margin: 8px 0 0; color: var(--color-text-secondary); line-height: 1.55; }
 .home-intake-actions { display: flex; flex: 0 0 auto; gap: 8px; }
-.home-intake-actions input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .home-notice { margin: -6px 0 0; padding: 9px 12px; border-left: 3px solid var(--color-primary); color: var(--color-text-secondary); font-size: .78rem; }
 .home-overview { display: grid; gap: 18px; padding: 10px 4px 22px; }
 .home-overview > div:first-child p { margin: 6px 0 0; color: var(--color-text-secondary); font-size: .8rem; line-height: 1.55; }
@@ -313,7 +315,6 @@ legend, .field-label { display: flex; align-items: center; gap: 6px; margin-bott
 .tool-intro p { max-width: 760px; margin: 8px 0 0; color: var(--color-text-secondary); line-height: 1.6; }
 .step-chip { flex: 0 0 auto; padding: 7px 11px; border-radius: 99px; background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-primary); font-size: .75rem; font-weight: 800; }
 .button.compact { min-height: 36px; padding: 7px 11px; font-size: .78rem; }
-.gif-page input[type="file"], .text-page input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .compact-empty { display: grid; place-items: center; align-content: center; gap: 8px; min-height: 168px; padding: 24px; border: 1px dashed var(--color-border); border-radius: var(--radius-lg); color: var(--color-text-muted); text-align: center; }
 .compact-empty span { color: var(--color-primary); font-size: 2rem; }
 .compact-empty p { margin: 0; }
@@ -398,12 +399,6 @@ legend, .field-label { display: flex; align-items: center; gap: 6px; margin-bott
 .family-header h2 { margin: 0; font-size: clamp(1.4rem, 2.4vw, 1.9rem); }
 .family-header p { max-width: 740px; margin: 8px 0 0; color: var(--color-text-secondary); line-height: 1.55; }
 .family-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; }
-.family-upload, .family-clear { display: inline-flex; min-height: 42px; align-items: center; gap: 8px; padding: 8px 13px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: transparent; color: var(--color-text); cursor: pointer; font: inherit; transition: border-color .14s ease, color .14s ease, background .14s ease; }
-.family-upload:hover, .family-clear:hover { border-color: color-mix(in srgb, var(--color-primary) 58%, var(--color-border)); background: color-mix(in srgb, var(--color-primary) 6%, transparent); color: var(--color-primary); }
-.family-upload > span, .family-clear > span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-primary); font-size: 1rem; line-height: 1; }
-.family-upload strong, .family-clear { font-size: .74rem; font-weight: 750; }
-.family-upload input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.family-upload:focus-within, .family-clear:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
 .family-empty { display: grid; min-height: 330px; place-items: center; align-content: center; padding: 42px 20px; border-block: 1px solid var(--color-border); text-align: center; }
 .family-empty > span { color: var(--color-primary); font: 800 .74rem var(--font-mono); letter-spacing: .12em; }
 .family-empty h3 { margin: 12px 0 0; font-size: 1.2rem; }

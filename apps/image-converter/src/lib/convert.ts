@@ -8,6 +8,8 @@ export const MAX_TOTAL_BYTES = 2 * 1024 * 1024 * 1024;
 export const MAX_CANVAS_SIDE = 16384;
 export const MAX_MEGAPIXELS = 80;
 
+const SAFE_EMBEDDED_IMAGE = /^data:image\/(?:png|jpe?g|gif|webp|avif|bmp);base64,/i;
+
 const MIME_BY_EXTENSION: Record<string, string> = {
   jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp",
   gif: "image/gif", bmp: "image/bmp", avif: "image/avif", svg: "image/svg+xml",
@@ -60,10 +62,11 @@ export function sanitizeSvg(source: string): string {
       const name = attribute.name.toLowerCase();
       const value = attribute.value.trim();
       if (name.startsWith("on")) element.removeAttribute(attribute.name);
-      if ((name === "href" || name === "xlink:href") && !value.startsWith("#") && !value.startsWith("data:image/")) {
+      if ((name === "href" || name === "xlink:href") && !value.startsWith("#") && !SAFE_EMBEDDED_IMAGE.test(value)) {
         element.removeAttribute(attribute.name);
       }
-      if ((name === "style" || name === "src") && /(?:url\s*\(|https?:|\/\/)/i.test(value)) {
+      if (name === "src" || name === "srcset") element.removeAttribute(attribute.name);
+      if (name === "style" && /(?:url\s*\(|@import|expression\s*\()/i.test(value)) {
         element.removeAttribute(attribute.name);
       }
     }

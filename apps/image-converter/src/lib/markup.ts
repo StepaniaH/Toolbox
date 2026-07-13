@@ -30,6 +30,13 @@ function plainInline(value: string): string {
     .trim();
 }
 
+function safeHtmlLink(value: string): boolean {
+  const link = value.trim();
+  return /^(?:https?:|mailto:|#)/i.test(link)
+    || /^(?:\.\.?\/|\/(?!\/))/.test(link)
+    || /^[a-z0-9][a-z0-9._~-]*(?:[/?#][^\s]*)?$/i.test(link);
+}
+
 function inline(value: string, target: MarkupFormat): string {
   if (target === "txt") return plainInline(value);
   if (target === "markdown") return value;
@@ -37,7 +44,7 @@ function inline(value: string, target: MarkupFormat): string {
   if (target === "rst") return value.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "`$1 <$2>`_");
   if (target === "asciidoc") return value.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$2[$1]");
   return escapeHtml(value)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label: string, href: string) => safeHtmlLink(href) ? `<a href="${href}">${label}</a>` : label)
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>")
     .replace(/`([^`]+)`/g, "<code>$1</code>");

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "@toolbox/i18n/react";
+import { FilePicker } from "./FilePicker";
 import { SelectMenu, type SelectOption } from "./SelectMenu";
 import { triggerDownload } from "./lib/download";
 import { convertMarkup, MARKUP_EXTENSIONS, type MarkupFormat } from "./lib/markup";
@@ -93,7 +94,7 @@ export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; in
   };
 
   return <section className="tool-page text-page" role="tabpanel" id="panel-text" aria-labelledby="tab-text" hidden={hidden}>
-    <div className="tool-intro"><div><span className="eyebrow">TXT · MD · ORG · RST · ADOC · HTML</span><h2>{t("text.title")}</h2><p>{t("text.intro")}</p></div><div className="text-actions"><label className="button secondary compact">{t("text.openFile")}<input type="file" multiple accept=".txt,.md,.markdown,.org,.rst,.adoc,.asciidoc,.html,.htm,text/*" onChange={upload}/></label>{documents.length > 0 && <button className="button secondary compact" type="button" onClick={clear}>{t("text.clear")}</button>}</div></div>
+    <div className="tool-intro"><div><span className="eyebrow">TXT · MD · ORG · RST · ADOC · HTML</span><h2>{t("text.title")}</h2><p>{t("text.intro")}</p></div><div className="text-actions"><FilePicker label={t("text.openFile")} multiple accept=".txt,.md,.markdown,.org,.rst,.adoc,.asciidoc,.html,.htm,text/*" onChange={upload}/>{documents.length > 0 && <button className="button secondary" type="button" onClick={clear}>{t("text.clear")}</button>}</div></div>
     {!documents.length ? <section className="text-empty-workspace"><span>TXT · MD · HTML</span><h3>{t("text.emptyTitle")}</h3><p>{t("text.emptyDetail")}</p><button className="button primary" type="button" onClick={createBlank}>{t("text.newBlank")}</button></section> : <>
     <div className="text-workbench">
       <aside className="text-file-panel">

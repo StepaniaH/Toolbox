@@ -10,7 +10,7 @@ export type ZipEntry = {
   localOffset: number;
   directory: boolean;
   safe: boolean;
-  reason?: "path" | "encrypted" | "method" | "size" | "ratio";
+  reason?: "path" | "duplicate" | "encrypted" | "method" | "size" | "ratio";
 };
 
 export type ZipDirectory = { entries: ZipEntry[]; totalUncompressed: number; comment: string };
@@ -26,11 +26,17 @@ function assertRange(offset: number, length: number, total: number): void {
 }
 function decodeName(bytes: Uint8Array): string { return new TextDecoder("utf-8", { fatal: false }).decode(bytes); }
 
-function pathReason(name: string): ZipEntry["reason"] | undefined {
+function canonicalPath(name: string): string | null {
   const normalized = name.replace(/\\/g, "/");
-  if (!normalized || normalized.includes("\0") || normalized.startsWith("/") || /^[a-z]:/i.test(normalized)) return "path";
-  if (normalized.split("/").some((part) => part === "..")) return "path";
-  return undefined;
+  const hasControlCharacter = [...normalized].some((character) => {
+    const code = character.charCodeAt(0);
+    return code <= 31 || code === 127;
+  });
+  if (!normalized || hasControlCharacter || normalized.startsWith("/") || /^[a-z]:/i.test(normalized)) return null;
+  const body = normalized.endsWith("/") ? normalized.slice(0, -1) : normalized;
+  const parts = body.split("/");
+  if (!body || parts.some((part) => !part || part === "." || part === "..")) return null;
+  return parts.join("/").toLowerCase();
 }
 
 export async function readZipDirectory(file: Blob): Promise<ZipDirectory> {
@@ -52,6 +58,7 @@ export async function readZipDirectory(file: Blob): Promise<ZipDirectory> {
   assertRange(centralOffset, centralSize, bytes.length);
   assertRange(endOffset + 22, commentLength, bytes.length);
   const entries: ZipEntry[] = [];
+  const paths = new Set<string>();
   let offset = centralOffset;
   let totalUncompressed = 0;
   for (let id = 0; id < entryCount; id += 1) {
@@ -69,7 +76,10 @@ export async function readZipDirectory(file: Blob): Promise<ZipDirectory> {
     assertRange(offset + 46, nameLength + extraLength + itemCommentLength, bytes.length);
     const name = decodeName(bytes.subarray(offset + 46, offset + 46 + nameLength));
     const directory = name.replace(/\\/g, "/").endsWith("/");
-    let reason = pathReason(name);
+    const path = canonicalPath(name);
+    let reason: ZipEntry["reason"] | undefined = path ? undefined : "path";
+    if (!reason && paths.has(path!)) reason = "duplicate";
+    if (!reason) paths.add(path!);
     if (!reason && flags & 1) reason = "encrypted";
     if (!reason && method !== 0 && method !== 8) reason = "method";
     if (!reason && uncompressedSize > MAX_ENTRY_BYTES) reason = "size";
@@ -88,8 +98,13 @@ export async function extractZipEntry(file: Blob, entry: ZipEntry): Promise<Blob
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   assertRange(entry.localOffset, 30, bytes.length);
   if (read32(view, entry.localOffset) !== 0x04034b50) throw new Error("zip-invalid-local");
+  const flags = read16(view, entry.localOffset + 6);
+  const method = read16(view, entry.localOffset + 8);
   const nameLength = read16(view, entry.localOffset + 26);
   const extraLength = read16(view, entry.localOffset + 28);
+  assertRange(entry.localOffset + 30, nameLength + extraLength, bytes.length);
+  const localName = decodeName(bytes.subarray(entry.localOffset + 30, entry.localOffset + 30 + nameLength));
+  if ((flags & 1) || method !== entry.method || localName !== entry.name) throw new Error("zip-invalid-local");
   const start = entry.localOffset + 30 + nameLength + extraLength;
   assertRange(start, entry.compressedSize, bytes.length);
   const compressed = bytes.slice(start, start + entry.compressedSize);
@@ -99,11 +114,34 @@ export async function extractZipEntry(file: Blob, entry: ZipEntry): Promise<Blob
     if (typeof DecompressionStream !== "function") throw new Error("zip-deflate-unavailable");
     const compressedBuffer = compressed.buffer.slice(compressed.byteOffset, compressed.byteOffset + compressed.byteLength) as ArrayBuffer;
     const stream = new Blob([compressedBuffer]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
-    output = new Uint8Array(await new Response(stream).arrayBuffer());
+    output = await collectBoundedStream(stream, entry.uncompressedSize);
   }
   if (output.length !== entry.uncompressedSize || crc32(output) !== entry.crc) throw new Error("zip-integrity");
   const outputBuffer = output.buffer.slice(output.byteOffset, output.byteOffset + output.byteLength) as ArrayBuffer;
   return new Blob([outputBuffer]);
+}
+
+export async function collectBoundedStream(stream: ReadableStream<Uint8Array>, expectedSize: number): Promise<Uint8Array> {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > expectedSize || total > MAX_ENTRY_BYTES) throw new Error("zip-integrity");
+      chunks.push(value);
+    }
+  } catch (error) {
+    await reader.cancel(error).catch(() => {});
+    throw error;
+  }
+  if (total !== expectedSize) throw new Error("zip-integrity");
+  const output = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.byteLength; }
+  return output;
 }
 
 function readBlob(blob: Blob): Promise<ArrayBuffer> {

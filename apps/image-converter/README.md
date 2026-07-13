@@ -53,7 +53,7 @@ The knowledge base uses decision rows, expandable format references, and compari
 - Users can enter PDF and Archive tabs directly or route an identified file there from File Home.
 - PDF inspection reports the version, lightweight page/object estimates, encryption, linearization, metadata hints, and first media box. It reads at most 32 MB and does not claim full-parser accuracy.
 - ZIP inspection is bounded to 5,000 entries, a 512 MB archive, 256 MB per expanded entry, and 1 GB expanded total.
-- Selective extraction blocks unsafe paths, encryption, unknown methods, oversized entries, and suspicious ratios, then verifies output size and CRC. Multiple selections are repackaged locally.
+- Selective extraction blocks unsafe or duplicate paths, encryption, unknown methods, oversized entries, and suspicious ratios. Deflate output is stopped as soon as it exceeds the declared size, selected entries are expanded sequentially, and final size plus CRC are verified before download. Multiple selections are repackaged locally.
 
 ## Privacy and network behavior
 

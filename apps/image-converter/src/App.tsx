@@ -12,6 +12,7 @@ import { TextMarkupConverter } from "./TextMarkupConverter";
 import { FileHome } from "./FileHome";
 import { PdfWorkspace } from "./PdfWorkspace";
 import { ArchiveWorkspace } from "./ArchiveWorkspace";
+import { FilePicker } from "./FilePicker";
 import { SelectMenu } from "./SelectMenu";
 import { ACCEPT_ATTRIBUTE, convertImage, getFileExtension } from "./lib/convert";
 import { triggerDownload } from "./lib/download";
@@ -43,12 +44,56 @@ type NamePreview = { before: string; after: string; matched: boolean; groups: st
 type DownloadMode = "files" | "zip";
 type ImportSummary = { accepted: number; rejected: number };
 
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function choice<T extends string>(value: unknown, values: readonly T[], fallback: T): T {
+  return typeof value === "string" && values.includes(value as T) ? value as T : fallback;
+}
+
+function boundedNumber(value: unknown, fallback: number, minimum: number, maximum: number, integer = false): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
+  const bounded = Math.min(maximum, Math.max(minimum, value));
+  return integer ? Math.round(bounded) : bounded;
+}
+
+function booleanValue(value: unknown, fallback: boolean): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function shortText(value: unknown, fallback: string): string {
+  return typeof value === "string" && value.length <= 512 ? value : fallback;
+}
+
 function readSettings(): StoredSettings {
   try {
-    const parsed = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) ?? "null") as Partial<StoredSettings> | null;
+    const parsed = record(JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) ?? "null"));
+    const conversion = record(parsed.conversion);
+    const rename = record(parsed.rename);
     return {
-      conversion: { ...DEFAULT_SETTINGS, ...parsed?.conversion },
-      rename: { ...DEFAULT_RENAME, ...parsed?.rename },
+      conversion: {
+        format: choice(conversion.format, ["png", "jpeg", "webp"] as const, DEFAULT_SETTINGS.format),
+        quality: boundedNumber(conversion.quality, DEFAULT_SETTINGS.quality, .1, 1),
+        resizeMode: choice(conversion.resizeMode, ["original", "scale", "fit"] as const, DEFAULT_SETTINGS.resizeMode),
+        scale: boundedNumber(conversion.scale, DEFAULT_SETTINGS.scale, 1, 800, true),
+        maxWidth: boundedNumber(conversion.maxWidth, DEFAULT_SETTINGS.maxWidth, 1, 16384, true),
+        maxHeight: boundedNumber(conversion.maxHeight, DEFAULT_SETTINGS.maxHeight, 1, 16384, true),
+        preventUpscale: booleanValue(conversion.preventUpscale, DEFAULT_SETTINGS.preventUpscale),
+        background: typeof conversion.background === "string" && /^#[0-9a-f]{6}$/i.test(conversion.background) ? conversion.background : DEFAULT_SETTINGS.background,
+        keepSmallerOriginal: booleanValue(conversion.keepSmallerOriginal, DEFAULT_SETTINGS.keepSmallerOriginal),
+        preserveFolders: booleanValue(conversion.preserveFolders, DEFAULT_SETTINGS.preserveFolders),
+      },
+      rename: {
+        mode: choice(rename.mode, ["template", "regex"] as const, DEFAULT_RENAME.mode),
+        template: shortText(rename.template, DEFAULT_RENAME.template),
+        pattern: shortText(rename.pattern, DEFAULT_RENAME.pattern),
+        replacement: shortText(rename.replacement, DEFAULT_RENAME.replacement),
+        global: booleanValue(rename.global, DEFAULT_RENAME.global),
+        ignoreCase: booleanValue(rename.ignoreCase, DEFAULT_RENAME.ignoreCase),
+        start: boundedNumber(rename.start, DEFAULT_RENAME.start, 0, 999999, true),
+        padding: boundedNumber(rename.padding, DEFAULT_RENAME.padding, 1, 8, true),
+      },
     };
   } catch {
     return { conversion: DEFAULT_SETTINGS, rename: DEFAULT_RENAME };
@@ -225,8 +270,8 @@ function AppSurface() {
                     <div className="drop-zone-heading"><div className="drop-icon" aria-hidden="true">↥</div><div><h2>{t("upload.drop")}</h2><p>{t("upload.hint")}</p></div></div>
                     <small>{t("upload.accepted")}</small>
                     <div className="upload-actions">
-                      <label className="button primary">{t("upload.files")}<input aria-label={t("upload.files")} type="file" accept={ACCEPT_ATTRIBUTE} multiple onChange={onInput} /></label>
-                      <label className="button secondary">{t("upload.folder")}<input aria-label={t("upload.folder")} type="file" accept={ACCEPT_ATTRIBUTE} multiple {...({ webkitdirectory: "" } as Record<string, string>)} onChange={onInput} /></label>
+                      <FilePicker label={t("upload.files")} accept={ACCEPT_ATTRIBUTE} multiple onChange={onInput} />
+                      <FilePicker label={t("upload.folder")} accept={ACCEPT_ATTRIBUTE} multiple directory variant="secondary" onChange={onInput} />
                     </div>
                     {(lastImport || rejections.length > 0) && <div className="intake-feedback-row">
                       {lastImport && <div className={`import-feedback ${lastImport.accepted ? "is-success" : "is-warning"}`} role="status"><strong>{t(lastImport.accepted ? "upload.importSuccess" : "upload.importNoFiles", { count: lastImport.accepted })}</strong><span>{lastImport.rejected ? t("upload.importRejected", { count: lastImport.rejected }) : t("upload.importReady")}</span></div>}

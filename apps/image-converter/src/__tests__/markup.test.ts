@@ -24,4 +24,11 @@ describe("text and markup conversion", () => {
     expect(blocks).toHaveLength(2);
     expect(output).toBe("## Hello\n\n- [A](https://example.com)\n- B");
   });
+
+  it("drops active link schemes from generated HTML", () => {
+    const { output } = convertMarkup("[safe](https://example.com) [bad](javascript:alert(1)) [also bad](data:text/html,boom)", "markdown", "html");
+    expect(output).toContain('<a href="https://example.com">safe</a>');
+    expect(output).not.toContain("javascript:");
+    expect(output).not.toContain("data:text/html");
+  });
 });

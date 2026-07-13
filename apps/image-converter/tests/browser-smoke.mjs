@@ -51,9 +51,9 @@ try {
     assert.equal(await page.locator('.file-home-intake').isVisible(), true)
     assert.equal(await page.locator('.family-overview').isVisible(), true)
     await page.getByRole('tab', { name: /PDF tools|PDF 工具/ }).click()
-    assert.equal(await page.locator('.family-page:not([hidden]) .family-upload').isVisible(), true)
+    assert.equal(await page.locator('.family-page:not([hidden]) .file-picker').isVisible(), true)
     await page.getByRole('tab', { name: /Archives|压缩包/ }).click()
-    assert.equal(await page.locator('.family-page:not([hidden]) .family-upload').isVisible(), true)
+    assert.equal(await page.locator('.family-page:not([hidden]) .file-picker').isVisible(), true)
     await page.getByRole('tab', { name: /File home|文件首页/ }).click()
     assert.equal(await page.locator('.toolbox-nav').count(), 1)
     assert.equal(await page.locator('.toolbox-footer').count(), 1)
@@ -67,6 +67,16 @@ try {
   const pdfTab = page.getByRole('tab', { name: /PDF tools|PDF 工具/ })
   const archiveTab = page.getByRole('tab', { name: /Archives|压缩包/ })
   const knowledgeTab = page.getByRole('tab', { name: /Knowledge base|知识库/ })
+  const pickerHeights = []
+  for (const tab of [homeTab, workspaceTab, gifTab, textTab, pdfTab, archiveTab]) {
+    await tab.click()
+    const picker = page.locator('main [role=tabpanel]:not([hidden]) .file-picker').first()
+    assert.equal(await picker.isVisible(), true)
+    assert.equal(await picker.locator('input[type=file]').count(), 1)
+    pickerHeights.push((await picker.boundingBox())?.height ?? 0)
+  }
+  assert.equal(pickerHeights.every((height) => Math.abs(height - pickerHeights[0]) < 1 && height >= 42), true)
+  await homeTab.click()
   assert.equal(await homeTab.getAttribute('aria-selected'), 'true')
   assert.equal(await page.getByRole('heading', { level: 1 }).textContent(), 'FormTran')
   assert.match(await page.locator('.tab-privacy').textContent(), /File home privacy|文件首页隐私说明/)
@@ -181,9 +191,9 @@ try {
   assert.equal(Math.abs(editorAreas[0].top - editorAreas[1].top) < 1, true)
 
   await pdfTab.click()
-  assert.equal(await page.locator('.family-page:not([hidden]) .family-upload').isVisible(), true)
+  assert.equal(await page.locator('.family-page:not([hidden]) .file-picker').isVisible(), true)
   await archiveTab.click()
-  assert.equal(await page.locator('.family-page:not([hidden]) .family-upload').isVisible(), true)
+  assert.equal(await page.locator('.family-page:not([hidden]) .file-picker').isVisible(), true)
 
   await gifTab.click()
   assert.match(await page.locator('.tab-privacy').textContent(), /GIF composer privacy|GIF 合成隐私说明/)

@@ -30,11 +30,12 @@ describe("conversion contracts", () => {
   });
 
   it("removes active content and external references from SVG", () => {
-    const safe = sanitizeSvg(`<svg xmlns="http://www.w3.org/2000/svg"><style>@import url(https://example.invalid/a.css)</style><script>alert(1)</script><image href="https://example.invalid/a.png" onload="alert(1)"/><use href="#local"/></svg>`);
+    const safe = sanitizeSvg(`<svg xmlns="http://www.w3.org/2000/svg"><style>@import url(https://example.invalid/a.css)</style><script>alert(1)</script><image href="https://example.invalid/a.png" onload="alert(1)"/><image href="data:image/svg+xml,%3Csvg%3E%3C/svg%3E"/><use href="#local"/></svg>`);
     expect(safe).not.toContain("script");
     expect(safe).not.toContain("style");
     expect(safe).not.toContain("example.invalid");
     expect(safe).not.toContain("onload");
+    expect(safe).not.toContain("data:image/svg+xml");
     expect(safe).toContain('href="#local"');
   });
 });

@@ -44,6 +44,7 @@ acceptance:
 - Workspace intake and queue share one equal-width/equal-height desktop row with feedback inside the intake card. Naming defaults to a compact template workflow and reveals regex controls only as an advanced section; the expanded light-theme surface uses the normal raised surface instead of a dark tint.
 - Result delivery is user-selectable: direct file downloads (one direct or many separate) or a single ZIP. Each app tab owns a distinct bottom privacy statement.
 - Native selects in the main delivery and text format flows were replaced by one app-local, keyboard-accessible theme menu to avoid platform-specific chrome and clipping.
+- All file selectors now use one app-local `FilePicker` contract across file home, image, GIF, text, PDF, and archive tabs, with the same 42px geometry, icon structure, focus ring, and accessible name.
 - GIF, text, and knowledge pages now use flat workbench dividers, selectable rows, expandable references, and comparison tables; raised cards are reserved for actual independent image-workspace groups and callouts.
 - Core conversion, rename, dimension, SVG sanitization, and store-only ZIP code remain app-local. No shared package API changed.
 
@@ -55,6 +56,7 @@ acceptance:
 - Text: local `File.text()` or pasted string → app-local normalized block AST → target renderer → editor/sandbox preview → local Blob download.
 - PDF: local `File` → bounded (32 MB) byte scan → non-authoritative structure hints. No page rendering, rewrite, or persistence occurs.
 - ZIP: local `File` → bounded central-directory parser → safe-entry selection → local Store/Deflate extraction → size + CRC verification → direct Blob or locally repackaged ZIP.
+- Integration review additionally rejects duplicate/case-colliding ZIP paths, verifies local headers, stops Deflate streams that exceed their declared size, and extracts selected entries sequentially to bound concurrent memory pressure.
 - Storage: only JSON preferences at `toolbox.image-converter.settings`; corrupt values recover to defaults. No filenames or image bytes are stored.
 - Query: none.
 - File-home identification: `File.slice(0, 64 KiB)` → local signature/extension classifier → in-memory recommendation state. The full file is not read until the user opens a compatible tool; filenames and results are not persisted.
@@ -62,11 +64,11 @@ acceptance:
 
 ## Verification results
 
-- `node_modules/.bin/vite build` — passed; latest measured production JS 347.07 kB / 110.30 kB gzip, CSS 68.96 kB / 12.16 kB gzip.
-- `node_modules/.bin/vitest run` — passed, 11 files / 41 tests, including ZIP-container document routing, manual PDF/ZIP workspace flows, ZIP traversal rejection, CRC-verified extraction, and file-home queue preservation.
+- `node_modules/.bin/vite build` — passed; latest measured production JS 356.83 kB / 114.12 kB gzip, CSS 69.21 kB / 12.23 kB gzip.
+- `node_modules/.bin/vitest run` — passed, 11 files / 46 tests, including unified file pickers, persisted-setting normalization, unsafe markup/SVG rejection, duplicate ZIP paths, bounded stream extraction, and the existing file-workbench flows.
 - `node_modules/.bin/tsc -b` — passed after tightening the existing GIF Blob and markup fence types.
 - `node_modules/.bin/oxlint --deny-warnings src tests` — passed, 0 warnings.
-- `node tests/browser-smoke.mjs` — passed with XLSX non-archive routing, PDF/archive controls across light/dark and zh/en, exact text editor top alignment, five-category knowledge comparisons, mobile overflow checks, and the existing real image/GIF conversion coverage.
+- `node tests/browser-smoke.mjs` — passed with equal-height file pickers across six processing tabs, XLSX non-archive routing, PDF/archive controls across light/dark and zh/en, exact text editor top alignment, five-category knowledge comparisons, mobile overflow checks, and real image/GIF conversion coverage.
 - `node scripts/check-privacy.mjs` — passed for 288 tracked or unignored files at the latest check.
 - `node scripts/check-contracts.mjs` — passed for 6 apps.
 - `pnpm build` — passed, 6 app builds.

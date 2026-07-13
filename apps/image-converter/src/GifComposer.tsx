@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "@toolbox/i18n/react";
+import { FilePicker } from "./FilePicker";
 import { ACCEPT_ATTRIBUTE, getFileExtension, isAcceptedImage, sanitizeSvg } from "./lib/convert";
 import { triggerDownload } from "./lib/download";
 import { encodeGif, type GifFrame } from "./lib/gif";
@@ -121,7 +122,7 @@ export function GifComposer({ hidden, incoming }: { hidden?: boolean; incoming?:
     <div className="tool-intro"><div><span className="eyebrow">GIF89a · LOCAL ENCODING</span><h2>{t("gif.title")}</h2><p>{t("gif.intro")}</p></div><span className="step-chip">{t("gif.step", { current: frames.length ? result ? 3 : 2 : 1 })}</span></div>
     <div className="gif-workbench">
       <section className="gif-sources">
-        <div className="section-heading"><div><h3>{t("gif.frames")}</h3><p>{t("gif.framesHint")}</p></div><div className="section-actions">{frames.length > 0 && <button className="text-button" type="button" onClick={clear}>{t("gif.clear")}</button>}<label className="button primary compact">{t("gif.add")}<input type="file" accept={ACCEPT_ATTRIBUTE} multiple onChange={add} /></label></div></div>
+        <div className="section-heading"><div><h3>{t("gif.frames")}</h3><p>{t("gif.framesHint")}</p></div><div className="section-actions">{frames.length > 0 && <button className="text-button" type="button" onClick={clear}>{t("gif.clear")}</button>}<FilePicker label={t("gif.add")} accept={ACCEPT_ATTRIBUTE} multiple onChange={add}/></div></div>
         {!frames.length ? <div className="compact-empty"><span>▧</span><p>{t("gif.empty")}</p></div> : <div className="frame-strip">{frames.map((frame, index) => <article key={frame.id}><img src={frame.url} alt=""/><div><strong>{index + 1}. {frame.file.name}</strong><small>{t("gif.frameDelay", { delay })}</small></div><div><button type="button" disabled={index === 0} onClick={() => move(index, -1)} aria-label={t("gif.moveEarlier")}>↑</button><button type="button" disabled={index === frames.length - 1} onClick={() => move(index, 1)} aria-label={t("gif.moveLater")}>↓</button><button type="button" onClick={() => remove(frame.id)} aria-label={`${t("gif.remove")} ${frame.file.name}`}>×</button></div></article>)}</div>}
       </section>
       <section className="gif-settings">

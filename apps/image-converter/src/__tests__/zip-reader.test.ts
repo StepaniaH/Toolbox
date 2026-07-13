@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createZip } from "../lib/zip";
-import { extractZipEntry, readZipDirectory } from "../lib/zip-reader";
+import { collectBoundedStream, extractZipEntry, readZipDirectory } from "../lib/zip-reader";
 
 describe("safe ZIP inspection and extraction", () => {
   it("lists and verifies UTF-8 store entries produced locally", async () => {
@@ -17,6 +17,27 @@ describe("safe ZIP inspection and extraction", () => {
     const directory = await readZipDirectory(archive);
     expect(directory.entries[0]).toMatchObject({ safe: false, reason: "path" });
     await expect(extractZipEntry(archive, directory.entries[0])).rejects.toThrow("zip-entry-blocked");
+  });
+
+  it("blocks duplicate archive paths case-insensitively", async () => {
+    const archive = await createZip([
+      { name: "folder/notes.txt", blob: new Blob(["first"]) },
+      { name: "FOLDER/NOTES.txt", blob: new Blob(["second"]) },
+    ]);
+    const directory = await readZipDirectory(archive);
+    expect(directory.entries[0].safe).toBe(true);
+    expect(directory.entries[1]).toMatchObject({ safe: false, reason: "duplicate" });
+  });
+
+  it("stops a decompression stream as soon as declared output size is exceeded", async () => {
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array([1, 2, 3]));
+        controller.enqueue(new Uint8Array([4, 5, 6]));
+        controller.close();
+      },
+    });
+    await expect(collectBoundedStream(stream, 4)).rejects.toThrow("zip-integrity");
   });
 
   it("rejects non-ZIP input", async () => {
