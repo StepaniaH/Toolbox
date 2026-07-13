@@ -52,6 +52,8 @@ acceptance:
 - Image bytes: `File` → local object URL / sanitized SVG → browser decoder → Canvas → local Blob → direct download or local ZIP.
 - GIF bytes: still-image `File` objects → browser decoder → unified RGBA canvases → fixed-palette GIF89a encoder → local Blob preview/download.
 - Text: local `File.text()` or pasted string → app-local normalized block AST → target renderer → editor/sandbox preview → local Blob download.
+- PDF: local `File` → bounded (32 MB) byte scan → non-authoritative structure hints. No page rendering, rewrite, or persistence occurs.
+- ZIP: local `File` → bounded central-directory parser → safe-entry selection → local Store/Deflate extraction → size + CRC verification → direct Blob or locally repackaged ZIP.
 - Storage: only JSON preferences at `toolbox.image-converter.settings`; corrupt values recover to defaults. No filenames or image bytes are stored.
 - Query: none.
 - File-home identification: `File.slice(0, 64 KiB)` → local signature/extension classifier → in-memory recommendation state. The full file is not read until the user opens a compatible tool; filenames and results are not persisted.
@@ -59,8 +61,8 @@ acceptance:
 
 ## Verification results
 
-- `node_modules/.bin/vite build` — passed; latest measured production JS 329.08 kB / 105.15 kB gzip, CSS 64.74 kB / 11.55 kB gzip.
-- `node_modules/.bin/vitest run` — passed, 9 files / 34 tests, including file-home queue preservation across Tab changes.
+- `node_modules/.bin/vite build` — passed; latest measured production JS 347.07 kB / 110.30 kB gzip, CSS 68.96 kB / 12.16 kB gzip.
+- `node_modules/.bin/vitest run` — passed, 11 files / 40 tests, including manual PDF/ZIP workspace flows, ZIP traversal rejection, CRC-verified extraction, and file-home queue preservation.
 - `node_modules/.bin/tsc -b` — passed after tightening the existing GIF Blob and markup fence types.
 - `node_modules/.bin/oxlint --deny-warnings src tests` — passed, 0 warnings.
 - `node tests/browser-smoke.mjs` — passed with file-home signature identification, explicit image handoff, editable presets, equal image cards, custom direct/ZIP delivery menu, text batch import, Markdown → Org conversion, knowledge comparison tables, mobile overflow checks, and a real 64×64 two-frame GIF whose bottom pixel is decoded and validated.

@@ -2,7 +2,7 @@
 
 A private, browser-only file workspace for conversion, compression, editing, splitting, merging, encoding, parsing, and inspection. Its file home identifies inputs and recommends relevant tools before any operation runs. No source content leaves the device.
 
-The expansion is staged. Existing image conversion, GIF composition, and text/markup conversion are available now; image editing, GIF-specific processing, PDF page tools, structured data utilities, and archive inspection are added only after their correctness and resource boundaries are tested. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
+The expansion is staged. Image conversion, GIF composition, text/markup conversion, lightweight PDF inspection, and bounded ZIP listing/extraction are available now; image editing, GIF-specific processing, PDF page tools, structured data utilities, and other archive formats are added only after their correctness and resource boundaries are tested. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
 
 ## File home
 
@@ -10,7 +10,7 @@ The expansion is staged. Existing image conversion, GIF composition, and text/ma
 - Reads at most the first 64 KiB of each file to identify JPEG, PNG, WebP, AVIF, GIF, SVG, BMP, TIFF, HEIC, ICO, PDF, ZIP, supported text, and structured-data names.
 - Prefers recognizable content signatures over extensions and warns when they disagree.
 - Shows available, limited, and planned capabilities separately; no conversion or parser starts automatically.
-- Can hand supported inputs into image conversion, GIF composition, or text/markup conversion, and generates image Data URLs locally up to 10 MB.
+- Can hand supported inputs into image conversion, GIF composition, text/markup conversion, PDF inspection, or ZIP inspection, and generates image Data URLs locally up to 10 MB.
 - Provides editable image starting presets for web photos, transparent assets, and private sharing.
 
 ## Input and output
@@ -47,11 +47,18 @@ The expansion is staged. Existing image conversion, GIF composition, and text/ma
 
 The knowledge base uses decision rows, expandable format references, and comparison tables for image, animation, and markup choices rather than presenting every fact as an equal card.
 
+## PDF and ZIP workspaces
+
+- Users can enter PDF and Archive tabs directly or route an identified file there from File Home.
+- PDF inspection reports the version, lightweight page/object estimates, encryption, linearization, metadata hints, and first media box. It reads at most 32 MB and does not claim full-parser accuracy.
+- ZIP inspection is bounded to 5,000 entries, a 512 MB archive, 256 MB per expanded entry, and 1 GB expanded total.
+- Selective extraction blocks unsafe paths, encryption, unknown methods, oversized entries, and suspicious ratios, then verifies output size and CRC. Multiple selections are repackaged locally.
+
 ## Privacy and network behavior
 
 Files, identification prefixes, images, previews, conversions, parsed text, and ZIP files stay in browser memory and are never uploaded. The app makes no business network requests and includes no account, backend, telemetry, ads, cookies, tracking, or remote fonts. Only conversion preferences are stored in `localStorage` under `toolbox.image-converter.settings`; file bytes, filenames, and identification results are not persisted.
 
-The privacy notice sits below the active app tab. Image, GIF, text, and knowledge pages each describe their actual local data flow.
+The privacy notice sits below the active app tab. Image, GIF, text, PDF, archive, and knowledge pages each describe their actual local data flow.
 
 The app works offline once its static assets are available. Unsupported browser codecs fail per file without modifying the original.
 
