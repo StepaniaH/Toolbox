@@ -4,12 +4,14 @@ export const translations: Record<"zh" | "en", Translations> = {
   zh: {
     meta: { title: "FormTran · Toolbox", description: "在浏览器本地识别文件，并使用转换、压缩、编辑、编码、解析和信息查看工具" },
     brand: { title: "FormTran", subtitle: "先识别文件，再选择工具；所有处理留在本机" },
-    tabs: { label: "FormTran 功能页面", home: "文件首页", image: "图片格式转换", gif: "GIF 合成", text: "文本与标记转换", knowledge: "知识库" },
+    tabs: { label: "FormTran 功能页面", home: "文件首页", image: "图片格式转换", gif: "GIF 合成", text: "文本与标记转换", pdf: "PDF 工具", archive: "压缩包", knowledge: "知识库" },
     privacy: {
       home: { title: "文件首页隐私说明", detail: "文件首页只在当前浏览器读取分类所需的少量头部字节，不上传、不自动处理，也不保存文件、文件名或识别结果。" },
       image: { title: "图片格式转换隐私说明", detail: "图片、转换结果和压缩包只存在于当前浏览器内存，不会上传；仅转换偏好保存在本机，关闭页面后不保留文件与文件名。" },
       gif: { title: "GIF 合成隐私说明", detail: "源图片、逐帧像素与生成的 GIF 只在当前浏览器内存中处理，不上传服务器；离开页面后不会保存素材与动画。" },
       text: { title: "文本与标记转换隐私说明", detail: "打开的文本、解析结构、预览和转换结果仅在浏览器本地生成，不会发送到服务器或第三方。" },
+      pdf: { title: "PDF 工具隐私说明", detail: "PDF 结构检查仅在浏览器内存读取文件内容，不上传文件、名称或检查结果；关闭页面后不保留。" },
+      archive: { title: "压缩包工具隐私说明", detail: "ZIP 目录读取、校验和解压均在浏览器本地完成，不会把压缩包、内部文件名或解压内容发送到服务器。" },
       knowledge: { title: "知识库隐私说明", detail: "本页内容随网站静态提供，不读取你的文件、不记录阅读行为，也不会为格式说明发起外部请求。" },
     },
     home: {
@@ -85,6 +87,8 @@ export const translations: Record<"zh" | "en", Translations> = {
       formats: { markdown: "Markdown", org: "Org mode", rst: "reStructuredText", asciidoc: "AsciiDoc", html: "HTML", txt: "纯文本" },
       blockTypes: { heading: "标题", paragraph: "段落", list: "列表", code: "代码块", quote: "引用", rule: "分隔线" },
     },
+    pdf: { title: "PDF 工具", intro: "手动打开 PDF，先在本地检查基础结构与风险提示；页面编辑能力会在解析与输出正确性验证后逐项开放。", open: "打开 PDF", clear: "清空", emptyTitle: "打开一个 PDF 开始检查", emptyDetail: "当前阶段提供快速结构信息，不渲染、不上传，也不会改写源文件。", reading: "读取中", local: "本地检查", version: "版本", pages: "估算页数", objects: "对象数", encrypted: "加密", linearized: "快速网页查看", metadata: "可能含元数据", mediaBox: "首个页面框", yes: "是", no: "否", estimateWarning: "页数和对象数来自轻量结构扫描，增量更新、对象流或加密 PDF 可能无法准确统计；它不替代完整 PDF 解析器。", nextTools: "后续页面工具", nextToolsDetail: "以下能力需要完整解析、可视页选择、撤销与导出校验后再开放。", errors: { "pdf-empty": "PDF 为空。", "pdf-inspection-limit": "轻量检查目前限制为 32 MB，以避免页面占用过多内存。", "pdf-invalid": "没有识别到有效 PDF 文件头。", unknown: "无法检查这个 PDF。" } },
+    archive: { title: "压缩包工具", intro: "安全查看 ZIP 内容并选择性解压；路径、加密、算法与异常膨胀会在导出前逐项拦截。", open: "打开 ZIP", clear: "清空", emptyTitle: "打开一个 ZIP 查看内容", emptyDetail: "目录与文件只在本地读取。当前先支持 ZIP，其他压缩格式将按独立能力检测开放。", reading: "读取中…", entryCount: "{{count}} 个条目", selectAll: "选择全部安全文件", deselectAll: "取消全选", extract: "导出 {{count}} 项", directory: "文件夹", stored: "未压缩存储", deflated: "Deflate", safe: "可导出", safetyNote: "导出会再次校验大小和 CRC。多项内容会重新打包为本地生成的 ZIP，避免浏览器触发大量独立下载。", reasons: { path: "危险路径", encrypted: "已加密", method: "不支持的算法", size: "展开后过大", ratio: "异常压缩比" }, errors: { "zip-file-limit": "ZIP 超过 512 MB 本地检查上限。", "zip-invalid": "未识别到有效 ZIP 目录。", "zip-multidisk": "暂不支持分卷 ZIP。", "zip64-unsupported": "暂不支持 ZIP64。", "zip-entry-limit": "压缩包超过 5000 个条目上限。", "zip-total-limit": "预计展开内容超过 1 GB 安全预算。", "zip-truncated": "ZIP 数据不完整。", "zip-invalid-central": "ZIP 中央目录损坏。", "zip-entry-blocked": "该条目因安全限制被拦截。", "zip-invalid-local": "ZIP 本地条目损坏。", "zip-deflate-unavailable": "当前浏览器不支持本地 Deflate 解压。", "zip-integrity": "解压后的大小或 CRC 校验失败。", unknown: "无法读取或解压这个 ZIP。" } },
     knowledge: {
       title: "格式知识库", intro: "从使用场景、压缩方式、透明与动画支持理解格式，而不是只看扩展名。", introExpanded: "按图片、动画和文本标记分类查阅；随着 FormTran 增加新转换器，这里会继续扩展对应的格式原理与边界。", categoriesLabel: "知识库分类",
       categories: { images: { title: "图片格式", description: "压缩、透明、色彩与兼容性" }, animation: { title: "动画与 GIF", description: "帧、时序、调色板与体积" }, markup: { title: "文本与标记", description: "语义、方言与往返转换" } },
@@ -122,12 +126,14 @@ export const translations: Record<"zh" | "en", Translations> = {
   en: {
     meta: { title: "FormTran · Toolbox", description: "Identify files and use local conversion, compression, editing, encoding, parsing, and inspection tools" },
     brand: { title: "FormTran", subtitle: "Identify first, choose a tool, and keep every operation on your device" },
-    tabs: { label: "FormTran pages", home: "File home", image: "Image conversion", gif: "GIF composer", text: "Text & markup", knowledge: "Knowledge base" },
+    tabs: { label: "FormTran pages", home: "File home", image: "Image conversion", gif: "GIF composer", text: "Text & markup", pdf: "PDF tools", archive: "Archives", knowledge: "Knowledge base" },
     privacy: {
       home: { title: "File home privacy", detail: "File home reads only a small local prefix needed for classification. It never uploads, automatically processes, or saves files, filenames, or identification results." },
       image: { title: "Image conversion privacy", detail: "Images, converted results, and archives exist only in browser memory and are never uploaded. Only conversion preferences are saved locally; files and filenames disappear when the page closes." },
       gif: { title: "GIF composer privacy", detail: "Source images, frame pixels, and generated GIFs are processed only in browser memory and never uploaded. Assets and animations are not retained after you leave." },
       text: { title: "Text and markup privacy", detail: "Opened text, parsed structure, previews, and converted output are generated locally in the browser and are never sent to a server or third party." },
+      pdf: { title: "PDF tools privacy", detail: "PDF structure inspection reads file content only in browser memory. Files, names, and results are never uploaded and are discarded when the page closes." },
+      archive: { title: "Archive tools privacy", detail: "ZIP listing, verification, and extraction happen locally. The archive, internal filenames, and extracted content are never sent to a server." },
       knowledge: { title: "Knowledge base privacy", detail: "This static guide does not read your files, record what you view, or make external requests for format information." },
     },
     home: {
@@ -203,6 +209,8 @@ export const translations: Record<"zh" | "en", Translations> = {
       formats: { markdown: "Markdown", org: "Org mode", rst: "reStructuredText", asciidoc: "AsciiDoc", html: "HTML", txt: "Plain text" },
       blockTypes: { heading: "Headings", paragraph: "Paragraphs", list: "Lists", code: "Code blocks", quote: "Quotes", rule: "Rules" },
     },
+    pdf: { title: "PDF tools", intro: "Open a PDF manually to inspect basic structure and risk signals locally. Page editing will open only after parser and writer correctness is verified.", open: "Open PDF", clear: "Clear", emptyTitle: "Open a PDF to inspect it", emptyDetail: "This first stage reports lightweight structure without rendering, uploading, or rewriting the source.", reading: "Reading", local: "Local inspection", version: "Version", pages: "Estimated pages", objects: "Objects", encrypted: "Encrypted", linearized: "Fast web view", metadata: "May contain metadata", mediaBox: "First media box", yes: "Yes", no: "No", estimateWarning: "Page and object counts come from a lightweight scan. Incremental updates, object streams, and encrypted PDFs may not be counted accurately; this is not a full PDF parser.", nextTools: "Next page tools", nextToolsDetail: "These require complete parsing, visual page selection, undo, and output verification before release.", errors: { "pdf-empty": "The PDF is empty.", "pdf-inspection-limit": "Lightweight inspection is currently limited to 32 MB to control memory use.", "pdf-invalid": "No valid PDF header was found.", unknown: "This PDF could not be inspected." } },
+    archive: { title: "Archive tools", intro: "Inspect ZIP contents and extract selected files safely. Paths, encryption, algorithms, and suspicious expansion are blocked before export.", open: "Open ZIP", clear: "Clear", emptyTitle: "Open a ZIP to view its contents", emptyDetail: "Directories and files are read locally. ZIP is supported first; other archive formats will open behind explicit capability checks.", reading: "Reading…", entryCount: "{{count}} entries", selectAll: "Select all safe files", deselectAll: "Deselect all", extract: "Export {{count}} items", directory: "Folder", stored: "Stored", deflated: "Deflate", safe: "Exportable", safetyNote: "Export verifies size and CRC again. Multiple items are repackaged into a locally generated ZIP to avoid a burst of browser downloads.", reasons: { path: "Unsafe path", encrypted: "Encrypted", method: "Unsupported method", size: "Expanded size too large", ratio: "Suspicious ratio" }, errors: { "zip-file-limit": "The ZIP exceeds the 512 MB inspection limit.", "zip-invalid": "No valid ZIP directory was found.", "zip-multidisk": "Multi-volume ZIP files are not supported yet.", "zip64-unsupported": "ZIP64 is not supported yet.", "zip-entry-limit": "The archive exceeds the 5,000-entry limit.", "zip-total-limit": "Estimated extracted content exceeds the 1 GB safety budget.", "zip-truncated": "The ZIP data is incomplete.", "zip-invalid-central": "The ZIP central directory is damaged.", "zip-entry-blocked": "This entry was blocked by a safety rule.", "zip-invalid-local": "The ZIP local entry is damaged.", "zip-deflate-unavailable": "This browser cannot locally decompress Deflate data.", "zip-integrity": "Extracted size or CRC verification failed.", unknown: "This ZIP could not be read or extracted." } },
     knowledge: {
       title: "Format knowledge base", intro: "Understand formats through use cases, compression, transparency, and animation—not just file extensions.", introExpanded: "Browse by images, animation, or text markup. As FormTran gains converters, their principles and limits will be documented here.", categoriesLabel: "Knowledge categories",
       categories: { images: { title: "Image formats", description: "Compression, transparency, color, and support" }, animation: { title: "Animation & GIF", description: "Frames, timing, palettes, and size" }, markup: { title: "Text & markup", description: "Semantics, dialects, and round trips" } },

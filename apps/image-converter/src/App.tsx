@@ -10,6 +10,8 @@ import { translations } from "./i18n";
 import { GifComposer } from "./GifComposer";
 import { TextMarkupConverter } from "./TextMarkupConverter";
 import { FileHome } from "./FileHome";
+import { PdfWorkspace } from "./PdfWorkspace";
+import { ArchiveWorkspace } from "./ArchiveWorkspace";
 import { SelectMenu } from "./SelectMenu";
 import { ACCEPT_ATTRIBUTE, convertImage, getFileExtension } from "./lib/convert";
 import { triggerDownload } from "./lib/download";
@@ -36,7 +38,7 @@ const REGEX_PRESETS = [
   { id: "copy", pattern: "\\s*\\(\\d+\\)$", replacement: "", global: false, ignoreCase: true },
 ] as const;
 type StoredSettings = { conversion: ConversionSettings; rename: RenameSettings };
-type AppTab = "home" | "image" | "gif" | "text" | "knowledge";
+type AppTab = "home" | "image" | "gif" | "text" | "pdf" | "archive" | "knowledge";
 type NamePreview = { before: string; after: string; matched: boolean; groups: string[] };
 type DownloadMode = "files" | "zip";
 type ImportSummary = { accepted: number; rejected: number };
@@ -65,6 +67,8 @@ function AppSurface() {
   const [activeTab, setActiveTab] = useState<AppTab>("home");
   const [gifTransfer, setGifTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [textTransfer, setTextTransfer] = useState<{ id: number; files: File[] } | undefined>();
+  const [pdfTransfer, setPdfTransfer] = useState<{ id: number; files: File[] } | undefined>();
+  const [archiveTransfer, setArchiveTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [downloadMode, setDownloadMode] = useState<DownloadMode>("files");
   const [lastImport, setLastImport] = useState<ImportSummary | null>(null);
@@ -195,6 +199,8 @@ function AppSurface() {
   };
   const openGif = (files: File[]) => { setGifTransfer({ id: Date.now(), files }); setActiveTab("gif"); };
   const openText = (files: File[]) => { setTextTransfer({ id: Date.now(), files }); setActiveTab("text"); };
+  const openPdf = (files: File[]) => { setPdfTransfer({ id: Date.now(), files }); setActiveTab("pdf"); };
+  const openArchive = (files: File[]) => { setArchiveTransfer({ id: Date.now(), files }); setActiveTab("archive"); };
 
   return (
     <>
@@ -210,7 +216,7 @@ function AppSurface() {
         <AppTabs active={activeTab} onChange={setActiveTab} />
 
         <main>
-          <FileHome hidden={activeTab !== "home"} onOpenImage={openImages} onOpenGif={openGif} onOpenText={openText}/>
+          <FileHome hidden={activeTab !== "home"} onOpenImage={openImages} onOpenGif={openGif} onOpenText={openText} onOpenPdf={openPdf} onOpenArchive={openArchive}/>
           {activeTab === "image" && (
             <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image">
               <div className="intake-grid">
@@ -264,6 +270,8 @@ function AppSurface() {
           )}
           <GifComposer hidden={activeTab !== "gif"} incoming={gifTransfer}/>
           <TextMarkupConverter hidden={activeTab !== "text"} incoming={textTransfer}/>
+          <PdfWorkspace hidden={activeTab !== "pdf"} incoming={pdfTransfer}/>
+          <ArchiveWorkspace hidden={activeTab !== "archive"} incoming={archiveTransfer}/>
           {activeTab === "knowledge" && <KnowledgePage />}
         </main>
         <TabPrivacyNotice tab={activeTab} />
@@ -276,7 +284,7 @@ function AppSurface() {
 
 function AppTabs({ active, onChange }: { active: AppTab; onChange: (tab: AppTab) => void }) {
   const { t } = useTranslation();
-  const tabs: AppTab[] = ["home", "image", "gif", "text", "knowledge"];
+  const tabs: AppTab[] = ["home", "image", "gif", "text", "pdf", "archive", "knowledge"];
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();

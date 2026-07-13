@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "../App";
 import { translations } from "../i18n";
+import { createZip } from "../lib/zip";
 
 afterEach(() => { cleanup(); localStorage.clear(); });
 
@@ -26,13 +27,13 @@ describe("application shell", () => {
     expect(screen.getByRole("heading", { name: /Drop a file|把文件拖进来/ })).toBeTruthy();
   });
 
-  it("exposes a file home plus four independent workspaces", () => {
+  it("exposes automatic routing plus manual family workspaces", () => {
     render(<App />);
     const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(5);
+    expect(tabs).toHaveLength(7);
     expect(tabs[0].getAttribute("aria-selected")).toBe("true");
-    fireEvent.click(tabs[4]);
-    expect(tabs[4].getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(tabs[6]);
+    expect(tabs[6].getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tabpanel").id).toBe("panel-knowledge");
     expect(screen.getByText(/Knowledge base privacy|知识库隐私说明/)).toBeTruthy();
   });
@@ -59,4 +60,29 @@ describe("application shell", () => {
     fireEvent.click(tabs[0]);
     expect(screen.getAllByText(/kept\.png/).length).toBeGreaterThan(0);
   });
+
+  it("opens PDF and ZIP families manually and reports local structure", async () => {
+    render(<App />);
+    const tabs = screen.getAllByRole("tab");
+    fireEvent.click(tabs[4]);
+    const pdf = new File(["%PDF-1.7\n1 0 obj\n<< /Type /Page /MediaBox [0 0 612 792] >>\nendobj\n%%EOF"], "notes.pdf", { type: "application/pdf" });
+    fireEvent.change(screen.getByLabelText(/Open PDF|打开 PDF/), { target: { files: [pdf] } });
+    await waitFor(() => expect(screen.getByText("PDF 1.7")).toBeTruthy());
+
+    fireEvent.click(tabs[5]);
+    const zipBlob = await createZip([{ name: "safe/notes.txt", blob: new Blob(["local"]) }]);
+    const zip = new File([await readBlob(zipBlob)], "notes.zip", { type: "application/zip" });
+    fireEvent.change(screen.getByLabelText(/Open ZIP|打开 ZIP/), { target: { files: [zip] } });
+    await waitFor(() => expect(screen.getByText("safe/notes.txt")).toBeTruthy());
+  });
 });
+
+function readBlob(blob: Blob): Promise<ArrayBuffer> {
+  if (typeof blob.arrayBuffer === "function") return blob.arrayBuffer();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as ArrayBuffer);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsArrayBuffer(blob);
+  });
+}

@@ -8,7 +8,7 @@ import {
 type HomeFile = { id: string; file: File; relativePath: string; identified: IdentifiedFile | null; error?: string };
 type ImagePreset = "default" | "web" | "transparent" | "privacy";
 type ToolStatus = "available" | "limited" | "planned";
-type Tool = { id: string; status: ToolStatus; action?: "image" | "gif" | "text" | "base64" };
+type Tool = { id: string; status: ToolStatus; action?: "image" | "gif" | "text" | "base64" | "pdf" | "archive" };
 
 const DIRECT_IMAGE_FORMATS = new Set(["JPEG", "PNG", "WebP", "AVIF", "BMP", "SVG"]);
 const DIRECT_TEXT_FORMATS = new Set(["TXT", "Markdown", "HTML", "ORG", "RST", "ADOC", "ASCIIDOC"]);
@@ -41,19 +41,21 @@ const TOOLS: Record<FileFamily, Tool[]> = {
   pdf: [
     { id: "merge", status: "planned" }, { id: "split", status: "planned" }, { id: "deletePages", status: "planned" },
     { id: "extractPages", status: "planned" }, { id: "reorder", status: "planned" }, { id: "rotatePages", status: "planned" },
-    { id: "pdfImages", status: "planned" }, { id: "info", status: "planned" },
+    { id: "pdfImages", status: "planned" }, { id: "info", status: "available", action: "pdf" },
   ],
   archive: [
-    { id: "archiveList", status: "planned" }, { id: "extractAll", status: "planned" }, { id: "extractSome", status: "planned" },
+    { id: "archiveList", status: "available", action: "archive" }, { id: "extractAll", status: "available", action: "archive" }, { id: "extractSome", status: "available", action: "archive" },
   ],
   unknown: [{ id: "info", status: "available" }],
 };
 
-export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText }: {
+export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText, onOpenPdf, onOpenArchive }: {
   hidden?: boolean;
   onOpenImage: (files: File[], preset: ImagePreset) => void;
   onOpenGif: (files: File[]) => void;
   onOpenText: (files: File[]) => void;
+  onOpenPdf: (files: File[]) => void;
+  onOpenArchive: (files: File[]) => void;
 }) {
   const { t } = useTranslation();
   const [items, setItems] = useState<HomeFile[]>([]);
@@ -111,6 +113,8 @@ export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText }: {
     if (tool.action === "image") onOpenImage([selected.file], tool.id === "compress" ? "web" : tool.id === "metadata" ? "privacy" : "default");
     if (tool.action === "gif") onOpenGif(compatible("image"));
     if (tool.action === "text") onOpenText([selected.file]);
+    if (tool.action === "pdf") onOpenPdf([selected.file]);
+    if (tool.action === "archive") onOpenArchive([selected.file]);
     if (tool.action === "base64") {
       if (selected.file.size > 10 * 1024 * 1024) { setNotice(t("home.base64Limit")); return; }
       const reader = new FileReader();
