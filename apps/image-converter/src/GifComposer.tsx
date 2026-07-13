@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "@toolbox/i18n/react";
 import { ACCEPT_ATTRIBUTE, getFileExtension, isAcceptedImage, sanitizeSvg } from "./lib/convert";
 import { triggerDownload } from "./lib/download";
@@ -27,7 +27,7 @@ async function decodeFile(file: File): Promise<{ image: CanvasImageSource; width
   }
 }
 
-export function GifComposer() {
+export function GifComposer({ incoming }: { incoming?: { id: number; files: File[] } }) {
   const { t } = useTranslation();
   const [frames, setFrames] = useState<SourceFrame[]>([]);
   const [width, setWidth] = useState(640);
@@ -40,6 +40,7 @@ export function GifComposer() {
   const [error, setError] = useState<string | null>(null);
   const framesRef = useRef(frames);
   const resultRef = useRef(result);
+  const incomingRef = useRef<number | null>(null);
   framesRef.current = frames;
   resultRef.current = result;
   useEffect(() => () => {
@@ -51,11 +52,21 @@ export function GifComposer() {
   const canGenerate = frames.length >= 2 && width > 0 && height > 0 && width <= 4096 && height <= 4096 && totalPixels <= 100_000_000;
   const duration = useMemo(() => frames.length * delay / 1000, [frames.length, delay]);
 
-  const add = (event: ChangeEvent<HTMLInputElement>) => {
-    const accepted = [...event.target.files ?? []].filter(isAcceptedImage).slice(0, Math.max(0, 100 - frames.length));
+  const appendFiles = useCallback((files: File[]) => {
+    const accepted = files.filter(isAcceptedImage).slice(0, Math.max(0, 100 - framesRef.current.length));
     const stamp = Date.now();
     setFrames((current) => [...current, ...accepted.map((file, index) => ({ id: `${stamp}-${index}`, file, url: URL.createObjectURL(file) }))]);
     setError(accepted.length ? null : t("gif.noAccepted"));
+  }, [t]);
+
+  useEffect(() => {
+    if (!incoming || incomingRef.current === incoming.id) return;
+    incomingRef.current = incoming.id;
+    appendFiles(incoming.files);
+  }, [appendFiles, incoming]);
+
+  const add = (event: ChangeEvent<HTMLInputElement>) => {
+    appendFiles([...event.target.files ?? []]);
     event.target.value = "";
   };
   const move = (index: number, offset: number) => setFrames((current) => {

@@ -48,19 +48,33 @@ try {
   await assertDesktopSharedShell(page)
   await assertAppMarkStyle(page)
   await assertSharedPreferenceMatrix(page, async () => {
-    assert.equal(await page.locator('.drop-zone').isVisible(), true)
-    assert.equal(await page.locator('.control-grid').isVisible(), true)
+    assert.equal(await page.locator('.file-home-intake').isVisible(), true)
+    assert.equal(await page.locator('.family-overview').isVisible(), true)
     assert.equal(await page.locator('.toolbox-nav').count(), 1)
     assert.equal(await page.locator('.toolbox-footer').count(), 1)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
   })
 
+  const homeTab = page.getByRole('tab', { name: /File home|文件首页/ })
   const workspaceTab = page.getByRole('tab', { name: /Image conversion|图片格式转换/ })
   const gifTab = page.getByRole('tab', { name: /GIF composer|GIF 合成/ })
   const textTab = page.getByRole('tab', { name: /Text & markup|文本与标记转换/ })
   const knowledgeTab = page.getByRole('tab', { name: /Knowledge base|知识库/ })
+  assert.equal(await homeTab.getAttribute('aria-selected'), 'true')
+  assert.equal(await page.getByRole('heading', { level: 1 }).textContent(), 'FormTran')
+  assert.match(await page.locator('.tab-privacy').textContent(), /File home privacy|文件首页隐私说明/)
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAD0lEQVR42mNkYPj/n4GBgQEABgAB/oc6WQAAAABJRU5ErkJggg==', 'base64')
+  await page.locator('.file-home-intake input[type=file]').first().setInputFiles([
+    { name: 'IMG_sample.png', mimeType: 'image/png', buffer: png },
+    { name: 'manual.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.7\n') },
+  ])
+  await page.waitForFunction(() => document.querySelectorAll('.home-file-list > div').length === 2 && !document.body.textContent.includes('Identifying locally'))
+  assert.equal(await page.locator('.home-file-list > div').count(), 2)
+  assert.match(await page.locator('.file-summary').textContent(), /PNG/)
+  assert.equal(await page.locator('.capability.planned').count() > 0, true)
+  await page.locator('.tool-row').first().getByRole('button', { name: /Open tool|打开工具/ }).click()
   assert.equal(await workspaceTab.getAttribute('aria-selected'), 'true')
-  assert.match(await page.getByRole('heading', { level: 1 }).textContent(), /FormTran \/ 方转/)
+  assert.equal(await page.locator('.file-row').count(), 1)
   assert.match(await page.locator('.tab-privacy').textContent(), /Image conversion privacy|图片格式转换隐私说明/)
   const uploadBox = await page.locator('.drop-zone').boundingBox()
   const queueBox = await page.locator('.queue-panel').boundingBox()
@@ -82,15 +96,13 @@ try {
   await workspaceTab.click()
   assert.equal(await workspaceTab.getAttribute('aria-selected'), 'true')
 
-  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAD0lEQVR42mNkYPj/n4GBgQEABgAB/oc6WQAAAABJRU5ErkJggg==', 'base64')
   // The pure selection suite covers relative folder paths; here a mixed multi-file
   // selection exercises the same rejection UI without creating fixture files.
-  await page.locator('input[type=file]').first().setInputFiles([
-    { name: 'IMG_sample.png', mimeType: 'image/png', buffer: png },
+  await page.locator('.drop-zone input[type=file]').first().setInputFiles([
     { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('not an image') },
   ])
   assert.equal(await page.locator('.file-row').count(), 1)
-  assert.match(await page.locator('.import-feedback').textContent(), /Added 1 files|已加入 1 个文件/)
+  assert.match(await page.locator('.import-feedback').textContent(), /No files were added|本次没有文件加入/)
   const rejectedSummary = page.locator('.rejection-summary')
   assert.equal(await rejectedSummary.isVisible(), true)
   await rejectedSummary.focus()

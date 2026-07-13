@@ -99,7 +99,7 @@ export function parseMarkup(input: string, source: MarkupFormat): MarkupBlock[] 
     }
     const heading = source === "org" ? /^(\*{1,6})\s+(.+)$/.exec(line) : source === "asciidoc" ? /^(={1,6})\s+(.+)$/.exec(line) : /^(#{1,6})\s+(.+)$/.exec(line);
     if (heading) { flushParagraph(); blocks.push({ type: "heading", level: heading[1].length, text: normalizeInline(heading[2], source) }); continue; }
-    const fence = source === "org" ? /^#\+BEGIN_SRC\s*(.*)$/i.exec(line) : source === "rst" ? /^\.\.\s+code-block::\s*(.*)$/.exec(line) : source === "asciidoc" && /^\[source(?:,([^\]]+))?\]$/.exec(line);
+    const fence = source === "org" ? /^#\+BEGIN_SRC\s*(.*)$/i.exec(line) : source === "rst" ? /^\.\.\s+code-block::\s*(.*)$/.exec(line) : source === "asciidoc" ? /^\[source(?:,([^\]]+))?\]$/.exec(line) : null;
     if (fence || (source === "markdown" && /^```(.*)$/.test(line))) {
       flushParagraph();
       const language = fence?.[1]?.trim() ?? line.replace(/^```/, "").trim();

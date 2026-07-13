@@ -9,6 +9,7 @@ import { ToolboxFooter } from "@toolbox/nav/ToolboxFooter.tsx";
 import { translations } from "./i18n";
 import { GifComposer } from "./GifComposer";
 import { TextMarkupConverter } from "./TextMarkupConverter";
+import { FileHome } from "./FileHome";
 import { SelectMenu } from "./SelectMenu";
 import { ACCEPT_ATTRIBUTE, convertImage, getFileExtension } from "./lib/convert";
 import { triggerDownload } from "./lib/download";
@@ -35,7 +36,7 @@ const REGEX_PRESETS = [
   { id: "copy", pattern: "\\s*\\(\\d+\\)$", replacement: "", global: false, ignoreCase: true },
 ] as const;
 type StoredSettings = { conversion: ConversionSettings; rename: RenameSettings };
-type AppTab = "image" | "gif" | "text" | "knowledge";
+type AppTab = "home" | "image" | "gif" | "text" | "knowledge";
 type NamePreview = { before: string; after: string; matched: boolean; groups: string[] };
 type DownloadMode = "files" | "zip";
 type ImportSummary = { accepted: number; rejected: number };
@@ -61,7 +62,9 @@ function AppSurface() {
   const [rejections, setRejections] = useState<RejectedFile[]>([]);
   const [dragging, setDragging] = useState(false);
   const [running, setRunning] = useState(false);
-  const [activeTab, setActiveTab] = useState<AppTab>("image");
+  const [activeTab, setActiveTab] = useState<AppTab>("home");
+  const [gifTransfer, setGifTransfer] = useState<{ id: number; files: File[] } | undefined>();
+  const [textTransfer, setTextTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [downloadMode, setDownloadMode] = useState<DownloadMode>("files");
   const [lastImport, setLastImport] = useState<ImportSummary | null>(null);
@@ -70,7 +73,7 @@ function AppSurface() {
   itemRef.current = items;
 
   useEffect(() => {
-    document.title = activeTab === "image" ? t("meta.title") : `${t(`tabs.${activeTab}`)} · ${t("brand.title")}`;
+    document.title = activeTab === "home" ? t("meta.title") : `${t(`tabs.${activeTab}`)} · ${t("brand.title")}`;
     document.querySelector('meta[name="description"]')?.setAttribute("content", t("meta.description"));
   }, [activeTab, lang, t]);
 
@@ -184,6 +187,14 @@ function AppSurface() {
   const onDrop = (event: DragEvent) => {
     event.preventDefault(); setDragging(false); addFiles([...event.dataTransfer.files]);
   };
+  const openImages = (files: File[], preset: "default" | "web" | "transparent" | "privacy") => {
+    if (preset === "web") setSettings((current) => ({ ...current, format: "webp", quality: 0.74, resizeMode: "original", keepSmallerOriginal: false }));
+    if (preset === "transparent") setSettings((current) => ({ ...current, format: "png", resizeMode: "original", keepSmallerOriginal: false }));
+    if (preset === "privacy") setSettings((current) => ({ ...current, keepSmallerOriginal: false }));
+    addFiles(files); setActiveTab("image");
+  };
+  const openGif = (files: File[]) => { setGifTransfer({ id: Date.now(), files }); setActiveTab("gif"); };
+  const openText = (files: File[]) => { setTextTransfer({ id: Date.now(), files }); setActiveTab("text"); };
 
   return (
     <>
@@ -199,7 +210,7 @@ function AppSurface() {
         <AppTabs active={activeTab} onChange={setActiveTab} />
 
         <main>
-          {activeTab === "image" ? (
+          {activeTab === "home" ? <FileHome onOpenImage={openImages} onOpenGif={openGif} onOpenText={openText}/> : activeTab === "image" ? (
             <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image">
               <div className="intake-grid">
                 <div className="intake-column">
@@ -249,7 +260,7 @@ function AppSurface() {
                 </div>
               </div>
             </section>
-          ) : activeTab === "gif" ? <GifComposer /> : activeTab === "text" ? <TextMarkupConverter /> : <KnowledgePage />}
+          ) : activeTab === "gif" ? <GifComposer incoming={gifTransfer}/> : activeTab === "text" ? <TextMarkupConverter incoming={textTransfer}/> : <KnowledgePage />}
         </main>
         <TabPrivacyNotice tab={activeTab} />
         <ToolboxFooter appId="image-converter" />
@@ -261,7 +272,7 @@ function AppSurface() {
 
 function AppTabs({ active, onChange }: { active: AppTab; onChange: (tab: AppTab) => void }) {
   const { t } = useTranslation();
-  const tabs: AppTab[] = ["image", "gif", "text", "knowledge"];
+  const tabs: AppTab[] = ["home", "image", "gif", "text", "knowledge"];
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();

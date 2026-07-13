@@ -20,26 +20,26 @@ describe("application shell", () => {
   it("recovers from corrupt persisted settings and renders one shared shell", () => {
     localStorage.setItem("toolbox.image-converter.settings", "{bad-json");
     const { container } = render(<App />);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("FormTran / 方转");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("FormTran");
     expect(container.querySelectorAll(".toolbox-nav")).toHaveLength(1);
     expect(container.querySelectorAll(".toolbox-footer")).toHaveLength(1);
-    expect((screen.getByRole("button", { name: /Convert images|开始转换/ }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByRole("heading", { name: /Drop a file|把文件拖进来/ })).toBeTruthy();
   });
 
-  it("exposes four independent converter and knowledge tabs", () => {
+  it("exposes a file home plus four independent workspaces", () => {
     render(<App />);
     const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(4);
+    expect(tabs).toHaveLength(5);
     expect(tabs[0].getAttribute("aria-selected")).toBe("true");
-    fireEvent.click(tabs[3]);
-    expect(tabs[3].getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(tabs[4]);
+    expect(tabs[4].getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tabpanel").id).toBe("panel-knowledge");
     expect(screen.getByText(/Knowledge base privacy|知识库隐私说明/)).toBeTruthy();
   });
 
   it("uses an accessible theme-native format menu", () => {
     render(<App />);
-    fireEvent.click(screen.getAllByRole("tab")[2]);
+    fireEvent.click(screen.getAllByRole("tab")[3]);
     const target = screen.getByLabelText(/Batch output format|批量输出格式/);
     fireEvent.click(target);
     expect(screen.getAllByRole("option")).toHaveLength(6);

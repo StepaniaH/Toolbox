@@ -129,5 +129,6 @@ export function encodeGifBytes(frames: GifFrame[], options: GifOptions = { loop:
 }
 
 export function encodeGif(frames: GifFrame[], options: GifOptions = { loop: 0 }): Blob {
-  return new Blob([encodeGifBytes(frames, options)], { type: "image/gif" });
+  const bytes = encodeGifBytes(frames, options);
+  return new Blob([bytes.buffer as ArrayBuffer], { type: "image/gif" });
 }

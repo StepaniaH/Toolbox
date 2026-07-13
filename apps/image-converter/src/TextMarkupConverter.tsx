@@ -1,4 +1,4 @@
-import { useMemo, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "@toolbox/i18n/react";
 import { SelectMenu, type SelectOption } from "./SelectMenu";
 import { triggerDownload } from "./lib/download";
@@ -21,7 +21,7 @@ const privateByDefault = true
 
 type TextDocument = { id: string; name: string; source: MarkupFormat; input: string };
 
-export function TextMarkupConverter() {
+export function TextMarkupConverter({ incoming }: { incoming?: { id: number; files: File[] } }) {
   const { t } = useTranslation();
   const [documents, setDocuments] = useState<TextDocument[]>([{ id: "sample", name: "document.md", source: "markdown", input: SAMPLE }]);
   const [activeId, setActiveId] = useState<string | null>("sample");
@@ -29,6 +29,7 @@ export function TextMarkupConverter() {
   const [target, setTarget] = useState<MarkupFormat>("org");
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const incomingRef = useRef<number | null>(null);
   const active = documents.find((document) => document.id === activeId) ?? null;
   const source = active?.source ?? draftSource;
   const input = active?.input ?? "";
@@ -48,10 +49,8 @@ export function TextMarkupConverter() {
   const setSource = (next: MarkupFormat) => {
     if (active) patchActive({ source: next }); else setDraftSource(next);
   };
-  const upload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const incoming = [...event.target.files ?? []];
-    event.target.value = "";
-    const accepted = incoming.filter((file) => file.size <= 5 * 1024 * 1024).slice(0, Math.max(0, 100 - documents.length));
+  const openFiles = async (files: File[]) => {
+    const accepted = files.filter((file) => file.size <= 5 * 1024 * 1024).slice(0, Math.max(0, 100 - documents.length));
     const stamp = Date.now();
     const opened = await Promise.all(accepted.map(async (file, index): Promise<TextDocument> => {
       const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
@@ -61,9 +60,17 @@ export function TextMarkupConverter() {
       setDocuments((current) => [...current.filter((document) => document.id !== "sample"), ...opened]);
       setActiveId(opened[0].id);
     }
-    const skipped = incoming.length - opened.length;
+    const skipped = files.length - opened.length;
     setNotice(skipped ? t("text.skipped", { count: skipped }) : null);
   };
+  const upload = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = [...event.target.files ?? []]; event.target.value = ""; void openFiles(files);
+  };
+  useEffect(() => {
+    if (!incoming || incomingRef.current === incoming.id) return;
+    incomingRef.current = incoming.id;
+    void openFiles(incoming.files);
+  }, [incoming]);
   const remove = (id: string) => {
     const next = documents.filter((document) => document.id !== id);
     setDocuments(next);
