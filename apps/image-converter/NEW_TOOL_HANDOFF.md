@@ -37,6 +37,8 @@ acceptance:
 - GIF composition and text/markup conversion are independent business tabs inside FormTran: they share the local-format identity and static knowledge shell while keeping state, parameters, privacy copy, and workflows isolated.
 - Product identity is now English-only `FormTran`; the existing technical id and route remain stable.
 - Product scope is expanded to a browser-local file workbench. The default home is an identification and recommendation layer; domain workspaces remain isolated and high-risk parsers are not presented as available before implementation and tests.
+- File home recognizes supported image signatures plus PDF/ZIP and text/data extensions from at most 64 KiB per file. It warns on signature/extension mismatches, groups recommendations by available/limited/planned status, and never auto-runs a tool.
+- Supported files can be handed explicitly to image, GIF, or text workspaces. Image presets remain editable; Data URL generation is capped at 10 MB. TIFF/HEIC/ICO and high-risk PDF/archive operations are recognizable but not falsely exposed as implemented.
 - Workspace intake and queue share one equal-width/equal-height desktop row with feedback inside the intake card. Naming defaults to a compact template workflow and reveals regex controls only as an advanced section; the expanded light-theme surface uses the normal raised surface instead of a dark tint.
 - Result delivery is user-selectable: direct file downloads (one direct or many separate) or a single ZIP. Each app tab owns a distinct bottom privacy statement.
 - Native selects in the main delivery and text format flows were replaced by one app-local, keyboard-accessible theme menu to avoid platform-specific chrome and clipping.
@@ -51,16 +53,18 @@ acceptance:
 - Text: local `File.text()` or pasted string → app-local normalized block AST → target renderer → editor/sandbox preview → local Blob download.
 - Storage: only JSON preferences at `toolbox.image-converter.settings`; corrupt values recover to defaults. No filenames or image bytes are stored.
 - Query: none.
+- File-home identification: `File.slice(0, 64 KiB)` → local signature/extension classifier → in-memory recommendation state. The full file is not read until the user opens a compatible tool; filenames and results are not persisted.
 - SVG: raw SVG preview is suppressed; scripts, `foreignObject`, event attributes, and external references are removed before browser decoding.
 
 ## Verification results
 
-- `pnpm --filter=@toolbox/image-converter build` — passed; latest measured production JS 303.07 kB / 97.19 kB gzip, CSS 56.69 kB / 10.32 kB gzip.
-- `pnpm --filter=@toolbox/image-converter test` — passed, 7 files / 28 tests.
-- `pnpm --filter=@toolbox/image-converter lint` — passed, 0 warnings.
-- `pnpm --filter=@toolbox/image-converter test:browser` — passed with equal image cards, custom direct/ZIP delivery menu, text batch import, custom format menu, Markdown → Org conversion, knowledge comparison tables, and a real 64×64 two-frame GIF whose bottom pixel is decoded and validated.
-- `pnpm check:privacy` — passed for 277 tracked or unignored files at the latest check.
-- `pnpm check:contracts` — passed for 6 apps.
+- `node_modules/.bin/vite build` — passed; latest measured production JS 329.08 kB / 105.15 kB gzip, CSS 64.74 kB / 11.55 kB gzip.
+- `node_modules/.bin/vitest run` — passed, 9 files / 34 tests, including file-home queue preservation across Tab changes.
+- `node_modules/.bin/tsc -b` — passed after tightening the existing GIF Blob and markup fence types.
+- `node_modules/.bin/oxlint --deny-warnings src tests` — passed, 0 warnings.
+- `node tests/browser-smoke.mjs` — passed with file-home signature identification, explicit image handoff, editable presets, equal image cards, custom direct/ZIP delivery menu, text batch import, Markdown → Org conversion, knowledge comparison tables, mobile overflow checks, and a real 64×64 two-frame GIF whose bottom pixel is decoded and validated.
+- `node scripts/check-privacy.mjs` — passed for 282 tracked or unignored files at the latest check.
+- `node scripts/check-contracts.mjs` — passed for 6 apps.
 - `pnpm build` — passed, 6 app builds.
 - `pnpm test` — passed, 986 tests across the workspace after this candidate.
 - `pnpm lint` — passed, 0 warnings.
@@ -70,8 +74,8 @@ acceptance:
 
 ## Visual matrix
 
-- Automated: light/dark × zh/en at 1440 × 1100 and 390 × 844; shared shell, canonical mark, focusable controls, overflow, console/page/request failures, and real conversion covered.
-- Manual: English/light desktop screenshots of the custom download menu, flat GIF workbench, batch text workspace, and table-led knowledge base were inspected. The revised hierarchy removes nested raised surfaces while keeping boundaries and active rows legible.
+- Automated: light/dark × zh/en at 1440 × 1100 and 390 × 844; file home, shared shell, canonical mark, focusable controls, overflow, console/page/request failures, and real conversion covered.
+- Manual: English/light desktop empty and mixed-file home plus 390px mobile home were inspected. The routing surface uses flat dividers, a file rail, tool rows, collapsed future capabilities, and editable preset buttons rather than a new card wall.
 - Temporary screenshots were written outside the repository and were not retained as candidate files.
 
 ## Known limits and integration cleanup

@@ -4,6 +4,15 @@ A private, browser-only file workspace for conversion, compression, editing, spl
 
 The expansion is staged. Existing image conversion, GIF composition, and text/markup conversion are available now; image editing, GIF-specific processing, PDF page tools, structured data utilities, and archive inspection are added only after their correctness and resource boundaries are tested. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
 
+## File home
+
+- Accepts mixed files and folders, with a 500-file / 2 GB queue budget.
+- Reads at most the first 64 KiB of each file to identify JPEG, PNG, WebP, AVIF, GIF, SVG, BMP, TIFF, HEIC, ICO, PDF, ZIP, supported text, and structured-data names.
+- Prefers recognizable content signatures over extensions and warns when they disagree.
+- Shows available, limited, and planned capabilities separately; no conversion or parser starts automatically.
+- Can hand supported inputs into image conversion, GIF composition, or text/markup conversion, and generates image Data URLs locally up to 10 MB.
+- Provides editable image starting presets for web photos, transparent assets, and private sharing.
+
 ## Input and output
 
 - Input: up to 500 supported images, 512 MB per file, and 2 GB total per queue.
@@ -40,7 +49,7 @@ The knowledge base uses decision rows, expandable format references, and compari
 
 ## Privacy and network behavior
 
-Images, previews, conversions, and ZIP files stay in browser memory and are never uploaded. The app makes no business network requests and includes no account, backend, telemetry, ads, cookies, tracking, or remote fonts. Only conversion preferences are stored in `localStorage` under `toolbox.image-converter.settings`; image bytes and filenames are not persisted.
+Files, identification prefixes, images, previews, conversions, parsed text, and ZIP files stay in browser memory and are never uploaded. The app makes no business network requests and includes no account, backend, telemetry, ads, cookies, tracking, or remote fonts. Only conversion preferences are stored in `localStorage` under `toolbox.image-converter.settings`; file bytes, filenames, and identification results are not persisted.
 
 The privacy notice sits below the active app tab. Image, GIF, text, and knowledge pages each describe their actual local data flow.
 

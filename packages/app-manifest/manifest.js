@@ -103,11 +103,11 @@ export const TOOLBOX_APPS = Object.freeze([
     id: 'image-converter',
     path: '/image-converter/',
     name: 'FormTran',
-    navLabel: { zh: '方转', en: 'FormTran' },
-    description: { zh: '纯本地图片、GIF 与文本标记格式转换', en: 'Private image, GIF, and text markup conversion' },
+    navLabel: { zh: 'FormTran', en: 'FormTran' },
+    description: { zh: '纯本地文件识别、转换与处理工作台', en: 'Private local file identification and processing' },
     keywords: {
-      zh: ['图片', '图像', '格式转换', '批量转换', 'GIF', '动图', '重命名', '正则', 'Markdown', 'Org mode', '文本标记', 'PNG', 'JPEG', 'WebP'],
-      en: ['image', 'photo', 'format converter', 'batch conversion', 'GIF', 'animation', 'rename', 'regex', 'Markdown', 'Org mode', 'text markup', 'PNG', 'JPEG', 'WebP'],
+      zh: ['文件工具', '图片', '图像', '格式转换', '批量转换', '压缩', '编辑', 'GIF', '动图', 'PDF', '压缩包', '重命名', '正则', 'Markdown', 'JSON', 'CSV', '文本标记', 'PNG', 'JPEG', 'WebP'],
+      en: ['file tools', 'image', 'photo', 'format converter', 'batch conversion', 'compress', 'edit', 'GIF', 'animation', 'PDF', 'archive', 'rename', 'regex', 'Markdown', 'JSON', 'CSV', 'text markup', 'PNG', 'JPEG', 'WebP'],
     },
     icon: {
       viewBox: '0 0 48 48',

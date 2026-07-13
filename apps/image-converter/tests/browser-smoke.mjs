@@ -63,6 +63,8 @@ try {
   assert.equal(await homeTab.getAttribute('aria-selected'), 'true')
   assert.equal(await page.getByRole('heading', { level: 1 }).textContent(), 'FormTran')
   assert.match(await page.locator('.tab-privacy').textContent(), /File home privacy|文件首页隐私说明/)
+  assert.equal(await page.locator('.gif-page').isVisible(), false)
+  assert.equal(await page.locator('.text-page').isVisible(), false)
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAD0lEQVR42mNkYPj/n4GBgQEABgAB/oc6WQAAAABJRU5ErkJggg==', 'base64')
   await page.locator('.file-home-intake input[type=file]').first().setInputFiles([
     { name: 'IMG_sample.png', mimeType: 'image/png', buffer: png },
@@ -146,6 +148,7 @@ try {
     { name: 'guide.md', mimeType: 'text/markdown', buffer: Buffer.from('# Guide\n\nOne') },
     { name: 'notes.org', mimeType: 'text/plain', buffer: Buffer.from('* Notes\n\nTwo') },
   ])
+  await page.waitForFunction(() => document.querySelectorAll('.text-file-list > div').length === 2)
   assert.equal(await page.locator('.text-file-list > div').count(), 2)
   assert.match(await page.locator('.text-file-panel').textContent(), /guide\.md/)
   await page.getByLabel(/Input|输入/).fill('# Heading\n\n- one\n- two')
@@ -177,7 +180,7 @@ try {
   assert.equal(bottomPixel[3], 255)
   assert.equal(Math.max(...bottomPixel.slice(0, 3)) > 150 && Math.min(...bottomPixel.slice(0, 3)) < 80, true)
   assert.equal(await page.getByRole('button', { name: /Download GIF|下载 GIF/ }).isVisible(), true)
-  await page.getByRole('button', { name: /^Clear$|^清空$/ }).click()
+  await page.locator('.gif-page').getByRole('button', { name: /^Clear$|^清空$/ }).click()
   assert.equal(await page.locator('.frame-strip article').count(), 0)
   assert.equal(await page.locator('.gif-result').count(), 0)
 

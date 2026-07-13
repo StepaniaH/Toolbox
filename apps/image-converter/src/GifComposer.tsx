@@ -27,7 +27,7 @@ async function decodeFile(file: File): Promise<{ image: CanvasImageSource; width
   }
 }
 
-export function GifComposer({ incoming }: { incoming?: { id: number; files: File[] } }) {
+export function GifComposer({ hidden, incoming }: { hidden?: boolean; incoming?: { id: number; files: File[] } }) {
   const { t } = useTranslation();
   const [frames, setFrames] = useState<SourceFrame[]>([]);
   const [width, setWidth] = useState(640);
@@ -117,7 +117,7 @@ export function GifComposer({ incoming }: { incoming?: { id: number; files: File
     } finally { setRunning(false); }
   };
 
-  return <section className="tool-page gif-page" role="tabpanel" id="panel-gif" aria-labelledby="tab-gif">
+  return <section className="tool-page gif-page" role="tabpanel" id="panel-gif" aria-labelledby="tab-gif" hidden={hidden}>
     <div className="tool-intro"><div><span className="eyebrow">GIF89a · LOCAL ENCODING</span><h2>{t("gif.title")}</h2><p>{t("gif.intro")}</p></div><span className="step-chip">{t("gif.step", { current: frames.length ? result ? 3 : 2 : 1 })}</span></div>
     <div className="gif-workbench">
       <section className="gif-sources">

@@ -210,7 +210,8 @@ function AppSurface() {
         <AppTabs active={activeTab} onChange={setActiveTab} />
 
         <main>
-          {activeTab === "home" ? <FileHome onOpenImage={openImages} onOpenGif={openGif} onOpenText={openText}/> : activeTab === "image" ? (
+          <FileHome hidden={activeTab !== "home"} onOpenImage={openImages} onOpenGif={openGif} onOpenText={openText}/>
+          {activeTab === "image" && (
             <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image">
               <div className="intake-grid">
                 <div className="intake-column">
@@ -260,7 +261,10 @@ function AppSurface() {
                 </div>
               </div>
             </section>
-          ) : activeTab === "gif" ? <GifComposer incoming={gifTransfer}/> : activeTab === "text" ? <TextMarkupConverter incoming={textTransfer}/> : <KnowledgePage />}
+          )}
+          <GifComposer hidden={activeTab !== "gif"} incoming={gifTransfer}/>
+          <TextMarkupConverter hidden={activeTab !== "text"} incoming={textTransfer}/>
+          {activeTab === "knowledge" && <KnowledgePage />}
         </main>
         <TabPrivacyNotice tab={activeTab} />
         <ToolboxFooter appId="image-converter" />

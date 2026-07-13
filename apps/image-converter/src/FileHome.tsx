@@ -49,7 +49,8 @@ const TOOLS: Record<FileFamily, Tool[]> = {
   unknown: [{ id: "info", status: "available" }],
 };
 
-export function FileHome({ onOpenImage, onOpenGif, onOpenText }: {
+export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText }: {
+  hidden?: boolean;
   onOpenImage: (files: File[], preset: ImagePreset) => void;
   onOpenGif: (files: File[]) => void;
   onOpenText: (files: File[]) => void;
@@ -122,7 +123,7 @@ export function FileHome({ onOpenImage, onOpenGif, onOpenText }: {
   const plannedTools = tools.filter((tool) => tool.status === "planned");
   const toolRow = (tool: Tool) => <div className="tool-row" key={tool.id}><div><strong>{t(`home.tools.${tool.id}.title`)}</strong><p>{t(`home.tools.${tool.id}.detail`)}</p></div><span className={`capability ${tool.status}`}>{t(`home.status.${tool.status}`)}</span>{tool.action && tool.status !== "planned" ? <button className="button secondary compact" type="button" onClick={() => void activate(tool)}>{t(tool.action === "base64" ? "home.generate" : "home.openTool")}</button> : <span className="tool-row-placeholder">{tool.status === "planned" ? t("home.notOpen") : t("home.shownHere")}</span>}</div>;
 
-  return <section className="file-home" role="tabpanel" id="panel-home" aria-labelledby="tab-home">
+  return <section className="file-home" role="tabpanel" id="panel-home" aria-labelledby="tab-home" hidden={hidden}>
     <div className={`file-home-intake ${dragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
       <div><span className="eyebrow">LOCAL FILE ROUTER</span><h2>{t("home.title")}</h2><p>{t("home.intro")}</p></div>
       <div className="home-intake-actions"><label className="button primary">{t("home.chooseFiles")}<input type="file" multiple onChange={onInput}/></label><label className="button secondary">{t("home.chooseFolder")}<input type="file" multiple {...({ webkitdirectory: "" } as Record<string, string>)} onChange={onInput}/></label></div>

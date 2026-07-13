@@ -21,7 +21,7 @@ const privateByDefault = true
 
 type TextDocument = { id: string; name: string; source: MarkupFormat; input: string };
 
-export function TextMarkupConverter({ incoming }: { incoming?: { id: number; files: File[] } }) {
+export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; incoming?: { id: number; files: File[] } }) {
   const { t } = useTranslation();
   const [documents, setDocuments] = useState<TextDocument[]>([{ id: "sample", name: "document.md", source: "markdown", input: SAMPLE }]);
   const [activeId, setActiveId] = useState<string | null>("sample");
@@ -102,7 +102,7 @@ export function TextMarkupConverter({ incoming }: { incoming?: { id: number; fil
     triggerDownload(await createZip(entries), `formtran-text-${new Date().toISOString().slice(0, 10)}.zip`);
   };
 
-  return <section className="tool-page text-page" role="tabpanel" id="panel-text" aria-labelledby="tab-text">
+  return <section className="tool-page text-page" role="tabpanel" id="panel-text" aria-labelledby="tab-text" hidden={hidden}>
     <div className="tool-intro"><div><span className="eyebrow">TXT · MD · ORG · RST · ADOC · HTML</span><h2>{t("text.title")}</h2><p>{t("text.intro")}</p></div><div className="text-actions"><label className="button secondary compact">{t("text.openFile")}<input type="file" multiple accept=".txt,.md,.markdown,.org,.rst,.adoc,.asciidoc,.html,.htm,text/*" onChange={upload}/></label><button className="button secondary compact" type="button" disabled={!documents.length} onClick={clear}>{t("text.clear")}</button></div></div>
     <div className="text-workbench">
       <aside className="text-file-panel">

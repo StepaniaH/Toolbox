@@ -1,5 +1,5 @@
 import React from "react";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "../App";
 import { translations } from "../i18n";
@@ -45,5 +45,16 @@ describe("application shell", () => {
     expect(screen.getAllByRole("option")).toHaveLength(6);
     fireEvent.click(screen.getByRole("option", { name: "Org mode" }));
     expect(target.textContent).toContain("Org mode");
+  });
+
+  it("keeps the file-home queue while visiting another workspace", async () => {
+    render(<App />);
+    const png = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])], "kept.png");
+    fireEvent.change(screen.getByLabelText(/Choose files|选择文件/), { target: { files: [png] } });
+    await waitFor(() => expect(screen.getAllByText(/kept\.png/).length).toBeGreaterThan(0));
+    const tabs = screen.getAllByRole("tab");
+    fireEvent.click(tabs[1]);
+    fireEvent.click(tabs[0]);
+    expect(screen.getAllByText(/kept\.png/).length).toBeGreaterThan(0);
   });
 });
