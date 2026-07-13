@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from '@toolbox/i18n/react'
 import { ActionBar } from './ActionBar'
+import { Dropdown } from './Dropdown'
+import { Tooltip } from './Tooltip'
 import {
   aesGcmEncrypt,
   aesGcmDecrypt,
@@ -23,29 +25,18 @@ export function CipherPanel() {
   const [iv, setIv] = useState('')
 
   function randomHex(length: number): string {
-    const bytes = crypto.getRandomValues(new Uint8Array(length))
-    return bytesToHex(bytes)
+    return bytesToHex(crypto.getRandomValues(new Uint8Array(length)))
   }
 
-  function keyLength(): number {
-    return algo === 'aesCbc' || algo === 'aesGcm' ? 32 : 32
-  }
-
-  function ivLength(): number {
-    return algo === 'aesCbc' ? 16 : 12
-  }
+  const ivLength = algo === 'aesCbc' ? 16 : 12
 
   async function encrypt() {
     setError('')
     try {
       let result = ''
-      if (algo === 'aesGcm') {
-        result = await aesGcmEncrypt(input, key, iv)
-      } else if (algo === 'aesCbc') {
-        result = await aesCbcEncrypt(input, key, iv)
-      } else {
-        result = chacha20Encrypt(input, key, iv)
-      }
+      if (algo === 'aesGcm') result = await aesGcmEncrypt(input, key, iv)
+      else if (algo === 'aesCbc') result = await aesCbcEncrypt(input, key, iv)
+      else result = chacha20Encrypt(input, key, iv)
       setOutput(result)
     } catch (err) {
       setOutput('')
@@ -57,13 +48,9 @@ export function CipherPanel() {
     setError('')
     try {
       let result = ''
-      if (algo === 'aesGcm') {
-        result = await aesGcmDecrypt(input, key, iv)
-      } else if (algo === 'aesCbc') {
-        result = await aesCbcDecrypt(input, key, iv)
-      } else {
-        result = chacha20Decrypt(input, key, iv)
-      }
+      if (algo === 'aesGcm') result = await aesGcmDecrypt(input, key, iv)
+      else if (algo === 'aesCbc') result = await aesCbcDecrypt(input, key, iv)
+      else result = chacha20Decrypt(input, key, iv)
       setOutput(result)
     } catch (err) {
       setOutput('')
@@ -71,91 +58,112 @@ export function CipherPanel() {
     }
   }
 
+  const algoOptions = [
+    { value: 'aesGcm', label: 'AES-256-GCM' },
+    { value: 'aesCbc', label: 'AES-256-CBC' },
+    { value: 'chacha20', label: 'ChaCha20' },
+  ]
+
+  const algoTipKey: Record<CipherAlgo, string> = {
+    aesGcm: 'tip.aesGcm',
+    aesCbc: 'tip.aesCbc',
+    chacha20: 'tip.chacha20',
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="tool-label">{t('cipher.algorithm')}</label>
-        <select
-          className="tool-select"
+      <div className="flex items-center gap-2">
+        <Dropdown
           value={algo}
-          onChange={(e) => {
-            setAlgo(e.target.value as CipherAlgo)
+          options={algoOptions}
+          onChange={(v) => {
+            setAlgo(v as CipherAlgo)
             setOutput('')
             setError('')
           }}
-          aria-label={t('cipher.algorithm')}
-        >
-          <option value="aesGcm">{t('cipher.aesGcm')}</option>
-          <option value="aesCbc">{t('cipher.aesCbc')}</option>
-          <option value="chacha20">{t('cipher.chacha20')}</option>
-        </select>
+          ariaLabel={t('cipher.algorithm')}
+        />
+        <Tooltip text={t(algoTipKey[algo])} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="tool-label">{t('cipher.key')}</label>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <label className="cl-label">
+            {t('cipher.key')}
+            <span className="cl-hint ml-1">32 bytes · hex</span>
+          </label>
+          <button
+            type="button"
+            className="cl-icon-btn"
+            onClick={() => setKey(randomHex(32))}
+            title={t('common.generate')}
+            aria-label={t('common.generate')}
+          >
+            <span className="text-xs">{t('common.generate')}</span>
+          </button>
+        </div>
         <input
           type="text"
-          className="tool-input w-auto min-w-[20rem] font-mono"
+          className="cl-text w-full"
           value={key}
           onChange={(e) => setKey(e.target.value)}
           placeholder={t('cipher.keyPlaceholder')}
-          aria-label={t('cipher.key')}
         />
-        <button
-          type="button"
-          className="tool-btn tool-btn-ghost"
-          onClick={() => setKey(randomHex(keyLength()))}
-        >
-          {t('common.generate')}
-        </button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="tool-label">{t('cipher.iv')}</label>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <label className="cl-label">
+            {t('cipher.iv')}
+            <span className="cl-hint ml-1">{ivLength} bytes · hex</span>
+          </label>
+          <button
+            type="button"
+            className="cl-icon-btn"
+            onClick={() => setIv(randomHex(ivLength))}
+            title={t('common.generate')}
+            aria-label={t('common.generate')}
+          >
+            <span className="text-xs">{t('common.generate')}</span>
+          </button>
+        </div>
         <input
           type="text"
-          className="tool-input w-auto min-w-[16rem] font-mono"
+          className="cl-text w-full"
           value={iv}
           onChange={(e) => setIv(e.target.value)}
           placeholder={t('cipher.ivPlaceholder')}
-          aria-label={t('cipher.iv')}
         />
-        <button
-          type="button"
-          className="tool-btn tool-btn-ghost"
-          onClick={() => setIv(randomHex(ivLength()))}
-        >
-          {t('common.generate')}
-        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="space-y-2">
-          <label className="tool-label">{t('common.input')}</label>
+        <div>
+          <label className="cl-label">{t('common.input')}</label>
           <textarea
-            className="tool-input min-h-[10rem]"
+            className="cl-input min-h-[10rem]"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={t('cipher.inputPlaceholder')}
-            aria-label={t('common.input')}
           />
         </div>
-        <div className="space-y-2">
-          <label className="tool-label">{t('common.output')}</label>
+        <div>
+          <label className="cl-label">
+            {t('common.output')}
+            {error && <span className="cl-error ml-2">{error}</span>}
+          </label>
           <textarea
-            className={`tool-input min-h-[10rem] ${error ? 'border-destructive' : ''}`}
-            value={error || output}
+            className={`cl-input min-h-[10rem] ${error ? 'border-red' : ''}`}
+            value={output}
             readOnly
-            aria-label={t('common.output')}
           />
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button type="button" className="tool-btn tool-btn-primary" onClick={encrypt}>
+      <div className="flex gap-2">
+        <button type="button" className="cl-btn cl-btn-primary" onClick={encrypt}>
           {t('common.encrypt')}
         </button>
-        <button type="button" className="tool-btn tool-btn-primary" onClick={decrypt}>
+        <button type="button" className="cl-btn cl-btn-primary" onClick={decrypt}>
           {t('common.decrypt')}
         </button>
       </div>

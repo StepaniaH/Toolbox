@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from '@toolbox/i18n/react'
 import { ActionBar } from './ActionBar'
+import { Dropdown } from './Dropdown'
+import { Tooltip } from './Tooltip'
 import {
   generateRsaKeyPair,
   exportPublicKeyPem,
@@ -47,8 +49,7 @@ export function RsaPanel() {
     setError('')
     try {
       const key = await importPublicKeyPem(publicKeyPem, 'encryption')
-      const result = await rsaEncrypt(message, key)
-      setOutput(result)
+      setOutput(await rsaEncrypt(message, key))
     } catch (err) {
       setOutput('')
       setError(err instanceof Error ? err.message : t('rsa.encryptFailed'))
@@ -59,8 +60,7 @@ export function RsaPanel() {
     setError('')
     try {
       const key = await importPrivateKeyPem(privateKeyPem, 'encryption')
-      const result = await rsaDecrypt(message, key)
-      setOutput(result)
+      setOutput(await rsaDecrypt(message, key))
     } catch (err) {
       setOutput('')
       setError(err instanceof Error ? err.message : t('rsa.decryptFailed'))
@@ -70,19 +70,15 @@ export function RsaPanel() {
   async function sign() {
     setError('')
     try {
-      // For signing we need a signing key pair. If the current keys are encryption keys, generate a signing pair on demand.
       let privPem = privateKeyPem
-      let pubPem = publicKeyPem
       if (!privPem) {
         const pair = await generateRsaKeyPair(size, 'signing')
         privPem = await exportPrivateKeyPem(pair.privateKey)
-        pubPem = await exportPublicKeyPem(pair.publicKey)
         setPrivateKeyPem(privPem)
-        setPublicKeyPem(pubPem)
+        setPublicKeyPem(await exportPublicKeyPem(pair.publicKey))
       }
       const key = await importPrivateKeyPem(privPem, 'signing')
-      const result = await rsaSign(message, key)
-      setOutput(result)
+      setOutput(await rsaSign(message, key))
     } catch (err) {
       setOutput('')
       setError(err instanceof Error ? err.message : t('rsa.signFailed'))
@@ -104,92 +100,89 @@ export function RsaPanel() {
     }
   }
 
+  const sizeOptions = [
+    { value: '1024', label: '1024 bit' },
+    { value: '2048', label: '2048 bit' },
+    { value: '4096', label: '4096 bit' },
+  ]
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="tool-label">{t('rsa.keySize')}</label>
-        <select
-          className="tool-select"
-          value={size}
-          onChange={(e) => setSize(Number(e.target.value) as RsaSize)}
-          aria-label={t('rsa.keySize')}
-        >
-          <option value={1024}>1024</option>
-          <option value={2048}>2048</option>
-          <option value={4096}>4096</option>
-        </select>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <Dropdown
+          value={String(size)}
+          options={sizeOptions}
+          onChange={(v) => setSize(Number(v) as RsaSize)}
+          ariaLabel={t('rsa.keySize')}
+        />
         <button
           type="button"
-          className="tool-btn tool-btn-primary"
+          className="cl-btn cl-btn-primary"
           onClick={generateKeys}
           disabled={busy}
         >
           {busy ? t('rsa.generating') : t('rsa.generateEncryptionKeys')}
         </button>
+        <Tooltip text={t('tip.rsaKeySize')} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="space-y-2">
-          <label className="tool-label">{t('rsa.publicKey')}</label>
+        <div>
+          <label className="cl-label">{t('rsa.publicKey')}</label>
           <textarea
-            className="tool-input min-h-[8rem] text-xs"
+            className="cl-input min-h-[7rem] text-xs"
             value={publicKeyPem}
             onChange={(e) => setPublicKeyPem(e.target.value)}
             placeholder={t('rsa.publicKeyPlaceholder')}
-            aria-label={t('rsa.publicKey')}
           />
         </div>
-        <div className="space-y-2">
-          <label className="tool-label">{t('rsa.privateKey')}</label>
+        <div>
+          <label className="cl-label">{t('rsa.privateKey')}</label>
           <textarea
-            className="tool-input min-h-[8rem] text-xs"
+            className="cl-input min-h-[7rem] text-xs"
             value={privateKeyPem}
             onChange={(e) => setPrivateKeyPem(e.target.value)}
             placeholder={t('rsa.privateKeyPlaceholder')}
-            aria-label={t('rsa.privateKey')}
           />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <label className="tool-label">{t('rsa.message')}</label>
+      <div>
+        <label className="cl-label">{t('rsa.message')}</label>
         <textarea
-          className="tool-input min-h-[6rem]"
+          className="cl-input min-h-[5rem]"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={t('rsa.messagePlaceholder')}
-          aria-label={t('rsa.message')}
         />
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <button type="button" className="tool-btn tool-btn-primary" onClick={encrypt}>
+        <button type="button" className="cl-btn cl-btn-primary" onClick={encrypt}>
           {t('common.encrypt')}
         </button>
-        <button type="button" className="tool-btn tool-btn-primary" onClick={decrypt}>
+        <button type="button" className="cl-btn cl-btn-primary" onClick={decrypt}>
           {t('common.decrypt')}
         </button>
-        <button type="button" className="tool-btn tool-btn-primary" onClick={sign}>
+        <span className="w-px self-stretch bg-line" />
+        <button type="button" className="cl-btn cl-btn-primary" onClick={sign}>
           {t('common.sign')}
         </button>
-        <button type="button" className="tool-btn tool-btn-primary" onClick={verify}>
+        <button type="button" className="cl-btn cl-btn-primary" onClick={verify}>
           {t('common.verify')}
         </button>
       </div>
 
       {output && (
-        <div className="space-y-2">
-          <label className="tool-label">{t('common.output')}</label>
+        <div>
+          <label className="cl-label">{t('common.output')}</label>
           <textarea
-            className={`tool-input min-h-[6rem] ${error ? 'border-destructive' : ''}`}
+            className={`cl-input min-h-[5rem] ${error ? 'border-red' : ''}`}
             value={error || output}
             readOnly
-            aria-label={t('common.output')}
           />
         </div>
       )}
-
-      {error && <p className="tool-error">{t('common.error')}: {error}</p>}
 
       <ActionBar
         input={message}

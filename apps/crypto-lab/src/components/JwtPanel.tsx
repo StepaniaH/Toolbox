@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from '@toolbox/i18n/react'
 import { ActionBar } from './ActionBar'
+import { Tooltip } from './Tooltip'
 import { decodeJwt, verifyJwtHs256, verifyJwtHs512 } from '@/lib/jwt'
 
 export function JwtPanel() {
@@ -46,9 +47,7 @@ export function JwtPanel() {
       check.then((ok) => {
         if (!cancelled) setVerified(ok)
       })
-      return () => {
-        cancelled = true
-      }
+      return () => { cancelled = true }
     } catch (err) {
       setHeader('')
       setPayload('')
@@ -60,10 +59,13 @@ export function JwtPanel() {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <label className="tool-label">{t('jwt.token')}</label>
+      <div>
+        <div className="mb-1.5 flex items-center gap-1.5">
+          <label className="cl-label">{t('jwt.token')}</label>
+          <Tooltip text={t('tip.jwt')} />
+        </div>
         <textarea
-          className="tool-input min-h-[6rem]"
+          className="cl-input min-h-[5rem]"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={t('jwt.tokenPlaceholder')}
@@ -71,45 +73,46 @@ export function JwtPanel() {
         />
       </div>
 
-      <div className="space-y-2">
-        <label className="tool-label">{t('jwt.secret')}</label>
+      <div>
+        <label className="cl-label">{t('jwt.secret')}</label>
         <input
           type="text"
-          className="tool-input w-full"
+          className="cl-text w-full"
           value={secret}
           onChange={(e) => setSecret(e.target.value)}
           placeholder={t('jwt.secretPlaceholder')}
-          aria-label={t('jwt.secret')}
         />
       </div>
 
-      {error && <p className="tool-error">{t('common.error')}: {error}</p>}
+      {error && <p className="cl-error">{error}</p>}
 
       {verified !== null && (
-        <p className={verified ? 'text-green text-sm' : 'text-red text-sm'}>
+        <p className={verified ? 'text-sm text-green' : 'text-sm text-red'}>
           {verified ? t('jwt.valid') : t('jwt.invalid')}
         </p>
       )}
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="space-y-2">
-          <label className="tool-label">{t('jwt.header')}</label>
-          <pre className="tool-input min-h-[10rem] overflow-auto whitespace-pre-wrap font-mono text-sm">
-            {header}
-          </pre>
+      {header && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div>
+            <label className="cl-label">{t('jwt.header')}</label>
+            <pre className="cl-input min-h-[8rem] overflow-auto whitespace-pre-wrap text-xs">
+              {header}
+            </pre>
+          </div>
+          <div>
+            <label className="cl-label">{t('jwt.payload')}</label>
+            <pre className="cl-input min-h-[8rem] overflow-auto whitespace-pre-wrap text-xs">
+              {payload}
+            </pre>
+          </div>
         </div>
-        <div className="space-y-2">
-          <label className="tool-label">{t('jwt.payload')}</label>
-          <pre className="tool-input min-h-[10rem] overflow-auto whitespace-pre-wrap font-mono text-sm">
-            {payload}
-          </pre>
-        </div>
-      </div>
+      )}
 
       {signature && (
-        <div className="space-y-2">
-          <label className="tool-label">{t('jwt.signature')}</label>
-          <pre className="tool-input min-h-[4rem] whitespace-pre-wrap break-all font-mono text-xs">
+        <div>
+          <label className="cl-label">{t('jwt.signature')}</label>
+          <pre className="cl-input min-h-[3rem] whitespace-pre-wrap break-all text-xs">
             {signature}
           </pre>
         </div>

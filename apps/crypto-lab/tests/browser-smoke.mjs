@@ -84,7 +84,7 @@ try {
   await assertDesktopSharedShell(desktop)
   await assertAppMarkStyle(desktop)
   const assertDesktopSurface = async () => {
-    assert.equal(await desktop.locator('button[role="tab"]').count(), 5)
+    assert.equal(await desktop.locator('button[role="tab"]').count(), 6)
     assert.equal(await desktop.locator('textarea').count(), 2)
     assert.ok(await desktop.getByText('CryptoLab').count() >= 1)
     assert.equal(
@@ -102,7 +102,7 @@ try {
   await mobile.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertMobileSharedShell(mobile)
   const assertMobileSurface = async () => {
-    assert.equal(await mobile.locator('button[role="tab"]').count(), 5)
+    assert.equal(await mobile.locator('button[role="tab"]').count(), 6)
     assert.equal(await mobile.locator('textarea').count(), 2)
     assert.equal(
       await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),

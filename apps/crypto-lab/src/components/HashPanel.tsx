@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from '@toolbox/i18n/react'
 import { ActionBar } from './ActionBar'
+import { Dropdown } from './Dropdown'
+import { Tooltip } from './Tooltip'
 import { computeAllHashes, hmacSha256, hmacSha512, digestToHex, digestToBase64 } from '@/lib/hash'
 
 type HashRow = {
+  id: string
   name: string
+  tipKey: string
   lower: string
   upper: string
   base64: string
@@ -17,12 +21,10 @@ export function HashPanel() {
   const [hmacKey, setHmacKey] = useState('')
   const [hmacAlgo, setHmacAlgo] = useState<'sha256' | 'sha512'>('sha256')
   const [hmacOutput, setHmacOutput] = useState('')
-  const [error, setError] = useState('')
 
   useEffect(() => {
     if (input.length === 0) {
       setRows([])
-      setError('')
       return
     }
     let cancelled = false
@@ -30,23 +32,19 @@ export function HashPanel() {
       .then((all) => {
         if (cancelled) return
         setRows([
-          { name: 'MD5', ...all.md5 },
-          { name: 'SHA-1', ...all.sha1 },
-          { name: 'SHA-256', ...all.sha256 },
-          { name: 'SHA-512', ...all.sha512 },
-          { name: 'SHA3-256', ...all.sha3_256 },
-          { name: 'SHA3-512', ...all.sha3_512 },
+          { id: 'md5', name: 'MD5', tipKey: 'tip.md5', ...all.md5 },
+          { id: 'sha1', name: 'SHA-1', tipKey: 'tip.sha1', ...all.sha1 },
+          { id: 'sha256', name: 'SHA-256', tipKey: 'tip.sha256', ...all.sha256 },
+          { id: 'sha512', name: 'SHA-512', tipKey: 'tip.sha512', ...all.sha512 },
+          { id: 'sha3_256', name: 'SHA3-256', tipKey: 'tip.sha3', ...all.sha3_256 },
+          { id: 'sha3_512', name: 'SHA3-512', tipKey: 'tip.sha3', ...all.sha3_512 },
         ])
-        setError('')
       })
-      .catch((err: Error) => {
+      .catch(() => {
         if (cancelled) return
-        setError(err.message)
         setRows([])
       })
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [input])
 
   useEffect(() => {
@@ -59,25 +57,27 @@ export function HashPanel() {
     compute(input, hmacKey)
       .then((digest) => {
         if (cancelled) return
-        setHmacOutput(
-          `${t('hash.lower')}: ${digestToHex(digest)}\n${t('hash.upper')}: ${digestToHex(digest).toUpperCase()}\n${t('hash.base64')}: ${digestToBase64(digest)}`,
-        )
+        const hex = digestToHex(digest)
+        setHmacOutput(`${hex}\n${hex.toUpperCase()}\n${digestToBase64(digest)}`)
       })
       .catch(() => {
         if (cancelled) return
         setHmacOutput('')
       })
-    return () => {
-      cancelled = true
-    }
-  }, [input, hmacKey, hmacAlgo, t])
+    return () => { cancelled = true }
+  }, [input, hmacKey, hmacAlgo])
+
+  const hmacOptions = [
+    { value: 'sha256', label: 'HMAC-SHA256' },
+    { value: 'sha512', label: 'HMAC-SHA512' },
+  ]
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <label className="tool-label">{t('common.input')}</label>
+      <div>
+        <label className="cl-label">{t('common.input')}</label>
         <textarea
-          className="tool-input min-h-[8rem]"
+          className="cl-input min-h-[7rem]"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={t('hash.inputPlaceholder')}
@@ -85,57 +85,47 @@ export function HashPanel() {
         />
       </div>
 
-      {error && <p className="tool-error">{t('common.error')}: {error}</p>}
-
       {rows.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-line">
-                <th className="py-2 pr-4">{t('hash.algorithm')}</th>
-                <th className="py-2 pr-4">{t('hash.lower')}</th>
-                <th className="py-2 pr-4">{t('hash.upper')}</th>
-                <th className="py-2">{t('hash.base64')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.name} className="border-b border-line/50">
-                  <td className="py-2 pr-4 font-medium">{row.name}</td>
-                  <td className="py-2 pr-4 font-mono text-faint break-all">{row.lower}</td>
-                  <td className="py-2 pr-4 font-mono text-faint break-all">{row.upper}</td>
-                  <td className="py-2 font-mono text-faint break-all">{row.base64}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="space-y-1.5">
+          {rows.map((row) => (
+            <div key={row.id} className="grid grid-cols-[7rem_1fr] items-start gap-2 py-1">
+              <div className="flex items-center gap-1 pt-0.5 text-sm font-medium">
+                <span>{row.name}</span>
+                <Tooltip text={t(row.tipKey)} />
+              </div>
+              <div className="mono break-all text-xs leading-relaxed text-faint">
+                {row.lower}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      <div className="space-y-3 border-t border-line pt-4">
-        <h3 className="font-medium">{t('hash.hmac')}</h3>
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="tool-label">{t('hash.hmacKey')}</label>
+      <hr className="cl-divider" />
+
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold">{t('hash.hmac')}</h3>
+          <Tooltip text={t('tip.hmac')} />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="text"
-            className="tool-input w-auto min-w-[12rem]"
+            className="cl-text min-w-[12rem] flex-1"
             value={hmacKey}
             onChange={(e) => setHmacKey(e.target.value)}
             placeholder={t('hash.hmacKeyPlaceholder')}
             aria-label={t('hash.hmacKey')}
           />
-          <select
-            className="tool-select"
+          <Dropdown
             value={hmacAlgo}
-            onChange={(e) => setHmacAlgo(e.target.value as 'sha256' | 'sha512')}
-            aria-label={t('hash.hmacAlgo')}
-          >
-            <option value="sha256">HMAC-SHA256</option>
-            <option value="sha512">HMAC-SHA512</option>
-          </select>
+            options={hmacOptions}
+            onChange={(v) => setHmacAlgo(v as 'sha256' | 'sha512')}
+            ariaLabel={t('hash.hmacAlgo')}
+          />
         </div>
         {hmacOutput && (
-          <pre className="tool-input min-h-[5rem] whitespace-pre-wrap font-mono text-sm">
+          <pre className="cl-input min-h-[4rem] whitespace-pre-wrap break-all text-xs">
             {hmacOutput}
           </pre>
         )}

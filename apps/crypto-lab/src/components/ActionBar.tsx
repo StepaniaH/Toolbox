@@ -19,67 +19,62 @@ export function ActionBar({
   hideSwap,
 }: ActionBarProps) {
   const { t } = useTranslation()
-  const [copiedInput, setCopiedInput] = useState(false)
-  const [copiedOutput, setCopiedOutput] = useState(false)
+  const [copied, setCopied] = useState<'in' | 'out' | null>(null)
 
-  async function copy(value: string, setter: (v: boolean) => void) {
+  async function copy(value: string, which: 'in' | 'out') {
     await copyText(value)
-    setter(true)
-    setTimeout(() => setter(false), 1200)
-  }
-
-  function swap() {
-    onInputChange(output)
-    onOutputChange(input)
-  }
-
-  function clear() {
-    onInputChange('')
-    onOutputChange('')
+    setCopied(which)
+    setTimeout(() => setCopied(null), 1200)
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex items-center gap-0.5">
       <button
         type="button"
-        className="tool-btn tool-btn-ghost"
-        onClick={() => copy(input, setCopiedInput)}
+        className="cl-icon-btn"
+        onClick={() => copy(input, 'in')}
         disabled={input.length === 0}
+        title={t('common.copyInput')}
         aria-label={t('common.copyInput')}
       >
-        {copiedInput ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-        {t('common.copyInput')}
+        {copied === 'in' ? <Check className="h-4 w-4 text-green" /> : <Copy className="h-4 w-4" />}
       </button>
       <button
         type="button"
-        className="tool-btn tool-btn-ghost"
-        onClick={() => copy(output, setCopiedOutput)}
+        className="cl-icon-btn"
+        onClick={() => copy(output, 'out')}
         disabled={output.length === 0}
+        title={t('common.copyOutput')}
         aria-label={t('common.copyOutput')}
       >
-        {copiedOutput ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-        {t('common.copyOutput')}
+        {copied === 'out' ? <Check className="h-4 w-4 text-green" /> : <Copy className="h-4 w-4" />}
       </button>
       {!hideSwap && (
         <button
           type="button"
-          className="tool-btn tool-btn-ghost"
-          onClick={swap}
+          className="cl-icon-btn"
+          onClick={() => {
+            onInputChange(output)
+            onOutputChange(input)
+          }}
           disabled={output.length === 0}
+          title={t('common.swap')}
           aria-label={t('common.swap')}
         >
           <ArrowUpDown className="h-4 w-4" />
-          {t('common.swap')}
         </button>
       )}
       <button
         type="button"
-        className="tool-btn tool-btn-ghost"
-        onClick={clear}
+        className="cl-icon-btn"
+        onClick={() => {
+          onInputChange('')
+          onOutputChange('')
+        }}
+        title={t('common.clear')}
         aria-label={t('common.clear')}
       >
         <Trash2 className="h-4 w-4" />
-        {t('common.clear')}
       </button>
     </div>
   )

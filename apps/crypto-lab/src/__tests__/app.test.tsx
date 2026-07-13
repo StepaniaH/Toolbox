@@ -17,7 +17,7 @@ describe('CryptoLab app', () => {
   it('renders the header and all tabs', () => {
     renderApp()
     expect(screen.getByText('CryptoLab')).toBeInTheDocument()
-    expect(screen.getAllByRole('tab')).toHaveLength(5)
+    expect(screen.getAllByRole('tab')).toHaveLength(6)
   })
 
   it('computes Base64 encoding in the Encoding tab', async () => {
@@ -33,7 +33,7 @@ describe('CryptoLab app', () => {
 
   it('computes MD5 hash in the Hash tab', async () => {
     renderApp()
-    await userEvent.click(screen.getByRole('tab', { name: '摘要与 HMAC' }))
+    await userEvent.click(screen.getByRole('tab', { name: '摘要' }))
     const input = screen.getByLabelText('输入')
     await userEvent.type(input, 'abc')
     await waitFor(() => {

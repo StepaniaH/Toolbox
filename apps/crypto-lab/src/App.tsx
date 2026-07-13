@@ -8,9 +8,10 @@ import { HashPanel } from '@/components/HashPanel'
 import { CipherPanel } from '@/components/CipherPanel'
 import { RsaPanel } from '@/components/RsaPanel'
 import { JwtPanel } from '@/components/JwtPanel'
+import { KnowledgeBase } from '@/components/KnowledgeBase'
 import '@toolbox/nav/nav-bar.css'
 
-type Tab = 'encoding' | 'hash' | 'cipher' | 'rsa' | 'jwt'
+type Tab = 'encoding' | 'hash' | 'cipher' | 'rsa' | 'jwt' | 'kb'
 
 function App() {
   const { t } = useTranslation()
@@ -22,6 +23,7 @@ function App() {
     { id: 'cipher', label: t('nav.cipher') },
     { id: 'rsa', label: t('nav.rsa') },
     { id: 'jwt', label: t('nav.jwt') },
+    { id: 'kb', label: t('nav.kb') },
   ]
 
   const panels: Record<Tab, ReactNode> = {
@@ -30,36 +32,31 @@ function App() {
     cipher: <CipherPanel />,
     rsa: <RsaPanel />,
     jwt: <JwtPanel />,
+    kb: <KnowledgeBase />,
   }
 
   return (
     <>
       <NavBar currentApp="crypto-lab" />
-      <div className="mx-auto max-w-5xl px-4 pb-12">
+      <div className="mx-auto max-w-4xl px-4 pb-12">
         <Header />
 
-        <div
-          className="mb-6 flex flex-wrap gap-2"
-          role="tablist"
-          aria-label={t('nav.aria')}
-        >
+        <nav className="cl-tabs mb-6" role="tablist" aria-label={t('nav.aria')}>
           {tabs.map((item) => (
             <button
               key={item.id}
               type="button"
               role="tab"
               aria-selected={tab === item.id}
+              className="cl-tab"
               onClick={() => setTab(item.id)}
-              className={`tool-btn ${tab === item.id ? 'tool-btn-primary' : 'tool-btn-ghost'}`}
             >
               {item.label}
             </button>
           ))}
-        </div>
+        </nav>
 
-        <section className="tool-section" aria-live="polite">
-          {panels[tab]}
-        </section>
+        <div aria-live="polite">{panels[tab]}</div>
 
         <Footer />
       </div>
