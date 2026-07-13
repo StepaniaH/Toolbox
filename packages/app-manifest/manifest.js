@@ -99,6 +99,36 @@ export const TOOLBOX_APPS = Object.freeze([
     },
     status: 'stable',
   }),
+  defineApp({
+    id: 'image-converter',
+    path: '/image-converter/',
+    name: 'FormTran',
+    navLabel: { zh: 'FormTran', en: 'FormTran' },
+    description: { zh: '纯本地文件识别、转换与处理工作台', en: 'Private local file identification and processing' },
+    keywords: {
+      zh: ['文件工具', '图片', '图像', '格式转换', '批量转换', '压缩', '编辑', 'GIF', '动图', 'PDF', '压缩包', '重命名', '正则', 'Markdown', 'JSON', 'CSV', '文本标记', 'PNG', 'JPEG', 'WebP'],
+      en: ['file tools', 'image', 'photo', 'format converter', 'batch conversion', 'compress', 'edit', 'GIF', 'animation', 'PDF', 'archive', 'rename', 'regex', 'Markdown', 'JSON', 'CSV', 'text markup', 'PNG', 'JPEG', 'WebP'],
+    },
+    icon: {
+      viewBox: '0 0 48 48',
+      svg: '<rect x="7" y="10" width="27" height="27" rx="5"/><path d="m11 31 7-8 5 5 4-4 7 7M17 18h.01M31 7l7 5-7 5M38 12H27M17 41l-7-5 7-5M10 36h11"/>',
+    },
+  }),
+  defineApp({
+    id: 'crypto-lab',
+    path: '/crypto-lab/',
+    name: 'CryptoLab',
+    navLabel: { zh: 'CryptoLab', en: 'CryptoLab' },
+    description: { zh: '本地编码、哈希、加解密与 JWT 工具', en: 'Local encoding, hashing, encryption and JWT utilities' },
+    keywords: {
+      zh: ['Base64', 'URL 编码', 'HTML 实体', 'Hex', '进制转换', 'MD5', 'SHA', 'HMAC', '哈希', 'AES', 'ChaCha20', 'RSA', 'JWT', '加密', '解密', '签名', '密码学'],
+      en: ['Base64', 'URL encode', 'HTML entity', 'Hex', 'radix', 'MD5', 'SHA', 'HMAC', 'hash', 'AES', 'ChaCha20', 'RSA', 'JWT', 'encrypt', 'decrypt', 'sign', 'cryptography'],
+    },
+    icon: {
+      viewBox: '0 0 48 48',
+      svg: '<circle cx="22" cy="24" r="7"/><path d="M33 24h6v6h-6z"/><path d="M39 24V18"/><path d="M15 24H9"/><path d="M22 31v7"/>',
+    },
+  }),
 ])
 
 export function getStableApps() {
