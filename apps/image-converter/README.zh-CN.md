@@ -1,0 +1,37 @@
+# 图片格式转换
+
+一个纯浏览器、本地处理的图片转换工作台，支持单文件、多文件和文件夹。浏览器可解码的 JPEG、PNG、WebP、GIF、BMP、AVIF 和经过安全清理的 SVG 可转换为 PNG、JPEG 或 WebP，并提供尺寸调整、画质、透明底色、预览、批量命名、重名处理、单张下载和 ZIP 导出。
+
+## 输入与输出
+
+- 输入：队列最多 500 张，单文件最多 512 MB，总计最多 2 GB。
+- 输出：PNG（无损、透明）、JPEG（有损、不透明）或 WebP（有损、透明）。
+- 尺寸：保持原图、百分比缩放或限制最大宽高；可禁止放大小图。
+- 命名：变量模板或带捕获组的正则替换，提供实时预览、补零序号、跨平台文件名清理和自动重名后缀。
+- 文件夹上传可以在 ZIP 中保留相对目录结构。
+
+## 隐私与联网行为
+
+图片、预览、转换结果和 ZIP 全部只存在浏览器内存，不会上传。应用没有账号、后端、业务网络请求、遥测、广告、Cookie、追踪或远端字体。只有转换偏好会写入 `localStorage` 的 `toolbox.image-converter.settings`；图片内容和文件名不会持久保存。
+
+静态资源可用后，本工具可离线工作。浏览器不支持的编解码会只让对应文件失败，不会修改原文件。
+
+## 重要边界
+
+- GIF、动态 WebP 和动态 AVIF 只转换浏览器解码的第一帧，不保留动画。
+- Canvas 重编码通常会移除 EXIF、GPS、相机信息和大多数嵌入色彩配置。
+- HDR、CMYK、广色域和高位深素材可能被映射到普通浏览器画布色域。
+- JPEG 不支持透明，透明区域会铺上用户选择的底色。
+- SVG 在解码前会移除脚本、事件、嵌入 HTML 和外部引用；安全清理前不显示原始 SVG 预览。
+- 输出最长边限制为 16,384 像素，总像素限制为 8,000 万，降低浏览器内存崩溃风险。
+- 输入解码能力取决于浏览器版本。
+
+## 开发
+
+```bash
+pnpm --filter=@toolbox/image-converter dev
+pnpm --filter=@toolbox/image-converter build
+pnpm --filter=@toolbox/image-converter test
+pnpm --filter=@toolbox/image-converter lint
+pnpm --filter=@toolbox/image-converter test:browser
+```

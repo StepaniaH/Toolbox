@@ -99,6 +99,21 @@ export const TOOLBOX_APPS = Object.freeze([
     },
     status: 'stable',
   }),
+  defineApp({
+    id: 'image-converter',
+    path: '/image-converter/',
+    name: 'Image Converter',
+    navLabel: { zh: '图片格式转换', en: 'Image Converter' },
+    description: { zh: '纯本地批量图片格式转换与重命名', en: 'Private batch image conversion and renaming' },
+    keywords: {
+      zh: ['图片', '图像', '格式转换', '批量转换', '压缩', '重命名', '正则', 'PNG', 'JPEG', 'WebP'],
+      en: ['image', 'photo', 'format converter', 'batch conversion', 'compress', 'rename', 'regex', 'PNG', 'JPEG', 'WebP'],
+    },
+    icon: {
+      viewBox: '0 0 48 48',
+      svg: '<rect x="7" y="10" width="27" height="27" rx="5"/><path d="m11 31 7-8 5 5 4-4 7 7M17 18h.01M31 7l7 5-7 5M38 12H27M17 41l-7-5 7-5M10 36h11"/>',
+    },
+  }),
 ])
 
 export function getStableApps() {

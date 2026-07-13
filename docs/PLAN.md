@@ -148,6 +148,23 @@ main 稳定线
 - 统一 favicon、错误页和部署产物清单；长期考虑可复现构建与静态资产完整性。
 - 不用 force push、历史改写或自动部署换取表面简化。
 
+### 前端本地格式转换器候选队列
+
+这组工具都以“文件不离开浏览器”为默认前提，按浏览器原生能力、可验证性和体积成本分阶段实现：
+
+| 候选 | 首要能力 | 主要边界 / 实现前提 |
+|---|---|---|
+| Image Converter | 图片格式、尺寸、质量、批量命名与 ZIP | 首版使用浏览器解码与 Canvas 编码；动图、HDR、色彩配置和元数据需明确降级 |
+| Data Converter | CSV / JSON / NDJSON / YAML / XML / TSV 互转 | 大文件使用流式解析；公式注入、类型推断和精度必须可配置 |
+| Text & Encoding Converter | UTF-8、Base64、URL、HTML 实体、换行与哈希 | 区分编码、加密与哈希，避免把不可逆操作伪装成转换 |
+| Audio Converter | WAV / MP3 / AAC / Opus / FLAC 与裁切、码率 | 优先 WebCodecs，缺失编码器再评估可审计的本地 WASM 与包体预算 |
+| Video Converter | 容器/编码、分辨率、帧率、音轨与片段 | 依赖 WebCodecs/WASM、内存与长任务治理；先做能力检测和取消/恢复 |
+| Archive Converter | ZIP / TAR / GZIP 解包、重打包与清单预览 | 防止 zip bomb、路径穿越、超大内存占用和不可见文件误打包 |
+| Document & Ebook Converter | Markdown / HTML / EPUB / TXT 等开放格式 | 保留语义和资源引用；PDF/Office 高保真转换不承诺纯浏览器首版 |
+| Icon & Asset Packager | SVG / PNG / ICO、favicon 与多尺寸资源包 | SVG 必须清理脚本与外部引用；输出可复核的尺寸和 manifest |
+
+候选进入 TASKS 前必须各自形成独立 Brief、隐私与资源预算，不把多个转换领域塞进同一应用，也不为格式覆盖率静默上传文件。
+
 ## 五、规划视野
 
 | 视野 | 当前重点 | 进入条件 |
