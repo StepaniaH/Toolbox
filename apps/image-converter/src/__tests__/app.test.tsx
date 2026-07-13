@@ -36,4 +36,14 @@ describe("application shell", () => {
     expect(screen.getByRole("tabpanel").id).toBe("panel-knowledge");
     expect(screen.getByText(/Knowledge base privacy|知识库隐私说明/)).toBeTruthy();
   });
+
+  it("uses an accessible theme-native format menu", () => {
+    render(<App />);
+    fireEvent.click(screen.getAllByRole("tab")[2]);
+    const target = screen.getByLabelText(/Batch output format|批量输出格式/);
+    fireEvent.click(target);
+    expect(screen.getAllByRole("option")).toHaveLength(6);
+    fireEvent.click(screen.getByRole("option", { name: "Org mode" }));
+    expect(target.textContent).toContain("Org mode");
+  });
 });

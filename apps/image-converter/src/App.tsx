@@ -9,6 +9,7 @@ import { ToolboxFooter } from "@toolbox/nav/ToolboxFooter.tsx";
 import { translations } from "./i18n";
 import { GifComposer } from "./GifComposer";
 import { TextMarkupConverter } from "./TextMarkupConverter";
+import { SelectMenu } from "./SelectMenu";
 import { ACCEPT_ATTRIBUTE, convertImage, getFileExtension } from "./lib/convert";
 import { triggerDownload } from "./lib/download";
 import { selectIncomingFiles } from "./lib/file-selection";
@@ -244,7 +245,7 @@ function AppSurface() {
                 <div className="action-buttons">
                   {running ? <button className="button secondary" type="button" onClick={() => { cancelRef.current = true; }}>{t("actions.stop")}</button> : null}
                   <button className="button primary" type="button" onClick={convertAll} disabled={running || !items.length || Boolean(renameError)}>{t("actions.convert")}</button>
-                  <div className="download-control"><label><span>{t("actions.downloadAs")}</span><select value={downloadMode} onChange={(event) => setDownloadMode(event.target.value as DownloadMode)}><option value="files">{t("actions.downloadFiles")}</option><option value="zip">{t("actions.downloadZip")}</option></select></label><button className="button secondary" type="button" onClick={downloadResults} disabled={running || !doneItems.length}>{t("actions.download")}</button></div>
+                  <div className="download-control"><span className="download-label">{t("actions.downloadAs")}</span><SelectMenu value={downloadMode} onChange={setDownloadMode} ariaLabel={t("actions.downloadAs")} align="right" options={[{ value: "files", label: t("actions.downloadFilesTitle"), description: t("actions.downloadFilesDetail") }, { value: "zip", label: t("actions.downloadZipTitle"), description: t("actions.downloadZipDetail") }]} /><button className="button secondary" type="button" onClick={downloadResults} disabled={running || !doneItems.length}>{t("actions.download")}</button></div>
                 </div>
               </div>
             </section>
@@ -415,24 +416,29 @@ function KnowledgePage() {
       <nav className="knowledge-categories" aria-label={t("knowledge.categoriesLabel")}>{categories.map((item) => <button key={item} type="button" aria-current={category === item ? "page" : undefined} onClick={() => setCategory(item)}><span>{item === "images" ? "▧" : item === "animation" ? "▶" : "¶"}</span><div><strong>{t(`knowledge.categories.${item}.title`)}</strong><small>{t(`knowledge.categories.${item}.description`)}</small></div></button>)}</nav>
       <div className="knowledge-content">
         {category === "images" && <>
-          <section className="decision-guide"><h3>{t("knowledge.chooseTitle")}</h3><div><KnowledgeChoice icon="◉" title={t("knowledge.choose.photo.title")}>{t("knowledge.choose.photo.body")}</KnowledgeChoice><KnowledgeChoice icon="◇" title={t("knowledge.choose.transparent.title")}>{t("knowledge.choose.transparent.body")}</KnowledgeChoice><KnowledgeChoice icon="↗" title={t("knowledge.choose.vector.title")}>{t("knowledge.choose.vector.body")}</KnowledgeChoice><KnowledgeChoice icon="▶" title={t("knowledge.choose.animation.title")}>{t("knowledge.choose.animation.body")}</KnowledgeChoice></div></section>
-          <section className="format-library"><div className="section-heading"><div><h3>{t("knowledge.libraryTitle")}</h3><p>{t("knowledge.librarySubtitle")}</p></div></div><div className="format-cards">{formats.map((format) => <article key={format}><header><strong>{format.toUpperCase()}</strong><span>{t(`knowledge.formats.${format}.type`)}</span></header><p>{t(`knowledge.formats.${format}.body`)}</p><dl><div><dt>{t("knowledge.bestFor")}</dt><dd>{t(`knowledge.formats.${format}.best`)}</dd></div><div><dt>{t("knowledge.watchFor")}</dt><dd>{t(`knowledge.formats.${format}.warning`)}</dd></div></dl></article>)}</div></section>
+          <section className="decision-guide"><h3>{t("knowledge.chooseTitle")}</h3><div className="purpose-table">{([['photo', 'WebP / JPEG'], ['transparent', 'PNG / WebP'], ['vector', 'SVG'], ['animation', 'GIF']] as const).map(([use, recommendation]) => <div key={use}><strong>{t(`knowledge.choose.${use}.title`)}</strong><b>{recommendation}</b><p>{t(`knowledge.choose.${use}.body`)}</p></div>)}</div></section>
+          <section className="format-library"><div className="section-heading"><div><h3>{t("knowledge.libraryTitle")}</h3><p>{t("knowledge.librarySubtitle")}</p></div></div><div className="format-list">{formats.map((format, index) => <details key={format} open={index < 2}><summary><strong>{format.toUpperCase()}</strong><span>{t(`knowledge.formats.${format}.type`)}</span><p>{t(`knowledge.formats.${format}.body`)}</p></summary><dl><div><dt>{t("knowledge.bestFor")}</dt><dd>{t(`knowledge.formats.${format}.best`)}</dd></div><div><dt>{t("knowledge.watchFor")}</dt><dd>{t(`knowledge.formats.${format}.warning`)}</dd></div></dl></details>)}</div></section>
           <section className="comparison"><h3>{t("knowledge.tableTitle")}</h3><div><table><thead><tr><th>{t("knowledge.table.format")}</th><th>{t("knowledge.table.compression")}</th><th>{t("knowledge.table.transparency")}</th><th>{t("knowledge.table.animation")}</th><th>{t("knowledge.table.compatibility")}</th></tr></thead><tbody><tr><th>JPEG</th><td>{t("knowledge.values.lossy")}</td><td>—</td><td>—</td><td>{t("knowledge.values.high")}</td></tr><tr><th>PNG</th><td>{t("knowledge.values.lossless")}</td><td>✓</td><td>—</td><td>{t("knowledge.values.high")}</td></tr><tr><th>WebP</th><td>{t("knowledge.values.both")}</td><td>✓</td><td>✓</td><td>{t("knowledge.values.modern")}</td></tr><tr><th>GIF</th><td>{t("knowledge.values.losslessLimited")}</td><td>{t("knowledge.values.limited")}</td><td>✓</td><td>{t("knowledge.values.high")}</td></tr><tr><th>AVIF</th><td>{t("knowledge.values.both")}</td><td>✓</td><td>✓</td><td>{t("knowledge.values.modern")}</td></tr><tr><th>SVG</th><td>{t("knowledge.values.vector")}</td><td>✓</td><td>{t("knowledge.values.scripted")}</td><td>{t("knowledge.values.mixed")}</td></tr></tbody></table></div></section>
           <section className="knowledge-faq"><h3>{t("knowledge.boundariesTitle")}</h3><details open><summary>{t("knowledge.metadataTitle")}</summary><p>{t("knowledge.metadata")}</p></details><details><summary>{t("knowledge.colorTitle")}</summary><p>{t("knowledge.color")}</p></details><details><summary>{t("knowledge.browserTitle")}</summary><p>{t("knowledge.browser")}</p></details></section>
         </>}
-        {category === "animation" && <KnowledgeTopic title={t("knowledge.animationGuide.title")} intro={t("knowledge.animationGuide.intro")} cards={["frames", "delay", "palette", "size"]} prefix="knowledge.animationGuide" />}
-        {category === "markup" && <KnowledgeTopic title={t("knowledge.markupGuide.title")} intro={t("knowledge.markupGuide.intro")} cards={["semantic", "roundtrip", "html", "dialects", "encoding", "preview"]} prefix="knowledge.markupGuide" />}
+        {category === "animation" && <KnowledgeTopic title={t("knowledge.animationGuide.title")} intro={t("knowledge.animationGuide.intro")} cards={["frames", "delay", "palette", "size"]} prefix="knowledge.animationGuide"><KnowledgeComparison type="animation" /></KnowledgeTopic>}
+        {category === "markup" && <KnowledgeTopic title={t("knowledge.markupGuide.title")} intro={t("knowledge.markupGuide.intro")} cards={["semantic", "roundtrip", "html", "dialects", "encoding", "preview"]} prefix="knowledge.markupGuide"><KnowledgeComparison type="markup" /></KnowledgeTopic>}
       </div>
     </div>
   </section>;
 }
 
-function KnowledgeTopic({ title, intro, cards, prefix }: { title: string; intro: string; cards: string[]; prefix: string }) {
+function KnowledgeTopic({ title, intro, cards, prefix, children }: { title: string; intro: string; cards: string[]; prefix: string; children: ReactNode }) {
   const { t } = useTranslation();
-  return <section className="knowledge-topic"><header><h3>{title}</h3><p>{intro}</p></header><div>{cards.map((card) => <article key={card}><strong>{t(`${prefix}.${card}.title`)}</strong><p>{t(`${prefix}.${card}.body`)}</p></article>)}</div></section>;
+  return <section className="knowledge-topic"><header><h3>{title}</h3><p>{intro}</p></header>{children}<div className="knowledge-notes">{cards.map((card) => <article key={card}><strong>{t(`${prefix}.${card}.title`)}</strong><p>{t(`${prefix}.${card}.body`)}</p></article>)}</div></section>;
 }
 
-function KnowledgeChoice({ icon, title, children }: { icon: string; title: string; children: ReactNode }) { return <article><span aria-hidden="true">{icon}</span><div><strong>{title}</strong><p>{children}</p></div></article>; }
+function KnowledgeComparison({ type }: { type: "animation" | "markup" }) {
+  const { t } = useTranslation();
+  const rows = type === "animation" ? ["gif", "webp", "avif"] : ["markdown", "org", "rst", "asciidoc", "html"];
+  const columns = type === "animation" ? ["colors", "support", "best"] : ["readability", "strength", "best"];
+  return <div className="knowledge-comparison"><h4>{t(`knowledge.comparisons.${type}.title`)}</h4><div><table><thead><tr><th>{t("knowledge.comparisons.format")}</th>{columns.map((column) => <th key={column}>{t(`knowledge.comparisons.${type}.headers.${column}`)}</th>)}</tr></thead><tbody>{rows.map((row) => <tr key={row}><th>{t(`knowledge.comparisons.${type}.rows.${row}.name`)}</th>{columns.map((column) => <td key={column}>{t(`knowledge.comparisons.${type}.rows.${row}.${column}`)}</td>)}</tr>)}</tbody></table></div></div>;
+}
 function TabPrivacyNotice({ tab }: { tab: AppTab }) {
   const { t } = useTranslation();
   return <aside className="tab-privacy"><LockIcon /><div><strong>{t(`privacy.${tab}.title`)}</strong><p>{t(`privacy.${tab}.detail`)}</p></div></aside>;

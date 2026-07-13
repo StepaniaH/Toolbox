@@ -19,7 +19,8 @@ acceptance:
   - 正则命名提供三步引导、常用预设、命中状态和捕获组反馈；知识库位于独立 Tab。
   - 上传和队列在桌面首屏并列并即时反馈；普通命名与高级正则分层；结果可选择文件或 ZIP 下载。
   - GIF 合成可排序 2–100 帧、设置统一画布/延迟/循环、在本地生成可预览与下载的 GIF89a。
-  - 文本与标记转换可解析六种格式的公共结构，检查 AST、沙箱预览 HTML，并复制或下载结果。
+  - GIF 大画布跨过 LZW 9/10/11/12 位边界后仍可完整解码到底部，并可一键清空帧队列。
+  - 文本与标记转换可批量导入/显示/切换/移除/清空文件，解析六种格式的公共结构，并单独或 ZIP 下载结果。
   - 知识库按图片、动画、文本标记分类，不把未来格式说明平铺在一个长页面中。
   - 隐私/契约、单工具与全仓质量门禁通过，manifest 保持 hidden。
 ---
@@ -35,6 +36,8 @@ acceptance:
 - Product identity is now `FormTran / 方转`; the existing technical id and route remain stable.
 - Workspace intake and queue share one equal-width/equal-height desktop row with feedback inside the intake card. Naming defaults to a compact template workflow and reveals regex controls only as an advanced section; the expanded light-theme surface uses the normal raised surface instead of a dark tint.
 - Result delivery is user-selectable: direct file downloads (one direct or many separate) or a single ZIP. Each app tab owns a distinct bottom privacy statement.
+- Native selects in the main delivery and text format flows were replaced by one app-local, keyboard-accessible theme menu to avoid platform-specific chrome and clipping.
+- GIF, text, and knowledge pages now use flat workbench dividers, selectable rows, expandable references, and comparison tables; raised cards are reserved for actual independent image-workspace groups and callouts.
 - Core conversion, rename, dimension, SVG sanitization, and store-only ZIP code remain app-local. No shared package API changed.
 
 ## Data-flow audit
@@ -49,11 +52,11 @@ acceptance:
 
 ## Verification results
 
-- `pnpm --filter=@toolbox/image-converter build` — passed; latest measured production JS 294.06 kB / 94.37 kB gzip, CSS 50.68 kB / 9.30 kB gzip.
-- `pnpm --filter=@toolbox/image-converter test` — passed, 7 files / 26 tests.
+- `pnpm --filter=@toolbox/image-converter build` — passed; latest measured production JS 303.07 kB / 97.19 kB gzip, CSS 56.69 kB / 10.32 kB gzip.
+- `pnpm --filter=@toolbox/image-converter test` — passed, 7 files / 28 tests.
 - `pnpm --filter=@toolbox/image-converter lint` — passed, 0 warnings.
-- `pnpm --filter=@toolbox/image-converter test:browser` — passed with equal upload/queue cards, mixed-file import feedback, advanced regex expansion, PNG → WebP conversion, direct/ZIP delivery, comparison dialog, all four tabs, knowledge categories, Markdown → Org conversion, real two-frame GIF generation/decoding, and tab-specific privacy notices.
-- `pnpm check:privacy` — passed for 269 tracked or unignored files at the time of the check.
+- `pnpm --filter=@toolbox/image-converter test:browser` — passed with equal image cards, custom direct/ZIP delivery menu, text batch import, custom format menu, Markdown → Org conversion, knowledge comparison tables, and a real 64×64 two-frame GIF whose bottom pixel is decoded and validated.
+- `pnpm check:privacy` — passed for 277 tracked or unignored files at the latest check.
 - `pnpm check:contracts` — passed for 6 apps.
 - `pnpm build` — passed, 6 app builds.
 - `pnpm test` — passed, 986 tests across the workspace after this candidate.
@@ -65,13 +68,14 @@ acceptance:
 ## Visual matrix
 
 - Automated: light/dark × zh/en at 1440 × 1100 and 390 × 844; shared shell, canonical mark, focusable controls, overflow, console/page/request failures, and real conversion covered.
-- Manual: English/light desktop screenshots of the default image workspace, expanded advanced regex, empty GIF composer, populated text converter, and category-first knowledge base were inspected. Intake/queue equality, light regex surface, action hierarchy, tab density, editor balance, privacy notices, and responsive rules remained readable without overlap.
+- Manual: English/light desktop screenshots of the custom download menu, flat GIF workbench, batch text workspace, and table-led knowledge base were inspected. The revised hierarchy removes nested raised surfaces while keeping boundaries and active rows legible.
 - Temporary screenshots were written outside the repository and were not retained as candidate files.
 
 ## Known limits and integration cleanup
 
 - Browser codec support varies; image-tab animation becomes one frame; metadata and color-profile fidelity are not preserved.
 - The GIF encoder intentionally favors a small auditable implementation over photographic palette quality and advanced per-frame transparency/disposal.
+- GIF LZW code-width growth is decoder-aligned; a large deterministic round-trip unit test and bottom-pixel browser test cover the boundary that the original 2×2 smoke missed.
 - Markup conversion preserves a documented common structure subset, not every dialect extension or byte-identical round trip.
 - ZIP uses the portable store method rather than compression because images are already compressed; this avoids a runtime dependency.
 - Before integration, move durable user-facing changes to the release notes/TASKS as appropriate, then delete this temporary handoff file.

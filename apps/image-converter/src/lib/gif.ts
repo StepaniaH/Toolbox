@@ -88,7 +88,9 @@ export function lzwEncode(indices: Uint8Array): Uint8Array {
     writer.write(prefix, codeSize);
     if (nextCode < 4096) {
       dictionary.set(key, nextCode++);
-      if (nextCode === (1 << codeSize) && codeSize < 12) codeSize += 1;
+      // The decoder adds a dictionary entry one emitted code later than the
+      // encoder. Keep the boundary code at the old width, then grow.
+      if (nextCode > (1 << codeSize) && codeSize < 12) codeSize += 1;
     } else {
       writer.write(clear, codeSize);
       reset();

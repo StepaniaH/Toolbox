@@ -70,6 +70,12 @@ export function GifComposer() {
     URL.revokeObjectURL(frame.url);
     return false;
   }));
+  const clear = () => {
+    for (const frame of frames) URL.revokeObjectURL(frame.url);
+    setFrames([]);
+    if (result) URL.revokeObjectURL(result.url);
+    setResult(null); setError(null);
+  };
 
   const generate = async () => {
     if (!canGenerate) return;
@@ -102,12 +108,12 @@ export function GifComposer() {
 
   return <section className="tool-page gif-page" role="tabpanel" id="panel-gif" aria-labelledby="tab-gif">
     <div className="tool-intro"><div><span className="eyebrow">GIF89a · LOCAL ENCODING</span><h2>{t("gif.title")}</h2><p>{t("gif.intro")}</p></div><span className="step-chip">{t("gif.step", { current: frames.length ? result ? 3 : 2 : 1 })}</span></div>
-    <div className="gif-grid">
-      <section className="panel gif-sources">
-        <div className="section-heading"><div><h3>{t("gif.frames")}</h3><p>{t("gif.framesHint")}</p></div><label className="button primary compact">{t("gif.add")}<input type="file" accept={ACCEPT_ATTRIBUTE} multiple onChange={add} /></label></div>
+    <div className="gif-workbench">
+      <section className="gif-sources">
+        <div className="section-heading"><div><h3>{t("gif.frames")}</h3><p>{t("gif.framesHint")}</p></div><div className="section-actions">{frames.length > 0 && <button className="text-button" type="button" onClick={clear}>{t("gif.clear")}</button>}<label className="button primary compact">{t("gif.add")}<input type="file" accept={ACCEPT_ATTRIBUTE} multiple onChange={add} /></label></div></div>
         {!frames.length ? <div className="compact-empty"><span>▧</span><p>{t("gif.empty")}</p></div> : <div className="frame-strip">{frames.map((frame, index) => <article key={frame.id}><img src={frame.url} alt=""/><div><strong>{index + 1}. {frame.file.name}</strong><small>{t("gif.frameDelay", { delay })}</small></div><div><button type="button" disabled={index === 0} onClick={() => move(index, -1)} aria-label={t("gif.moveEarlier")}>↑</button><button type="button" disabled={index === frames.length - 1} onClick={() => move(index, 1)} aria-label={t("gif.moveLater")}>↓</button><button type="button" onClick={() => remove(frame.id)} aria-label={`${t("gif.remove")} ${frame.file.name}`}>×</button></div></article>)}</div>}
       </section>
-      <section className="panel gif-settings">
+      <section className="gif-settings">
         <div className="section-heading"><div><h3>{t("gif.settings")}</h3><p>{t("gif.settingsHint")}</p></div></div>
         <div className="field-pair"><label className="field"><span className="field-label">{t("gif.width")}</span><input type="number" min="1" max="4096" value={width} onChange={(event) => setWidth(Number(event.target.value))}/></label><label className="field"><span className="field-label">{t("gif.height")}</span><input type="number" min="1" max="4096" value={height} onChange={(event) => setHeight(Number(event.target.value))}/></label></div>
         <label className="field"><span className="field-label">{t("gif.delay")}</span><div className="range-row"><input type="range" min="20" max="3000" step="10" value={delay} onChange={(event) => setDelay(Number(event.target.value))}/><output>{delay} ms</output></div></label>
@@ -118,7 +124,7 @@ export function GifComposer() {
         <button className="button primary" type="button" disabled={!canGenerate || running} onClick={generate}>{running ? t("gif.generating") : t("gif.generate")}</button>
       </section>
     </div>
-    {result && <section className="panel gif-result"><div className="section-heading"><div><span className="eyebrow">{t("gif.resultReady")}</span><h3>{t("gif.preview")}</h3><p>{t("gif.resultMeta", { size: formatBytes(result.blob.size), duration: duration.toFixed(1) })}</p></div><button className="button secondary" type="button" onClick={() => triggerDownload(result.blob, "formtran-animation.gif")}>{t("gif.download")}</button></div><div><img src={result.url} alt={t("gif.previewAlt")}/></div></section>}
+    {result && <section className="gif-result"><div className="section-heading"><div><span className="eyebrow">{t("gif.resultReady")}</span><h3>{t("gif.preview")}</h3><p>{t("gif.resultMeta", { size: formatBytes(result.blob.size), duration: duration.toFixed(1) })}</p></div><button className="button secondary" type="button" onClick={() => triggerDownload(result.blob, "formtran-animation.gif")}>{t("gif.download")}</button></div><div><img src={result.url} alt={t("gif.previewAlt")}/></div></section>}
   </section>;
 }
 

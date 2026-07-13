@@ -1,6 +1,42 @@
 import { describe, expect, it } from "vitest";
 import { encodeGif, encodeGifBytes, lzwEncode, quantize332 } from "../lib/gif";
 
+function decodeLzw(bytes: Uint8Array): Uint8Array {
+  let offset = 0;
+  let current = 0;
+  let bitCount = 0;
+  const read = (size: number) => {
+    while (bitCount < size) { current |= (bytes[offset++] ?? 0) << bitCount; bitCount += 8; }
+    const code = current & ((1 << size) - 1);
+    current >>>= size; bitCount -= size;
+    return code;
+  };
+  const clear = 256;
+  const end = 257;
+  let dictionary: number[][] = [];
+  let codeSize = 9;
+  const reset = () => {
+    dictionary = Array.from({ length: 258 }, (_, index) => index < 256 ? [index] : []);
+    codeSize = 9;
+  };
+  reset();
+  const output: number[] = [];
+  let previous: number[] | null = null;
+  while (offset < bytes.length || bitCount >= codeSize) {
+    const code = read(codeSize);
+    if (code === clear) { reset(); previous = null; continue; }
+    if (code === end) break;
+    const entry = dictionary[code] ?? (code === dictionary.length && previous ? [...previous, previous[0]] : []);
+    output.push(...entry);
+    if (previous) {
+      dictionary.push([...previous, entry[0]]);
+      if (dictionary.length === (1 << codeSize) && codeSize < 12) codeSize += 1;
+    }
+    previous = entry;
+  }
+  return Uint8Array.from(output);
+}
+
 describe("GIF encoding", () => {
   it("quantizes RGBA pixels into the fixed 3-3-2 palette", () => {
     expect([...quantize332(new Uint8ClampedArray([255, 0, 0, 255, 0, 255, 0, 255]))]).toEqual([224, 28]);
@@ -26,5 +62,10 @@ describe("GIF encoding", () => {
       { rgba: new Uint8ClampedArray(4), width: 1, height: 1, delayMs: 100 },
       { rgba: new Uint8ClampedArray(8), width: 2, height: 1, delayMs: 100 },
     ])).toThrow("gif-frame-mismatch");
+  });
+
+  it("round-trips pixels after crossing GIF code-width boundaries", () => {
+    const indices = Uint8Array.from({ length: 32_768 }, (_, index) => (index * 37 + (index >>> 4)) & 0xff);
+    expect(decodeLzw(lzwEncode(indices))).toEqual(indices);
   });
 });

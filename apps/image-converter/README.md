@@ -18,6 +18,7 @@ A private, browser-only format workspace with independent tabs for image convers
 ## GIF composer
 
 - Arrange 2–100 browser-decodable images with explicit frame ordering.
+- Clear the whole frame queue or remove/reorder individual frames.
 - Fit frames proportionally into a shared canvas, choose dimensions, delay, loop count, and letterbox color.
 - Encode GIF89a entirely in the browser, then preview and download the result.
 - The dependency-free encoder uses a fixed 3-3-2 256-color palette. It is intended for simple short animation; photographs and gradients can show banding.
@@ -26,10 +27,14 @@ A private, browser-only format workspace with independent tabs for image convers
 ## Text & Markup converter
 
 - Open or paste TXT, Markdown, Org mode, reStructuredText, AsciiDoc, and HTML.
+- Open up to 100 text files into a visible batch queue, switch or remove individual documents, clear the queue, and download all converted outputs as one ZIP.
 - Parse a shared block model for headings, paragraphs, lists, quotes, code blocks, rules, and common inline links, then render any supported target.
 - Inspect the recognized structure, preview raw output or sandboxed HTML, copy it, or download the appropriate extension.
 - Unsafe HTML elements are removed, unsafe links are not preserved, and HTML preview runs in a script-disabled sandbox.
 - Dialect-specific extensions are intentionally normalized; round trips preserve the supported structure, not byte-identical source syntax.
+- Source/target formats and image download delivery use keyboard-accessible theme-native menus instead of browser-dependent native select rendering.
+
+The knowledge base uses decision rows, expandable format references, and comparison tables for image, animation, and markup choices rather than presenting every fact as an equal card.
 
 ## Privacy and network behavior
 

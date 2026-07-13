@@ -70,12 +70,14 @@ try {
   assert.equal(Boolean(settingBox && namingBox && Math.abs(settingBox.height - namingBox.height) < 4), true)
   await knowledgeTab.click()
   assert.equal(await knowledgeTab.getAttribute('aria-selected'), 'true')
-  assert.equal(await page.locator('.format-cards article').count(), 7)
+  assert.equal(await page.locator('.format-list details').count(), 7)
   assert.equal(await page.locator('.comparison table').isVisible(), true)
   await page.getByRole('button', { name: /Animation & GIF|动画与 GIF/ }).click()
   assert.equal(await page.locator('.knowledge-topic article').count(), 4)
+  assert.equal(await page.locator('.knowledge-comparison table').isVisible(), true)
   await page.getByRole('button', { name: /Text & markup|文本与标记/ }).click()
   assert.equal(await page.locator('.knowledge-topic article').count(), 6)
+  assert.equal(await page.locator('.knowledge-comparison table').isVisible(), true)
   assert.match(await page.locator('.tab-privacy').textContent(), /Knowledge base privacy|知识库隐私说明/)
   await workspaceTab.click()
   assert.equal(await workspaceTab.getAttribute('aria-selected'), 'true')
@@ -111,42 +113,61 @@ try {
   assert.equal(await dialog.locator('.compare-grid figure').count(), 2)
   await page.keyboard.press('Escape')
   assert.equal(await dialog.count(), 0)
-  const outputSelect = page.locator('.download-control select')
-  assert.equal(await outputSelect.inputValue(), 'files')
+  const outputSelect = page.getByLabel(/Output as|输出方式/)
+  assert.match(await outputSelect.textContent(), /Direct files|直接文件/)
   await page.evaluate(() => {
     window.__formtranDownloads = []
     HTMLAnchorElement.prototype.click = function captureDownload() { window.__formtranDownloads.push(this.download) }
   })
-  await page.locator('.download-control button').click()
+  await page.locator('.download-control').getByRole('button', { name: /^Download$|^下载$/ }).click()
   await page.waitForFunction(() => window.__formtranDownloads.length === 1)
   assert.match(await page.evaluate(() => window.__formtranDownloads[0]), /\.webp$/)
-  await outputSelect.selectOption('zip')
-  await page.locator('.download-control button').click()
+  await outputSelect.click()
+  await page.getByRole('option', { name: /ZIP archive|ZIP 压缩包/ }).click()
+  await page.locator('.download-control').getByRole('button', { name: /^Download$|^下载$/ }).click()
   await page.waitForFunction(() => window.__formtranDownloads.length === 2)
   assert.match(await page.evaluate(() => window.__formtranDownloads[1]), /\.zip$/)
 
   await textTab.click()
   assert.match(await page.locator('.tab-privacy').textContent(), /Text and markup privacy|文本与标记转换隐私说明/)
+  await page.locator('.text-actions input[type=file]').setInputFiles([
+    { name: 'guide.md', mimeType: 'text/markdown', buffer: Buffer.from('# Guide\n\nOne') },
+    { name: 'notes.org', mimeType: 'text/plain', buffer: Buffer.from('* Notes\n\nTwo') },
+  ])
+  assert.equal(await page.locator('.text-file-list > div').count(), 2)
+  assert.match(await page.locator('.text-file-panel').textContent(), /guide\.md/)
   await page.getByLabel(/Input|输入/).fill('# Heading\n\n- one\n- two')
-  await page.locator('.format-flow select').nth(1).selectOption('org')
+  await page.getByLabel(/Batch output format|批量输出格式/).click()
+  await page.getByRole('option', { name: 'Org mode' }).click()
   assert.match(await page.getByLabel(/Converted output|转换结果/).inputValue(), /^\* Heading/m)
   assert.equal(await page.locator('.structure-chips span').count() >= 2, true)
 
   await gifTab.click()
   assert.match(await page.locator('.tab-privacy').textContent(), /GIF composer privacy|GIF 合成隐私说明/)
   await page.locator('.gif-sources input[type=file]').setInputFiles([
-    { name: 'frame-1.png', mimeType: 'image/png', buffer: png },
-    { name: 'frame-2.png', mimeType: 'image/png', buffer: png },
+    { name: 'frame-1.svg', mimeType: 'image/svg+xml', buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="red"/></svg>') },
+    { name: 'frame-2.svg', mimeType: 'image/svg+xml', buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="blue"/></svg>') },
   ])
   assert.equal(await page.locator('.frame-strip article').count(), 2)
-  await page.locator('.gif-settings input[type=number]').nth(0).fill('2')
-  await page.locator('.gif-settings input[type=number]').nth(1).fill('2')
+  await page.locator('.gif-settings input[type=number]').nth(0).fill('64')
+  await page.locator('.gif-settings input[type=number]').nth(1).fill('64')
   await page.getByRole('button', { name: /Generate GIF|生成 GIF/ }).click()
   await delay(500)
   if (!await page.locator('.gif-result').count()) throw new Error(`GIF generation failed: ${await page.locator('.gif-settings').textContent()}`)
   await page.locator('.gif-result').waitFor()
-  await page.waitForFunction(() => document.querySelector('.gif-result img')?.naturalWidth === 2)
+  await page.waitForFunction(() => document.querySelector('.gif-result img')?.naturalWidth === 64)
+  const bottomPixel = await page.locator('.gif-result img').evaluate(async (image) => {
+    await image.decode()
+    const canvas = document.createElement('canvas'); canvas.width = 64; canvas.height = 64
+    const context = canvas.getContext('2d'); context.drawImage(image, 0, 0)
+    return [...context.getImageData(32, 63, 1, 1).data]
+  })
+  assert.equal(bottomPixel[3], 255)
+  assert.equal(Math.max(...bottomPixel.slice(0, 3)) > 150 && Math.min(...bottomPixel.slice(0, 3)) < 80, true)
   assert.equal(await page.getByRole('button', { name: /Download GIF|下载 GIF/ }).isVisible(), true)
+  await page.getByRole('button', { name: /^Clear$|^清空$/ }).click()
+  assert.equal(await page.locator('.frame-strip article').count(), 0)
+  assert.equal(await page.locator('.gif-result').count(), 0)
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
