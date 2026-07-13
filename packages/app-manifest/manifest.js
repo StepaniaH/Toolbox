@@ -104,10 +104,10 @@ export const TOOLBOX_APPS = Object.freeze([
     path: '/image-converter/',
     name: 'FormTran',
     navLabel: { zh: '方转', en: 'FormTran' },
-    description: { zh: '纯本地格式转换、预览与批量重命名', en: 'Private format conversion, preview, and batch naming' },
+    description: { zh: '纯本地图片、GIF 与文本标记格式转换', en: 'Private image, GIF, and text markup conversion' },
     keywords: {
-      zh: ['图片', '图像', '格式转换', '批量转换', '压缩', '重命名', '正则', 'PNG', 'JPEG', 'WebP'],
-      en: ['image', 'photo', 'format converter', 'batch conversion', 'compress', 'rename', 'regex', 'PNG', 'JPEG', 'WebP'],
+      zh: ['图片', '图像', '格式转换', '批量转换', 'GIF', '动图', '重命名', '正则', 'Markdown', 'Org mode', '文本标记', 'PNG', 'JPEG', 'WebP'],
+      en: ['image', 'photo', 'format converter', 'batch conversion', 'GIF', 'animation', 'rename', 'regex', 'Markdown', 'Org mode', 'text markup', 'PNG', 'JPEG', 'WebP'],
     },
     icon: {
       viewBox: '0 0 48 48',

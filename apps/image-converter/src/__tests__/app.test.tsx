@@ -26,13 +26,13 @@ describe("application shell", () => {
     expect((screen.getByRole("button", { name: /Convert images|开始转换/ }) as HTMLButtonElement).disabled).toBe(true);
   });
 
-  it("exposes the workspace and knowledge base as accessible tabs", () => {
+  it("exposes four independent converter and knowledge tabs", () => {
     render(<App />);
     const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(2);
+    expect(tabs).toHaveLength(4);
     expect(tabs[0].getAttribute("aria-selected")).toBe("true");
-    fireEvent.click(tabs[1]);
-    expect(tabs[1].getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(tabs[3]);
+    expect(tabs[3].getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tabpanel").id).toBe("panel-knowledge");
     expect(screen.getByText(/Knowledge base privacy|知识库隐私说明/)).toBeTruthy();
   });

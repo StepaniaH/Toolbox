@@ -154,17 +154,17 @@ main 稳定线
 
 | 候选 | 首要能力 | 主要边界 / 实现前提 |
 |---|---|---|
-| Image Converter | 图片格式、尺寸、质量、批量命名与 ZIP | 首版使用浏览器解码与 Canvas 编码；动图、HDR、色彩配置和元数据需明确降级 |
+| FormTran / 方转 | 已实现图片格式、尺寸、质量、批量命名、GIF 合成及轻量文本标记互转 | 各领域使用独立业务 Tab 与状态；图片依赖 Canvas，GIF 使用固定调色板，标记转换覆盖可解释的公共结构子集 |
 | Data Converter | CSV / JSON / NDJSON / YAML / XML / TSV 互转 | 大文件使用流式解析；公式注入、类型推断和精度必须可配置 |
 | Text & Encoding Converter | UTF-8、Base64、URL、HTML 实体、换行与哈希 | 区分字符集、编码、加密与哈希，二进制预览设上限，避免把不可逆操作伪装成转换 |
-| Text & Markup Converter | TXT / Markdown / Org-mode / RST / AsciiDoc / HTML 互转、结构解析与预览 | 作为独立应用；优先用 AST 保留标题、列表、链接、代码块与元数据，并逐项提示无法往返的方言语法 |
+| Text & Markup Converter | 已作为 FormTran 独立 Tab 实现 TXT / Markdown / Org-mode / RST / AsciiDoc / HTML 互转、结构解析与预览 | 使用轻量 AST 保留标题、段落、列表、链接、引用、代码块和分隔线；明确提示方言语法无法完整往返 |
 | Audio Converter | WAV / MP3 / AAC / Opus / FLAC 与裁切、码率 | 优先 WebCodecs，缺失编码器再评估可审计的本地 WASM 与包体预算 |
 | Video Converter | 容器/编码、分辨率、帧率、音轨与片段 | 依赖 WebCodecs/WASM、内存与长任务治理；先做能力检测和取消/恢复 |
 | Archive Converter | ZIP / TAR / GZIP 解包、重打包与清单预览 | 防止 zip bomb、路径穿越、超大内存占用和不可见文件误打包 |
 | Document & Ebook Converter | EPUB / HTML 文档包及开放电子书格式 | 保留语义、目录和资源引用；与轻量标记文本转换分开，PDF/Office 高保真转换不承诺纯浏览器首版 |
 | Icon & Asset Packager | SVG / PNG / ICO、favicon 与多尺寸资源包 | SVG 必须清理脚本与外部引用；输出可复核的尺寸和 manifest |
 
-候选进入 TASKS 前必须各自形成独立 Brief、隐私与资源预算，不把多个转换领域塞进同一应用，也不为格式覆盖率静默上传文件。
+候选进入 TASKS 前必须形成独立 Brief、隐私与资源预算。只有共享“本地格式转换”心智且能以独立 Tab 隔离状态的轻量能力才进入 FormTran；重型媒体、归档与文档转换仍保持独立应用，也绝不为覆盖率静默上传文件。
 
 ## 五、规划视野
 

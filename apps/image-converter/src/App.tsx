@@ -7,7 +7,10 @@ import { NavBar } from "@toolbox/nav";
 import { AppIcon } from "@toolbox/nav/AppIcon.tsx";
 import { ToolboxFooter } from "@toolbox/nav/ToolboxFooter.tsx";
 import { translations } from "./i18n";
+import { GifComposer } from "./GifComposer";
+import { TextMarkupConverter } from "./TextMarkupConverter";
 import { ACCEPT_ATTRIBUTE, convertImage, getFileExtension } from "./lib/convert";
+import { triggerDownload } from "./lib/download";
 import { selectIncomingFiles } from "./lib/file-selection";
 import {
   buildOutputName, insertToken, inspectRegexMatch, makeUniquePath, validateRename,
@@ -31,7 +34,7 @@ const REGEX_PRESETS = [
   { id: "copy", pattern: "\\s*\\(\\d+\\)$", replacement: "", global: false, ignoreCase: true },
 ] as const;
 type StoredSettings = { conversion: ConversionSettings; rename: RenameSettings };
-type AppTab = "workspace" | "knowledge";
+type AppTab = "image" | "gif" | "text" | "knowledge";
 type NamePreview = { before: string; after: string; matched: boolean; groups: string[] };
 type DownloadMode = "files" | "zip";
 type ImportSummary = { accepted: number; rejected: number };
@@ -57,7 +60,7 @@ function AppSurface() {
   const [rejections, setRejections] = useState<RejectedFile[]>([]);
   const [dragging, setDragging] = useState(false);
   const [running, setRunning] = useState(false);
-  const [activeTab, setActiveTab] = useState<AppTab>("workspace");
+  const [activeTab, setActiveTab] = useState<AppTab>("image");
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [downloadMode, setDownloadMode] = useState<DownloadMode>("files");
   const [lastImport, setLastImport] = useState<ImportSummary | null>(null);
@@ -66,7 +69,7 @@ function AppSurface() {
   itemRef.current = items;
 
   useEffect(() => {
-    document.title = activeTab === "knowledge" ? `${t("tabs.knowledge")} · ${t("brand.title")}` : t("meta.title");
+    document.title = activeTab === "image" ? t("meta.title") : `${t(`tabs.${activeTab}`)} · ${t("brand.title")}`;
     document.querySelector('meta[name="description"]')?.setAttribute("content", t("meta.description"));
   }, [activeTab, lang, t]);
 
@@ -195,8 +198,8 @@ function AppSurface() {
         <AppTabs active={activeTab} onChange={setActiveTab} />
 
         <main>
-          {activeTab === "workspace" ? (
-            <section className="workspace" role="tabpanel" id="panel-workspace" aria-labelledby="tab-workspace">
+          {activeTab === "image" ? (
+            <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image">
               <div className="intake-grid">
                 <div className="intake-column">
                   <section className={`drop-zone ${dragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
@@ -206,9 +209,11 @@ function AppSurface() {
                       <label className="button primary">{t("upload.files")}<input aria-label={t("upload.files")} type="file" accept={ACCEPT_ATTRIBUTE} multiple onChange={onInput} /></label>
                       <label className="button secondary">{t("upload.folder")}<input aria-label={t("upload.folder")} type="file" accept={ACCEPT_ATTRIBUTE} multiple {...({ webkitdirectory: "" } as Record<string, string>)} onChange={onInput} /></label>
                     </div>
+                    {(lastImport || rejections.length > 0) && <div className="intake-feedback-row">
+                      {lastImport && <div className={`import-feedback ${lastImport.accepted ? "is-success" : "is-warning"}`} role="status"><strong>{t(lastImport.accepted ? "upload.importSuccess" : "upload.importNoFiles", { count: lastImport.accepted })}</strong><span>{lastImport.rejected ? t("upload.importRejected", { count: lastImport.rejected }) : t("upload.importReady")}</span></div>}
+                      {rejections.length > 0 && <RejectionNotice files={rejections} onDismiss={() => setRejections([])} />}
+                    </div>}
                   </section>
-                  {lastImport && <div className={`import-feedback ${lastImport.accepted ? "is-success" : "is-warning"}`} role="status"><strong>{t(lastImport.accepted ? "upload.importSuccess" : "upload.importNoFiles", { count: lastImport.accepted })}</strong><span>{lastImport.rejected ? t("upload.importRejected", { count: lastImport.rejected }) : t("upload.importReady")}</span></div>}
-                  {rejections.length > 0 && <RejectionNotice files={rejections} onDismiss={() => setRejections([])} />}
                 </div>
 
                 <section className="queue-panel" aria-live="polite">
@@ -243,9 +248,7 @@ function AppSurface() {
                 </div>
               </div>
             </section>
-          ) : (
-            <KnowledgePage />
-          )}
+          ) : activeTab === "gif" ? <GifComposer /> : activeTab === "text" ? <TextMarkupConverter /> : <KnowledgePage />}
         </main>
         <TabPrivacyNotice tab={activeTab} />
         <ToolboxFooter appId="image-converter" />
@@ -257,7 +260,7 @@ function AppSurface() {
 
 function AppTabs({ active, onChange }: { active: AppTab; onChange: (tab: AppTab) => void }) {
   const { t } = useTranslation();
-  const tabs: AppTab[] = ["workspace", "knowledge"];
+  const tabs: AppTab[] = ["image", "gif", "text", "knowledge"];
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
@@ -404,13 +407,29 @@ function PreviewDialog({ items, activeId, onChange, onClose }: { items: QueueIte
 function KnowledgePage() {
   const { t } = useTranslation();
   const formats = ["jpeg", "png", "webp", "gif", "avif", "svg", "bmp"] as const;
+  const [category, setCategory] = useState<"images" | "animation" | "markup">("images");
+  const categories = ["images", "animation", "markup"] as const;
   return <section className="knowledge-page" role="tabpanel" id="panel-knowledge" aria-labelledby="tab-knowledge">
-    <header className="knowledge-hero"><span className="eyebrow">JPEG · PNG · WebP · GIF · AVIF · SVG · BMP</span><h2>{t("knowledge.title")}</h2><p>{t("knowledge.intro")}</p></header>
-    <section className="decision-guide"><h3>{t("knowledge.chooseTitle")}</h3><div><KnowledgeChoice icon="◉" title={t("knowledge.choose.photo.title")}>{t("knowledge.choose.photo.body")}</KnowledgeChoice><KnowledgeChoice icon="◇" title={t("knowledge.choose.transparent.title")}>{t("knowledge.choose.transparent.body")}</KnowledgeChoice><KnowledgeChoice icon="↗" title={t("knowledge.choose.vector.title")}>{t("knowledge.choose.vector.body")}</KnowledgeChoice><KnowledgeChoice icon="▶" title={t("knowledge.choose.animation.title")}>{t("knowledge.choose.animation.body")}</KnowledgeChoice></div></section>
-    <section className="format-library"><div className="section-heading"><div><h3>{t("knowledge.libraryTitle")}</h3><p>{t("knowledge.librarySubtitle")}</p></div></div><div className="format-cards">{formats.map((format) => <article key={format}><header><strong>{format.toUpperCase()}</strong><span>{t(`knowledge.formats.${format}.type`)}</span></header><p>{t(`knowledge.formats.${format}.body`)}</p><dl><div><dt>{t("knowledge.bestFor")}</dt><dd>{t(`knowledge.formats.${format}.best`)}</dd></div><div><dt>{t("knowledge.watchFor")}</dt><dd>{t(`knowledge.formats.${format}.warning`)}</dd></div></dl></article>)}</div></section>
-    <section className="comparison"><h3>{t("knowledge.tableTitle")}</h3><div><table><thead><tr><th>{t("knowledge.table.format")}</th><th>{t("knowledge.table.compression")}</th><th>{t("knowledge.table.transparency")}</th><th>{t("knowledge.table.animation")}</th><th>{t("knowledge.table.compatibility")}</th></tr></thead><tbody><tr><th>JPEG</th><td>{t("knowledge.values.lossy")}</td><td>—</td><td>—</td><td>{t("knowledge.values.high")}</td></tr><tr><th>PNG</th><td>{t("knowledge.values.lossless")}</td><td>✓</td><td>—</td><td>{t("knowledge.values.high")}</td></tr><tr><th>WebP</th><td>{t("knowledge.values.both")}</td><td>✓</td><td>✓</td><td>{t("knowledge.values.modern")}</td></tr><tr><th>GIF</th><td>{t("knowledge.values.losslessLimited")}</td><td>{t("knowledge.values.limited")}</td><td>✓</td><td>{t("knowledge.values.high")}</td></tr><tr><th>AVIF</th><td>{t("knowledge.values.both")}</td><td>✓</td><td>✓</td><td>{t("knowledge.values.modern")}</td></tr><tr><th>SVG</th><td>{t("knowledge.values.vector")}</td><td>✓</td><td>{t("knowledge.values.scripted")}</td><td>{t("knowledge.values.mixed")}</td></tr></tbody></table></div></section>
-    <section className="knowledge-faq"><h3>{t("knowledge.boundariesTitle")}</h3><details open><summary>{t("knowledge.animation")}</summary><p>{t("knowledge.animationDetail")}</p></details><details><summary>{t("knowledge.metadataTitle")}</summary><p>{t("knowledge.metadata")}</p></details><details><summary>{t("knowledge.colorTitle")}</summary><p>{t("knowledge.color")}</p></details><details><summary>{t("knowledge.browserTitle")}</summary><p>{t("knowledge.browser")}</p></details></section>
+    <header className="knowledge-hero"><span className="eyebrow">FORMTRAN LIBRARY</span><h2>{t("knowledge.title")}</h2><p>{t("knowledge.introExpanded")}</p></header>
+    <div className="knowledge-layout">
+      <nav className="knowledge-categories" aria-label={t("knowledge.categoriesLabel")}>{categories.map((item) => <button key={item} type="button" aria-current={category === item ? "page" : undefined} onClick={() => setCategory(item)}><span>{item === "images" ? "▧" : item === "animation" ? "▶" : "¶"}</span><div><strong>{t(`knowledge.categories.${item}.title`)}</strong><small>{t(`knowledge.categories.${item}.description`)}</small></div></button>)}</nav>
+      <div className="knowledge-content">
+        {category === "images" && <>
+          <section className="decision-guide"><h3>{t("knowledge.chooseTitle")}</h3><div><KnowledgeChoice icon="◉" title={t("knowledge.choose.photo.title")}>{t("knowledge.choose.photo.body")}</KnowledgeChoice><KnowledgeChoice icon="◇" title={t("knowledge.choose.transparent.title")}>{t("knowledge.choose.transparent.body")}</KnowledgeChoice><KnowledgeChoice icon="↗" title={t("knowledge.choose.vector.title")}>{t("knowledge.choose.vector.body")}</KnowledgeChoice><KnowledgeChoice icon="▶" title={t("knowledge.choose.animation.title")}>{t("knowledge.choose.animation.body")}</KnowledgeChoice></div></section>
+          <section className="format-library"><div className="section-heading"><div><h3>{t("knowledge.libraryTitle")}</h3><p>{t("knowledge.librarySubtitle")}</p></div></div><div className="format-cards">{formats.map((format) => <article key={format}><header><strong>{format.toUpperCase()}</strong><span>{t(`knowledge.formats.${format}.type`)}</span></header><p>{t(`knowledge.formats.${format}.body`)}</p><dl><div><dt>{t("knowledge.bestFor")}</dt><dd>{t(`knowledge.formats.${format}.best`)}</dd></div><div><dt>{t("knowledge.watchFor")}</dt><dd>{t(`knowledge.formats.${format}.warning`)}</dd></div></dl></article>)}</div></section>
+          <section className="comparison"><h3>{t("knowledge.tableTitle")}</h3><div><table><thead><tr><th>{t("knowledge.table.format")}</th><th>{t("knowledge.table.compression")}</th><th>{t("knowledge.table.transparency")}</th><th>{t("knowledge.table.animation")}</th><th>{t("knowledge.table.compatibility")}</th></tr></thead><tbody><tr><th>JPEG</th><td>{t("knowledge.values.lossy")}</td><td>—</td><td>—</td><td>{t("knowledge.values.high")}</td></tr><tr><th>PNG</th><td>{t("knowledge.values.lossless")}</td><td>✓</td><td>—</td><td>{t("knowledge.values.high")}</td></tr><tr><th>WebP</th><td>{t("knowledge.values.both")}</td><td>✓</td><td>✓</td><td>{t("knowledge.values.modern")}</td></tr><tr><th>GIF</th><td>{t("knowledge.values.losslessLimited")}</td><td>{t("knowledge.values.limited")}</td><td>✓</td><td>{t("knowledge.values.high")}</td></tr><tr><th>AVIF</th><td>{t("knowledge.values.both")}</td><td>✓</td><td>✓</td><td>{t("knowledge.values.modern")}</td></tr><tr><th>SVG</th><td>{t("knowledge.values.vector")}</td><td>✓</td><td>{t("knowledge.values.scripted")}</td><td>{t("knowledge.values.mixed")}</td></tr></tbody></table></div></section>
+          <section className="knowledge-faq"><h3>{t("knowledge.boundariesTitle")}</h3><details open><summary>{t("knowledge.metadataTitle")}</summary><p>{t("knowledge.metadata")}</p></details><details><summary>{t("knowledge.colorTitle")}</summary><p>{t("knowledge.color")}</p></details><details><summary>{t("knowledge.browserTitle")}</summary><p>{t("knowledge.browser")}</p></details></section>
+        </>}
+        {category === "animation" && <KnowledgeTopic title={t("knowledge.animationGuide.title")} intro={t("knowledge.animationGuide.intro")} cards={["frames", "delay", "palette", "size"]} prefix="knowledge.animationGuide" />}
+        {category === "markup" && <KnowledgeTopic title={t("knowledge.markupGuide.title")} intro={t("knowledge.markupGuide.intro")} cards={["semantic", "roundtrip", "html", "dialects", "encoding", "preview"]} prefix="knowledge.markupGuide" />}
+      </div>
+    </div>
   </section>;
+}
+
+function KnowledgeTopic({ title, intro, cards, prefix }: { title: string; intro: string; cards: string[]; prefix: string }) {
+  const { t } = useTranslation();
+  return <section className="knowledge-topic"><header><h3>{title}</h3><p>{intro}</p></header><div>{cards.map((card) => <article key={card}><strong>{t(`${prefix}.${card}.title`)}</strong><p>{t(`${prefix}.${card}.body`)}</p></article>)}</div></section>;
 }
 
 function KnowledgeChoice({ icon, title, children }: { icon: string; title: string; children: ReactNode }) { return <article><span aria-hidden="true">{icon}</span><div><strong>{title}</strong><p>{children}</p></div></article>; }
@@ -431,6 +450,4 @@ function previewOutputPath(item: QueueItem, index: number, settings: ConversionS
 function updateItem(items: QueueItem[], id: string, patch: Partial<QueueItem>): QueueItem[] { return items.map((item) => item.id === id ? { ...item, ...patch } : item); }
 function clamp(value: number, min: number, max: number): number { return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : min; }
 function formatBytes(bytes: number): string { if (bytes < 1024) return `${bytes} B`; const units = ["KB", "MB", "GB"]; let value = bytes / 1024; let unit = units[0]; for (let i = 1; value >= 1024 && i < units.length; i += 1) { value /= 1024; unit = units[i]; } return `${value.toFixed(value >= 10 ? 1 : 2)} ${unit}`; }
-function triggerDownload(blob: Blob, filename: string): void { const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = filename; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
-
 export function App() { return <I18nProvider translations={translations}><AppSurface /></I18nProvider>; }
