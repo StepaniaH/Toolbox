@@ -9,6 +9,7 @@ The expansion is staged. Image conversion, GIF composition, text/markup conversi
 - Accepts mixed files and folders, with a 500-file / 2 GB queue budget.
 - Reads at most the first 64 KiB of each file to identify JPEG, PNG, WebP, AVIF, GIF, SVG, BMP, TIFF, HEIC, ICO, PDF, ZIP, supported text, and structured-data names.
 - Prefers recognizable content signatures over extensions and warns when they disagree.
+- Distinguishes ZIP-based document containers such as XLSX, DOCX, ODS, and EPUB from ordinary ZIP archives, so they are not offered to the archive extractor.
 - Shows available, limited, and planned capabilities separately; no conversion or parser starts automatically.
 - Can hand supported inputs into image conversion, GIF composition, text/markup conversion, PDF inspection, or ZIP inspection, and generates image Data URLs locally up to 10 MB.
 - Provides editable image starting presets for web photos, transparent assets, and private sharing.
@@ -24,7 +25,7 @@ The expansion is staged. Image conversion, GIF composition, text/markup conversi
 - Converted results appear in a gallery and open in a keyboard-navigable before/after viewer.
 - Downloads can be emitted as direct files (one result directly, many separately) or as one ZIP archive.
 - Upload and queue cards share the first workspace row, with immediate accepted/skipped feedback after every selection.
-- A separate Knowledge Base tab includes a purpose guide, seven format references, a capability table, and conversion boundaries.
+- A separate Knowledge Base tab covers images, animation, text markup, PDF, and archives with capability comparisons and safety boundaries.
 
 ## GIF composer
 

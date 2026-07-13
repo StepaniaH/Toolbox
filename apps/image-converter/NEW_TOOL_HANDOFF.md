@@ -38,6 +38,7 @@ acceptance:
 - Product identity is now English-only `FormTran`; the existing technical id and route remain stable.
 - Product scope is expanded to a browser-local file workbench. The default home is an identification and recommendation layer; domain workspaces remain isolated and high-risk parsers are not presented as available before implementation and tests.
 - File home recognizes supported image signatures plus PDF/ZIP and text/data extensions from at most 64 KiB per file. It warns on signature/extension mismatches, groups recommendations by available/limited/planned status, and never auto-runs a tool.
+- ZIP signatures are interpreted with container-aware extensions: XLSX/XLSM/ODS stay in data, while DOCX/PPTX/ODT/ODP/EPUB/JAR/APK remain explicitly unsupported instead of being routed to ZIP extraction.
 - Supported files can be handed explicitly to image, GIF, or text workspaces. Image presets remain editable; Data URL generation is capped at 10 MB. TIFF/HEIC/ICO and high-risk PDF/archive operations are recognizable but not falsely exposed as implemented.
 - Navigation now supports both discovery paths: automatic identification on File Home and direct manual entry into file-family tabs. The first PDF/archive phase is intentionally read-oriented: PDF inspection and bounded ZIP listing/extraction, not unverified page editing or universal archive support.
 - Workspace intake and queue share one equal-width/equal-height desktop row with feedback inside the intake card. Naming defaults to a compact template workflow and reveals regex controls only as an advanced section; the expanded light-theme surface uses the normal raised surface instead of a dark tint.
@@ -62,11 +63,11 @@ acceptance:
 ## Verification results
 
 - `node_modules/.bin/vite build` — passed; latest measured production JS 347.07 kB / 110.30 kB gzip, CSS 68.96 kB / 12.16 kB gzip.
-- `node_modules/.bin/vitest run` — passed, 11 files / 40 tests, including manual PDF/ZIP workspace flows, ZIP traversal rejection, CRC-verified extraction, and file-home queue preservation.
+- `node_modules/.bin/vitest run` — passed, 11 files / 41 tests, including ZIP-container document routing, manual PDF/ZIP workspace flows, ZIP traversal rejection, CRC-verified extraction, and file-home queue preservation.
 - `node_modules/.bin/tsc -b` — passed after tightening the existing GIF Blob and markup fence types.
 - `node_modules/.bin/oxlint --deny-warnings src tests` — passed, 0 warnings.
-- `node tests/browser-smoke.mjs` — passed with file-home signature identification, explicit image handoff, editable presets, equal image cards, custom direct/ZIP delivery menu, text batch import, Markdown → Org conversion, knowledge comparison tables, mobile overflow checks, and a real 64×64 two-frame GIF whose bottom pixel is decoded and validated.
-- `node scripts/check-privacy.mjs` — passed for 282 tracked or unignored files at the latest check.
+- `node tests/browser-smoke.mjs` — passed with XLSX non-archive routing, PDF/archive controls across light/dark and zh/en, exact text editor top alignment, five-category knowledge comparisons, mobile overflow checks, and the existing real image/GIF conversion coverage.
+- `node scripts/check-privacy.mjs` — passed for 288 tracked or unignored files at the latest check.
 - `node scripts/check-contracts.mjs` — passed for 6 apps.
 - `pnpm build` — passed, 6 app builds.
 - `pnpm test` — passed, 986 tests across the workspace after this candidate.
@@ -78,7 +79,7 @@ acceptance:
 ## Visual matrix
 
 - Automated: light/dark × zh/en at 1440 × 1100 and 390 × 844; file home, shared shell, canonical mark, focusable controls, overflow, console/page/request failures, and real conversion covered.
-- Manual: English/light desktop empty and mixed-file home plus 390px mobile home were inspected. The routing surface uses flat dividers, a file rail, tool rows, collapsed future capabilities, and editable preset buttons rather than a new card wall.
+- Manual: light PDF, dark archive, and dark text workspaces were inspected at 1440px after the final fixes. Family actions use the same understated bordered control language, and the two text editor surfaces begin at the same exact vertical position.
 - Temporary screenshots were written outside the repository and were not retained as candidate files.
 
 ## Known limits and integration cleanup

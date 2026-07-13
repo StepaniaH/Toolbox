@@ -431,12 +431,13 @@ function PreviewDialog({ items, activeId, onChange, onClose }: { items: QueueIte
 function KnowledgePage() {
   const { t } = useTranslation();
   const formats = ["jpeg", "png", "webp", "gif", "avif", "svg", "bmp"] as const;
-  const [category, setCategory] = useState<"images" | "animation" | "markup">("images");
-  const categories = ["images", "animation", "markup"] as const;
+  const [category, setCategory] = useState<"images" | "animation" | "markup" | "pdf" | "archive">("images");
+  const categories = ["images", "animation", "markup", "pdf", "archive"] as const;
+  const categoryMark = { images: "IMG", animation: "GIF", markup: "TXT", pdf: "PDF", archive: "ZIP" } as const;
   return <section className="knowledge-page" role="tabpanel" id="panel-knowledge" aria-labelledby="tab-knowledge">
     <header className="knowledge-hero"><span className="eyebrow">FORMTRAN LIBRARY</span><h2>{t("knowledge.title")}</h2><p>{t("knowledge.introExpanded")}</p></header>
     <div className="knowledge-layout">
-      <nav className="knowledge-categories" aria-label={t("knowledge.categoriesLabel")}>{categories.map((item) => <button key={item} type="button" aria-current={category === item ? "page" : undefined} onClick={() => setCategory(item)}><span>{item === "images" ? "▧" : item === "animation" ? "▶" : "¶"}</span><div><strong>{t(`knowledge.categories.${item}.title`)}</strong><small>{t(`knowledge.categories.${item}.description`)}</small></div></button>)}</nav>
+      <nav className="knowledge-categories" aria-label={t("knowledge.categoriesLabel")}>{categories.map((item) => <button key={item} type="button" aria-current={category === item ? "page" : undefined} onClick={() => setCategory(item)}><span>{categoryMark[item]}</span><div><strong>{t(`knowledge.categories.${item}.title`)}</strong><small>{t(`knowledge.categories.${item}.description`)}</small></div></button>)}</nav>
       <div className="knowledge-content">
         {category === "images" && <>
           <section className="decision-guide"><h3>{t("knowledge.chooseTitle")}</h3><div className="purpose-table">{([['photo', 'WebP / JPEG'], ['transparent', 'PNG / WebP'], ['vector', 'SVG'], ['animation', 'GIF']] as const).map(([use, recommendation]) => <div key={use}><strong>{t(`knowledge.choose.${use}.title`)}</strong><b>{recommendation}</b><p>{t(`knowledge.choose.${use}.body`)}</p></div>)}</div></section>
@@ -446,6 +447,8 @@ function KnowledgePage() {
         </>}
         {category === "animation" && <KnowledgeTopic title={t("knowledge.animationGuide.title")} intro={t("knowledge.animationGuide.intro")} cards={["frames", "delay", "palette", "size"]} prefix="knowledge.animationGuide"><KnowledgeComparison type="animation" /></KnowledgeTopic>}
         {category === "markup" && <KnowledgeTopic title={t("knowledge.markupGuide.title")} intro={t("knowledge.markupGuide.intro")} cards={["semantic", "roundtrip", "html", "dialects", "encoding", "preview"]} prefix="knowledge.markupGuide"><KnowledgeComparison type="markup" /></KnowledgeTopic>}
+        {category === "pdf" && <KnowledgeTopic title={t("knowledge.pdfGuide.title")} intro={t("knowledge.pdfGuide.intro")} cards={["structure", "pages", "security", "metadata"]} prefix="knowledge.pdfGuide"><KnowledgeComparison type="pdf" /></KnowledgeTopic>}
+        {category === "archive" && <KnowledgeTopic title={t("knowledge.archiveGuide.title")} intro={t("knowledge.archiveGuide.intro")} cards={["container", "paths", "bombs", "encryption"]} prefix="knowledge.archiveGuide"><KnowledgeComparison type="archive" /></KnowledgeTopic>}
       </div>
     </div>
   </section>;
@@ -456,11 +459,12 @@ function KnowledgeTopic({ title, intro, cards, prefix, children }: { title: stri
   return <section className="knowledge-topic"><header><h3>{title}</h3><p>{intro}</p></header>{children}<div className="knowledge-notes">{cards.map((card) => <article key={card}><strong>{t(`${prefix}.${card}.title`)}</strong><p>{t(`${prefix}.${card}.body`)}</p></article>)}</div></section>;
 }
 
-function KnowledgeComparison({ type }: { type: "animation" | "markup" }) {
+function KnowledgeComparison({ type }: { type: "animation" | "markup" | "pdf" | "archive" }) {
   const { t } = useTranslation();
-  const rows = type === "animation" ? ["gif", "webp", "avif"] : ["markdown", "org", "rst", "asciidoc", "html"];
-  const columns = type === "animation" ? ["colors", "support", "best"] : ["readability", "strength", "best"];
-  return <div className="knowledge-comparison"><h4>{t(`knowledge.comparisons.${type}.title`)}</h4><div><table><thead><tr><th>{t("knowledge.comparisons.format")}</th>{columns.map((column) => <th key={column}>{t(`knowledge.comparisons.${type}.headers.${column}`)}</th>)}</tr></thead><tbody>{rows.map((row) => <tr key={row}><th>{t(`knowledge.comparisons.${type}.rows.${row}.name`)}</th>{columns.map((column) => <td key={column}>{t(`knowledge.comparisons.${type}.rows.${row}.${column}`)}</td>)}</tr>)}</tbody></table></div></div>;
+  const rows = type === "animation" ? ["gif", "webp", "avif"] : type === "markup" ? ["markdown", "org", "rst", "asciidoc", "html"] : type === "pdf" ? ["inspect", "render", "edit"] : ["zip", "zip64", "other"];
+  const columns = type === "animation" ? ["colors", "support", "best"] : type === "markup" ? ["readability", "strength", "best"] : type === "pdf" ? ["reads", "accuracy", "available"] : ["support", "safety", "available"];
+  const prefix = type === "pdf" || type === "archive" ? `knowledge.${type}Comparison` : `knowledge.comparisons.${type}`;
+  return <div className="knowledge-comparison"><h4>{t(`${prefix}.title`)}</h4><div><table><thead><tr><th>{t("knowledge.comparisons.format")}</th>{columns.map((column) => <th key={column}>{t(`${prefix}.headers.${column}`)}</th>)}</tr></thead><tbody>{rows.map((row) => <tr key={row}><th>{t(`${prefix}.rows.${row}.name`)}</th>{columns.map((column) => <td key={column}>{t(`${prefix}.rows.${row}.${column}`)}</td>)}</tr>)}</tbody></table></div></div>;
 }
 function TabPrivacyNotice({ tab }: { tab: AppTab }) {
   const { t } = useTranslation();

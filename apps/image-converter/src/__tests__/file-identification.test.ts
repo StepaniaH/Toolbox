@@ -33,6 +33,13 @@ describe("local file identification", () => {
     expect(await identifyFile(file("unknown.bin", [1, 2, 3]))).toMatchObject({ family: "unknown", source: "unknown" });
   });
 
+  it("does not route ZIP-container document formats into the archive extractor", async () => {
+    const zipHeader = [0x50, 0x4b, 0x03, 0x04];
+    expect(await identifyFile(file("budget.xlsx", zipHeader))).toMatchObject({ family: "data", format: "XLSX", source: "extension", mismatch: false });
+    expect(await identifyFile(file("report.docx", zipHeader))).toMatchObject({ family: "unknown", format: "DOCX", source: "extension", mismatch: false });
+    expect(await identifyFile(file("files.zip", zipHeader))).toMatchObject({ family: "archive", format: "ZIP", source: "signature" });
+  });
+
   it("never needs more than the documented identification prefix", async () => {
     const source = file("large.png", new Uint8Array(IDENTIFICATION_READ_LIMIT + 10).fill(1) as unknown as number[]);
     let end = 0;

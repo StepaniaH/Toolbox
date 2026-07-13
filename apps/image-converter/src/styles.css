@@ -375,7 +375,7 @@ legend, .field-label { display: flex; align-items: center; gap: 6px; margin-bott
 .editor-grid, .text-inspector-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
 .editor-card { display: grid; min-width: 0; overflow: hidden; background: transparent; }
 .editor-card + .editor-card { border-left: 1px solid var(--color-border); }
-.editor-card header { display: flex; min-height: 58px; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--color-border); }
+.editor-card header { display: flex; height: 70px; min-height: 70px; box-sizing: border-box; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--color-border); }
 .editor-card header > div:first-child { display: grid; gap: 3px; min-width: 0; }
 .editor-card header small { overflow: hidden; color: var(--color-text-muted); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
 .editor-card header > div:last-child { display: flex; gap: 5px; }
@@ -397,6 +397,13 @@ legend, .field-label { display: flex; align-items: center; gap: 6px; margin-bott
 .family-header { display: flex; min-height: 142px; align-items: center; justify-content: space-between; gap: 28px; padding: 22px 4px; border-bottom: 1px solid var(--color-border); }
 .family-header h2 { margin: 0; font-size: clamp(1.4rem, 2.4vw, 1.9rem); }
 .family-header p { max-width: 740px; margin: 8px 0 0; color: var(--color-text-secondary); line-height: 1.55; }
+.family-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; }
+.family-upload, .family-clear { display: inline-flex; min-height: 42px; align-items: center; gap: 8px; padding: 8px 13px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: transparent; color: var(--color-text); cursor: pointer; font: inherit; transition: border-color .14s ease, color .14s ease, background .14s ease; }
+.family-upload:hover, .family-clear:hover { border-color: color-mix(in srgb, var(--color-primary) 58%, var(--color-border)); background: color-mix(in srgb, var(--color-primary) 6%, transparent); color: var(--color-primary); }
+.family-upload > span, .family-clear > span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-primary); font-size: 1rem; line-height: 1; }
+.family-upload strong, .family-clear { font-size: .74rem; font-weight: 750; }
+.family-upload input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.family-upload:focus-within, .family-clear:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
 .family-empty { display: grid; min-height: 330px; place-items: center; align-content: center; padding: 42px 20px; border-block: 1px solid var(--color-border); text-align: center; }
 .family-empty > span { color: var(--color-primary); font: 800 .74rem var(--font-mono); letter-spacing: .12em; }
 .family-empty h3 { margin: 12px 0 0; font-size: 1.2rem; }
@@ -450,7 +457,7 @@ legend, .field-label { display: flex; align-items: center; gap: 6px; margin-bott
 .knowledge-categories button { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: start; width: 100%; padding: 11px; border: 0; border-radius: var(--radius-lg); background: transparent; color: var(--color-text); cursor: pointer; text-align: left; }
 .knowledge-categories button:hover { color: var(--color-primary); }
 .knowledge-categories button[aria-current="page"] { color: var(--color-primary); box-shadow: inset 3px 0 var(--color-primary); }
-.knowledge-categories button > span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; background: color-mix(in srgb, var(--color-primary) 12%, transparent); }
+.knowledge-categories button > span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; background: color-mix(in srgb, var(--color-primary) 12%, transparent); font: 800 .58rem var(--font-mono); letter-spacing: -.02em; }
 .knowledge-categories button > div { display: grid; gap: 4px; }
 .knowledge-categories strong { font-size: .8rem; }
 .knowledge-categories small { color: var(--color-text-muted); font-size: .66rem; line-height: 1.4; }
