@@ -1,6 +1,8 @@
-# FormTran / 方转
+# FormTran
 
-A private, browser-only format workspace with independent tabs for image conversion, GIF composition, text/markup conversion, and an extensible knowledge base. No source content leaves the device.
+A private, browser-only file workspace for conversion, compression, editing, splitting, merging, encoding, parsing, and inspection. Its file home identifies inputs and recommends relevant tools before any operation runs. No source content leaves the device.
+
+The expansion is staged. Existing image conversion, GIF composition, and text/markup conversion are available now; image editing, GIF-specific processing, PDF page tools, structured data utilities, and archive inspection are added only after their correctness and resource boundaries are tested. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
 
 ## Input and output
 

@@ -1,14 +1,14 @@
 ---
 id: image-converter
 route: /image-converter/
-name: FormTran / 方转
-problem: 用户需要不上传内容即可完成图片批量转换、静态图片 GIF 合成，以及常用文本标记格式的结构解析与互转。
-inputs: 图片 Tab 接收单张、多张或文件夹中的 JPEG/PNG/WebP/GIF/BMP/AVIF/SVG 及转换/命名设置；GIF Tab 接收 2–100 张静态图片及画布/时序设置；文本 Tab 接收 TXT/Markdown/Org/RST/AsciiDoc/HTML 文本。
-outputs: PNG/JPEG/WebP 文件或 ZIP；GIF89a 动画；TXT/MD/ORG/RST/ADOC/HTML 文本文件。
-assumptions: 浏览器负责图片解码和 Canvas；GIF 使用固定 3-3-2 调色板；标记转换覆盖公共结构子集；重编码默认移除元数据；各业务 Tab 状态隔离。
+name: FormTran
+problem: 用户需要在不上传内容的情况下先识别文件，再从统一入口选择转换、压缩、编辑、拆分、合并、编码、解析或信息查看工具。
+inputs: 首页接收混合文件或文件夹并做轻量类型识别；独立工作台接收图片、GIF 帧、PDF、文本/数据或压缩包及对应设置。
+outputs: 当前已提供 PNG/JPEG/WebP 文件或 ZIP、GIF89a 动画、TXT/MD/ORG/RST/ADOC/HTML 文本；后续输出按能力阶段单独验收。
+assumptions: 首页只识别和推荐，不自动处理；浏览器负责图片解码和 Canvas；已识别不等于可完整处理；GIF 使用固定 3-3-2 调色板；标记转换覆盖公共结构子集；各领域状态隔离并按需加载。
 privacy: 无业务联网、账号、后端、遥测、广告、Cookie 或远端字体；所有文件、像素、文本和结果只在内存；仅图片设置写入 toolbox.image-converter.settings。
 offline_fallback: 静态资源已加载后完全离线；不支持的格式逐文件报错并保留原文件。
-non_goals: 源动图完整拆帧、逐帧透明/处置方式、高质量自适应 GIF 调色板、AVIF/JXL/TIFF/HEIC 输出、RAW 显影、HDR/CMYK/ICC 精确保真、完整标记方言/插件语法、字节级往返、服务端超大文件处理。
+non_goals: 在同一阶段一次性开放全部推荐工具；把扩展名识别伪装成完整兼容；静默服务端降级；未经审计的 PDF/压缩包解析；源动图完整拆帧、逐帧透明/处置方式、高质量自适应 GIF 调色板、RAW 显影、HDR/CMYK/ICC 精确保真、完整标记方言/插件语法和服务端超大文件处理。
 acceptance:
   - 单文件、多文件和文件夹输入均进入有预览与状态的本地队列。
   - 浏览器主流输入可转换为 PNG/JPEG/WebP，并可缩放、控制画质和 JPEG 底色。
@@ -23,6 +23,8 @@ acceptance:
   - 文本与标记转换可批量导入/显示/切换/移除/清空文件，解析六种格式的公共结构，并单独或 ZIP 下载结果。
   - 知识库按图片、动画、文本标记分类，不把未来格式说明平铺在一个长页面中。
   - 隐私/契约、单工具与全仓质量门禁通过，manifest 保持 hidden。
+  - 默认文件首页在不自动执行操作的前提下识别混合输入，并按图片、GIF、PDF、文本数据、压缩包或未知类型推荐工具。
+  - 每个推荐工具明确标记可用、有限或规划中；兼容输入可由用户主动带入现有工作台。
 ---
 
 # Candidate handoff
@@ -33,7 +35,8 @@ acceptance:
 - One hidden canonical identity entry in `packages/app-manifest/manifest.js`.
 - `docs/PLAN.md` records the requested future browser-local converter family; `docs/TASKS.md` tracks this candidate.
 - GIF composition and text/markup conversion are independent business tabs inside FormTran: they share the local-format identity and static knowledge shell while keeping state, parameters, privacy copy, and workflows isolated.
-- Product identity is now `FormTran / 方转`; the existing technical id and route remain stable.
+- Product identity is now English-only `FormTran`; the existing technical id and route remain stable.
+- Product scope is expanded to a browser-local file workbench. The default home is an identification and recommendation layer; domain workspaces remain isolated and high-risk parsers are not presented as available before implementation and tests.
 - Workspace intake and queue share one equal-width/equal-height desktop row with feedback inside the intake card. Naming defaults to a compact template workflow and reveals regex controls only as an advanced section; the expanded light-theme surface uses the normal raised surface instead of a dark tint.
 - Result delivery is user-selectable: direct file downloads (one direct or many separate) or a single ZIP. Each app tab owns a distinct bottom privacy statement.
 - Native selects in the main delivery and text format flows were replaced by one app-local, keyboard-accessible theme menu to avoid platform-specific chrome and clipping.
