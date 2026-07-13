@@ -1,4 +1,6 @@
 interface:
   display_name: "Develop Toolbox Tool"
-  short_description: "Build isolated Toolbox apps with shared contracts"
-  default_prompt: "Use $develop-toolbox-tool to create a new isolated Toolbox app from dev."
+  short_description: "Turn natural-language ideas into local Toolbox apps"
+  default_prompt: "Use $develop-toolbox-tool to turn my natural-language tool idea into a complete local candidate."
+policy:
+  allow_implicit_invocation: true

@@ -48,9 +48,10 @@ pnpm test                               # 测试所有工具
 
 完整项目概览见 [`docs/INDEX.md`](./docs/INDEX.md)，架构方向见 [`docs/PLAN.md`](./docs/PLAN.md)，固定发布与回滚流程见 [`docs/RELEASE.md`](./docs/RELEASE.md)，新增工具流程见 [`docs/NEW_TOOL.md`](./docs/NEW_TOOL.md)，开发规范见 [`docs/AGENTS.md`](./docs/AGENTS.md)。
 
-新增工具必须从 `dev` 创建 `newdev/<tool-id>`，并显式使用仓库内
-[`$develop-toolbox-tool`](./.agents/skills/develop-toolbox-tool/SKILL.md)；开发 Agent 不直接修改或
-合并 `dev`/`main`。
+新增工具时，维护者只需正常描述产品需求。Agent 必须自动调用仓库内
+[`$develop-toolbox-tool`](./.agents/skills/develop-toolbox-tool/SKILL.md)，从 `dev` 创建本地
+`newdev/<tool-id>`，自行补齐 Brief、平台接入、双语文档、隐私与测试。候选分支默认不推送；
+审核模型在明确授权后本地合并到 `dev`，再按要求只推送 `dev`。
 
 ---
 

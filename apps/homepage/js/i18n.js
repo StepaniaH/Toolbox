@@ -33,6 +33,10 @@ const i18n = {
     "card.sane.subtitle": "单位换算与实感估算",
     "card.sane.desc": "存储进制混淆、网络带宽换算、视频码率推算、电器功耗估算——用真实数据打破单位迷雾。",
 
+    "card.formtran.title": "FormTran",
+    "card.formtran.subtitle": "本地文件处理工作台",
+    "card.formtran.desc": "识别、转换、合成与检查文件，从输入到结果都留在浏览器本地。",
+
     "card.cta": "打开工具",
 
     "footer.privacy": "零追踪 · 零 Cookie · 系统字体",
@@ -62,6 +66,10 @@ const i18n = {
     "card.sane.title": "SaneUnits",
     "card.sane.subtitle": "Unit Conversion & Estimation",
     "card.sane.desc": "Storage binary confusion, network bandwidth math, video bitrate solving, power consumption estimation — real numbers, no BS.",
+
+    "card.formtran.title": "FormTran",
+    "card.formtran.subtitle": "Local File Workspace",
+    "card.formtran.desc": "Identify, convert, compose, and inspect files while keeping every input and result in your browser.",
 
     "card.cta": "Open Tool",
 
