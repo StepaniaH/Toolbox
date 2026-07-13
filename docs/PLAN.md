@@ -148,6 +148,27 @@ main 稳定线
 - 统一 favicon、错误页和部署产物清单；长期考虑可复现构建与静态资产完整性。
 - 不用 force push、历史改写或自动部署换取表面简化。
 
+### 前端本地格式转换器候选队列
+
+这组工具都以“文件不离开浏览器”为默认前提，按浏览器原生能力、可验证性和体积成本分阶段实现：
+
+| 候选 | 首要能力 | 主要边界 / 实现前提 |
+|---|---|---|
+| FormTran | 从格式转换扩展为本地文件工作台：首页识别文件并推荐转换、压缩、编辑、拆分、合并、编码、解析与信息查看工具 | 首页只识别与分流，不自动处理；能力按可用/有限/规划分级，图片、GIF、PDF、文本数据和压缩包仍使用独立业务工作台与资源预算 |
+| Data Converter | CSV / JSON / NDJSON / YAML / XML / TSV 互转 | 大文件使用流式解析；公式注入、类型推断和精度必须可配置 |
+| Text & Encoding Converter | UTF-8、Base64、URL、HTML 实体、换行与哈希 | 区分字符集、编码、加密与哈希，二进制预览设上限，避免把不可逆操作伪装成转换 |
+| Text & Markup Converter | 已作为 FormTran 独立 Tab 实现 TXT / Markdown / Org-mode / RST / AsciiDoc / HTML 互转、结构解析与预览 | 使用轻量 AST 保留标题、段落、列表、链接、引用、代码块和分隔线；明确提示方言语法无法完整往返 |
+| Audio Converter | WAV / MP3 / AAC / Opus / FLAC 与裁切、码率 | 优先 WebCodecs，缺失编码器再评估可审计的本地 WASM 与包体预算 |
+| Video Converter | 容器/编码、分辨率、帧率、音轨与片段 | 依赖 WebCodecs/WASM、内存与长任务治理；先做能力检测和取消/恢复 |
+| Archive Converter | ZIP / TAR / GZIP 解包、重打包与清单预览 | 防止 zip bomb、路径穿越、超大内存占用和不可见文件误打包 |
+| Document & Ebook Converter | EPUB / HTML 文档包及开放电子书格式 | 保留语义、目录和资源引用；与轻量标记文本转换分开，PDF/Office 高保真转换不承诺纯浏览器首版 |
+| Icon & Asset Packager | SVG / PNG / ICO、favicon 与多尺寸资源包 | SVG 必须清理脚本与外部引用；输出可复核的尺寸和 manifest |
+
+候选进入 TASKS 前必须形成独立 Brief、隐私与资源预算。FormTran 可以统一承载“本地文件处理”
+心智，但首页只负责识别和推荐；图片、GIF、PDF、文本数据与压缩包使用隔离的业务模块，并按需
+加载重型能力。音视频等显著增加包体、长任务与编解码风险的领域仍优先保持独立应用。任何能力
+都绝不为覆盖率静默上传文件。详细边界由候选内的 `docs/FILE_WORKBENCH.md` 维护。
+
 ## 五、规划视野
 
 | 视野 | 当前重点 | 进入条件 |

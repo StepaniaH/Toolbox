@@ -99,6 +99,21 @@ export const TOOLBOX_APPS = Object.freeze([
     },
     status: 'stable',
   }),
+  defineApp({
+    id: 'image-converter',
+    path: '/image-converter/',
+    name: 'FormTran',
+    navLabel: { zh: 'FormTran', en: 'FormTran' },
+    description: { zh: '纯本地文件识别、转换与处理工作台', en: 'Private local file identification and processing' },
+    keywords: {
+      zh: ['文件工具', '图片', '图像', '格式转换', '批量转换', '压缩', '编辑', 'GIF', '动图', 'PDF', '压缩包', '重命名', '正则', 'Markdown', 'JSON', 'CSV', '文本标记', 'PNG', 'JPEG', 'WebP'],
+      en: ['file tools', 'image', 'photo', 'format converter', 'batch conversion', 'compress', 'edit', 'GIF', 'animation', 'PDF', 'archive', 'rename', 'regex', 'Markdown', 'JSON', 'CSV', 'text markup', 'PNG', 'JPEG', 'WebP'],
+    },
+    icon: {
+      viewBox: '0 0 48 48',
+      svg: '<rect x="7" y="10" width="27" height="27" rx="5"/><path d="m11 31 7-8 5 5 4-4 7 7M17 18h.01M31 7l7 5-7 5M38 12H27M17 41l-7-5 7-5M10 36h11"/>',
+    },
+  }),
 ])
 
 export function getStableApps() {

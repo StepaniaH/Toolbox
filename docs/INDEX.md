@@ -1,6 +1,6 @@
 # Toolbox — 项目全景
 
-> 最后核对：2026-07-12 · 当前生产稳定版本：`v0.2.3` · 当前 dev 候选：`v0.2.4`
+> 最后核对：2026-07-13 · 当前生产稳定版本：`v0.2.3` · 当前 dev 候选：`v0.2.4`
 >
 > `main` 是已部署的稳定线；`dev` 是审核集成线；新工具只在从 `dev` 派生的
 > `newdev/<tool-id>` 分支实现。
@@ -25,8 +25,9 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 844 |
 | Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 18 |
 | SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 20 |
+| FormTran（隐藏候选） | `/image-converter/` | React + TypeScript + Vite + Plain CSS | 浏览器本地文件识别、转换与检查工作台 | 46 |
 
-测试数量只用于说明覆盖现状，不作为质量本身的替代指标。5 个应用当前有 950 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；`pnpm test` 共运行 966 条。`v0.1` 发布时为 910 条。
+测试数量只用于说明覆盖现状，不作为质量本身的替代指标。6 个应用当前有 996 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；完整工作区共运行 1,012 条。`v0.1` 发布时为 910 条。
 
 ## 三、仓库结构
 
@@ -37,7 +38,8 @@ Toolbox/
 │   ├── rate-lens/
 │   ├── chrono-sphere/
 │   ├── monitor-choice/
-│   └── sane-units/
+│   ├── sane-units/
+│   └── image-converter/
 ├── packages/             # 跨应用平台能力
 │   ├── theme/            # 主题 token 与切换运行时
 │   ├── nav/              # React / Vanilla 导航实现
@@ -56,7 +58,7 @@ Toolbox/
 
 ### 应用隔离
 
-- 五个工具都由 Vite 独立构建，分别输出自己的 `dist/`；Vanilla 与 React 应用使用同一质量流水线。
+- 六个工具都由 Vite 独立构建，分别输出自己的 `dist/`；Vanilla 与 React 应用使用同一质量流水线。
 - 工具之间没有 `apps/* → apps/*` 依赖，这是当前最重要的稳定性边界。
 - 同一域名下使用路径路由；各应用必须正确设置自己的生产 `base`。
 - 受控工具链版本集中在 `pnpm-workspace.yaml` catalog；当前保留 Vite 6 稳定线与 Vite 7/8 显式迁移线，完整解析结果只由根锁文件记录。
@@ -65,9 +67,9 @@ Toolbox/
 
 | 能力 | React 工具 | 静态工具 | 当前问题 |
 |------|------------|----------|----------|
-| `@toolbox/i18n` | RateLens、ChronoSphere 直接使用；SaneUnits 有兼容桥 | Homepage 使用 core；Monitor Choice 通过 core adapter 驱动自有翻译表 | 翻译资源与调用方式仍不完全统一 |
-| `@toolbox/nav` | 三个工具直接使用 React 组件 | Homepage 与 Monitor Choice 直接使用 workspace Vanilla 运行时 | React / Vanilla API 仍是两种入口 |
-| `@toolbox/theme` | 三个 React 工具均已消费 v1 runtime 契约 | Homepage 与 Monitor Choice 使用 workspace runtime | 所有页面仍保留 app-specific token 映射，语义 CSS token 需逐个迁移 |
+| `@toolbox/i18n` | RateLens、ChronoSphere、FormTran 直接使用；SaneUnits 有兼容桥 | Homepage 使用 core；Monitor Choice 通过 core adapter 驱动自有翻译表 | 翻译资源与调用方式仍不完全统一 |
+| `@toolbox/nav` | 四个工具直接使用 React 组件 | Homepage 与 Monitor Choice 直接使用 workspace Vanilla 运行时 | React / Vanilla API 仍是两种入口 |
+| `@toolbox/theme` | 四个 React 工具均已消费 v1 runtime 契约 | Homepage 与 Monitor Choice 使用 workspace runtime | 所有页面仍保留 app-specific token 映射，语义 CSS token 需逐个迁移 |
 | `@toolbox/app-manifest` | React Nav 统一消费 stable 目录 | Homepage 与 Vanilla Nav 消费同一目录 | 名称、描述、图标和双语搜索关键词已集中；页面长文案仍由应用拥有 |
 
 因此，当前是“共享导航/i18n 已部分落地，主题仍主要靠约定保持接近”，而不是完整设计系统。后续要通过版本化契约和自动一致性检查解决，不能只靠继续复制 CSS。
@@ -81,21 +83,21 @@ Toolbox/
 
 ## 五、质量基线
 
-2026-07-12 在当前 `dev` 完成基线验证：
+2026-07-13 在当前 `dev` 集成候选完成基线验证：
 
 | 检查 | 结果 | 备注 |
 |------|------|------|
-| `pnpm build` | 通过 | 5 个 Vite 应用构建成功 |
-| `pnpm test` | 通过 | 966 tests；数量不等同于覆盖率 |
-| `pnpm test:browser` | 通过 | 五个稳定应用均有生产态回归，覆盖共享壳、关键页面/路径、语言/主题、移动端与 console；完整截图矩阵仍待建设 |
+| `pnpm build` | 通过 | 6 个 Vite 应用构建成功 |
+| `pnpm test` | 通过 | 1,012 tests；数量不等同于覆盖率 |
+| `pnpm test:browser` | 通过 | 五个稳定应用与 FormTran 隐藏候选均有生产态回归，覆盖共享壳、关键页面/路径、语言/主题、移动端与 console；完整截图矩阵仍待建设 |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 | `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |
 
 当前最明显的质量缺口：
 
-- 五个工具都已直接消费 `@toolbox/theme` runtime；页面 token 仍有 app-specific 映射，尚未形成完整单一事实源。
-- SaneUnits 已移除重复偏好控件和本地色板，并有逐页生产 browser smoke；下一项设计系统缺口是五应用截图回归矩阵。
+- 六个工具都已直接消费 `@toolbox/theme` runtime；页面 token 仍有 app-specific 映射，尚未形成完整单一事实源。
+- SaneUnits 已移除重复偏好控件和本地色板，并有逐页生产 browser smoke；下一项设计系统缺口是六应用截图回归矩阵。
 
 这些问题的执行优先级见 [TASKS.md](./TASKS.md)。
 
