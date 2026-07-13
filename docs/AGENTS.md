@@ -17,6 +17,10 @@ git branch --show-current
 - `dev` 是维护者控制的审核与集成分支；仓库维护仅在明确要求时发生于 `dev`。
 - 新工具必须从干净的 `dev` 创建 `newdev/<tool-id>`，全部实现只发生在该分支；开发 Agent
   不得直接改 `dev`、自行合并或提升 stable 状态。
+- 维护者只需用自然语言描述工具需求；Agent 必须自动调用 `$develop-toolbox-tool`、推导内部
+  Brief 与安全默认值，不得要求维护者填写模板或复述主题、语言、测试等仓库规范。
+- `newdev/*` 默认只保留在本机，可以有本地提交但不得 push。只有维护者明确要求审核并
+  合并后，集成模型才把候选合入 `dev`；也只有明确要求时才 push `dev`。
 - 如果当前在 `main`，只有工作区干净时才能切换 `dev`；存在用户改动时先停止并说明。
 - 不覆盖、不清理、不 stash 不属于当前任务的改动。
 - 不自动合并 `main`、改 tag、force push 或部署；这些动作需要维护者明确授权。
@@ -198,7 +202,7 @@ chore: ...
 | 需要了解 | 文档 |
 |----------|------|
 | 当前项目事实与质量基线 | [INDEX.md](./INDEX.md) |
-| 架构方向与 ADR | [PLAN.md](./PLAN.md) |
+| 长期路线图、想法优先级与 ADR | [PLAN.md](./PLAN.md) |
 | 主题、语言、导航与交互 | [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) |
 | 新工具开发流程 | [NEW_TOOL.md](./NEW_TOOL.md) |
 | dev→main→生产发布与回滚 | [RELEASE.md](./RELEASE.md) |

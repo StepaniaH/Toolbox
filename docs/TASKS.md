@@ -1,6 +1,6 @@
 # Toolbox — 当前任务与进度
 
-> 最后更新：2026-07-12
+> 最后更新：2026-07-13
 >
 > 这里只保留当前与下一阶段工作。已发布结果见 [CHANGELOG.md](../CHANGELOG.md)，架构理由见
 > [PLAN.md](./PLAN.md)。不保存过程日志、聊天摘要、真实服务器或个人环境信息。
@@ -12,6 +12,8 @@
 - `main` 是已部署稳定线；`dev` 是维护者审核集成线。
 - 新工具只在从干净 `dev` 创建的 `newdev/<tool-id>` 实现，开发 Agent 不得修改或合并
   `dev`/`main`。完整流程见 [NEW_TOOL.md](./NEW_TOOL.md)。
+- 维护者只描述自然语言需求；开发 Agent 自动生成 Brief 和安全默认值，在本地候选分支完成
+  聚焦提交后停止，默认不 push。审核/合并/push `dev` 分别需要明确授权。
 - 共享包、跨应用与部署变更必须跑 privacy/contracts/build/test/lint/browser 全仓门禁。
 - 完成项的用户可见结果在发布时进入 CHANGELOG；本文件不长期保存已结束的实施过程。
 
@@ -38,6 +40,9 @@
   handoff 与合并后删除规则。
 - [x] 仓库内 `$develop-toolbox-tool` skill 在编辑前强制检查 branch/dirty state，并明确不拥有
   merge、stable 晋级或部署权限。
+- [x] skill 接受普通产品描述，自动推导 id/Brief/技术栈/隐私/双语/测试，不要求维护者填表。
+- [x] `newdev/*` 默认本地提交、不 push；集成模型只在明确授权后本地合并并按要求 push `dev`。
+- [x] 独立前向测试确认普通工具需求会自动形成可执行 Brief、安全默认值和本地候选交接，不产生多余提问或远端 push。
 - [x] `check:contracts` 要求所有 app 提供 dev/build/preview/test/test:browser/lint、平台依赖、
   base/output、storage、网络 allowlist 与双语搜索关键词。
 - [x] 根 `pnpm test:browser` 自动发现带 browser suite 的 workspace，不维护硬编码 app 名单。
@@ -45,9 +50,15 @@
 ### P1.2 · 可运行生成器 `⏳ 待开始`
 
 - [ ] 提供 Vanilla TypeScript 与 React TypeScript 两种最小变体。
-- [ ] 自动创建 `newdev/<tool-id>`、package/base、hidden manifest、双语 README、handoff 与测试骨架。
+- [ ] 自动创建本地 `newdev/<tool-id>`、package/base、hidden manifest、双语 README、handoff 与测试骨架；默认不 push。
 - [ ] 生成器自身有 dry-run、冲突恢复、build/test/lint/browser 测试；不是无人维护的复制目录。
 - [ ] 先在一个实验工具分支演练，再宣布为正式入口。
+
+### P1.3 · 新工具展示单一事实源 `⏳ 待开始`
+
+- [ ] 将 Homepage 的 `CARD_PRESENTATION` 字段收敛进 manifest 或稳定展示扩展契约。
+- [ ] 新 stable 工具不再需要手改首页和导航中的第二份 id/path 映射。
+- [ ] 保持业务长文案归 app 所有，避免 manifest 演变成页面内容仓库。
 
 ## P2 — 导航、发现与设计系统
 

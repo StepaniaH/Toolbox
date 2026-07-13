@@ -81,7 +81,7 @@ Toolbox/
 
 ## 五、质量基线
 
-2026-07-10 在当前 `dev` 完成基线验证：
+2026-07-12 在当前 `dev` 完成基线验证：
 
 | 检查 | 结果 | 备注 |
 |------|------|------|
@@ -129,7 +129,7 @@ pnpm --filter=@toolbox/rate-lens test
 | 文档 | 用途 |
 |------|------|
 | [AGENTS.md](./AGENTS.md) | 分支、隐私、编辑和验证红线 |
-| [PLAN.md](./PLAN.md) | 当前判断、目标架构、ADR 与演进顺序 |
+| [PLAN.md](./PLAN.md) | 长期愿景、路线图、新想法优先级、目标架构与 ADR |
 | [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | 主题、语言、导航和交互的规范性契约 |
 | [NEW_TOOL.md](./NEW_TOOL.md) | “积木式”新增工具的开发手册 |
 | [DEPENDENCIES.md](./DEPENDENCIES.md) | 工具链 catalog、升级边界与回滚方式 |
