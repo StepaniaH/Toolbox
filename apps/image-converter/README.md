@@ -1,4 +1,4 @@
-# Image Converter
+# FormTran / 方转
 
 A private, browser-only image conversion workspace for individual files and folders. It converts browser-decodable JPEG, PNG, WebP, GIF, BMP, AVIF, and sanitized SVG sources to PNG, JPEG, or WebP, with resize, quality, transparency background, before/after previews, guided batch rename, conflict handling, individual downloads, and ZIP export.
 
@@ -11,11 +11,15 @@ A private, browser-only image conversion workspace for individual files and fold
 - Naming: clickable token templates or guided regular-expression replacement with presets, capture-group feedback, live per-file matching, padded sequences, portable filename sanitization, and automatic conflict suffixes.
 - Folder uploads can preserve their relative directories inside the ZIP.
 - Converted results appear in a gallery and open in a keyboard-navigable before/after viewer.
+- Downloads can be emitted as direct files (one result directly, many separately) or as one ZIP archive.
+- Upload and queue cards share the first workspace row, with immediate accepted/skipped feedback after every selection.
 - A separate Knowledge Base tab includes a purpose guide, seven format references, a capability table, and conversion boundaries.
 
 ## Privacy and network behavior
 
 Images, previews, conversions, and ZIP files stay in browser memory and are never uploaded. The app makes no business network requests and includes no account, backend, telemetry, ads, cookies, tracking, or remote fonts. Only conversion preferences are stored in `localStorage` under `toolbox.image-converter.settings`; image bytes and filenames are not persisted.
+
+The privacy notice sits below the active app tab. The conversion tab describes in-memory file handling and local preferences; the Knowledge Base notice states that its static reference content neither reads files nor records reading behavior.
 
 The app works offline once its static assets are available. Unsupported browser codecs fail per file without modifying the original.
 

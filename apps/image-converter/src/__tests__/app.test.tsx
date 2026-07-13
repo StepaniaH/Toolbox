@@ -20,7 +20,7 @@ describe("application shell", () => {
   it("recovers from corrupt persisted settings and renders one shared shell", () => {
     localStorage.setItem("toolbox.image-converter.settings", "{bad-json");
     const { container } = render(<App />);
-    expect(screen.getByRole("heading", { level: 1 })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("FormTran / 方转");
     expect(container.querySelectorAll(".toolbox-nav")).toHaveLength(1);
     expect(container.querySelectorAll(".toolbox-footer")).toHaveLength(1);
     expect((screen.getByRole("button", { name: /Convert images|开始转换/ }) as HTMLButtonElement).disabled).toBe(true);
@@ -34,5 +34,6 @@ describe("application shell", () => {
     fireEvent.click(tabs[1]);
     expect(tabs[1].getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tabpanel").id).toBe("panel-knowledge");
+    expect(screen.getByText(/Knowledge base privacy|知识库隐私说明/)).toBeTruthy();
   });
 });

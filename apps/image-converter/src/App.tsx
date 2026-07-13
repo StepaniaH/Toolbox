@@ -33,6 +33,8 @@ const REGEX_PRESETS = [
 type StoredSettings = { conversion: ConversionSettings; rename: RenameSettings };
 type AppTab = "workspace" | "knowledge";
 type NamePreview = { before: string; after: string; matched: boolean; groups: string[] };
+type DownloadMode = "files" | "zip";
+type ImportSummary = { accepted: number; rejected: number };
 
 function readSettings(): StoredSettings {
   try {
@@ -57,6 +59,8 @@ function AppSurface() {
   const [running, setRunning] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTab>("workspace");
   const [previewId, setPreviewId] = useState<string | null>(null);
+  const [downloadMode, setDownloadMode] = useState<DownloadMode>("files");
+  const [lastImport, setLastImport] = useState<ImportSummary | null>(null);
   const cancelRef = useRef(false);
   const itemRef = useRef(items);
   itemRef.current = items;
@@ -92,6 +96,7 @@ function AppSurface() {
   const addFiles = useCallback((incoming: File[]) => {
     const selection = selectIncomingFiles(itemRef.current, incoming);
     setRejections(selection.rejected);
+    setLastImport({ accepted: selection.accepted.length, rejected: selection.rejected.length });
     const stamp = Date.now();
     const accepted = selection.accepted.map(({ file, relativePath }, index): QueueItem => ({
       id: `${stamp}-${index}-${file.lastModified}`,
@@ -121,6 +126,7 @@ function AppSurface() {
     }
     setItems([]);
     setPreviewId(null);
+    setLastImport(null);
   };
 
   const convertAll = async () => {
@@ -155,10 +161,16 @@ function AppSurface() {
     setRunning(false);
   };
 
-  const downloadZip = async () => {
+  const downloadResults = async () => {
+    if (!doneItems.length) return;
+    if (downloadMode === "files") {
+      for (const item of doneItems) {
+        if (item.output && item.outputName) triggerDownload(item.output, item.outputName.split("/").pop()!);
+      }
+      return;
+    }
     const entries = doneItems.flatMap((item) => item.output && item.outputName ? [{ name: item.outputName, blob: item.output }] : []);
-    if (!entries.length) return;
-    triggerDownload(await createZip(entries), `toolbox-images-${new Date().toISOString().slice(0, 10)}.zip`);
+    triggerDownload(await createZip(entries), `formtran-images-${new Date().toISOString().slice(0, 10)}.zip`);
   };
 
   const onInput = (event: ChangeEvent<HTMLInputElement>) => {
@@ -178,7 +190,6 @@ function AppSurface() {
             <div className="toolbox-app-mark"><AppIcon appId="image-converter" /></div>
             <div><h1>{t("brand.title")}</h1><p>{t("brand.subtitle")}</p></div>
           </div>
-          <div className="privacy-pill"><LockIcon /><span><strong>{t("privacy.title")}</strong>{t("privacy.detail")}</span></div>
         </header>
 
         <AppTabs active={activeTab} onChange={setActiveTab} />
@@ -186,32 +197,37 @@ function AppSurface() {
         <main>
           {activeTab === "workspace" ? (
             <section className="workspace" role="tabpanel" id="panel-workspace" aria-labelledby="tab-workspace">
-              <section className={`drop-zone ${dragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
-                <div className="drop-icon" aria-hidden="true">↥</div>
-                <div><h2>{t("upload.drop")}</h2><p>{t("upload.hint")}</p><small>{t("upload.accepted")}</small></div>
-                <div className="upload-actions">
-                  <label className="button primary">{t("upload.files")}<input aria-label={t("upload.files")} type="file" accept={ACCEPT_ATTRIBUTE} multiple onChange={onInput} /></label>
-                  <label className="button secondary">{t("upload.folder")}<input aria-label={t("upload.folder")} type="file" accept={ACCEPT_ATTRIBUTE} multiple {...({ webkitdirectory: "" } as Record<string, string>)} onChange={onInput} /></label>
+              <div className="intake-grid">
+                <div className="intake-column">
+                  <section className={`drop-zone ${dragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
+                    <div className="drop-zone-heading"><div className="drop-icon" aria-hidden="true">↥</div><div><h2>{t("upload.drop")}</h2><p>{t("upload.hint")}</p></div></div>
+                    <small>{t("upload.accepted")}</small>
+                    <div className="upload-actions">
+                      <label className="button primary">{t("upload.files")}<input aria-label={t("upload.files")} type="file" accept={ACCEPT_ATTRIBUTE} multiple onChange={onInput} /></label>
+                      <label className="button secondary">{t("upload.folder")}<input aria-label={t("upload.folder")} type="file" accept={ACCEPT_ATTRIBUTE} multiple {...({ webkitdirectory: "" } as Record<string, string>)} onChange={onInput} /></label>
+                    </div>
+                  </section>
+                  {lastImport && <div className={`import-feedback ${lastImport.accepted ? "is-success" : "is-warning"}`} role="status"><strong>{t(lastImport.accepted ? "upload.importSuccess" : "upload.importNoFiles", { count: lastImport.accepted })}</strong><span>{lastImport.rejected ? t("upload.importRejected", { count: lastImport.rejected }) : t("upload.importReady")}</span></div>}
+                  {rejections.length > 0 && <RejectionNotice files={rejections} onDismiss={() => setRejections([])} />}
                 </div>
-              </section>
-              {rejections.length > 0 && <RejectionNotice files={rejections} onDismiss={() => setRejections([])} />}
+
+                <section className="queue-panel" aria-live="polite">
+                  <div className="section-heading">
+                    <div><span className="eyebrow">{t("queue.count", { count: items.length })}</span><h2>{t("queue.title")}</h2></div>
+                    {items.length > 0 && <button className="text-button" type="button" onClick={clearItems} disabled={running}>{t("queue.clear")}</button>}
+                  </div>
+                  {!items.length ? <div className="empty-state"><span aria-hidden="true">▧</span><p>{t("queue.emptyCompact")}</p></div> : (
+                    <div className="file-list">
+                      {items.map((item) => <FileRow key={item.id} item={item} onRemove={() => removeItem(item.id)} onPreview={() => setPreviewId(item.id)} disabled={running} />)}
+                    </div>
+                  )}
+                </section>
+              </div>
 
               <div className="control-grid">
                 <SettingsPanel settings={settings} onChange={setSettings} onReset={() => setSettings(DEFAULT_SETTINGS)} />
                 <RenamePanel rename={rename} onChange={setRename} error={renameError} previews={namePreviews} />
               </div>
-
-              <section className="queue-panel" aria-live="polite">
-                <div className="section-heading">
-                  <div><span className="eyebrow">{t("queue.count", { count: items.length })}</span><h2>{t("queue.title")}</h2></div>
-                  {items.length > 0 && <button className="text-button" type="button" onClick={clearItems} disabled={running}>{t("queue.clear")}</button>}
-                </div>
-                {!items.length ? <div className="empty-state"><span aria-hidden="true">▧</span><p>{t("queue.empty")}</p></div> : (
-                  <div className="file-list">
-                    {items.map((item) => <FileRow key={item.id} item={item} onRemove={() => removeItem(item.id)} onPreview={() => setPreviewId(item.id)} disabled={running} />)}
-                  </div>
-                )}
-              </section>
 
               {doneItems.length > 0 && <ResultGallery items={doneItems} onPreview={setPreviewId} />}
 
@@ -223,7 +239,7 @@ function AppSurface() {
                 <div className="action-buttons">
                   {running ? <button className="button secondary" type="button" onClick={() => { cancelRef.current = true; }}>{t("actions.stop")}</button> : null}
                   <button className="button primary" type="button" onClick={convertAll} disabled={running || !items.length || Boolean(renameError)}>{t("actions.convert")}</button>
-                  <button className="button secondary" type="button" onClick={downloadZip} disabled={running || !doneItems.length}>{t("actions.downloadZip")}</button>
+                  <div className="download-control"><label><span>{t("actions.downloadAs")}</span><select value={downloadMode} onChange={(event) => setDownloadMode(event.target.value as DownloadMode)}><option value="files">{t("actions.downloadFiles")}</option><option value="zip">{t("actions.downloadZip")}</option></select></label><button className="button secondary" type="button" onClick={downloadResults} disabled={running || !doneItems.length}>{t("actions.download")}</button></div>
                 </div>
               </div>
             </section>
@@ -231,6 +247,7 @@ function AppSurface() {
             <KnowledgePage />
           )}
         </main>
+        <TabPrivacyNotice tab={activeTab} />
         <ToolboxFooter appId="image-converter" />
       </div>
       {previewId && <PreviewDialog items={doneItems} activeId={previewId} onChange={setPreviewId} onClose={() => setPreviewId(null)} />}
@@ -310,18 +327,19 @@ function RenamePanel({ rename, onChange, error, previews }: { rename: RenameSett
   const matched = previews.filter((entry) => entry.matched).length;
 
   return <section className="panel rename-panel">
-    <div className="section-heading"><div><h2>{t("rename.title")}</h2><p>{t("rename.subtitle")}</p></div><span className="soft-badge">Regex</span></div>
-    <fieldset><legend>{t("rename.mode")}</legend><div className="segmented"><button type="button" className={rename.mode === "template" ? "active" : ""} aria-pressed={rename.mode === "template"} onClick={() => patch({ mode: "template" })}>{t("rename.templateMode")}</button><button type="button" className={rename.mode === "regex" ? "active" : ""} aria-pressed={rename.mode === "regex"} onClick={() => patch({ mode: "regex" })}>{t("rename.regexMode")}</button></div></fieldset>
+    <div className="section-heading"><div><h2>{t("rename.title")}</h2><p>{t("rename.subtitle")}</p></div></div>
     {rename.mode === "template" ? <>
       <Field label={t("rename.template")}><input ref={templateRef} value={rename.template} onChange={(event) => patch({ template: event.target.value })} /></Field>
       <TokenChips onInsert={(token) => insert("template", token)} />
     </> : <>
-      <div className="regex-guide"><span><b>1</b>{t("rename.steps.match")}</span><i>→</i><span><b>2</b>{t("rename.steps.replace")}</span><i>→</i><span><b>3</b>{t("rename.steps.check")}</span></div>
-      <div className="preset-block"><span className="field-label">{t("rename.presets")}</span><div className="preset-buttons">{REGEX_PRESETS.map((preset) => <button type="button" key={preset.id} onClick={() => patch({ mode: "regex", pattern: preset.pattern, replacement: preset.replacement, global: preset.global, ignoreCase: preset.ignoreCase })}><strong>{t(`rename.preset.${preset.id}.title`)}</strong><small>{t(`rename.preset.${preset.id}.description`)}</small></button>)}</div></div>
-      <Field label={t("rename.pattern")}><div className="regex-input"><span>/</span><input value={rename.pattern} aria-invalid={Boolean(error)} onChange={(event) => patch({ pattern: event.target.value })} /><span>/{rename.global ? "g" : ""}{rename.ignoreCase ? "i" : ""}</span></div></Field>
-      <Field label={t("rename.replacement")} tip={t("rename.replacementTip")}><input ref={replacementRef} value={rename.replacement} onChange={(event) => patch({ replacement: event.target.value })} /></Field>
-      <TokenChips onInsert={(token) => insert("replacement", token)} />
-      <div className="field-pair compact"><label className="check-row"><input type="checkbox" checked={rename.global} onChange={(event) => patch({ global: event.target.checked })} />{t("rename.global")}</label><label className="check-row"><input type="checkbox" checked={rename.ignoreCase} onChange={(event) => patch({ ignoreCase: event.target.checked })} />{t("rename.ignoreCase")}</label></div>
+      <div className="advanced-panel">
+        <div className="regex-guide"><span><b>1</b>{t("rename.steps.match")}</span><i>→</i><span><b>2</b>{t("rename.steps.replace")}</span><i>→</i><span><b>3</b>{t("rename.steps.check")}</span></div>
+        <div className="preset-block"><span className="field-label">{t("rename.presets")}</span><div className="preset-buttons">{REGEX_PRESETS.map((preset) => <button type="button" key={preset.id} onClick={() => patch({ mode: "regex", pattern: preset.pattern, replacement: preset.replacement, global: preset.global, ignoreCase: preset.ignoreCase })}><strong>{t(`rename.preset.${preset.id}.title`)}</strong><small>{t(`rename.preset.${preset.id}.description`)}</small></button>)}</div></div>
+        <Field label={t("rename.pattern")}><div className="regex-input"><span>/</span><input value={rename.pattern} aria-invalid={Boolean(error)} onChange={(event) => patch({ pattern: event.target.value })} /><span>/{rename.global ? "g" : ""}{rename.ignoreCase ? "i" : ""}</span></div></Field>
+        <Field label={t("rename.replacement")} tip={t("rename.replacementTip")}><input ref={replacementRef} value={rename.replacement} onChange={(event) => patch({ replacement: event.target.value })} /></Field>
+        <TokenChips onInsert={(token) => insert("replacement", token)} />
+        <div className="field-pair compact"><label className="check-row"><input type="checkbox" checked={rename.global} onChange={(event) => patch({ global: event.target.checked })} />{t("rename.global")}</label><label className="check-row"><input type="checkbox" checked={rename.ignoreCase} onChange={(event) => patch({ ignoreCase: event.target.checked })} />{t("rename.ignoreCase")}</label></div>
+      </div>
     </>}
     <div className="field-pair"><Field label={t("rename.start")}><input type="number" min="0" max="999999" value={rename.start} onChange={(event) => patch({ start: clamp(Number(event.target.value), 0, 999999) })} /></Field><Field label={t("rename.padding")}><input type="number" min="1" max="8" value={rename.padding} onChange={(event) => patch({ padding: clamp(Number(event.target.value), 1, 8) })} /></Field></div>
     {error && <p className="field-error" role="alert">{error === "invalid-regex" ? t("rename.invalid") : t("rename.empty")}</p>}
@@ -329,6 +347,7 @@ function RenamePanel({ rename, onChange, error, previews }: { rename: RenameSett
       <div className="preview-heading"><strong>{t("rename.preview")}</strong>{rename.mode === "regex" && <span>{t("rename.matchSummary", { matched, total: previews.length })}</span>}</div>
       {previews.length ? previews.map((entry) => <div className={!entry.matched ? "is-unmatched" : ""} key={entry.before}><span title={entry.before}>{entry.before}</span><b aria-hidden="true">→</b><code title={entry.after}>{entry.after}</code>{rename.mode === "regex" && <em>{entry.matched ? t("rename.matched") : t("rename.unmatched")}{entry.groups.length ? ` · ${entry.groups.map((group, index) => `$${index + 1}=${group}`).join(" · ")}` : ""}</em>}</div>) : <p>{t("rename.conflict")}</p>}
     </div>
+    <button className="advanced-toggle" type="button" aria-expanded={rename.mode === "regex"} onClick={() => patch({ mode: rename.mode === "regex" ? "template" : "regex" })}><span><strong>{t("rename.advancedTitle")}</strong><small>{t("rename.advancedDetail")}</small></span><b aria-hidden="true">{rename.mode === "regex" ? "−" : "+"}</b></button>
   </section>;
 }
 
@@ -395,6 +414,10 @@ function KnowledgePage() {
 }
 
 function KnowledgeChoice({ icon, title, children }: { icon: string; title: string; children: ReactNode }) { return <article><span aria-hidden="true">{icon}</span><div><strong>{title}</strong><p>{children}</p></div></article>; }
+function TabPrivacyNotice({ tab }: { tab: AppTab }) {
+  const { t } = useTranslation();
+  return <aside className="tab-privacy"><LockIcon /><div><strong>{t(`privacy.${tab}.title`)}</strong><p>{t(`privacy.${tab}.detail`)}</p></div></aside>;
+}
 function Field({ label, tip, children }: { label: string; tip?: string; children: ReactNode }) { return <label className="field"><span className="field-label">{label}{tip && <InfoTip text={tip} />}</span>{children}</label>; }
 function InfoTip({ text }: { text: string }) { return <span className="info-wrap"><span className="info-tip" tabIndex={0} aria-label={text}>?</span><span className="tooltip" role="tooltip">{text}</span></span>; }
 function LockIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>; }

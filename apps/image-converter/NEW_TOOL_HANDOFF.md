@@ -1,7 +1,7 @@
 ---
 id: image-converter
 route: /image-converter/
-name: Image Converter
+name: FormTran / 方转
 problem: 用户需要不上传文件即可完成单图或文件夹图片的批量格式、尺寸与文件名转换。
 inputs: 单张、多张或文件夹中的 JPEG/PNG/WebP/GIF/BMP/AVIF/SVG；输出、尺寸、画质、透明底色与命名规则。
 outputs: PNG/JPEG/WebP 文件，可逐张下载或按相对目录打包为 ZIP。
@@ -17,6 +17,7 @@ acceptance:
   - 中英文、明暗主题、桌面/移动端、键盘焦点和悬浮知识说明可用。
   - 未加入文件可查看逐项原因；转换结果有前后对比图库；命名变量可点击插入。
   - 正则命名提供三步引导、常用预设、命中状态和捕获组反馈；知识库位于独立 Tab。
+  - 上传和队列在桌面首屏并列并即时反馈；普通命名与高级正则分层；结果可选择文件或 ZIP 下载。
   - 隐私/契约、单工具与全仓质量门禁通过，manifest 保持 hidden。
 ---
 
@@ -28,6 +29,9 @@ acceptance:
 - One hidden canonical identity entry in `packages/app-manifest/manifest.js`.
 - `docs/PLAN.md` records the requested future browser-local converter family; `docs/TASKS.md` tracks this candidate.
 - Text and markup conversion is planned as a separate local-first app so image conversion does not absorb document parsing and round-trip syntax concerns.
+- Product identity is now `FormTran / 方转`; the existing technical id and route remain stable.
+- Workspace intake and queue share one desktop row with an explicit per-selection result. Naming defaults to a compact template workflow and reveals regex controls only as an advanced section.
+- Result delivery is user-selectable: direct file downloads (one direct or many separate) or a single ZIP. Each app tab owns a distinct bottom privacy statement.
 - Core conversion, rename, dimension, SVG sanitization, and store-only ZIP code remain app-local. No shared package API changed.
 
 ## Data-flow audit
@@ -40,10 +44,10 @@ acceptance:
 
 ## Verification results
 
-- `pnpm --filter=@toolbox/image-converter build` — passed; production JS 260.02 kB / 83.44 kB gzip, CSS 38.50 kB / 7.50 kB gzip.
+- `pnpm --filter=@toolbox/image-converter build` — passed; production JS 262.58 kB / 84.32 kB gzip, CSS 41.42 kB / 7.88 kB gzip.
 - `pnpm --filter=@toolbox/image-converter test` — passed, 5 files / 20 tests.
 - `pnpm --filter=@toolbox/image-converter lint` — passed, 0 warnings.
-- `pnpm --filter=@toolbox/image-converter test:browser` — passed with mixed-file rejection details, token insertion, regex presets, a real PNG → WebP conversion, result gallery, comparison dialog, and knowledge tabs.
+- `pnpm --filter=@toolbox/image-converter test:browser` — passed with aligned upload/queue and settings/naming cards, mixed-file import feedback, advanced regex expansion, a real PNG → WebP conversion, direct-file and ZIP delivery, comparison dialog, and tab-specific privacy notices.
 - `pnpm check:privacy` — passed for 269 tracked or unignored files at the time of the check.
 - `pnpm check:contracts` — passed for 6 apps.
 - `pnpm build` — passed, 6 app builds.
@@ -55,7 +59,7 @@ acceptance:
 ## Visual matrix
 
 - Automated: light/dark × zh/en at 1440 × 1100 and 390 × 844; shared shell, canonical mark, focusable controls, overflow, console/page/request failures, and real conversion covered.
-- Manual: English/light desktop workspace and knowledge views plus the 390 × 844 mobile workspace were inspected after this refinement; tabs, upload panel, settings, token controls, knowledge cards/table, queue, action bar, and footer remained readable without horizontal overflow or overlap.
+- Manual: English/light desktop with a mixed upload, expanded advanced-regex desktop, and the 390 × 844 mobile workspace were inspected after the FormTran refinement. Intake/queue visibility, balanced default cards, download controls, privacy notices, action hierarchy, and responsive stacking remained readable without overflow or overlap.
 - Temporary screenshots were written outside the repository and were not retained as candidate files.
 
 ## Known limits and integration cleanup

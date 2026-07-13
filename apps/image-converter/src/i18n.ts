@@ -2,14 +2,18 @@ import type { Translations } from "@toolbox/i18n/core";
 
 export const translations: Record<"zh" | "en", Translations> = {
   zh: {
-    meta: { title: "图片格式转换 · Toolbox", description: "在浏览器本地批量转换图片格式、尺寸和文件名" },
-    brand: { title: "图片格式转换", subtitle: "格式、尺寸和文件名都在你的浏览器里完成" },
-    tabs: { label: "图片转换页面", workspace: "转换工作台", knowledge: "知识库" },
-    privacy: { title: "图片不会上传", detail: "转换、预览、批量命名和 ZIP 打包全部在当前设备完成。关闭页面后不会保留图片。" },
+    meta: { title: "FormTran / 方转 · Toolbox", description: "在浏览器本地批量转换图片格式、尺寸和文件名" },
+    brand: { title: "FormTran / 方转", subtitle: "把格式转换留在本机，把文件控制权留给你" },
+    tabs: { label: "方转功能页面", workspace: "图片格式转换", knowledge: "知识库" },
+    privacy: {
+      workspace: { title: "图片格式转换隐私说明", detail: "图片、转换结果和压缩包只存在于当前浏览器内存，不会上传；仅转换偏好保存在本机，关闭页面后不保留文件与文件名。" },
+      knowledge: { title: "知识库隐私说明", detail: "本页内容随网站静态提供，不读取你的文件、不记录阅读行为，也不会为格式说明发起外部请求。" },
+    },
     upload: {
       title: "添加图片", drop: "拖放图片到这里", hint: "或选择单张、多张、整个文件夹；最多 500 个文件，总计 2 GB",
       files: "选择图片", folder: "选择文件夹", accepted: "输入：JPEG、PNG、WebP、GIF、BMP、AVIF、SVG",
       rejectedCount: "{{count}} 个文件未加入", rejectedHint: "悬浮、聚焦或点击查看文件和原因", rejectedTitle: "未加入的文件", rejectedMore: "另有 {{count}} 个文件未显示", dismiss: "关闭跳过文件明细",
+      importSuccess: "已加入 {{count}} 个文件", importNoFiles: "本次没有文件加入", importRejected: "另有 {{count}} 个文件未加入，可查看原因", importReady: "文件队列已更新，可以继续设置并转换",
       reasons: { unsupported: "不支持的文件格式", empty: "空文件", "too-large": "单文件超过 512 MB", duplicate: "队列中已有相同文件", "max-files": "超过 500 个文件上限", "total-size": "超过 2 GB 总大小上限" },
     },
     settings: {
@@ -21,6 +25,7 @@ export const translations: Record<"zh" | "en", Translations> = {
     },
     rename: {
       title: "可视化批量命名", subtitle: "先定义规则，再用真实文件即时验证", mode: "命名方式", templateMode: "模板", regexMode: "正则替换", template: "文件名模板",
+      advancedTitle: "高级正则命名", advancedDetail: "仅在需要匹配、捕获组或复杂替换时展开",
       tokens: "点击变量插入光标位置", pattern: "1. 匹配原文件名", replacement: "2. 生成新文件名", replacementTip: "支持 $1 等捕获组和下方变量。匹配只针对不含扩展名的文件名。",
       global: "替换全部匹配", ignoreCase: "忽略大小写", start: "序号起点", padding: "序号位数", preview: "3. 用队列文件验证",
       invalid: "正则表达式无效，请检查括号、转义和量词。", empty: "命名规则不能为空。", conflict: "加入文件后会显示逐项预览；重名自动追加 -2、-3。",
@@ -34,7 +39,7 @@ export const translations: Record<"zh" | "en", Translations> = {
       },
     },
     queue: {
-      title: "文件队列", count: "{{count}} 个文件", empty: "添加图片后，这里会显示原图、尺寸、状态和输出体积。",
+      title: "文件队列", count: "{{count}} 个文件", empty: "添加图片后，这里会显示原图、尺寸、状态和输出体积。", emptyCompact: "选择图片或文件夹后，文件会立即出现在这里。",
       clear: "清空", remove: "移除", source: "原图", output: "输出", ready: "等待转换", converting: "转换中", done: "已完成",
       kept: "保留较小原文件", error: "转换失败", download: "下载", firstFrame: "动图仅转换第一帧", svgSafe: "SVG 会先移除脚本和外部引用",
       unknownSize: "转换后显示尺寸", previewUnavailable: "此格式转换前不直接预览", progress: "已完成 {{done}} / {{total}}",
@@ -44,7 +49,7 @@ export const translations: Record<"zh" | "en", Translations> = {
       position: "第 {{current}} / {{total}} 张", before: "转换前", after: "转换后", beforeAlt: "转换前图片", afterAlt: "转换后图片",
       previous: "上一张", next: "下一张", hint: "可使用键盘 ← → 浏览，Esc 关闭。",
     },
-    actions: { convert: "开始转换", stop: "完成当前项后停止", downloadZip: "下载 ZIP", converting: "正在转换…", nothing: "请先添加图片", fixRename: "请先修正命名规则" },
+    actions: { convert: "开始转换", stop: "完成当前项后停止", download: "下载", downloadAs: "输出方式", downloadFiles: "文件（单张直接 / 多张逐个）", downloadZip: "ZIP 压缩包", converting: "正在转换…", nothing: "请先添加图片", fixRename: "请先修正命名规则" },
     errors: {
       "decode-failed": "浏览器无法解码此图片，文件可能损坏或当前浏览器不支持。", "image-too-large": "输出尺寸超过浏览器安全上限（最长边 16384 px 或 8000 万像素）。",
       "encode-unsupported": "当前浏览器不支持编码为所选格式。", "canvas-unavailable": "浏览器无法创建图片画布。", unknown: "转换时发生未知错误。",
@@ -77,14 +82,18 @@ export const translations: Record<"zh" | "en", Translations> = {
     },
   },
   en: {
-    meta: { title: "Image Converter · Toolbox", description: "Convert image formats, dimensions, and filenames locally in your browser" },
-    brand: { title: "Image Converter", subtitle: "Formats, dimensions, and filenames—processed only in your browser" },
-    tabs: { label: "Image converter pages", workspace: "Conversion workspace", knowledge: "Knowledge base" },
-    privacy: { title: "Your images are never uploaded", detail: "Conversion, previews, batch naming, and ZIP packaging happen on this device. Images are not retained after you close the page." },
+    meta: { title: "FormTran / 方转 · Toolbox", description: "Convert image formats, dimensions, and filenames locally in your browser" },
+    brand: { title: "FormTran / 方转", subtitle: "Keep format conversion on your device and your files under your control" },
+    tabs: { label: "FormTran pages", workspace: "Image conversion", knowledge: "Knowledge base" },
+    privacy: {
+      workspace: { title: "Image conversion privacy", detail: "Images, converted results, and archives exist only in browser memory and are never uploaded. Only conversion preferences are saved locally; files and filenames disappear when the page closes." },
+      knowledge: { title: "Knowledge base privacy", detail: "This static guide does not read your files, record what you view, or make external requests for format information." },
+    },
     upload: {
       title: "Add images", drop: "Drop images here", hint: "Or choose one, many, or a folder; up to 500 files and 2 GB total",
       files: "Choose images", folder: "Choose folder", accepted: "Input: JPEG, PNG, WebP, GIF, BMP, AVIF, SVG",
       rejectedCount: "{{count}} files were not added", rejectedHint: "Hover, focus, or click to see filenames and reasons", rejectedTitle: "Skipped files", rejectedMore: "{{count}} more files are not shown", dismiss: "Dismiss skipped file details",
+      importSuccess: "Added {{count}} files", importNoFiles: "No files were added", importRejected: "{{count}} other files were skipped; open the details for reasons", importReady: "The queue is updated and ready for settings and conversion",
       reasons: { unsupported: "Unsupported file format", empty: "Empty file", "too-large": "File exceeds 512 MB", duplicate: "The same file is already queued", "max-files": "The 500-file limit was reached", "total-size": "The 2 GB total limit was reached" },
     },
     settings: {
@@ -96,6 +105,7 @@ export const translations: Record<"zh" | "en", Translations> = {
     },
     rename: {
       title: "Visual batch naming", subtitle: "Define a rule, then verify it against real files", mode: "Naming mode", templateMode: "Template", regexMode: "Regex replace", template: "Filename template",
+      advancedTitle: "Advanced regex naming", advancedDetail: "Open only when you need matching, capture groups, or complex replacement",
       tokens: "Click a token to insert it at the cursor", pattern: "1. Match the source name", replacement: "2. Build the new name", replacementTip: "Capture groups such as $1 and the tokens below are supported. Matching excludes the extension.",
       global: "Replace every match", ignoreCase: "Ignore case", start: "Sequence starts at", padding: "Sequence width", preview: "3. Verify queued files",
       invalid: "Invalid regular expression. Check groups, escaping, and quantifiers.", empty: "Naming rules cannot be empty.", conflict: "Add files for row-by-row previews. Duplicate names automatically receive -2, -3, and so on.",
@@ -109,7 +119,7 @@ export const translations: Record<"zh" | "en", Translations> = {
       },
     },
     queue: {
-      title: "File queue", count: "{{count}} files", empty: "Add images to see source previews, dimensions, status, and output size here.",
+      title: "File queue", count: "{{count}} files", empty: "Add images to see source previews, dimensions, status, and output size here.", emptyCompact: "Choose images or a folder and the files will appear here immediately.",
       clear: "Clear", remove: "Remove", source: "Source", output: "Output", ready: "Ready", converting: "Converting", done: "Done",
       kept: "Kept smaller original", error: "Conversion failed", download: "Download", firstFrame: "Animation is flattened to its first frame", svgSafe: "Scripts and external SVG references are removed",
       unknownSize: "Dimensions appear after conversion", previewUnavailable: "No raw preview for this format", progress: "Completed {{done}} / {{total}}",
@@ -119,7 +129,7 @@ export const translations: Record<"zh" | "en", Translations> = {
       position: "Image {{current}} / {{total}}", before: "Before", after: "After", beforeAlt: "Image before conversion", afterAlt: "Image after conversion",
       previous: "Previous", next: "Next", hint: "Use ← → to browse and Esc to close.",
     },
-    actions: { convert: "Convert images", stop: "Stop after current image", downloadZip: "Download ZIP", converting: "Converting…", nothing: "Add images first", fixRename: "Fix the naming rule first" },
+    actions: { convert: "Convert images", stop: "Stop after current image", download: "Download", downloadAs: "Output as", downloadFiles: "Files (direct for one / separate for many)", downloadZip: "ZIP archive", converting: "Converting…", nothing: "Add images first", fixRename: "Fix the naming rule first" },
     errors: {
       "decode-failed": "The browser cannot decode this image. It may be damaged or unsupported here.", "image-too-large": "Output exceeds the browser safety limit (16384 px per side or 80 megapixels).",
       "encode-unsupported": "This browser cannot encode the selected format.", "canvas-unavailable": "The browser could not create an image canvas.", unknown: "An unknown conversion error occurred.",

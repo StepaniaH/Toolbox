@@ -102,9 +102,9 @@ export const TOOLBOX_APPS = Object.freeze([
   defineApp({
     id: 'image-converter',
     path: '/image-converter/',
-    name: 'Image Converter',
-    navLabel: { zh: '图片格式转换', en: 'Image Converter' },
-    description: { zh: '纯本地批量图片格式转换与重命名', en: 'Private batch image conversion and renaming' },
+    name: 'FormTran',
+    navLabel: { zh: '方转', en: 'FormTran' },
+    description: { zh: '纯本地格式转换、预览与批量重命名', en: 'Private format conversion, preview, and batch naming' },
     keywords: {
       zh: ['图片', '图像', '格式转换', '批量转换', '压缩', '重命名', '正则', 'PNG', 'JPEG', 'WebP'],
       en: ['image', 'photo', 'format converter', 'batch conversion', 'compress', 'rename', 'regex', 'PNG', 'JPEG', 'WebP'],
