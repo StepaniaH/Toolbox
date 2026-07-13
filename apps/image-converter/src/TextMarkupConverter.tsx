@@ -7,24 +7,12 @@ import { createZip } from "./lib/zip";
 
 const FORMATS: MarkupFormat[] = ["markdown", "org", "rst", "asciidoc", "html", "txt"];
 const FORMAT_BY_EXTENSION: Record<string, MarkupFormat> = { md: "markdown", markdown: "markdown", org: "org", rst: "rst", adoc: "asciidoc", asciidoc: "asciidoc", html: "html", htm: "html", txt: "txt" };
-const SAMPLE = `# Local conversion
-
-FormTran keeps **documents** in your browser.
-
-- Parse structure
-- Convert formats
-- Preview the result
-
-\`\`\`js
-const privateByDefault = true
-\`\`\``;
-
 type TextDocument = { id: string; name: string; source: MarkupFormat; input: string };
 
 export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; incoming?: { id: number; files: File[] } }) {
   const { t } = useTranslation();
-  const [documents, setDocuments] = useState<TextDocument[]>([{ id: "sample", name: "document.md", source: "markdown", input: SAMPLE }]);
-  const [activeId, setActiveId] = useState<string | null>("sample");
+  const [documents, setDocuments] = useState<TextDocument[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [draftSource, setDraftSource] = useState<MarkupFormat>("markdown");
   const [target, setTarget] = useState<MarkupFormat>("org");
   const [copied, setCopied] = useState(false);
@@ -42,9 +30,7 @@ export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; in
     setDocuments((current) => current.map((document) => document.id === active.id ? { ...document, ...patch } : document));
   };
   const setInput = (value: string) => {
-    if (active) { patchActive({ input: value }); return; }
-    const document = { id: `draft-${Date.now()}`, name: `document.${MARKUP_EXTENSIONS[draftSource]}`, source: draftSource, input: value };
-    setDocuments([document]); setActiveId(document.id);
+    if (active) patchActive({ input: value });
   };
   const setSource = (next: MarkupFormat) => {
     if (active) patchActive({ source: next }); else setDraftSource(next);
@@ -57,7 +43,7 @@ export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; in
       return { id: `${stamp}-${index}-${file.lastModified}`, name: file.name, source: FORMAT_BY_EXTENSION[extension] ?? "txt", input: await file.text() };
     }));
     if (opened.length) {
-      setDocuments((current) => [...current.filter((document) => document.id !== "sample"), ...opened]);
+      setDocuments((current) => [...current, ...opened]);
       setActiveId(opened[0].id);
     }
     const skipped = files.length - opened.length;
@@ -77,6 +63,10 @@ export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; in
     if (activeId === id) setActiveId(next[0]?.id ?? null);
   };
   const clear = () => { setDocuments([]); setActiveId(null); setNotice(null); };
+  const createBlank = () => {
+    const document = { id: `draft-${Date.now()}`, name: `untitled.${MARKUP_EXTENSIONS[draftSource]}`, source: draftSource, input: "" };
+    setDocuments((current) => [...current, document]); setActiveId(document.id);
+  };
   const swap = () => {
     if (active) patchActive({ source: target, input: converted.output, name: replaceExtension(active.name, target) });
     else setDraftSource(target);
@@ -103,7 +93,8 @@ export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; in
   };
 
   return <section className="tool-page text-page" role="tabpanel" id="panel-text" aria-labelledby="tab-text" hidden={hidden}>
-    <div className="tool-intro"><div><span className="eyebrow">TXT · MD · ORG · RST · ADOC · HTML</span><h2>{t("text.title")}</h2><p>{t("text.intro")}</p></div><div className="text-actions"><label className="button secondary compact">{t("text.openFile")}<input type="file" multiple accept=".txt,.md,.markdown,.org,.rst,.adoc,.asciidoc,.html,.htm,text/*" onChange={upload}/></label><button className="button secondary compact" type="button" disabled={!documents.length} onClick={clear}>{t("text.clear")}</button></div></div>
+    <div className="tool-intro"><div><span className="eyebrow">TXT · MD · ORG · RST · ADOC · HTML</span><h2>{t("text.title")}</h2><p>{t("text.intro")}</p></div><div className="text-actions"><label className="button secondary compact">{t("text.openFile")}<input type="file" multiple accept=".txt,.md,.markdown,.org,.rst,.adoc,.asciidoc,.html,.htm,text/*" onChange={upload}/></label>{documents.length > 0 && <button className="button secondary compact" type="button" onClick={clear}>{t("text.clear")}</button>}</div></div>
+    {!documents.length ? <section className="text-empty-workspace"><span>TXT · MD · HTML</span><h3>{t("text.emptyTitle")}</h3><p>{t("text.emptyDetail")}</p><button className="button primary" type="button" onClick={createBlank}>{t("text.newBlank")}</button></section> : <>
     <div className="text-workbench">
       <aside className="text-file-panel">
         <header><div><strong>{t("text.fileQueue")}</strong><small>{t("text.fileCount", { count: documents.length })}</small></div><button type="button" disabled={!documents.length} onClick={downloadAll}>{t("text.downloadAll")}</button></header>
@@ -126,7 +117,7 @@ export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; in
       <section className="structure-card"><div className="section-heading"><div><h3>{t("text.structure")}</h3><p>{t("text.structureHint")}</p></div></div>{converted.blocks.length ? <div className="structure-chips">{Object.entries(counts).map(([type, count]) => <span key={type}><b>{count}</b>{t(`text.blockTypes.${type}`)}</span>)}</div> : <div className="compact-empty"><p>{t("text.noStructure")}</p></div>}</section>
       <section className="markup-preview"><div className="section-heading"><div><h3>{t("text.preview")}</h3><p>{t("text.previewHint")}</p></div></div>{target === "html" ? <iframe sandbox="" title={t("text.preview")} srcDoc={converted.output}/> : <pre>{converted.output || t("text.emptyPreview")}</pre>}</section>
     </div>
-    <p className="roundtrip-note">{t("text.roundtrip")}</p>
+    <p className="roundtrip-note">{t("text.roundtrip")}</p></>}
   </section>;
 }
 

@@ -40,6 +40,8 @@ describe("application shell", () => {
   it("uses an accessible theme-native format menu", () => {
     render(<App />);
     fireEvent.click(screen.getAllByRole("tab")[3]);
+    expect(screen.getByRole("heading", { name: /Open files or start|打开文件/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Create blank document|新建空白文档/ }));
     const target = screen.getByLabelText(/Batch output format|批量输出格式/);
     fireEvent.click(target);
     expect(screen.getAllByRole("option")).toHaveLength(6);
