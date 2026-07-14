@@ -56,7 +56,7 @@ export function FileHome({
   hidden, outputs = [], onOpenImage, onOpenGif, onOpenText, onOpenData, onOpenPdf, onOpenArchive,
   outputNotice,
   onOutput = () => undefined, onRenameOutput = () => undefined, onBatchRenameOutputs = () => undefined,
-  onRemoveOutput = () => undefined, onClearOutputs = () => undefined,
+  onRemoveOutput = () => undefined, onClearOutputs = () => undefined, onClearTask = () => undefined,
 }: {
   hidden?: boolean;
   outputs?: TaskOutput[];
@@ -72,6 +72,7 @@ export function FileHome({
   onBatchRenameOutputs?: (ids: string[], template: string) => void;
   onRemoveOutput?: (id: string) => void;
   onClearOutputs?: () => void;
+  onClearTask?: () => void;
 }) {
   const { t } = useTranslation();
   const [items, setItems] = useState<HomeFile[]>([]);
@@ -143,7 +144,6 @@ export function FileHome({
     if (previewId === id) setPreviewId(null);
     setBase64(null);
   };
-  const clear = () => { setItems([]); setSelectedId(null); setCheckedIds(new Set()); setPreviewId(null); setNotice(null); setBase64(null); };
   const compatible = (target: FileFamily) => items.filter((item) => item.identified?.family === target).map((item) => item.file);
   const toggleChecked = (id: string) => setCheckedIds((current) => {
     const next = new Set(current);
@@ -197,7 +197,7 @@ export function FileHome({
     {!items.length ? <EmptyOverview/> : <>
       <div className="file-router">
         <aside className="home-file-panel">
-          <header><div><strong>{t("home.queue")}</strong><small>{t("home.fileCount", { count: items.length })}</small></div><div className="home-queue-actions"><button type="button" onClick={toggleAll}>{t(checkedIds.size === items.length ? "home.clearSelection" : "home.selectAll")}</button><button type="button" onClick={clear}>{t("home.clear")}</button></div></header>
+          <header><div><strong>{t("home.queue")}</strong><small>{t("home.fileCount", { count: items.length })}</small></div><div className="home-queue-actions"><button type="button" onClick={toggleAll}>{t(checkedIds.size === items.length ? "home.clearSelection" : "home.selectAll")}</button><button type="button" onClick={onClearTask}>{t("home.clear")}</button></div></header>
           <div className="home-file-list">{groups.map((group) => <section className="home-family-group" key={group.family}><label><input type="checkbox" checked={group.items.every((item) => checkedIds.has(item.id))} onChange={() => toggleGroup(group.items)}/><span className={`family-dot family-${group.family}`}/><strong>{t(`home.families.${group.family}`)}</strong><small>{group.items.length}</small></label>{group.items.map((item) => <div className={`home-file-row ${item.id === selected?.id ? "active" : ""}`} key={item.id}><input type="checkbox" checked={checkedIds.has(item.id)} onChange={() => toggleChecked(item.id)} aria-label={`${t("home.selectFile")} ${item.file.name}`}/><button type="button" onClick={() => { setSelectedId(item.id); setBase64(null); }}><span><strong>{item.relativePath}</strong><small>{item.identified ? `${item.identified.format} · ${formatBytes(item.file.size)}` : t("home.identifying")}</small></span></button><button className="home-remove" type="button" onClick={() => remove(item.id)} aria-label={`${t("home.remove")} ${item.file.name}`}>×</button></div>)}</section>)}</div>
         </aside>
         <div className="home-recommendations">

@@ -126,6 +126,7 @@ function AppSurface() {
   const [pdfTransfer, setPdfTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [archiveTransfer, setArchiveTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [workspaceContext, setWorkspaceContext] = useState<WorkspaceContext | null>(null);
+  const [taskEpoch, setTaskEpoch] = useState(0);
   const [outputs, setOutputs] = useState<TaskOutput[]>([]);
   const [outputRejected, setOutputRejected] = useState(0);
   const [previewId, setPreviewId] = useState<string | null>(null);
@@ -134,8 +135,10 @@ function AppSurface() {
   const cancelRef = useRef(false);
   const itemRef = useRef(items);
   const outputRef = useRef(outputs);
+  const taskEpochRef = useRef(taskEpoch);
   itemRef.current = items;
   outputRef.current = outputs;
+  taskEpochRef.current = taskEpoch;
 
   useEffect(() => {
     document.title = activeTab === "home" ? t("meta.title") : `${t(`tabs.${activeTab}`)} · ${t("brand.title")}`;
@@ -210,13 +213,17 @@ function AppSurface() {
     setLastImport(null);
   };
 
-  const publishOutputs = useCallback((drafts: OutputDraft[]): OutputPublishResult => {
-    const result = registerTaskOutputs(outputRef.current, drafts);
-    outputRef.current = result.outputs;
-    setOutputs(result.outputs);
-    setOutputRejected(result.rejected);
-    return result;
-  }, []);
+  const publishOutputs = useMemo(() => {
+    const epoch = taskEpoch;
+    return (drafts: OutputDraft[]): OutputPublishResult => {
+      if (taskEpochRef.current !== epoch) return { outputs: outputRef.current, added: [], rejected: 0 };
+      const result = registerTaskOutputs(outputRef.current, drafts);
+      outputRef.current = result.outputs;
+      setOutputs(result.outputs);
+      setOutputRejected(result.rejected);
+      return result;
+    };
+  }, [taskEpoch]);
   const renameOutput = useCallback((id: string, name: string) => {
     const next = renameTaskOutput(outputRef.current, id, name);
     outputRef.current = next; setOutputs(next);
@@ -232,6 +239,22 @@ function AppSurface() {
   const clearOutputs = useCallback(() => {
     outputRef.current = []; setOutputs([]); setOutputRejected(0);
   }, []);
+  const clearTask = () => {
+    taskEpochRef.current += 1;
+    clearItems();
+    clearOutputs();
+    setRejections([]);
+    setDragging(false);
+    setRunning(false);
+    setGifTransfer(undefined);
+    setTextTransfer(undefined);
+    setDataTransfer(undefined);
+    setPdfTransfer(undefined);
+    setArchiveTransfer(undefined);
+    setWorkspaceContext(null);
+    setActiveTab("home");
+    setTaskEpoch(taskEpochRef.current);
+  };
 
   const convertAll = async () => {
     if (!items.length || renameError) return;
@@ -248,6 +271,7 @@ function AppSurface() {
       }));
       try {
         const result = await convertImage(item.file, settings);
+        if (cancelRef.current) break;
         const path = makeUniquePath(previewOutputPath({ ...item, outputWidth: result.outputWidth, outputHeight: result.outputHeight }, index + 1, settings, rename), used);
         const outputUrl = URL.createObjectURL(result.blob);
         setItems((current) => updateItem(current, item.id, {
@@ -315,6 +339,7 @@ function AppSurface() {
 
         <main>
           <FileHome
+            key={`home-${taskEpoch}`}
             hidden={activeTab !== "home"}
             outputs={outputs}
             outputNotice={outputRejected ? t("outputs.publishLimit", { count: outputRejected }) : null}
@@ -329,11 +354,12 @@ function AppSurface() {
             onBatchRenameOutputs={batchRenameOutputs}
             onRemoveOutput={removeOutput}
             onClearOutputs={clearOutputs}
+            onClearTask={clearTask}
           />
           {workspaceContext && activeTab !== "home" && activeTab !== "knowledge" && <WorkspaceReturnBar context={workspaceContext} onReturn={() => { setActiveTab("home"); setWorkspaceContext(null); }} onStay={() => setWorkspaceContext(null)}/>}
           {outputRejected > 0 && activeTab !== "home" && activeTab !== "knowledge" && <p className="field-error output-error" role="alert">{t("outputs.publishLimit", { count: outputRejected })}</p>}
           {activeTab === "image" && (
-            <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image">
+            <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image" key={`image-${taskEpoch}`}>
               <div className="intake-grid">
                 <div className="intake-column">
                   <section className={`drop-zone ${dragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
@@ -383,11 +409,11 @@ function AppSurface() {
               </div>
             </section>
           )}
-          <GifComposer hidden={activeTab !== "gif"} incoming={gifTransfer} onOutput={publishOutputs}/>
-          <TextMarkupConverter hidden={activeTab !== "text"} incoming={textTransfer} onOutput={publishOutputs}/>
-          <DataWorkspace hidden={activeTab !== "data"} incoming={dataTransfer} onOutput={publishOutputs}/>
-          <PdfWorkspace hidden={activeTab !== "pdf"} incoming={pdfTransfer} onOutput={publishOutputs}/>
-          <ArchiveWorkspace hidden={activeTab !== "archive"} incoming={archiveTransfer} onOutput={publishOutputs}/>
+          <GifComposer key={`gif-${taskEpoch}`} hidden={activeTab !== "gif"} incoming={gifTransfer} onOutput={publishOutputs}/>
+          <TextMarkupConverter key={`text-${taskEpoch}`} hidden={activeTab !== "text"} incoming={textTransfer} onOutput={publishOutputs}/>
+          <DataWorkspace key={`data-${taskEpoch}`} hidden={activeTab !== "data"} incoming={dataTransfer} onOutput={publishOutputs}/>
+          <PdfWorkspace key={`pdf-${taskEpoch}`} hidden={activeTab !== "pdf"} incoming={pdfTransfer} onOutput={publishOutputs}/>
+          <ArchiveWorkspace key={`archive-${taskEpoch}`} hidden={activeTab !== "archive"} incoming={archiveTransfer} onOutput={publishOutputs}/>
           {activeTab === "knowledge" && <KnowledgePage />}
         </main>
         <TabPrivacyNotice tab={activeTab} />

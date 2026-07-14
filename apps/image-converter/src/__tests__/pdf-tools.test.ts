@@ -1,7 +1,8 @@
 import { PDFDocument } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 import {
-  inspectPdfDocument, mergePdfFiles, parsePageOrder, parsePageSelection, rewritePdf, splitPdfPages,
+  buildPdfPagePlan, buildPdfPagePreset, inspectPdfDocument, mergePdfFiles,
+  parsePageOrder, parsePageSelection, rewritePdf, splitPdfPages,
 } from "../lib/pdf-tools";
 
 async function makePdf(sizes: [number, number][]): Promise<Blob> {
@@ -16,6 +17,17 @@ describe("bounded PDF page tools", () => {
     expect(parsePageOrder("3,1,2", 3)).toEqual([2, 0, 1]);
     expect(() => parsePageSelection("1,1", 3)).toThrow("pdf-page-selection");
     expect(() => parsePageOrder("1,3", 3)).toThrow("pdf-page-order");
+  });
+
+  it("builds page-operation previews and useful page presets", () => {
+    expect(buildPdfPagePlan("remove", "2-3", 4)).toEqual({ selectedPages: [1, 2], outputPages: [0, 3], error: undefined });
+    expect(buildPdfPagePlan("rotate", "4, 2", 4)).toEqual({ selectedPages: [3, 1], outputPages: [0, 1, 2, 3], error: undefined });
+    expect(buildPdfPagePlan("reorder", "4-1", 4).outputPages).toEqual([3, 2, 1, 0]);
+    expect(buildPdfPagePlan("remove", "1-4", 4).error).toBe("pdf-no-pages");
+    expect(buildPdfPagePreset("all", 6)).toBe("1-6");
+    expect(buildPdfPagePreset("odd", 6)).toBe("1, 3, 5");
+    expect(buildPdfPagePreset("even", 5)).toBe("2, 4");
+    expect(buildPdfPagePreset("reverse", 4)).toBe("4-1");
   });
 
   it("uses an exact page tree for merge, reorder, rotation, and splitting", async () => {

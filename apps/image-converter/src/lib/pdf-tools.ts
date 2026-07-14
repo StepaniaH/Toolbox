@@ -19,6 +19,10 @@ export type PdfRewriteOptions = {
   rotation?: 90 | 180 | 270;
 };
 
+export type PdfPageOperation = "extract" | "remove" | "reorder" | "rotate" | "split";
+export type PdfPagePreset = "all" | "odd" | "even" | "first" | "last" | "reverse";
+export type PdfPagePlan = { selectedPages: number[]; outputPages: number[]; error?: string };
+
 type PdfLib = typeof import("pdf-lib");
 
 let pdfLibPromise: Promise<PdfLib> | undefined;
@@ -106,6 +110,35 @@ export function parsePageOrder(value: string, pageCount: number): number[] {
   const order = parsePageSelection(value, pageCount);
   if (order.length !== pageCount) throw new Error("pdf-page-order");
   return order;
+}
+
+export function buildPdfPagePlan(operation: PdfPageOperation, value: string, pageCount: number): PdfPagePlan {
+  const allPages = Array.from({ length: pageCount }, (_, index) => index);
+  if (operation === "split") {
+    return { selectedPages: allPages, outputPages: allPages, error: pageCount > PDF_MAX_SPLIT_PAGES ? "pdf-split-limit" : undefined };
+  }
+  try {
+    const selectedPages = operation === "reorder" ? parsePageOrder(value, pageCount) : parsePageSelection(value, pageCount);
+    const selectedSet = new Set(selectedPages);
+    const outputPages = operation === "extract" || operation === "reorder"
+      ? selectedPages
+      : operation === "remove"
+        ? allPages.filter((page) => !selectedSet.has(page))
+        : allPages;
+    return { selectedPages, outputPages, error: outputPages.length ? undefined : "pdf-no-pages" };
+  } catch (reason) {
+    return { selectedPages: [], outputPages: [], error: reason instanceof Error ? reason.message : "pdf-page-selection" };
+  }
+}
+
+export function buildPdfPagePreset(preset: PdfPagePreset, pageCount: number): string {
+  if (pageCount < 1) return "";
+  if (preset === "first") return "1";
+  if (preset === "last") return String(pageCount);
+  if (preset === "all") return pageCount === 1 ? "1" : `1-${pageCount}`;
+  if (preset === "reverse") return pageCount === 1 ? "1" : `${pageCount}-1`;
+  const start = preset === "odd" ? 1 : 2;
+  return Array.from({ length: Math.max(0, Math.ceil((pageCount - start + 1) / 2)) }, (_, index) => start + index * 2).join(", ");
 }
 
 export async function mergePdfFiles(files: Blob[]): Promise<Blob> {

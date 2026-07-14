@@ -88,8 +88,8 @@ export function OutputDesk({ outputs, notice, onRename, onBatchRename, onRemove,
   };
 
   const scopeOptions = (["selected", "family", "all"] as const).map((value) => ({ value, label: t(`outputs.scopes.${value}`) }));
-  const familyOptions = groups.map((group) => ({ value: group.family, label: t(`home.families.${group.family}`), description: t("outputs.itemCount", { count: group.outputs.length }) }));
-  const exportOptions = (["direct", "zip"] as const).map((value) => ({ value, label: t(`outputs.exportModes.${value}.title`), description: t(`outputs.exportModes.${value}.detail`) }));
+  const familyOptions = groups.map((group) => ({ value: group.family, label: t(`home.families.${group.family}`) }));
+  const exportOptions = (["direct", "zip"] as const).map((value) => ({ value, label: t(`outputs.exportModes.${value}.title`) }));
 
   return <section className="output-desk" aria-live="polite">
     <header className="output-desk-heading">
@@ -99,20 +99,21 @@ export function OutputDesk({ outputs, notice, onRename, onBatchRename, onRemove,
     {notice && <p className="field-error output-error" role="alert">{notice}</p>}
     {!outputs.length ? <div className="output-empty"><span aria-hidden="true">⇣</span><div><strong>{t("outputs.emptyTitle")}</strong><p>{t("outputs.emptyDetail")}</p></div></div> : <>
       <div className="output-controls">
-        <div className="output-scope-controls">
-          <div><span className="field-label">{t("outputs.scope")}</span><SelectMenu value={scope} onChange={setScope} ariaLabel={t("outputs.scope")} options={scopeOptions}/></div>
-          {scope === "family" && <div><span className="field-label">{t("outputs.family")}</span><SelectMenu value={family} onChange={setFamily} ariaLabel={t("outputs.family")} options={familyOptions}/></div>}
-          <span className="output-target-count">{t("outputs.targetCount", { count: targets.length })}</span>
-        </div>
-        <div className="output-batch-rename">
-          <label><span className="field-label">{t("outputs.renameTemplate")}</span><input value={template} onChange={(event) => setTemplate(event.target.value)} placeholder="{name}-{index}"/></label>
-          <button className="button secondary compact" type="button" disabled={!targets.length || !template.trim()} onClick={() => onBatchRename(targets.map((output) => output.id), template)}>{t("outputs.applyRename")}</button>
-          <small>{t("outputs.renameHint")}</small>
-        </div>
-        <div className="output-export-controls">
-          <div><span className="field-label">{t("outputs.exportAs")}</span><SelectMenu value={exportMode} onChange={setExportMode} ariaLabel={t("outputs.exportAs")} options={exportOptions} align="right"/></div>
-          <button className="button primary compact" type="button" disabled={!targets.length || busy} onClick={() => void exportOutputs()}>{busy ? t("outputs.exporting") : t("outputs.export", { count: targets.length })}</button>
-        </div>
+        <section className="output-control-group">
+          <span className="field-label">{t("outputs.scope")}</span>
+          <div className="output-control-main output-scope-main"><SelectMenu value={scope} onChange={setScope} ariaLabel={t("outputs.scope")} options={scopeOptions}/>{scope === "family" && <SelectMenu value={family} onChange={setFamily} ariaLabel={t("outputs.family")} options={familyOptions}/>}</div>
+          <small className="output-control-hint">{t("outputs.targetCount", { count: targets.length })}</small>
+        </section>
+        <section className="output-control-group">
+          <span className="field-label">{t("outputs.renameTemplate")}</span>
+          <div className="output-control-main output-rename-main"><input aria-label={t("outputs.renameTemplate")} value={template} onChange={(event) => setTemplate(event.target.value)} placeholder="{name}-{index}"/><button className="button secondary compact" type="button" disabled={!targets.length || !template.trim()} onClick={() => onBatchRename(targets.map((output) => output.id), template)}>{t("outputs.applyRename")}</button></div>
+          <small className="output-control-hint">{t("outputs.renameHint")}</small>
+        </section>
+        <section className="output-control-group">
+          <span className="field-label">{t("outputs.exportAs")}</span>
+          <div className="output-control-main output-export-main"><SelectMenu value={exportMode} onChange={setExportMode} ariaLabel={t("outputs.exportAs")} options={exportOptions} align="right"/><button className="button primary compact" type="button" disabled={!targets.length || busy} onClick={() => void exportOutputs()}>{busy ? t("outputs.exporting") : t("outputs.export", { count: targets.length })}</button></div>
+          <small className="output-control-hint">{t(`outputs.exportModes.${exportMode}.detail`)}</small>
+        </section>
       </div>
       {error && <p className="field-error output-error" role="alert">{error}</p>}
       <div className="output-groups">{groups.map((group) => <section className="output-family-group" key={group.family}>

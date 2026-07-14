@@ -1,5 +1,5 @@
 import React from "react";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "../App";
 import { translations } from "../i18n";
@@ -86,6 +86,24 @@ describe("application shell", () => {
     fireEvent.click(tabs[1]);
     fireEvent.click(tabs[0]);
     expect(screen.getAllByText(/kept\.png/).length).toBeGreaterThan(0);
+  });
+
+  it("clears routed workspace state when the Home task is cleared", async () => {
+    const { container } = render(<App />);
+    const pdfDocument = await PDFDocument.create();
+    pdfDocument.addPage([612, 792]);
+    const pdf = new File([Uint8Array.from(await pdfDocument.save()).buffer], "routed.pdf", { type: "application/pdf" });
+    fireEvent.change(screen.getByLabelText(/Add files|添加文件/), { target: { files: [pdf] } });
+    await waitFor(() => expect(container.querySelectorAll(".home-file-row")).toHaveLength(1));
+    fireEvent.click(container.querySelector<HTMLButtonElement>(".home-file-row button")!);
+    await waitFor(() => expect(container.querySelector(".tool-row .button")).not.toBeNull());
+    fireEvent.click(container.querySelector<HTMLButtonElement>(".tool-row .button")!);
+    await waitFor(() => expect(container.querySelectorAll(".pdf-document-list > div")).toHaveLength(1));
+
+    fireEvent.click(screen.getAllByRole("tab")[0]);
+    fireEvent.click(within(container.querySelector<HTMLElement>(".home-file-panel")!).getByRole("button", { name: /Clear task|清空任务/ }));
+    fireEvent.click(screen.getAllByRole("tab")[5]);
+    expect(container.querySelectorAll(".pdf-document-list > div")).toHaveLength(0);
   });
 
   it("opens PDF and ZIP families manually and reports local structure", async () => {
