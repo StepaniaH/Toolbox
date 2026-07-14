@@ -14,7 +14,9 @@ The expansion is staged. Image conversion (including local HEIC/HEIF decoding), 
 - Shows available, limited, and planned capabilities separately; no conversion or parser starts automatically.
 - Can hand compatible selection scopes into image conversion, GIF composition, text/markup conversion, table data, PDF page tools, or ZIP inspection, and generates image Data URLs locally up to 10 MB.
 - Provides a live task overview plus a separate item dialog. Safe raster images and bounded text are previewed directly; PDF, archives, SVG, HEIC, and other active formats remain metadata-only until opened in their dedicated workspace.
-- Keeps the home task in memory while a dedicated workspace is open and offers an explicit return path. A shared result queue for returned outputs, family/global naming, and unified direct/ZIP export is the next workbench stage.
+- Keeps the home task in memory while a dedicated workspace is open and returns newly generated image, GIF, text, table, PDF, and extracted ZIP outputs to one shared result queue.
+- Groups results by family and supports individual, checked, same-family, or all-result scope. Users can rename one result, apply `{name}` / `{index}` / `{family}` templates in bulk, preview safe raster or bounded text output, remove results, download up to 10 files directly, or export one family-grouped ZIP.
+- Keeps result blobs only by in-memory reference: no duplicate persistence or upload. The queue is capped at 200 results / 1 GB, and unified ZIP input at 512 MB; closing the page clears the task.
 - Provides editable image starting presets for web photos, transparent assets, and private sharing.
 
 ## Input and output
@@ -45,7 +47,7 @@ The expansion is staged. Image conversion (including local HEIC/HEIF decoding), 
 ## Text & Markup converter
 
 - Open or paste TXT, Markdown, Org mode, reStructuredText, AsciiDoc, and HTML.
-- Open up to 100 text files into a visible batch queue, switch or remove individual documents, clear the queue, and download all converted outputs as one ZIP.
+- Open up to 100 text files into a visible batch queue, switch or remove individual documents, clear the queue, and add one or all converted outputs to the shared task results.
 - Parse a shared block model for headings, paragraphs, lists, quotes, code blocks, rules, and common inline links, then render any supported target.
 - Inspect the recognized structure, preview raw output or sandboxed HTML, copy it, or download the appropriate extension.
 - Unsafe HTML elements are removed, unsafe links are not preserved, and HTML preview runs in a script-disabled sandbox.
@@ -70,7 +72,7 @@ The knowledge base uses decision rows, expandable format references, and compari
 - PDF budgets are 20 files, 32 MB per file, 128 MB total merge input, and 500 pages. Per-page ZIP splitting is limited to 50 pages and 256 MB of generated output. Encrypted/password-protected PDFs are rejected.
 - Page copying is not sanitization: annotations, links, and page actions may remain, while digital signatures, forms, outlines, and document-level attachments can break or be omitted. Thumbnail rendering and PDF-to-image remain unavailable pending a separate renderer and pixel-memory budget.
 - ZIP inspection is bounded to 5,000 entries, a 512 MB archive, 256 MB per expanded entry, and 1 GB expanded total.
-- Selective extraction blocks unsafe or duplicate paths, encryption, unknown methods, oversized entries, and suspicious ratios. Deflate output is stopped as soon as it exceeds the declared size, selected entries are expanded sequentially, and final size plus CRC are verified before download. Multiple selections are repackaged locally.
+- Selective extraction blocks unsafe or duplicate paths, encryption, unknown methods, oversized entries, and suspicious ratios. Deflate output is stopped as soon as it exceeds the declared size, selected entries are expanded sequentially, and final size plus CRC are verified before the verified files enter the shared result queue.
 
 ## Privacy and network behavior
 

@@ -19,6 +19,10 @@ import { ACCEPT_ATTRIBUTE, convertImage, getFileExtension } from "./lib/convert"
 import { triggerDownload } from "./lib/download";
 import { selectIncomingFiles } from "./lib/file-selection";
 import {
+  applyOutputTemplate, registerTaskOutputs, renameTaskOutput,
+  type OutputDraft, type OutputPublishResult, type TaskOutput,
+} from "./lib/output-registry";
+import {
   buildOutputName, insertToken, inspectRegexMatch, makeUniquePath, validateRename,
 } from "./lib/rename";
 import type { ConversionSettings, QueueItem, RejectedFile, RenameSettings } from "./lib/types";
@@ -122,12 +126,16 @@ function AppSurface() {
   const [pdfTransfer, setPdfTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [archiveTransfer, setArchiveTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [workspaceContext, setWorkspaceContext] = useState<WorkspaceContext | null>(null);
+  const [outputs, setOutputs] = useState<TaskOutput[]>([]);
+  const [outputRejected, setOutputRejected] = useState(0);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [downloadMode, setDownloadMode] = useState<DownloadMode>("files");
   const [lastImport, setLastImport] = useState<ImportSummary | null>(null);
   const cancelRef = useRef(false);
   const itemRef = useRef(items);
+  const outputRef = useRef(outputs);
   itemRef.current = items;
+  outputRef.current = outputs;
 
   useEffect(() => {
     document.title = activeTab === "home" ? t("meta.title") : `${t(`tabs.${activeTab}`)} · ${t("brand.title")}`;
@@ -202,6 +210,29 @@ function AppSurface() {
     setLastImport(null);
   };
 
+  const publishOutputs = useCallback((drafts: OutputDraft[]): OutputPublishResult => {
+    const result = registerTaskOutputs(outputRef.current, drafts);
+    outputRef.current = result.outputs;
+    setOutputs(result.outputs);
+    setOutputRejected(result.rejected);
+    return result;
+  }, []);
+  const renameOutput = useCallback((id: string, name: string) => {
+    const next = renameTaskOutput(outputRef.current, id, name);
+    outputRef.current = next; setOutputs(next);
+  }, []);
+  const batchRenameOutputs = useCallback((ids: string[], template: string) => {
+    const next = applyOutputTemplate(outputRef.current, ids, template);
+    outputRef.current = next; setOutputs(next);
+  }, []);
+  const removeOutput = useCallback((id: string) => {
+    const next = outputRef.current.filter((output) => output.id !== id);
+    outputRef.current = next; setOutputs(next); setOutputRejected(0);
+  }, []);
+  const clearOutputs = useCallback(() => {
+    outputRef.current = []; setOutputs([]); setOutputRejected(0);
+  }, []);
+
   const convertAll = async () => {
     if (!items.length || renameError) return;
     cancelRef.current = false;
@@ -223,6 +254,7 @@ function AppSurface() {
           status: "done", output: result.blob, outputName: path, outputUrl, width: result.sourceWidth, height: result.sourceHeight,
           outputWidth: result.outputWidth, outputHeight: result.outputHeight, keptOriginal: result.keptOriginal,
         }));
+        publishOutputs([{ blob: result.blob, name: path, sourceName: item.relativePath, family: "image", tool: "image" }]);
       } catch (error) {
         const key = error instanceof Error ? error.message : "unknown";
         setItems((current) => updateItem(current, item.id, {
@@ -282,8 +314,24 @@ function AppSurface() {
         }} />
 
         <main>
-          <FileHome hidden={activeTab !== "home"} onOpenImage={openImages} onOpenGif={openGif} onOpenText={openText} onOpenData={openData} onOpenPdf={openPdf} onOpenArchive={openArchive}/>
+          <FileHome
+            hidden={activeTab !== "home"}
+            outputs={outputs}
+            outputNotice={outputRejected ? t("outputs.publishLimit", { count: outputRejected }) : null}
+            onOpenImage={openImages}
+            onOpenGif={openGif}
+            onOpenText={openText}
+            onOpenData={openData}
+            onOpenPdf={openPdf}
+            onOpenArchive={openArchive}
+            onOutput={publishOutputs}
+            onRenameOutput={renameOutput}
+            onBatchRenameOutputs={batchRenameOutputs}
+            onRemoveOutput={removeOutput}
+            onClearOutputs={clearOutputs}
+          />
           {workspaceContext && activeTab !== "home" && activeTab !== "knowledge" && <WorkspaceReturnBar context={workspaceContext} onReturn={() => { setActiveTab("home"); setWorkspaceContext(null); }} onStay={() => setWorkspaceContext(null)}/>}
+          {outputRejected > 0 && activeTab !== "home" && activeTab !== "knowledge" && <p className="field-error output-error" role="alert">{t("outputs.publishLimit", { count: outputRejected })}</p>}
           {activeTab === "image" && (
             <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image">
               <div className="intake-grid">
@@ -335,11 +383,11 @@ function AppSurface() {
               </div>
             </section>
           )}
-          <GifComposer hidden={activeTab !== "gif"} incoming={gifTransfer}/>
-          <TextMarkupConverter hidden={activeTab !== "text"} incoming={textTransfer}/>
-          <DataWorkspace hidden={activeTab !== "data"} incoming={dataTransfer}/>
-          <PdfWorkspace hidden={activeTab !== "pdf"} incoming={pdfTransfer}/>
-          <ArchiveWorkspace hidden={activeTab !== "archive"} incoming={archiveTransfer}/>
+          <GifComposer hidden={activeTab !== "gif"} incoming={gifTransfer} onOutput={publishOutputs}/>
+          <TextMarkupConverter hidden={activeTab !== "text"} incoming={textTransfer} onOutput={publishOutputs}/>
+          <DataWorkspace hidden={activeTab !== "data"} incoming={dataTransfer} onOutput={publishOutputs}/>
+          <PdfWorkspace hidden={activeTab !== "pdf"} incoming={pdfTransfer} onOutput={publishOutputs}/>
+          <ArchiveWorkspace hidden={activeTab !== "archive"} incoming={archiveTransfer} onOutput={publishOutputs}/>
           {activeTab === "knowledge" && <KnowledgePage />}
         </main>
         <TabPrivacyNotice tab={activeTab} />

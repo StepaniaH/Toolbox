@@ -3,6 +3,7 @@ import { useTranslation } from "@toolbox/i18n/react";
 import { FilePicker } from "./FilePicker";
 import { SelectMenu } from "./SelectMenu";
 import { triggerDownload } from "./lib/download";
+import type { OutputDraft } from "./lib/output-registry";
 import {
   PDF_MAX_FILES, PDF_MAX_SPLIT_PAGES, inspectPdfDocument, mergePdfFiles,
   parsePageOrder, parsePageSelection, rewritePdf, splitPdfPages,
@@ -15,7 +16,7 @@ type PdfSource = { id: string; file: File; details: PdfDocumentDetails | null; e
 type PdfOperation = "extract" | "remove" | "reorder" | "rotate" | "split";
 type PdfResult = { blob: Blob; name: string; summary: string };
 
-export function PdfWorkspace({ hidden, incoming }: { hidden?: boolean; incoming?: Incoming }) {
+export function PdfWorkspace({ hidden, incoming, onOutput }: { hidden?: boolean; incoming?: Incoming; onOutput?: (drafts: OutputDraft[]) => unknown }) {
   const { t } = useTranslation();
   const [sources, setSources] = useState<PdfSource[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -30,6 +31,10 @@ export function PdfWorkspace({ hidden, incoming }: { hidden?: boolean; incoming?
   sourcesRef.current = sources;
   const selected = sources.find((source) => source.id === selectedId) ?? sources[0] ?? null;
   const readySources = sources.filter((source) => source.details && !source.error);
+  const commitResult = (next: PdfResult, sourceName?: string) => {
+    setResult(next);
+    onOutput?.([{ blob: next.blob, name: next.name, sourceName, family: next.name.endsWith(".zip") ? "archive" : "pdf", tool: "pdf" }]);
+  };
 
   const addFiles = async (incomingFiles: File[]) => {
     const existing = new Set(sourcesRef.current.map((source) => `${source.file.name}:${source.file.size}:${source.file.lastModified}`));
@@ -83,7 +88,7 @@ export function PdfWorkspace({ hidden, incoming }: { hidden?: boolean; incoming?
     setBusy(true); setError(null); setResult(null);
     try {
       const blob = await mergePdfFiles(readySources.map((source) => source.file));
-      setResult({ blob, name: `formtran-merged-${dateStamp()}.pdf`, summary: t("pdf.resultMerge", { count: readySources.length, size: formatBytes(blob.size) }) });
+      commitResult({ blob, name: `formtran-merged-${dateStamp()}.pdf`, summary: t("pdf.resultMerge", { count: readySources.length, size: formatBytes(blob.size) }) });
     } catch (reason) { setError(errorKey(reason)); }
     finally { setBusy(false); }
   };
@@ -98,7 +103,7 @@ export function PdfWorkspace({ hidden, incoming }: { hidden?: boolean; incoming?
         const pages = await splitPdfPages(selected.file);
         const width = String(pages.length).length;
         const blob = await createZip(pages.map((page, index) => ({ name: `${stem}-page-${String(index + 1).padStart(width, "0")}.pdf`, blob: page })));
-        setResult({ blob, name: `${stem}-split.zip`, summary: t("pdf.resultSplit", { count: pages.length, size: formatBytes(blob.size) }) });
+        commitResult({ blob, name: `${stem}-split.zip`, summary: t("pdf.resultSplit", { count: pages.length, size: formatBytes(blob.size) }) }, selected.file.name);
         return;
       }
       const selectedPages = operation === "reorder" ? parsePageOrder(pageInput, pageCount) : parsePageSelection(pageInput, pageCount);
@@ -112,7 +117,7 @@ export function PdfWorkspace({ hidden, incoming }: { hidden?: boolean; incoming?
         rotation: operation === "rotate" ? rotation : undefined,
       });
       const suffix = operation === "extract" ? "extracted" : operation === "remove" ? "trimmed" : operation === "reorder" ? "reordered" : `rotated-${rotation}`;
-      setResult({ blob, name: `${stem}-${suffix}.pdf`, summary: t("pdf.resultPages", { count: pageIndices.length, size: formatBytes(blob.size) }) });
+      commitResult({ blob, name: `${stem}-${suffix}.pdf`, summary: t("pdf.resultPages", { count: pageIndices.length, size: formatBytes(blob.size) }) }, selected.file.name);
     } catch (reason) { setError(errorKey(reason)); }
     finally { setBusy(false); }
   };

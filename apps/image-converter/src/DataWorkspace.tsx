@@ -3,6 +3,7 @@ import { useTranslation } from "@toolbox/i18n/react";
 import { FilePicker } from "./FilePicker";
 import { SelectMenu } from "./SelectMenu";
 import { triggerDownload } from "./lib/download";
+import type { OutputDraft } from "./lib/output-registry";
 import {
   createXlsx,
   readTableFile,
@@ -13,10 +14,11 @@ import {
 } from "./lib/table-data";
 
 type OutputFormat = "csv" | "tsv" | "json" | "xlsx";
+type DataResult = { blob: Blob; name: string };
 const PREVIEW_ROWS = 50;
 const PREVIEW_COLUMNS = 20;
 
-export function DataWorkspace({ hidden, incoming }: { hidden?: boolean; incoming?: { id: number; files: File[] } }) {
+export function DataWorkspace({ hidden, incoming, onOutput }: { hidden?: boolean; incoming?: { id: number; files: File[] }; onOutput?: (drafts: OutputDraft[]) => unknown }) {
   const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [documentData, setDocumentData] = useState<TableDocument | null>(null);
@@ -26,6 +28,7 @@ export function DataWorkspace({ hidden, incoming }: { hidden?: boolean; incoming
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
+  const [result, setResult] = useState<DataResult | null>(null);
   const incomingId = useRef<number | null>(null);
   const loadId = useRef(0);
 
@@ -39,6 +42,7 @@ export function DataWorkspace({ hidden, incoming }: { hidden?: boolean; incoming
       if (requestId !== loadId.current) return;
       setFile(nextFile);
       setDocumentData(next);
+      setResult(null);
       if (resetOutput) setOutputFormat(next.format === "xlsx" ? "csv" : "xlsx");
       setStatus(t("data.loaded", { rows: next.rows.length, columns: Math.max(0, ...next.rows.map((row) => row.length)) }));
     } catch (caught) {
@@ -69,7 +73,10 @@ export function DataWorkspace({ hidden, incoming }: { hidden?: boolean; incoming
   }, [documentData?.format, t]);
 
   useEffect(() => {
-    if (!outputOptions.some((option) => option.value === outputFormat)) setOutputFormat(outputOptions[0].value);
+    if (!outputOptions.some((option) => option.value === outputFormat)) {
+      setOutputFormat(outputOptions[0].value);
+      setResult(null);
+    }
   }, [outputFormat, outputOptions]);
 
   const onInput = (event: ChangeEvent<HTMLInputElement>) => {
@@ -78,9 +85,9 @@ export function DataWorkspace({ hidden, incoming }: { hidden?: boolean; incoming
     event.target.value = "";
   };
 
-  const clear = () => { loadId.current += 1; setBusy(false); setFile(null); setDocumentData(null); setError(""); setStatus(""); };
+  const clear = () => { loadId.current += 1; setBusy(false); setFile(null); setDocumentData(null); setResult(null); setError(""); setStatus(""); };
 
-  const download = async () => {
+  const generate = async () => {
     if (!file || !documentData || busy) return;
     setBusy(true);
     setError("");
@@ -94,7 +101,9 @@ export function DataWorkspace({ hidden, incoming }: { hidden?: boolean; incoming
         const type = outputFormat === "tsv" ? "text/tab-separated-values;charset=utf-8" : "text/csv;charset=utf-8";
         blob = new Blob([serializeDelimited(documentData.rows, delimiter, formulaProtection)], { type });
       }
-      triggerDownload(blob, `${baseName}.${outputFormat}`);
+      const name = `${baseName}.${outputFormat}`;
+      onOutput?.([{ blob, name, sourceName: file.name, family: "data", tool: "data" }]);
+      setResult({ blob, name });
       setStatus(t("data.exported", { format: outputFormat.toUpperCase() }));
     } catch (caught) {
       const key = caught instanceof Error ? caught.message : "unknown";
@@ -122,11 +131,12 @@ export function DataWorkspace({ hidden, incoming }: { hidden?: boolean; incoming
       </section>
       <section className="data-controls">
         {documentData.sheetNames.length > 1 && <div><span className="field-label">{t("data.sheet")}</span><SelectMenu value={String(documentData.sheetIndex)} ariaLabel={t("data.sheet")} options={documentData.sheetNames.map((name, index) => ({ value: String(index), label: name }))} onChange={(value) => { if (file) void load(file, Number(value), false); }}/></div>}
-        <div><span className="field-label">{t("data.output")}</span><SelectMenu value={outputFormat} ariaLabel={t("data.output")} options={outputOptions} onChange={setOutputFormat}/></div>
-        {outputFormat === "json" && <label className="check-row"><input type="checkbox" checked={headerRow} onChange={(event) => setHeaderRow(event.target.checked)}/>{t("data.headerRow")}</label>}
-        {(outputFormat === "csv" || outputFormat === "tsv") && <label className="check-row"><input type="checkbox" checked={formulaProtection} onChange={(event) => setFormulaProtection(event.target.checked)}/>{t("data.formulaProtection")}</label>}
-        <button className="button primary" type="button" onClick={() => void download()} disabled={busy}>{busy ? t("data.reading") : t("data.download", { format: outputFormat.toUpperCase() })}</button>
+        <div><span className="field-label">{t("data.output")}</span><SelectMenu value={outputFormat} ariaLabel={t("data.output")} options={outputOptions} onChange={(value) => { setOutputFormat(value); setResult(null); }}/></div>
+        {outputFormat === "json" && <label className="check-row"><input type="checkbox" checked={headerRow} onChange={(event) => { setHeaderRow(event.target.checked); setResult(null); }}/>{t("data.headerRow")}</label>}
+        {(outputFormat === "csv" || outputFormat === "tsv") && <label className="check-row"><input type="checkbox" checked={formulaProtection} onChange={(event) => { setFormulaProtection(event.target.checked); setResult(null); }}/>{t("data.formulaProtection")}</label>}
+        <button className="button primary" type="button" onClick={() => void generate()} disabled={busy}>{busy ? t("data.reading") : t("data.generate", { format: outputFormat.toUpperCase() })}</button>
       </section>
+      {result && <section className="data-result" aria-live="polite"><div><span className="eyebrow">{t("data.result")}</span><strong>{result.name}</strong><small>{t("data.resultDetail", { size: formatBytes(result.blob.size) })}</small></div><button className="button secondary" type="button" onClick={() => triggerDownload(result.blob, result.name)}>{t("data.downloadResult")}</button></section>}
       <p className="boundary-note">{t(documentData.format === "xlsx" ? "data.xlsxBoundary" : "data.csvBoundary")}{documentData.formulaCount ? ` ${t("data.formulas", { count: documentData.formulaCount })}` : ""}</p>
       <section className="data-preview">
         <header><div><h3>{t("data.preview")}</h3><p>{t("data.previewHint", { rows: Math.min(PREVIEW_ROWS, rows.length), columns: Math.min(PREVIEW_COLUMNS, columnCount) })}</p></div>{(rows.length > PREVIEW_ROWS || columnCount > PREVIEW_COLUMNS) && <span>{t("data.previewLimited")}</span>}</header>
@@ -135,3 +145,5 @@ export function DataWorkspace({ hidden, incoming }: { hidden?: boolean; incoming
     </>}
   </section>;
 }
+
+function formatBytes(bytes: number): string { return bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`; }

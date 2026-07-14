@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import { useTranslation } from "@toolbox/i18n/react";
 import { FilePicker } from "./FilePicker";
+import { OutputDesk } from "./OutputDesk";
 import {
   FILE_HOME_MAX_FILES, FILE_HOME_MAX_TOTAL_BYTES, identifyFile,
   type FileFamily, type IdentifiedFile,
 } from "./lib/file-identification";
+import type { OutputDraft, TaskOutput } from "./lib/output-registry";
 
 type HomeFile = { id: string; file: File; relativePath: string; identified: IdentifiedFile | null; error?: string };
 type IncomingHomeFile = { file: File; relativePath: string };
@@ -50,14 +52,26 @@ const TOOLS: Record<FileFamily, Tool[]> = {
   unknown: [{ id: "info", status: "available" }],
 };
 
-export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText, onOpenData, onOpenPdf, onOpenArchive }: {
+export function FileHome({
+  hidden, outputs = [], onOpenImage, onOpenGif, onOpenText, onOpenData, onOpenPdf, onOpenArchive,
+  outputNotice,
+  onOutput = () => undefined, onRenameOutput = () => undefined, onBatchRenameOutputs = () => undefined,
+  onRemoveOutput = () => undefined, onClearOutputs = () => undefined,
+}: {
   hidden?: boolean;
+  outputs?: TaskOutput[];
+  outputNotice?: string | null;
   onOpenImage: (files: File[], preset: ImagePreset) => void;
   onOpenGif: (files: File[]) => void;
   onOpenText: (files: File[]) => void;
   onOpenData: (files: File[]) => void;
   onOpenPdf: (files: File[]) => void;
   onOpenArchive: (files: File[]) => void;
+  onOutput?: (drafts: OutputDraft[]) => unknown;
+  onRenameOutput?: (id: string, name: string) => void;
+  onBatchRenameOutputs?: (ids: string[], template: string) => void;
+  onRemoveOutput?: (id: string) => void;
+  onClearOutputs?: () => void;
 }) {
   const { t } = useTranslation();
   const [items, setItems] = useState<HomeFile[]>([]);
@@ -160,7 +174,12 @@ export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText, onOpenDat
     if (tool.action === "base64") {
       if (selected.file.size > 10 * 1024 * 1024) { setNotice(t("home.base64Limit")); return; }
       const reader = new FileReader();
-      reader.onload = () => setBase64(String(reader.result));
+      reader.onload = () => {
+        const value = String(reader.result);
+        setBase64(value);
+        const stem = selected.file.name.replace(/\.[^.]+$/, "").replace(/[\\/:*?"<>|]+/g, "-") || "file";
+        onOutput([{ blob: new Blob([value], { type: "text/plain;charset=utf-8" }), name: `${stem}.data-url.txt`, sourceName: selected.relativePath, family: "text", tool: "home" }]);
+      };
       reader.onerror = () => setNotice(t("home.readError"));
       reader.readAsDataURL(selected.file);
     }
@@ -192,6 +211,7 @@ export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText, onOpenDat
       </div>
       <SessionOverview items={items} groups={groups} selectedCount={checkedIds.size || (selected ? 1 : 0)} totalBytes={totalBytes}/>
     </>}
+    <OutputDesk outputs={outputs} notice={outputNotice} onRename={onRenameOutput} onBatchRename={onBatchRenameOutputs} onRemove={onRemoveOutput} onClear={onClearOutputs}/>
     {previewId && <HomePreviewDialog item={items.find((item) => item.id === previewId) ?? null} onClose={() => setPreviewId(null)}/>}
   </section>;
 }

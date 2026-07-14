@@ -4,13 +4,13 @@ import { FilePicker } from "./FilePicker";
 import { SelectMenu, type SelectOption } from "./SelectMenu";
 import { triggerDownload } from "./lib/download";
 import { convertMarkup, MARKUP_EXTENSIONS, type MarkupFormat } from "./lib/markup";
-import { createZip } from "./lib/zip";
+import type { OutputDraft } from "./lib/output-registry";
 
 const FORMATS: MarkupFormat[] = ["markdown", "org", "rst", "asciidoc", "html", "txt"];
 const FORMAT_BY_EXTENSION: Record<string, MarkupFormat> = { md: "markdown", markdown: "markdown", org: "org", rst: "rst", adoc: "asciidoc", asciidoc: "asciidoc", html: "html", htm: "html", txt: "txt" };
 type TextDocument = { id: string; name: string; source: MarkupFormat; input: string };
 
-export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; incoming?: { id: number; files: File[] } }) {
+export function TextMarkupConverter({ hidden, incoming, onOutput }: { hidden?: boolean; incoming?: { id: number; files: File[] }; onOutput?: (drafts: OutputDraft[]) => unknown }) {
   const { t } = useTranslation();
   const [documents, setDocuments] = useState<TextDocument[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -79,9 +79,15 @@ export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; in
   };
   const download = () => {
     const name = replaceExtension(active?.name ?? "document.txt", target);
-    triggerDownload(textBlob(converted.output, target), name);
+    const blob = textBlob(converted.output, target);
+    triggerDownload(blob, name);
   };
-  const downloadAll = async () => {
+  const addCurrentResult = () => {
+    const name = replaceExtension(active?.name ?? "document.txt", target);
+    onOutput?.([{ blob: textBlob(converted.output, target), name, sourceName: active?.name, family: "text", tool: "text" }]);
+    setNotice(t("text.added", { count: 1 }));
+  };
+  const addAllResults = () => {
     const used = new Map<string, number>();
     const entries = documents.map((document) => {
       const base = replaceExtension(document.name, target);
@@ -90,7 +96,8 @@ export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; in
       const name = seen ? base.replace(/(\.[^.]+)$/, `-${seen + 1}$1`) : base;
       return { name, blob: textBlob(convertMarkup(document.input, document.source, target).output, target) };
     });
-    triggerDownload(await createZip(entries), `formtran-text-${new Date().toISOString().slice(0, 10)}.zip`);
+    onOutput?.(entries.map((entry, index) => ({ ...entry, sourceName: documents[index]?.name, family: "text", tool: "text" })));
+    setNotice(t("text.added", { count: entries.length }));
   };
 
   return <section className="tool-page text-page" role="tabpanel" id="panel-text" aria-labelledby="tab-text" hidden={hidden}>
@@ -98,7 +105,7 @@ export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; in
     {!documents.length ? <section className="text-empty-workspace"><span>TXT · MD · HTML</span><h3>{t("text.emptyTitle")}</h3><p>{t("text.emptyDetail")}</p><button className="button primary" type="button" onClick={createBlank}>{t("text.newBlank")}</button></section> : <>
     <div className="text-workbench">
       <aside className="text-file-panel">
-        <header><div><strong>{t("text.fileQueue")}</strong><small>{t("text.fileCount", { count: documents.length })}</small></div><button type="button" disabled={!documents.length} onClick={downloadAll}>{t("text.downloadAll")}</button></header>
+        <header><div><strong>{t("text.fileQueue")}</strong><small>{t("text.fileCount", { count: documents.length })}</small></div><button type="button" disabled={!documents.length} onClick={addAllResults}>{t("text.addAllResults")}</button></header>
         {notice && <p className="field-error" role="status">{notice}</p>}
         {!documents.length ? <div className="text-file-empty"><span>¶</span><p>{t("text.fileEmpty")}</p></div> : <div className="text-file-list">{documents.map((document) => <div className={document.id === activeId ? "active" : ""} key={document.id}><button className="text-file-select" type="button" onClick={() => setActiveId(document.id)}><span><strong>{document.name}</strong><small>{t(`text.formats.${document.source}`)} · {document.input.length.toLocaleString()} {t("text.characters")}</small></span></button><button className="text-file-remove" type="button" aria-label={`${t("text.remove")} ${document.name}`} onClick={() => remove(document.id)}>×</button></div>)}</div>}
       </aside>
@@ -110,7 +117,7 @@ export function TextMarkupConverter({ hidden, incoming }: { hidden?: boolean; in
         </div>
         <div className="editor-grid">
           <section className="editor-card"><header><div><strong>{t("text.input")}</strong><small>{active?.name ?? t("text.newDocument")} · {input.length.toLocaleString()} {t("text.characters")}</small></div></header><textarea value={input} onChange={(event) => setInput(event.target.value)} spellCheck={false} aria-label={t("text.input")}/></section>
-          <section className="editor-card"><header><div><strong>{t("text.output")}</strong><small>{converted.blocks.length} {t("text.blocks")} · {converted.output.length.toLocaleString()} {t("text.characters")}</small></div><div><button type="button" onClick={copy} disabled={!input}>{copied ? t("text.copied") : t("text.copy")}</button><button type="button" onClick={download} disabled={!input}>{t("text.download")}</button></div></header><textarea value={converted.output} readOnly spellCheck={false} aria-label={t("text.output")}/></section>
+          <section className="editor-card"><header><div><strong>{t("text.output")}</strong><small>{converted.blocks.length} {t("text.blocks")} · {converted.output.length.toLocaleString()} {t("text.characters")}</small></div><div><button type="button" onClick={copy} disabled={!input}>{copied ? t("text.copied") : t("text.copy")}</button><button type="button" onClick={addCurrentResult} disabled={!input}>{t("text.addResult")}</button><button type="button" onClick={download} disabled={!input}>{t("text.download")}</button></div></header><textarea value={converted.output} readOnly spellCheck={false} aria-label={t("text.output")}/></section>
         </div>
       </div>
     </div>

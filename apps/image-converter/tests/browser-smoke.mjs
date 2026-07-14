@@ -116,8 +116,10 @@ try {
   await page.waitForFunction(() => document.querySelectorAll('.data-preview tbody tr').length === 3)
   assert.match(await page.locator('.data-summary').textContent(), /CSV/)
   assert.equal(await page.locator('.data-preview td').filter({ hasText: '=2+2' }).count(), 1)
+  await page.getByRole('button', { name: /Generate XLSX|生成 XLSX/ }).click()
+  await page.locator('.data-result').waitFor()
   const xlsxDownloadPromise = page.waitForEvent('download')
-  await page.getByRole('button', { name: /Download XLSX|下载 XLSX/ }).click()
+  await page.locator('.data-result').getByRole('button', { name: /Download separately|单独下载/ }).click()
   const xlsxDownload = await xlsxDownloadPromise
   const xlsxStream = await xlsxDownload.createReadStream()
   const xlsxChunks = []
@@ -151,6 +153,9 @@ try {
   assert.match(pdfDownload.suggestedFilename(), /formtran-merged-\d{4}-\d{2}-\d{2}\.pdf/)
 
   await homeTab.click()
+  assert.equal(await page.locator('.output-row').count() >= 2, true)
+  assert.match(await page.locator('.output-desk').textContent(), /records\.xlsx/)
+  assert.match(await page.locator('.output-desk').textContent(), /formtran-merged-\d{4}-\d{2}-\d{2}\.pdf/)
   await page.locator('.home-file-row').first().locator('button').first().click()
   assert.match(await page.locator('.file-summary').textContent(), /PNG/)
   assert.equal(await page.locator('.capability.planned').count() > 0, true)
@@ -235,6 +240,14 @@ try {
   await page.locator('.download-control').getByRole('button', { name: /^Download$|^下载$/ }).click()
   await page.waitForFunction(() => window.__formtranDownloads.length === 2)
   assert.match(await page.evaluate(() => window.__formtranDownloads[1]), /\.zip$/)
+  await homeTab.click()
+  await page.getByLabel(/Batch naming template|批量命名模板/).fill('bundle-{index}')
+  await page.getByRole('button', { name: /Apply names|应用命名/ }).click()
+  assert.equal(await page.locator('.output-name-editor input').evaluateAll((inputs) => inputs.every((input) => input.value.startsWith('bundle-'))), true)
+  await page.locator('.output-export-controls').getByRole('button', { name: /Export results \(\d+\)|导出 \d+ 项/ }).click()
+  await page.waitForFunction(() => window.__formtranDownloads.length === 3)
+  assert.match(await page.evaluate(() => window.__formtranDownloads[2]), /^formtran-results-\d{4}-\d{2}-\d{2}\.zip$/)
+  await workspaceTab.click()
 
   await page.locator('.queue-panel').getByRole('button', { name: /^Clear$|^清空$/ }).click()
   await page.locator('.drop-zone input[type=file]').first().setInputFiles({

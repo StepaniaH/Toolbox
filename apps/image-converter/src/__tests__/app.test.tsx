@@ -97,6 +97,11 @@ describe("application shell", () => {
     const pdf = new File([Uint8Array.from(await pdfDocument.save()).buffer], "notes.pdf", { type: "application/pdf" });
     fireEvent.change(screen.getByLabelText(/Add PDFs|添加 PDF/), { target: { files: [pdf] } });
     await waitFor(() => expect(screen.getByText("PDF 1.7")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: /Generate new file|生成新文件/ }));
+    await waitFor(() => expect(screen.getAllByText("notes-extracted.pdf")).toHaveLength(2));
+    fireEvent.click(tabs[0]);
+    expect(screen.getByRole("heading", { name: /Task results|任务结果/ })).toBeTruthy();
+    expect(screen.getAllByText("notes-extracted.pdf").length).toBeGreaterThan(0);
 
     fireEvent.click(tabs[6]);
     const zipBlob = await createZip([{ name: "safe/notes.txt", blob: new Blob(["local"]) }]);
