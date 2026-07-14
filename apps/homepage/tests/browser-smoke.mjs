@@ -83,7 +83,7 @@ try {
   assert.equal(await page.locator('.tool-card').count(), 5)
   assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 5)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
-  assert.equal(await page.getByText('v0.2.6', { exact: true }).count(), 1)
+  assert.equal(await page.getByText('v0.3.0', { exact: true }).count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   assert.equal(await page.locator('.toolbox-nav-brand-link').getAttribute('href'), '/')
 

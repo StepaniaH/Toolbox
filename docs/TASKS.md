@@ -23,7 +23,7 @@
 
 - [ ] 增加可复现的许可证清单与不兼容许可证门禁。
 - [ ] 增加高危依赖漏洞检查，避免把完整环境信息上传第三方服务。
-- [ ] 保持 Actions 固定 SHA、只读权限、Turborepo telemetry opt-out 和显式生产部署。
+- [x] 保持 Actions 固定 SHA、Node 24 兼容运行时、只读权限、Turborepo telemetry opt-out 和显式生产部署。
 
 ### P0.2 · dev → main 晋级清单 `⏳ 待开始`
 
