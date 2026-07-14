@@ -12,6 +12,7 @@ import { TextMarkupConverter } from "./TextMarkupConverter";
 import { FileHome } from "./FileHome";
 import { PdfWorkspace } from "./PdfWorkspace";
 import { ArchiveWorkspace } from "./ArchiveWorkspace";
+import { DataWorkspace } from "./DataWorkspace";
 import { FilePicker } from "./FilePicker";
 import { SelectMenu } from "./SelectMenu";
 import { ACCEPT_ATTRIBUTE, convertImage, getFileExtension } from "./lib/convert";
@@ -40,7 +41,7 @@ const REGEX_PRESETS = [
   { id: "copy", pattern: "\\s*\\(\\d+\\)$", replacement: "", global: false, ignoreCase: true },
 ] as const;
 type StoredSettings = { conversion: ConversionSettings; rename: RenameSettings };
-type AppTab = "home" | "image" | "gif" | "text" | "pdf" | "archive" | "knowledge";
+type AppTab = "home" | "image" | "gif" | "text" | "data" | "pdf" | "archive" | "knowledge";
 type NamePreview = { before: string; after: string; matched: boolean; groups: string[] };
 type DownloadMode = "files" | "zip";
 type ImportSummary = { accepted: number; rejected: number };
@@ -116,6 +117,7 @@ function AppSurface() {
   const [activeTab, setActiveTab] = useState<AppTab>("home");
   const [gifTransfer, setGifTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [textTransfer, setTextTransfer] = useState<{ id: number; files: File[] } | undefined>();
+  const [dataTransfer, setDataTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [pdfTransfer, setPdfTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [archiveTransfer, setArchiveTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [previewId, setPreviewId] = useState<string | null>(null);
@@ -257,6 +259,7 @@ function AppSurface() {
   };
   const openGif = (files: File[]) => { setGifTransfer({ id: Date.now(), files }); setActiveTab("gif"); };
   const openText = (files: File[]) => { setTextTransfer({ id: Date.now(), files }); setActiveTab("text"); };
+  const openData = (files: File[]) => { setDataTransfer({ id: Date.now(), files }); setActiveTab("data"); };
   const openPdf = (files: File[]) => { setPdfTransfer({ id: Date.now(), files }); setActiveTab("pdf"); };
   const openArchive = (files: File[]) => { setArchiveTransfer({ id: Date.now(), files }); setActiveTab("archive"); };
 
@@ -274,7 +277,7 @@ function AppSurface() {
         <AppTabs active={activeTab} onChange={setActiveTab} />
 
         <main>
-          <FileHome hidden={activeTab !== "home"} onOpenImage={openImages} onOpenGif={openGif} onOpenText={openText} onOpenPdf={openPdf} onOpenArchive={openArchive}/>
+          <FileHome hidden={activeTab !== "home"} onOpenImage={openImages} onOpenGif={openGif} onOpenText={openText} onOpenData={openData} onOpenPdf={openPdf} onOpenArchive={openArchive}/>
           {activeTab === "image" && (
             <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image">
               <div className="intake-grid">
@@ -328,6 +331,7 @@ function AppSurface() {
           )}
           <GifComposer hidden={activeTab !== "gif"} incoming={gifTransfer}/>
           <TextMarkupConverter hidden={activeTab !== "text"} incoming={textTransfer}/>
+          <DataWorkspace hidden={activeTab !== "data"} incoming={dataTransfer}/>
           <PdfWorkspace hidden={activeTab !== "pdf"} incoming={pdfTransfer}/>
           <ArchiveWorkspace hidden={activeTab !== "archive"} incoming={archiveTransfer}/>
           {activeTab === "knowledge" && <KnowledgePage />}
@@ -342,7 +346,7 @@ function AppSurface() {
 
 function AppTabs({ active, onChange }: { active: AppTab; onChange: (tab: AppTab) => void }) {
   const { t } = useTranslation();
-  const tabs: AppTab[] = ["home", "image", "gif", "text", "pdf", "archive", "knowledge"];
+  const tabs: AppTab[] = ["home", "image", "gif", "text", "data", "pdf", "archive", "knowledge"];
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
@@ -446,13 +450,13 @@ function TokenChips({ onInsert }: { onInsert: (token: string) => void }) {
 function FileRow({ item, onDimensions, onDimensionsUnavailable, onRemove, onPreview, disabled }: { item: QueueItem; onDimensions: (width: number, height: number) => void; onDimensionsUnavailable: () => void; onRemove: () => void; onPreview: () => void; disabled: boolean }) {
   const { lang, t } = useTranslation();
   const extension = getFileExtension(item.file.name);
-  const canPreviewSource = extension !== "svg";
+  const canPreviewSource = !["svg", "heic", "heif"].includes(extension);
   const statusLabel = item.status === "error" ? t("queue.error") : t(`queue.${item.status}`);
   const dimensions = item.width && item.height ? `${item.width} × ${item.height}` : null;
   const pixels = item.width && item.height ? new Intl.NumberFormat(lang === "zh" ? "zh-CN" : "en").format(item.width * item.height) : null;
   const aspect = item.width && item.height ? simplifyRatio(item.width, item.height) : null;
   return <article className={`file-row status-${item.status}`}>
-    <div className="thumbnail">{canPreviewSource ? <img src={item.sourceUrl} alt="" onLoad={(event) => onDimensions(event.currentTarget.naturalWidth, event.currentTarget.naturalHeight)} onError={onDimensionsUnavailable} /> : <span>SVG</span>}</div>
+    <div className="thumbnail">{canPreviewSource ? <img src={item.sourceUrl} alt="" onLoad={(event) => onDimensions(event.currentTarget.naturalWidth, event.currentTarget.naturalHeight)} onError={onDimensionsUnavailable} /> : <span>{extension.toUpperCase()}</span>}</div>
     <div className="file-main"><strong title={item.relativePath}>{item.relativePath}</strong><div className="file-meta"><span>{extension.toUpperCase()}</span><span>{formatBytes(item.file.size)}</span><span>{dimensions ?? t(item.sourceInfoUnavailable || !canPreviewSource ? "queue.sizeUnavailable" : "queue.readingSize")}</span>{extension === "gif" && <span className="warning">{t("queue.firstFrame")}</span>}{extension === "svg" && <span className="warning">{t("queue.svgSafe")}</span>}</div>{dimensions && pixels && aspect && <details className="image-info"><summary>{t("queue.info")}</summary><dl><div><dt>{t("queue.dimensions")}</dt><dd>{dimensions}</dd></div><div><dt>{t("queue.pixels")}</dt><dd>{t("queue.pixelValue", { count: pixels })}</dd></div><div><dt>{t("queue.aspect")}</dt><dd>{aspect}</dd></div><div><dt>{t("queue.mime")}</dt><dd>{item.file.type || t("queue.mimeUnknown")}</dd></div></dl></details>}{item.outputName && <code title={item.outputName}>{item.outputName}</code>}{item.error && <p className="field-error">{item.error}</p>}</div>
     <div className="file-output"><span className={`status-badge ${item.status}`}>{statusLabel}</span>{item.output && <><strong>{formatBytes(item.output.size)}</strong><small>{item.outputWidth} × {item.outputHeight}{item.keptOriginal ? ` · ${t("queue.kept")}` : ""}</small><button className="text-button" type="button" onClick={onPreview}>{t("preview.open")}</button></>}{item.output && item.outputName && <button className="text-button" type="button" onClick={() => triggerDownload(item.output!, item.outputName!.split("/").pop()!)}>{t("queue.download")}</button>}</div>
     <button className="icon-button" type="button" onClick={onRemove} disabled={disabled} aria-label={`${t("queue.remove")} ${item.file.name}`}>×</button>
@@ -481,7 +485,7 @@ function PreviewDialog({ items, activeId, onChange, onClose }: { items: QueueIte
     return () => window.removeEventListener("keydown", onKey);
   }, [index, items, onChange, onClose]);
   if (!item?.outputUrl) return null;
-  const sourceSafe = getFileExtension(item.file.name) !== "svg";
+  const sourceSafe = !["svg", "heic", "heif"].includes(getFileExtension(item.file.name));
   return <div className="preview-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section className="preview-dialog" role="dialog" aria-modal="true" aria-labelledby="preview-title">
       <header><div><span className="eyebrow">{t("preview.position", { current: index + 1, total: items.length })}</span><h2 id="preview-title">{item.outputName}</h2></div><button autoFocus type="button" className="icon-button" onClick={onClose} aria-label={t("preview.close")}>×</button></header>

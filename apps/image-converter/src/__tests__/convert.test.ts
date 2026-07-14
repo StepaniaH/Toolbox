@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateDimensions, calculateOutputDimensions, isAcceptedImage, outputMime, sanitizeSvg } from "../lib/convert";
+import { calculateDimensions, calculateOutputDimensions, isAcceptedImage, isHeicInput, outputMime, sanitizeSvg } from "../lib/convert";
 import type { ConversionSettings } from "../lib/types";
 
 const base: ConversionSettings = {
@@ -11,6 +11,8 @@ const base: ConversionSettings = {
 describe("conversion contracts", () => {
   it("accepts supported extensions case-insensitively and rejects disguised files", () => {
     expect(isAcceptedImage(new File(["x"], "PHOTO.JPEG"))).toBe(true);
+    expect(isAcceptedImage(new File(["x"], "IPHONE.HEIC"))).toBe(true);
+    expect(isHeicInput({ name: "portrait.heif", size: 100 })).toBe(true);
     expect(isAcceptedImage(new File(["x"], "notes.txt", { type: "image/png" }))).toBe(false);
   });
 

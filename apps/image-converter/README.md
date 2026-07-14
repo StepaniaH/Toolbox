@@ -2,22 +2,23 @@
 
 A private, browser-only file workspace for conversion, compression, editing, splitting, merging, encoding, parsing, and inspection. Its file home identifies inputs and recommends relevant tools before any operation runs. No source content leaves the device.
 
-The expansion is staged. Image conversion, GIF composition, text/markup conversion, lightweight PDF inspection, and bounded ZIP listing/extraction are available now; image editing, GIF-specific processing, PDF page tools, structured data utilities, and other archive formats are added only after their correctness and resource boundaries are tested. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
+The expansion is staged. Image conversion (including local HEIC/HEIF decoding), GIF composition, text/markup conversion, CSV/TSV/XLSX table conversion, lightweight PDF inspection, and bounded ZIP listing/extraction are available now. Image editing, GIF-specific processing, PDF page tools, and other archive formats stay closed until their own correctness and resource boundaries pass review. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
 
 ## File home
 
 - Accepts mixed files and folders, with a 500-file / 2 GB queue budget.
-- Reads at most the first 64 KiB of each file to identify JPEG, PNG, WebP, AVIF, GIF, SVG, BMP, TIFF, HEIC, ICO, PDF, ZIP, supported text, and structured-data names.
+- Reads at most the first 64 KiB of each file to identify JPEG, PNG, WebP, AVIF, GIF, SVG, BMP, TIFF, HEIC/HEIF, ICO, PDF, ZIP, supported text, and structured-data names.
 - Prefers recognizable content signatures over extensions and warns when they disagree.
 - Distinguishes ZIP-based document containers such as XLSX, DOCX, ODS, and EPUB from ordinary ZIP archives, so they are not offered to the archive extractor.
 - Shows available, limited, and planned capabilities separately; no conversion or parser starts automatically.
-- Can hand supported inputs into image conversion, GIF composition, text/markup conversion, PDF inspection, or ZIP inspection, and generates image Data URLs locally up to 10 MB.
+- Can hand supported inputs into image conversion, GIF composition, text/markup conversion, table data, PDF inspection, or ZIP inspection, and generates image Data URLs locally up to 10 MB.
 - Provides editable image starting presets for web photos, transparent assets, and private sharing.
 
 ## Input and output
 
-- Input: up to 500 supported images, 512 MB per file, and 2 GB total per queue.
+- Input: up to 500 supported images, 512 MB per file, and 2 GB total per queue; HEIC/HEIF decoding has a separate 64 MB input limit.
 - Output: PNG (lossless + transparency), JPEG (lossy, no transparency), or WebP (lossy + transparency).
+- HEIC/HEIF first uses native browser decoding and then a local Apache-2.0 WASM fallback. The roughly 960 KB raw decoder is loaded only for HEIC/HEIF and is served with the app rather than fetched from a third-party CDN.
 - Resize: original dimensions, percentage, or fit within maximum width/height; optional no-upscale protection.
 - Transform: batch rotation at 0°/90°/180°/270° plus horizontal and vertical flips in the final output orientation.
 - Image information: decoded pixel dimensions, pixel count, aspect ratio, browser MIME type, and file size are available from the queue before conversion for safely previewable raster inputs.
@@ -50,6 +51,14 @@ The expansion is staged. Image conversion, GIF composition, text/markup conversi
 
 The knowledge base uses decision rows, expandable format references, and comparison tables for image, animation, and markup choices rather than presenting every fact as an equal card.
 
+## Table data converter
+
+- CSV/TSV is read as UTF-8 with standard quoting and delimiter detection; XLSX is read as a workbook instead of being sent to the ordinary ZIP extractor.
+- CSV/TSV can export CSV, TSV, JSON, or a macro-free single-sheet XLSX. XLSX can export CSV, TSV, or JSON.
+- XLSX reads cell values and cached formula values only. It never runs formulas, macros, or external links and does not preserve date formatting, styles, charts, merged cells, or formulas.
+- CSV/TSV export protects against spreadsheet formula injection by default, with an explicit opt-out. JSON can use a de-duplicated first row as field names.
+- Limits are 16 MB for CSV/TSV, 32 MB for XLSX, 20,000 rows, 256 columns, 250,000 cells, and 32,767 characters per cell. Preview shows 50 rows by 20 columns while export uses all accepted data.
+
 ## PDF and ZIP workspaces
 
 - Users can enter PDF and Archive tabs directly or route an identified file there from File Home.
@@ -59,7 +68,7 @@ The knowledge base uses decision rows, expandable format references, and compari
 
 ## Privacy and network behavior
 
-Files, identification prefixes, images, previews, conversions, parsed text, and ZIP files stay in browser memory and are never uploaded. The app makes no business network requests and includes no account, backend, telemetry, ads, cookies, tracking, or remote fonts. Only conversion preferences are stored in `localStorage` under `toolbox.image-converter.settings`; file bytes, filenames, and identification results are not persisted.
+Files, identification prefixes, images, previews, conversions, parsed text, tables, and ZIP files stay in browser memory and are never uploaded. The app makes no business network requests and includes no account, backend, telemetry, ads, cookies, tracking, or remote fonts. Only conversion preferences are stored in `localStorage` under `toolbox.image-converter.settings`; file bytes, filenames, and identification results are not persisted.
 
 The privacy notice sits below the active app tab. Image, GIF, text, PDF, archive, and knowledge pages each describe their actual local data flow.
 
@@ -73,10 +82,11 @@ The app works offline once its static assets are available. Unsupported browser 
 - JPEG transparency is filled with the selected background color.
 - SVG scripts, event handlers, embedded HTML, and external references are removed before decoding; raw SVG is not previewed before sanitization.
 - Output is capped at 16,384 pixels per side and 80 megapixels to reduce browser memory crashes.
-- Actual input decoding support depends on the browser version.
+- Native input decoding depends on the browser version; HEIC/HEIF also has a local WASM fallback shipped with the static app.
 - A rotated or flipped image is always re-encoded; FormTran never substitutes an unchanged smaller original for a requested transform.
 - GIF composition does not preserve source animation, per-frame transparency, disposal modes, or source-specific timing.
 - Markup conversion covers a practical common subset and is not a full CommonMark, Sphinx, Org Babel, or AsciiDoc processor.
+- Table conversion targets safe, inspectable values rather than Excel fidelity; it does not retain macros, formula logic, or workbook presentation.
 
 ## Development
 

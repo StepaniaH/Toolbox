@@ -15,7 +15,7 @@ export const IDENTIFICATION_READ_LIMIT = 64 * 1024;
 
 const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "avif", "svg", "bmp", "tif", "tiff", "heic", "heif", "ico"]);
 const TEXT_EXTENSIONS = new Set(["txt", "md", "markdown", "html", "htm", "org", "rst", "adoc", "asciidoc"]);
-const DATA_EXTENSIONS = new Set(["json", "yaml", "yml", "xml", "csv"]);
+const DATA_EXTENSIONS = new Set(["json", "yaml", "yml", "xml", "csv", "tsv"]);
 const ZIP_CONTAINER_EXTENSIONS: Record<string, { family: FileFamily; format: string }> = {
   xlsx: { family: "data", format: "XLSX" }, xlsm: { family: "data", format: "XLSM" },
   docx: { family: "unknown", format: "DOCX" }, pptx: { family: "unknown", format: "PPTX" },

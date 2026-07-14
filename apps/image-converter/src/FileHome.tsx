@@ -9,9 +9,9 @@ import {
 type HomeFile = { id: string; file: File; relativePath: string; identified: IdentifiedFile | null; error?: string };
 type ImagePreset = "default" | "web" | "transparent" | "privacy";
 type ToolStatus = "available" | "limited" | "planned";
-type Tool = { id: string; status: ToolStatus; action?: "image" | "gif" | "text" | "base64" | "pdf" | "archive" };
+type Tool = { id: string; status: ToolStatus; action?: "image" | "gif" | "text" | "data" | "base64" | "pdf" | "archive" };
 
-const DIRECT_IMAGE_FORMATS = new Set(["JPEG", "PNG", "WebP", "AVIF", "BMP", "SVG"]);
+const DIRECT_IMAGE_FORMATS = new Set(["JPEG", "PNG", "WebP", "AVIF", "BMP", "SVG", "HEIC"]);
 const DIRECT_TEXT_FORMATS = new Set(["TXT", "Markdown", "HTML", "ORG", "RST", "ADOC", "ASCIIDOC"]);
 
 const TOOLS: Record<FileFamily, Tool[]> = {
@@ -36,7 +36,7 @@ const TOOLS: Record<FileFamily, Tool[]> = {
     { id: "info", status: "available" }, { id: "diff", status: "planned" }, { id: "encoding", status: "planned" },
   ],
   data: [
-    { id: "preview", status: "planned" }, { id: "format", status: "planned" }, { id: "convert", status: "planned" },
+    { id: "convert", status: "available", action: "data" }, { id: "format", status: "planned" },
     { id: "diff", status: "planned" }, { id: "stats", status: "planned" }, { id: "encoding", status: "planned" },
   ],
   pdf: [
@@ -50,11 +50,12 @@ const TOOLS: Record<FileFamily, Tool[]> = {
   unknown: [{ id: "info", status: "available" }],
 };
 
-export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText, onOpenPdf, onOpenArchive }: {
+export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText, onOpenData, onOpenPdf, onOpenArchive }: {
   hidden?: boolean;
   onOpenImage: (files: File[], preset: ImagePreset) => void;
   onOpenGif: (files: File[]) => void;
   onOpenText: (files: File[]) => void;
+  onOpenData: (files: File[]) => void;
   onOpenPdf: (files: File[]) => void;
   onOpenArchive: (files: File[]) => void;
 }) {
@@ -70,6 +71,7 @@ export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText, onOpenPdf
   const tools = useMemo(() => TOOLS[family].map((tool) => {
     if (family === "image" && selected?.identified && !DIRECT_IMAGE_FORMATS.has(selected.identified.format) && tool.action && tool.action !== "base64") return { ...tool, status: "planned" as const, action: undefined };
     if (family === "text" && selected?.identified && !DIRECT_TEXT_FORMATS.has(selected.identified.format) && tool.action === "text") return { ...tool, status: "limited" as const };
+    if (family === "data" && selected?.identified && !["CSV", "TSV", "XLSX"].includes(selected.identified.format) && tool.action === "data") return { ...tool, status: "planned" as const, action: undefined };
     return tool;
   }), [family, selected]);
 
@@ -114,6 +116,7 @@ export function FileHome({ hidden, onOpenImage, onOpenGif, onOpenText, onOpenPdf
     if (tool.action === "image") onOpenImage([selected.file], tool.id === "compress" ? "web" : tool.id === "metadata" ? "privacy" : "default");
     if (tool.action === "gif") onOpenGif(compatible("image"));
     if (tool.action === "text") onOpenText([selected.file]);
+    if (tool.action === "data") onOpenData([selected.file]);
     if (tool.action === "pdf") onOpenPdf([selected.file]);
     if (tool.action === "archive") onOpenArchive([selected.file]);
     if (tool.action === "base64") {

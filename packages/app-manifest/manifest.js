@@ -106,8 +106,8 @@ export const TOOLBOX_APPS = Object.freeze([
     navLabel: { zh: 'FormTran', en: 'FormTran' },
     description: { zh: '从识别到处理，每一步都留在本机', en: 'From identification to processing, every step stays on your device' },
     keywords: {
-      zh: ['文件工具', '图片', '图像', '格式转换', '批量转换', '压缩', '编辑', 'GIF', '动图', 'PDF', '压缩包', '重命名', '正则', 'Markdown', 'JSON', 'CSV', '文本标记', 'PNG', 'JPEG', 'WebP'],
-      en: ['file tools', 'image', 'photo', 'format converter', 'batch conversion', 'compress', 'edit', 'GIF', 'animation', 'PDF', 'archive', 'rename', 'regex', 'Markdown', 'JSON', 'CSV', 'text markup', 'PNG', 'JPEG', 'WebP'],
+      zh: ['文件工具', '图片', '图像', '格式转换', '批量转换', '压缩', '编辑', 'GIF', '动图', 'PDF', '压缩包', '表格', 'XLSX', 'CSV', 'TSV', 'HEIC', 'HEIF', '重命名', '正则', 'Markdown', 'JSON', '文本标记', 'PNG', 'JPEG', 'WebP'],
+      en: ['file tools', 'image', 'photo', 'format converter', 'batch conversion', 'compress', 'edit', 'GIF', 'animation', 'PDF', 'archive', 'spreadsheet', 'table', 'XLSX', 'CSV', 'TSV', 'HEIC', 'HEIF', 'rename', 'regex', 'Markdown', 'JSON', 'text markup', 'PNG', 'JPEG', 'WebP'],
     },
     icon: {
       viewBox: '0 0 48 48',

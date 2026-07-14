@@ -6,6 +6,8 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { chromium } from 'playwright'
 import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
 
+const heicFixture = Buffer.from('AAAAJGZ0eXBoZWljAAAAAG1pZjFNaVBybWlhZk1pSEJoZWljAAABw21ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAHBpY3QAAAAAAAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAAADnBpdG0AAAAAAAEAAAA4aWluZgAAAAAAAgAAABVpbmZlAgAAAAABAABodmMxAAAAABVpbmZlAgAAAQACAABFeGlmAAAAABppcmVmAAAAAAAAAA5jZHNjAAIAAQABAAAA5mlwcnAAAADFaXBjbwAAABNjb2xybmNseAACAAIABoAAAAAMY2xsaQDLAEAAAAAUaXNwZQAAAAAAAAAwAAAAIAAAAAlpcm90AAAAABBwaXhpAAAAAAMICAgAAABxaHZjQwEDcAAAALAAAAAAAB7wAPz9+PgAAAsDoAABABdAAQwB//8DcAAAAwCwAAADAAADAB5wJKEAAQAjQgEBA3AAAAMAsAAAAwAAAwAeoBQgQcHMI4h7kWVTcCAgYAiiAAEACUQBwGcshAUyQAAAABlpcG1hAAAAAAAAAAEAAQaBAgMFhoQAAAAsaWxvYwAAAABEAAACAAEAAAABAAACMwAAAhQAAgAAAAEAAAH3AAAAPAAAAAFtZGF0AAAAAAAAAmAAAAAGRXhpZgAATU0AKgAAAAgAAwESAAMAAAABAAEAAAFCAAQAAAABAAAAMAFDAAQAAAABAAAAIAAAAAAAAAIQKAGvoT944QflDUMwKJI6ALro6myb9BP06r9PSpfUI34Y7+FLGR9uPURUGqLp2MyJXJoVnsnq1lzuEGY/dus2ZVzHyKpGdGF4iTbiCpqv56CByEXQGavEo4Gyl/m23SWeqLp7PgEinrZjT+eHVM0s/G+etKINafFzZX4YisvZ7RK/zCNnbAM+zrEX9/3U9coznx6LtvbnL67gyo+MAqeO6Ptr+AxqBo/3cThA3NVtd4B/3XZZhBpZ3pJVFzJ8598bda/g9cE1ZK/GVSIeBfdBhU4m8ypJdOI/CridS06AbKgUfwdgQ8KzsJhbyZj2LOWnP23E7KGLPtDICy4f4omyQ7XTxY+QirFKi2eDTHUzth/M6h0ux95Gjj/jWw8zfK6l95ia13VErcHKEdUoNMWTCwPwotTH5QGGHe10oHtGjc8lNBLLRYYNa+TZ+egb00cGL4chZtBjoAD1bTvNeDpR8EMeXjRxs/gEg7KcATZi/11cNRk5U8b2lRFYK1DdhzVCrnsFbtHl7oeC/19Id+yszLcVgIRWVWbZL9eKAfbJ+beoWqtOFX4akuOLPXG2cJZQ1cLM3PcCshPiROa0xrjmuJ14zkFXMAPBKU/3SgA8W20flVxKriAZgQ/NYtg5GyA3F6bnhWPi5KlIRJ85z//XON5//g4v/vlp1h6EJu/9gnOf4X2Cub0C3wjlMWQZNU+A', 'base64')
+
 const appRoot = fileURLToPath(new URL('../', import.meta.url))
 const viteCli = fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url))
 const externalPreviewUrl = process.env.IMAGE_CONVERTER_PREVIEW_URL
@@ -52,6 +54,8 @@ try {
     assert.equal(await page.locator('.family-overview').isVisible(), true)
     await page.getByRole('tab', { name: /PDF tools|PDF 工具/ }).click()
     assert.equal(await page.locator('.family-page:not([hidden]) .file-picker').isVisible(), true)
+    await page.getByRole('tab', { name: /Table data|表格数据/ }).click()
+    assert.equal(await page.locator('.family-page:not([hidden]) .file-picker').isVisible(), true)
     await page.getByRole('tab', { name: /Archives|压缩包/ }).click()
     assert.equal(await page.locator('.family-page:not([hidden]) .file-picker').isVisible(), true)
     await page.getByRole('tab', { name: /File home|文件首页/ }).click()
@@ -64,11 +68,12 @@ try {
   const workspaceTab = page.getByRole('tab', { name: /Image conversion|图片格式转换/ })
   const gifTab = page.getByRole('tab', { name: /GIF composer|GIF 合成/ })
   const textTab = page.getByRole('tab', { name: /Text & markup|文本与标记转换/ })
+  const dataTab = page.getByRole('tab', { name: /Table data|表格数据/ })
   const pdfTab = page.getByRole('tab', { name: /PDF tools|PDF 工具/ })
   const archiveTab = page.getByRole('tab', { name: /Archives|压缩包/ })
   const knowledgeTab = page.getByRole('tab', { name: /Knowledge base|知识库/ })
   const pickerHeights = []
-  for (const tab of [homeTab, workspaceTab, gifTab, textTab, pdfTab, archiveTab]) {
+  for (const tab of [homeTab, workspaceTab, gifTab, textTab, dataTab, pdfTab, archiveTab]) {
     await tab.click()
     const picker = page.locator('main [role=tabpanel]:not([hidden]) .file-picker').first()
     assert.equal(await picker.isVisible(), true)
@@ -88,13 +93,39 @@ try {
     { name: 'IMG_sample.png', mimeType: 'image/png', buffer: png },
     { name: 'manual.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.7\n') },
     { name: 'budget.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: Buffer.from([0x50, 0x4b, 0x03, 0x04]) },
+    { name: 'records.csv', mimeType: 'text/csv', buffer: Buffer.from('name,amount,note\nAlice,42,"local only"\nBob,7,=2+2') },
   ])
-  await page.waitForFunction(() => document.querySelectorAll('.home-file-list > div').length === 3 && !document.body.textContent.includes('Identifying locally'))
-  assert.equal(await page.locator('.home-file-list > div').count(), 3)
+  await page.waitForFunction(() => document.querySelectorAll('.home-file-list > div').length === 4 && !document.body.textContent.includes('Identifying locally'))
+  assert.equal(await page.locator('.home-file-list > div').count(), 4)
   const spreadsheetRow = page.locator('.home-file-list > div').filter({ hasText: 'budget.xlsx' })
   await spreadsheetRow.locator('button').first().click()
   assert.match(await page.locator('.file-summary').textContent(), /XLSX/)
-  assert.equal(await page.locator('.home-recommendations').getByRole('button', { name: /Open tool|打开工具/ }).count(), 0)
+  assert.equal(await page.locator('.home-recommendations').getByRole('button', { name: /Open tool|打开工具/ }).count(), 1)
+
+  const csvRow = page.locator('.home-file-list > div').filter({ hasText: 'records.csv' })
+  await csvRow.locator('button').first().click()
+  assert.match(await page.locator('.file-summary').textContent(), /CSV/)
+  await page.locator('.home-recommendations').getByRole('button', { name: /Open tool|打开工具/ }).click()
+  assert.equal(await dataTab.getAttribute('aria-selected'), 'true')
+  await page.waitForFunction(() => document.querySelectorAll('.data-preview tbody tr').length === 3)
+  assert.match(await page.locator('.data-summary').textContent(), /CSV/)
+  assert.equal(await page.locator('.data-preview td').filter({ hasText: '=2+2' }).count(), 1)
+  const xlsxDownloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: /Download XLSX|下载 XLSX/ }).click()
+  const xlsxDownload = await xlsxDownloadPromise
+  const xlsxStream = await xlsxDownload.createReadStream()
+  const xlsxChunks = []
+  for await (const chunk of xlsxStream) xlsxChunks.push(chunk)
+  const generatedXlsx = Buffer.concat(xlsxChunks)
+  assert.equal(generatedXlsx.subarray(0, 2).toString(), 'PK')
+  await page.locator('.data-page input[type=file]').setInputFiles({
+    name: 'records.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: generatedXlsx,
+  })
+  await page.waitForFunction(() => document.querySelector('.data-summary')?.textContent.includes('XLSX'))
+  assert.equal(await page.locator('.data-preview td').filter({ hasText: 'Alice' }).count(), 1)
+  assert.match(await page.locator('.boundary-note').textContent(), /cached (?:file )?values|缓存值/)
+
+  await homeTab.click()
   await page.locator('.home-file-list > div').first().locator('button').first().click()
   assert.match(await page.locator('.file-summary').textContent(), /PNG/)
   assert.equal(await page.locator('.capability.planned').count() > 0, true)
@@ -187,6 +218,21 @@ try {
   await page.getByRole('button', { name: /Convert images|开始转换/ }).click()
   await page.locator('.status-badge.done').waitFor()
   assert.match(await page.locator('.file-output small').textContent(), /3 × 2/)
+
+  await page.locator('.queue-panel').getByRole('button', { name: /^Clear$|^清空$/ }).click()
+  await page.getByRole('button', { name: '0°', exact: true }).click()
+  await page.getByRole('button', { name: 'PNG', exact: true }).click()
+  await page.locator('.drop-zone input[type=file]').first().setInputFiles({
+    name: 'iphone-photo.heic', mimeType: 'image/heic', buffer: heicFixture,
+  })
+  await page.locator('.file-row').waitFor()
+  assert.match(await page.locator('.file-row').textContent(), /HEIC/)
+  assert.equal(await page.locator('.thumbnail img').count(), 0)
+  await page.getByRole('button', { name: /Convert images|开始转换/ }).click()
+  await page.locator('.status-badge.done').waitFor()
+  assert.match(await page.locator('.file-row').textContent(), /iphone-photo\.png/)
+  assert.match(await page.locator('.file-output').textContent(), /48 × 32/)
+  assert.equal(await page.locator('.result-gallery img').count(), 1)
 
   await page.evaluate(() => window.ToolboxTheme.setTheme('light'))
   const lightSurfaces = await page.evaluate(() => ({

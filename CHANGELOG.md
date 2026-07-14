@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added CryptoLab as a hidden `dev` candidate with local encoding, hashing, HMAC, symmetric and
+  asymmetric cryptography, JWT inspection, a security-focused About page, and bilingual guidance.
+- Added CryptoLab Secure Share: RSA-OAEP-SHA-256 wraps a random AES-256-GCM key in a versioned QR
+  packet, while the private key remains outside the QR code, URL, storage, and network.
+- Added a separate FormTran table-data workspace for bounded CSV/TSV/XLSX parsing, preview, and
+  value-oriented export to CSV, TSV, JSON, or macro-free XLSX.
+- Added local HEIC/HEIF input to FormTran with a native-browser path and an on-demand WASM fallback.
+
+### Changed
+
+- Kept spreadsheet conversion separate from ordinary archive extraction: XLSX follows workbook
+  relationships, ignores external links, never runs formulas or macros, and reads cached values only.
+- Reduced repeated ZIP reads by sharing one bounded archive buffer, and kept the HEIC decoder out of
+  FormTran's initial bundle so it loads only when an Apple image format requires it.
+- Extended FormTran's flatter section, list, and table hierarchy instead of adding a wall of cards.
+
+### Security and quality
+
+- CSV/TSV export protects against spreadsheet formula injection by default; table size, row, column,
+  cell, XML-entry, HEIC byte, canvas-side, and pixel budgets are enforced before expensive work.
+- Production-browser coverage exercises real CSV→XLSX→re-import and HEIC→PNG flows in addition to
+  focused parser, crypto, privacy, contract, build, lint, and shell regressions.
+
 ## v0.2.6 (2026-07-13)
 
 ### Added

@@ -12,6 +12,7 @@
     "lint": "oxlint --deny-warnings"
   },
   "dependencies": {
+    "@discourse/heic": "1.0.0",
     "@toolbox/i18n": "workspace:*",
     "@toolbox/nav": "workspace:*",
     "@toolbox/theme": "workspace:*",

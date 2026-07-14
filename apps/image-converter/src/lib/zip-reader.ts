@@ -14,6 +14,7 @@ export type ZipEntry = {
 };
 
 export type ZipDirectory = { entries: ZipEntry[]; totalUncompressed: number; comment: string };
+export type OpenedZip = { directory: ZipDirectory; extract: (entry: ZipEntry) => Promise<Blob> };
 
 const MAX_ENTRIES = 5000;
 const MAX_ENTRY_BYTES = 256 * 1024 * 1024;
@@ -39,9 +40,7 @@ function canonicalPath(name: string): string | null {
   return parts.join("/").toLowerCase();
 }
 
-export async function readZipDirectory(file: Blob): Promise<ZipDirectory> {
-  if (file.size > 512 * 1024 * 1024) throw new Error("zip-file-limit");
-  const bytes = new Uint8Array(await readBlob(file));
+function parseZipDirectory(bytes: Uint8Array): ZipDirectory {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let endOffset = -1;
   for (let offset = Math.max(0, bytes.length - 65_557); offset <= bytes.length - 22; offset += 1) {
@@ -92,9 +91,8 @@ export async function readZipDirectory(file: Blob): Promise<ZipDirectory> {
   return { entries, totalUncompressed, comment: decodeName(bytes.subarray(endOffset + 22, endOffset + 22 + commentLength)) };
 }
 
-export async function extractZipEntry(file: Blob, entry: ZipEntry): Promise<Blob> {
+async function extractZipEntryBytes(bytes: Uint8Array, entry: ZipEntry): Promise<Blob> {
   if (!entry.safe || entry.directory) throw new Error("zip-entry-blocked");
-  const bytes = new Uint8Array(await readBlob(file));
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   assertRange(entry.localOffset, 30, bytes.length);
   if (read32(view, entry.localOffset) !== 0x04034b50) throw new Error("zip-invalid-local");
@@ -119,6 +117,24 @@ export async function extractZipEntry(file: Blob, entry: ZipEntry): Promise<Blob
   if (output.length !== entry.uncompressedSize || crc32(output) !== entry.crc) throw new Error("zip-integrity");
   const outputBuffer = output.buffer.slice(output.byteOffset, output.byteOffset + output.byteLength) as ArrayBuffer;
   return new Blob([outputBuffer]);
+}
+
+export async function openZip(file: Blob): Promise<OpenedZip> {
+  if (file.size > 512 * 1024 * 1024) throw new Error("zip-file-limit");
+  const bytes = new Uint8Array(await readBlob(file));
+  return {
+    directory: parseZipDirectory(bytes),
+    extract: (entry) => extractZipEntryBytes(bytes, entry),
+  };
+}
+
+export async function readZipDirectory(file: Blob): Promise<ZipDirectory> {
+  return (await openZip(file)).directory;
+}
+
+export async function extractZipEntry(file: Blob, entry: ZipEntry): Promise<Blob> {
+  if (file.size > 512 * 1024 * 1024) throw new Error("zip-file-limit");
+  return extractZipEntryBytes(new Uint8Array(await readBlob(file)), entry);
 }
 
 export async function collectBoundedStream(stream: ReadableStream<Uint8Array>, expectedSize: number): Promise<Uint8Array> {
