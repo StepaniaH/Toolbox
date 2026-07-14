@@ -119,10 +119,10 @@ export const TOOLBOX_APPS = Object.freeze([
     path: '/crypto-lab/',
     name: 'CryptoLab',
     navLabel: { zh: 'CryptoLab', en: 'CryptoLab' },
-    description: { zh: '本地编码、哈希、加解密与 JWT 工具', en: 'Local encoding, hashing, encryption and JWT utilities' },
+    description: { zh: '本地密码学与公钥二维码安全分享工具', en: 'Local cryptography and public-key QR sharing' },
     keywords: {
-      zh: ['Base64', 'URL 编码', 'HTML 实体', 'Hex', '进制转换', 'MD5', 'SHA', 'HMAC', '哈希', 'AES', 'ChaCha20', 'RSA', 'JWT', '加密', '解密', '签名', '密码学'],
-      en: ['Base64', 'URL encode', 'HTML entity', 'Hex', 'radix', 'MD5', 'SHA', 'HMAC', 'hash', 'AES', 'ChaCha20', 'RSA', 'JWT', 'encrypt', 'decrypt', 'sign', 'cryptography'],
+      zh: ['Base64', 'URL 编码', 'HTML 实体', 'Hex', '进制转换', 'MD5', 'SHA', 'HMAC', '哈希', 'AES', 'ChaCha20', 'RSA', 'JWT', '加密', '解密', '签名', '密码学', '二维码', '公钥', '私钥', '安全分享'],
+      en: ['Base64', 'URL encode', 'HTML entity', 'Hex', 'radix', 'MD5', 'SHA', 'HMAC', 'hash', 'AES', 'ChaCha20', 'RSA', 'JWT', 'encrypt', 'decrypt', 'sign', 'cryptography', 'QR code', 'public key', 'private key', 'secure share'],
     },
     icon: {
       viewBox: '0 0 48 48',

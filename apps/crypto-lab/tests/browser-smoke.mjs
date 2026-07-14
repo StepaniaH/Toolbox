@@ -84,7 +84,7 @@ try {
   await assertDesktopSharedShell(desktop)
   await assertAppMarkStyle(desktop)
   const assertDesktopSurface = async () => {
-    assert.equal(await desktop.locator('button[role="tab"]').count(), 6)
+    assert.equal(await desktop.locator('button[role="tab"]').count(), 8)
     assert.equal(await desktop.locator('textarea').count(), 2)
     assert.ok(await desktop.getByText('CryptoLab').count() >= 1)
     assert.equal(
@@ -94,6 +94,36 @@ try {
   }
   await assertSharedPreferenceMatrix(desktop, assertDesktopSurface)
 
+  await desktop.getByRole('tab', { name: '安全分享' }).click()
+  await desktop.getByRole('button', { name: '生成收件人密钥' }).click()
+  await desktop.waitForFunction(() => {
+    const input = document.querySelector('#share-public-key')
+    return input instanceof HTMLTextAreaElement && input.value.includes('BEGIN PUBLIC KEY')
+  })
+  const secretMessage = '仅供浏览器回归验证的本地消息'
+  await desktop.locator('#share-message').fill(secretMessage)
+  await desktop.getByRole('button', { name: '加密并生成二维码' }).click()
+  const qrImage = desktop.getByRole('img', { name: '包含 CL1 加密数据包的二维码' })
+  await qrImage.waitFor()
+  const qrSource = await qrImage.getAttribute('src')
+  assert.ok(qrSource?.startsWith('data:image/png;base64,'))
+  const packet = await desktop.locator('#share-packet-output').inputValue()
+  assert.ok(packet.startsWith('CL1.'))
+  assert.equal(packet.includes(secretMessage), false)
+  await desktop.locator('input[type="file"]').setInputFiles({
+    name: 'secure-message.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from(qrSource.split(',')[1], 'base64'),
+  })
+  await desktop.getByText('已从文件读取并验证 CL1 数据包结构。').waitFor()
+  await desktop.getByRole('button', { name: '使用私钥解密' }).click()
+  await desktop.waitForFunction((expected) => {
+    const output = document.querySelector('#share-decrypted-output')
+    return output instanceof HTMLTextAreaElement && output.value === expected
+  }, secretMessage)
+  await desktop.getByRole('tab', { name: '关于' }).click()
+  await desktop.getByRole('heading', { name: '关于 CryptoLab' }).waitFor()
+
   const mobile = await browser.newPage({
     locale: 'zh-CN',
     viewport: { width: 390, height: 844 },
@@ -102,7 +132,7 @@ try {
   await mobile.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertMobileSharedShell(mobile)
   const assertMobileSurface = async () => {
-    assert.equal(await mobile.locator('button[role="tab"]').count(), 6)
+    assert.equal(await mobile.locator('button[role="tab"]').count(), 8)
     assert.equal(await mobile.locator('textarea').count(), 2)
     assert.equal(
       await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),

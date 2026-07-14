@@ -123,11 +123,11 @@ function SymmetricSection({ lang }: { lang: Lang }) {
   const rows = lang === 'zh' ? [
     ['AES-256-GCM', '认证加密', '推荐', '自带认证标签，可检测篡改；TLS 1.3 使用'],
     ['AES-256-CBC', '经典分组', '兼容', '无内置认证，需配合 HMAC；旧系统兼容'],
-    ['ChaCha20', '流密码', '推荐', '纯软件实现快于 AES（无 AES-NI 时）；Poly1305 组合常见'],
+    ['ChaCha20', '流密码', '需另加认证', '本工具为裸流密码；新协议应使用 ChaCha20-Poly1305'],
   ] : [
     ['AES-256-GCM', 'AEAD', 'Recommended', 'Built-in auth tag detects tampering; used in TLS 1.3'],
     ['AES-256-CBC', 'Legacy block', 'Compatibility', 'No built-in auth; pair with HMAC; legacy systems'],
-    ['ChaCha20', 'Stream cipher', 'Recommended', 'Faster than AES without hardware acceleration; ChaCha20-Poly1305 common'],
+    ['ChaCha20', 'Stream cipher', 'Needs authentication', 'This tool exposes the raw stream cipher; use ChaCha20-Poly1305 in new protocols'],
   ]
   return (
     <>

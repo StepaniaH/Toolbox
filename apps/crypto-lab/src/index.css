@@ -1,81 +1,32 @@
 @import "tailwindcss";
 
-:root {
-  --ctp-base: var(--base);
-  --ctp-mantle: var(--mantle);
-  --ctp-text: var(--text);
-  --ctp-blue: var(--blue);
-}
-
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 @custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
 
-/* ─── Dark (Catppuccin Frappé · default) ─── */
 :root {
-  color-scheme: dark;
-
-  --base: #303446;
-  --mantle: #292c3c;
-  --crust: #232634;
-  --surface-0: #414559;
-  --surface-1: #51576d;
-  --surface-2: #626880;
-  --text: #c6d0f5;
-  --subtext-1: #b5bfe2;
-  --subtext-0: #a5adce;
-  --overlay-0: #737994;
-  --blue: #8caaee;
-  --mauve: #ca9ee6;
-  --green: #a6d189;
-  --red: #e78284;
-  --yellow: #e5c890;
-  --peach: #ef9f76;
-  --teal: #81c8be;
-  --lavender: #babbf1;
-  --sapphire: #85c1dc;
-  --border-subtle: rgba(198, 208, 245, 0.07);
-  --border-strong: rgba(198, 208, 245, 0.14);
-  --accent-tint: rgba(140, 170, 238, 0.12);
-
-  --background: var(--base);
-  --foreground: var(--text);
-  --card: transparent;
-  --input: var(--mantle);
-  --ring: var(--blue);
-}
-
-/* ─── Light (Catppuccin Latte) ─── */
-[data-theme="light"] {
-  color-scheme: light;
-
-  --base: #eff1f5;
-  --mantle: #e6e9ef;
-  --crust: #dce0e8;
-  --surface-0: #ccd0da;
-  --surface-1: #bcc0cc;
-  --surface-2: #acb0be;
-  --text: #4c4f69;
-  --subtext-1: #5c5f77;
-  --subtext-0: #6c6f85;
-  --overlay-0: #9ca0b0;
-  --blue: #1e66f5;
-  --mauve: #8839ef;
-  --green: #40a02b;
-  --red: #d20f39;
-  --yellow: #df8e1d;
-  --peach: #fe640b;
-  --teal: #179299;
-  --lavender: #7287fd;
-  --sapphire: #209fb5;
-  --border-subtle: rgba(76, 79, 105, 0.09);
-  --border-strong: rgba(76, 79, 105, 0.16);
-  --accent-tint: rgba(30, 102, 245, 0.07);
-
-  --background: var(--base);
-  --foreground: var(--text);
-  --card: transparent;
-  --input: var(--mantle);
-  --ring: var(--blue);
+  --base: var(--color-bg);
+  --mantle: var(--color-bg-elevated);
+  --crust: var(--color-primary-fg);
+  --surface-0: var(--color-bg-elevated);
+  --surface-1: var(--color-bg-muted);
+  --surface-2: var(--color-input);
+  --text: var(--color-text);
+  --subtext-1: var(--color-text-muted);
+  --subtext-0: var(--color-text-muted);
+  --overlay-0: var(--color-text-faint);
+  --blue: var(--color-primary);
+  --mauve: var(--color-accent);
+  --green: var(--color-success);
+  --red: var(--color-danger);
+  --yellow: var(--color-warning);
+  --sapphire: var(--color-info);
+  --border-subtle: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --accent-tint: color-mix(in srgb, var(--color-primary) 11%, transparent);
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --input: color-mix(in srgb, var(--color-bg-elevated) 78%, var(--color-bg));
+  --ring: var(--color-ring);
 }
 
 @theme inline {
@@ -100,8 +51,7 @@
   --color-line-strong: var(--border-strong);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
+  --color-ring-cl: var(--ring);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -116,6 +66,7 @@
 /* ─── Base ─── */
 @layer base {
   * {
+    box-sizing: border-box;
     border-color: var(--border-subtle);
   }
 
@@ -151,13 +102,16 @@
   /* ── Tabs ── */
   .cl-tabs {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 2px;
     border-bottom: 1px solid var(--border-subtle);
     padding-bottom: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
   }
 
   .cl-tab {
+    min-height: 42px;
     padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
     font-weight: 500;
@@ -168,6 +122,7 @@
     cursor: pointer;
     transition: color 0.15s ease, border-color 0.15s ease;
     margin-bottom: -1px;
+    white-space: nowrap;
   }
 
   .cl-tab:hover {
@@ -254,8 +209,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
     border-radius: var(--radius-sm);
     border: none;
     background: transparent;
@@ -288,6 +243,7 @@
   .cl-btn {
     display: inline-flex;
     align-items: center;
+    min-height: 40px;
     gap: 0.375rem;
     padding: 0.4rem 0.875rem;
     font-size: 0.8125rem;
@@ -328,6 +284,12 @@
   .cl-btn-primary:disabled {
     opacity: 0.4;
     cursor: default;
+  }
+
+  .cl-btn:disabled,
+  .cl-text-action:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
   }
 
   /* ── Dropdown (custom) ── */
@@ -531,6 +493,281 @@
   .cl-kb-table td {
     color: var(--subtext-1);
   }
+
+  .cl-loading {
+    min-height: 12rem;
+    margin: 0;
+    padding: 3rem 0;
+    color: var(--subtext-0);
+    text-align: center;
+  }
+
+  main:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 5px;
+    border-radius: var(--radius-sm);
+  }
+
+  .cl-module-intro {
+    max-width: 54rem;
+    padding: 0.25rem 0 1.75rem;
+  }
+
+  .cl-module-intro h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+
+  .cl-module-intro > p:last-of-type {
+    margin: 0.65rem 0 0;
+    color: var(--subtext-1);
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+
+  .cl-eyebrow {
+    margin: 0 0 0.45rem;
+    color: var(--blue);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .cl-inline-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.2rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    color: var(--subtext-0);
+    font-size: 0.75rem;
+    list-style: none;
+  }
+
+  .cl-inline-facts li::before {
+    content: "✓";
+    margin-right: 0.35rem;
+    color: var(--green);
+    font-weight: 800;
+  }
+
+  .cl-share-section {
+    padding: 1.75rem 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .cl-section-heading {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+    margin-bottom: 1.15rem;
+  }
+
+  .cl-section-heading > span {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--blue) 35%, var(--border-subtle));
+    border-radius: 50%;
+    color: var(--blue);
+    font: 700 0.78rem var(--font-mono);
+  }
+
+  .cl-section-heading h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  .cl-section-heading p {
+    max-width: 52rem;
+    margin: 0.35rem 0 0;
+    color: var(--subtext-0);
+    font-size: 0.78rem;
+    line-height: 1.55;
+  }
+
+  .cl-section-actions,
+  .cl-private-actions,
+  .cl-field-meta,
+  .cl-import-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: center;
+  }
+
+  .cl-section-actions {
+    margin: 0 0 1rem 2.75rem;
+  }
+
+  .cl-key-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .cl-text-action {
+    min-height: 32px;
+    margin-top: 0.35rem;
+    padding: 0.25rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--blue);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 650;
+  }
+
+  .cl-text-action:focus-visible,
+  .cl-private-key summary:focus-visible,
+  .cl-file-button:focus-within {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  .cl-private-key {
+    min-width: 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--border-subtle);
+  }
+
+  .cl-private-key summary {
+    min-height: 36px;
+    color: var(--blue);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 650;
+  }
+
+  .cl-private-key[open] summary {
+    margin-bottom: 0.6rem;
+  }
+
+  .cl-security-note {
+    margin: 0.75rem 0 0;
+    padding: 0.55rem 0.75rem;
+    border-left: 3px solid var(--yellow);
+    background: color-mix(in srgb, var(--yellow) 7%, transparent);
+    color: var(--subtext-1);
+    font-size: 0.74rem;
+    line-height: 1.55;
+  }
+
+  .cl-field-meta {
+    justify-content: space-between;
+    margin-top: 0.55rem;
+    color: var(--overlay-0);
+    font-size: 0.72rem;
+  }
+
+  .cl-field-meta-end {
+    justify-content: flex-end;
+  }
+
+  .cl-field-meta-end > span {
+    margin-right: auto;
+  }
+
+  .cl-share-result {
+    display: grid;
+    grid-template-columns: minmax(220px, 290px) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .cl-qr-preview {
+    display: grid;
+    gap: 0.55rem;
+    justify-items: center;
+  }
+
+  .cl-qr-preview img {
+    display: block;
+    width: min(100%, 270px);
+    height: auto;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    background: #ffffff;
+  }
+
+  .cl-qr-preview p {
+    margin: 0;
+    color: var(--subtext-0);
+    font-size: 0.7rem;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .cl-import-row {
+    margin-bottom: 0.9rem;
+    color: var(--subtext-0);
+    font-size: 0.72rem;
+  }
+
+  .cl-file-button {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cl-file-button input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cl-decrypted {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .cl-share-status {
+    margin: 0;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .cl-success {
+    color: var(--green);
+    font-size: 0.78rem;
+  }
+
+  .cl-about-list {
+    margin: 0;
+  }
+
+  .cl-about-list > div {
+    display: grid;
+    grid-template-columns: minmax(9rem, 0.35fr) minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .cl-about-list dt {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .cl-about-list dd {
+    margin: 0;
+    color: var(--subtext-1);
+    font-size: 0.84rem;
+    line-height: 1.65;
+  }
 }
 
 /* ─── Utilities ─── */
@@ -555,6 +792,28 @@
 @media (max-width: 375px) {
   h1 {
     font-size: 1.125rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .cl-key-grid,
+  .cl-share-result,
+  .cl-about-list > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cl-section-actions {
+    margin-left: 0;
+  }
+
+  .cl-private-key {
+    padding: 0.75rem 0 0;
+    border-top: 1px solid var(--border-subtle);
+    border-left: 0;
+  }
+
+  .cl-share-result {
+    gap: 1rem;
   }
 }
 

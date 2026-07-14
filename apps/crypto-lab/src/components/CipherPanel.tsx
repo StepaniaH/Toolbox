@@ -86,6 +86,8 @@ export function CipherPanel() {
         <Tooltip text={t(algoTipKey[algo])} />
       </div>
 
+      <p className="cl-security-note">{t(`cipher.notice.${algo}`)}</p>
+
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <label className="cl-label">

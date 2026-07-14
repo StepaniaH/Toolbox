@@ -15,7 +15,7 @@ import {
   rsaVerify,
 } from '@/lib/rsa'
 
-type RsaSize = 1024 | 2048 | 4096
+type RsaSize = 2048 | 4096
 
 export function RsaPanel() {
   const { t } = useTranslation()
@@ -101,7 +101,6 @@ export function RsaPanel() {
   }
 
   const sizeOptions = [
-    { value: '1024', label: '1024 bit' },
     { value: '2048', label: '2048 bit' },
     { value: '4096', label: '4096 bit' },
   ]

@@ -1,17 +1,23 @@
 {
+  "meta": {
+    "title": "CryptoLab · 本地密码学与安全分享工具",
+    "description": "在浏览器本地完成编码、摘要、加解密、JWT 检查和公钥二维码安全分享"
+  },
   "header": {
-    "subtitle": "本地编码、哈希、加解密与 JWT 工具"
+    "subtitle": "本地密码学、安全分享与 JWT 工具"
   },
   "footer": {
     "privacy": "纯前端计算，数据不会离开浏览器。"
   },
   "nav": {
+    "share": "安全分享",
     "encoding": "编码",
     "hash": "摘要",
     "cipher": "对称加密",
     "rsa": "RSA",
     "jwt": "JWT",
     "kb": "知识库",
+    "about": "关于",
     "aria": "工具模块"
   },
   "common": {
@@ -26,7 +32,102 @@
     "encrypt": "加密",
     "decrypt": "解密",
     "sign": "签名",
-    "verify": "验证"
+    "verify": "验证",
+    "loading": "正在载入模块…"
+  },
+  "share": {
+    "title": "把信息加密给指定收件人",
+    "intro": "收件人先保管私钥并发送公钥；发送方用公钥生成二维码或数据包。正文由随机 AES 密钥加密，AES 密钥再由 RSA 公钥封装。",
+    "factsLabel": "安全分享特性",
+    "factLocal": "全程本地处理",
+    "factPrivate": "私钥不进入二维码",
+    "factAuthenticated": "篡改会导致解密失败",
+    "packet": "CL1 加密数据包",
+    "keys": {
+      "title": "收件人准备密钥",
+      "detail": "生成 2048-bit RSA-OAEP 密钥对。只把公钥发给发送方；私钥留在收件人设备或由收件人安全备份。",
+      "generate": "生成收件人密钥",
+      "generating": "正在生成…",
+      "standard": "RSA-OAEP / SHA-256 · 2048 bit",
+      "public": "收件人公钥（可以分享）",
+      "publicPlaceholder": "生成或粘贴 PEM 公钥",
+      "copyPublic": "复制公钥",
+      "privateSummary": "展开私钥（仅收件人）",
+      "private": "收件人私钥（不得分享）",
+      "privatePlaceholder": "生成或粘贴 PEM 私钥",
+      "copyPrivate": "复制私钥",
+      "downloadPrivate": "下载私钥",
+      "privateWarning": "任何拿到私钥的人都可以解密发给它的数据。CryptoLab 不保存密钥；请离线保管，丢失后无法恢复。"
+    },
+    "encrypt": {
+      "title": "发送方生成二维码",
+      "detail": "粘贴收件人公钥并输入信息。每次都会生成新的 AES-256-GCM 密钥与随机 IV，同一信息的结果也不同。",
+      "message": "要加密的信息",
+      "placeholder": "输入短消息；二维码适合凭据、地址、说明等短内容",
+      "bytes": "{{current}} / {{max}} UTF-8 字节",
+      "create": "加密并生成二维码",
+      "creating": "正在加密…",
+      "qrAlt": "包含 CL1 加密数据包的二维码",
+      "qrHint": "二维码只包含密文、随机 IV 与被公钥封装的 AES 密钥。",
+      "copyPacket": "复制数据包",
+      "downloadQr": "下载二维码",
+      "downloadPacket": "下载数据包"
+    },
+    "decrypt": {
+      "title": "收件人导入并解密",
+      "detail": "上传对方发来的二维码图片或 .cryptolab 数据包，也可以直接粘贴数据包；只有匹配的私钥才能通过认证解密。",
+      "import": "上传二维码或数据包",
+      "importing": "正在读取…",
+      "importHint": "PNG / JPEG / WebP / .cryptolab / TXT，最大 8 MB",
+      "packetPlaceholder": "粘贴以 CL1. 开头的数据包",
+      "privateReminder": "私钥只在当前页面内存中使用",
+      "action": "使用私钥解密",
+      "decrypting": "正在解密…",
+      "output": "解密结果",
+      "copy": "复制解密结果"
+    },
+    "status": {
+      "keysReady": "密钥已在本地生成。请先安全备份私钥，再分享公钥。",
+      "packetReady": "二维码和数据包已在本地生成。",
+      "imported": "已从文件读取并验证 CL1 数据包结构。",
+      "decrypted": "认证解密成功，数据包未检测到篡改。"
+    },
+    "errors": {
+      "empty-message": "请输入要加密的信息。",
+      "message-too-large": "信息超过二维码的 1024 字节安全预算。",
+      "invalid-packet": "这不是有效的 CL1 数据包，或字段长度不符合安全限制。",
+      "packet-too-large": "数据包超过二维码安全容量。",
+      "encryption-failed": "无法使用这个公钥加密；请检查是否为 RSA-OAEP PEM 公钥。",
+      "decryption-failed": "解密失败：私钥不匹配、数据已损坏或被篡改。",
+      "file-too-large": "文件超过 8 MB 导入限制。",
+      "unsupported-file": "只支持 PNG、JPEG、WebP、.cryptolab 和 TXT。",
+      "image-too-large": "图片像素量超过本地解码安全预算。",
+      "image-unreadable": "浏览器无法读取这张图片。",
+      "qr-not-found": "图片中没有识别到可用二维码。",
+      "key-generation": "浏览器无法生成 RSA 密钥对。",
+      "import-failed": "无法读取这个文件。"
+    }
+  },
+  "about": {
+    "title": "关于 CryptoLab",
+    "intro": "CryptoLab 是面向开发、学习和短消息安全交换的本地工作台；它强调明确的算法边界，而不是把编码、哈希和加密混为一谈。",
+    "purpose": {
+      "title": "定位",
+      "body": "提供编码/进制、摘要/HMAC、对称加密、RSA、JWT 检查与 CL1 安全分享。知识库解释每类工具能做什么、不能做什么。"
+    },
+    "privacy": {
+      "title": "隐私",
+      "body": "消息、密钥、令牌、二维码和文件只存在于当前浏览器内存；没有账号、后端、遥测、广告、Cookie、远端字体或业务网络请求。刷新页面会清除内容。"
+    },
+    "security": {
+      "title": "安全模型",
+      "body": "安全分享使用 RSA-OAEP/SHA-256 封装随机 AES-256-GCM 密钥，固定上下文作为附加认证数据。CL1 数据包有严格版本、长度和格式校验；私钥不会进入二维码或 URL。"
+    },
+    "limits": {
+      "title": "限制",
+      "body": "二维码消息最多 1024 个 UTF-8 字节；不提供身份认证、密钥托管、撤销、前向保密或受感染设备防护。AES-CBC、裸 ChaCha20、MD5 与 SHA-1 仅用于兼容和学习。"
+    },
+    "disclaimer": "请勿把实验工具当作密钥管理系统。高价值或长期密钥应使用经过审计的专用硬件、密码管理器或组织安全流程。"
   },
   "encoding": {
     "kind": "类型",
@@ -60,7 +161,12 @@
     "ivPlaceholder": "GCM/ChaCha20: 24 位 · CBC: 32 位",
     "inputPlaceholder": "输入明文或密文",
     "encryptFailed": "加密失败",
-    "decryptFailed": "解密失败"
+    "decryptFailed": "解密失败",
+    "notice": {
+      "aesGcm": "推荐用于新数据。每个密钥下必须使用唯一随机 IV；认证标签会检测错误密钥或篡改。",
+      "aesCbc": "仅用于兼容。CBC 不验证完整性；不要把此处输出用于新协议，除非另有正确的 Encrypt-then-MAC 设计。",
+      "chacha20": "仅用于学习与兼容。这里是裸 ChaCha20，没有 Poly1305 认证；密钥与 Nonce 重用会破坏保密性。"
+    }
   },
   "rsa": {
     "keySize": "密钥长度",
@@ -110,7 +216,7 @@
     "hmac": "用密钥和哈希函数生成带密钥的摘要，同时验证完整性和身份认证。",
     "aesGcm": "AES + GCM 模式，提供认证加密（AEAD），自带认证标签可检测篡改，TLS 1.3 使用。",
     "aesCbc": "AES + CBC 模式，经典分组加密，无内置认证，需配合 HMAC 使用。",
-    "chacha20": "流密码，纯软件实现快于 AES（无硬件加速时），RFC 8439。",
+    "chacha20": "流密码，纯软件实现可在无硬件加速时快于 AES。此面板仅实现裸 ChaCha20，未包含 Poly1305 认证。",
     "rsaKeySize": "1024 位已不推荐；2048 位是最低安全基线；4096 位更高余量但更慢。RSA-OAEP 用于加解密，RSA-PSS 用于签名，不能共用密钥对。",
     "jwt": "JWT = Header.Payload.Signature，Payload 是 Base64Url 编码而非加密，任何人可读。签名只保证完整性，不保证保密。"
   }

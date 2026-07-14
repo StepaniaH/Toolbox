@@ -4,85 +4,63 @@
 id: crypto-lab
 route: /crypto-lab/
 name: CryptoLab
-problem: 开发者需要在本地快速完成编码/解码、哈希/HMAC、AES/ChaCha20、RSA 与 JWT 的转换与验证，且敏感数据不能离开浏览器。
-inputs: 文本、十六进制密钥/IV、PEM 密钥、JWT Token、Secret、进制与编码参数。
-outputs: 编码/解码结果、哈希摘要、HMAC、密文、签名、JWT 解码与签名验证状态。
+problem: 开发者需要在本地完成常用密码学操作，并把短消息只分享给持有指定 RSA 私钥的收件人。
+inputs: 文本、短消息、二维码图片或 CL1 数据包、十六进制密钥/IV、PEM 密钥、JWT Token 与 Secret。
+outputs: 编解码结果、摘要/HMAC、密文、签名、JWT 验证状态、RSA 公私钥、加密二维码与解密明文。
 assumptions:
-  - 所有计算在浏览器内存中完成，不依赖后端。
-  - Web Crypto API 支持 AES-GCM/CBC、RSA-OAEP/RSA-PSS、HMAC-SHA256/512。
-  - MD5/SHA-1/SHA-3/ChaCha20/Base32/Base58 使用纯 TypeScript 实现。
-  - RSA 签名与加密使用不同算法，因此需要不同的密钥对。
+  - 所有业务数据只在浏览器内存中处理，不依赖后端。
+  - 安全分享使用 RSA-OAEP-SHA-256 包装随机 AES-256-GCM 内容密钥，而不是直接用 RSA 加密消息。
+  - 每条分享消息生成新的 96 位 GCM IV，并绑定 CryptoLab.Share.v1 作为附加认证数据。
+  - 接收者通过可信的带外渠道确认公钥归属；工具本身不验证身份。
 privacy:
-  - 不保存用户输入到持久化存储；不发送任何业务数据到外部服务。
-  - 仅使用 localStorage 中的全局主题/语言键（toolbox-theme / toolbox-lang）。
-offline_fallback: 完全离线可用；所有功能均为本地计算，无需网络。
+  - 不持久化用户输入、消息、私钥或数据包，也不把它们发送给外部服务。
+  - 仅共享壳层使用 toolbox-theme / toolbox-lang 两个全局偏好键。
+offline_fallback: 完全离线可用；二维码生成和识别均在本地执行。
 non_goals:
-  - 不提供文件上传、批量流水线、密钥托管、证书链验证或 TLS/SSL 抓包。
-  - 不将工具状态提升为 stable 或进入生产导航。
+  - 不提供身份认证、密钥托管、撤销、前向保密、证书链验证或受感染设备防护。
+  - 安全分享只处理不超过 1024 个 UTF-8 字节的短消息，不是通用文件加密或聊天协议。
+  - 不将工具状态提升为 stable，也不进入生产导航。
 acceptance:
-  - [x] Base64/URL/HTML/Hex/Base32/Base58/任意进制双向转换与错误提示。
-  - [x] MD5/SHA-1/SHA-256/SHA-512/SHA3-256/SHA3-512 同时输出 lower/upper/base64。
-  - [x] HMAC-SHA256/SHA512 实时计算。
-  - [x] AES-256-GCM/CBC 加解密与 ChaCha20 流加密。
-  - [x] RSA 1024/2048/4096 密钥生成、PEM 导入导出、加解密、签名/验证。
-  - [x] JWT 解码与 HS256/HS512 本地签名验证。
-  - [x] 一键复制、清空、交换输入输出；错误状态以红色边框/文本提示。
-  - [x] 中英双语、明暗主题、移动端 390px/桌面 1440px 无溢出。
-  - [x] 单工具与全仓 build/test/lint/test:browser 通过。
+  - [x] 常用编码、哈希/HMAC、对称加密、RSA 与 JWT 功能保留并明确安全边界。
+  - [x] 生成 2048 位 RSA-OAEP 密钥，通过 CL1 混合加密数据包与二维码分享短消息。
+  - [x] 上传 PNG/JPEG/WebP 二维码或文本数据包，仅凭对应私钥解密；错误密钥与篡改数据失败。
+  - [x] 私钥不进入二维码、URL、持久化存储或网络请求，并提供复制与本地下载。
+  - [x] 增加“关于”页，说明隐私、算法设计、限制与不适用场景。
+  - [x] 统一共享主题、扁平分区、键盘标签导航、中英双语与明暗主题。
+  - [x] 二维码依赖按需加载，默认首屏不下载分享工作区代码。
 ```
 
 ## 变更摘要
 
-- 新增 `apps/crypto-lab/`：Vite + React + TypeScript + Tailwind v4 应用。
-- 在 `packages/app-manifest/manifest.js` 注册 `crypto-lab`（status 默认 `hidden`），附带中英关键词与图标。
-- `pnpm-lock.yaml` 增加 `@toolbox/crypto-lab` 依赖段。
-- 未修改其他工具代码；未触碰 `main`/`dev`。
+- 新增 Secure Share：AES-256-GCM 加密消息，RSA-OAEP-SHA-256 仅包装内容密钥，输出版本化 `CL1` 数据包及二维码。
+- 二维码导入支持 PNG/JPEG/WebP；文本导入支持 `.cryptolab` 与纯文本。导入限制为 8 MiB / 1600 万像素，数据包限制为 2200 字符。
+- 新增“关于”页与显式算法风险提示；AES-CBC、裸 ChaCha20、MD5、SHA-1 只作为兼容与学习能力。
+- 接入共享主题 token，移除复制色板，并把非默认工作区改为懒加载。
+- manifest 继续保持 `hidden`；未修改 `main` 或把候选工具公开到生产导航。
 
 ## 外部请求 / 存储 / URL 审计
 
-- 外部请求：无。浏览器 smoke 中除同源静态资源外无其他请求。
-- Storage：仅读取 `toolbox-theme` / `toolbox-lang`（共享导航/主题），不写私有 storage。
-- URL query：未使用。
-- Fallback：不适用，因为完全离线。
+- 外部请求：应用业务代码无 `fetch`、XHR、远程图片、字体或分析请求。
+- Storage：只使用共享主题/语言偏好；消息、数据包和密钥只存在于当前页面内存。
+- URL query：不把消息、密钥或数据包放入 URL。
+- 二维码：只包含公钥对应的加密数据包，从不包含私钥或明文。
 
-## 运行过的命令与结果
+## 已完成验证
 
-```bash
-pnpm --filter=@toolbox/crypto-lab build      # ✓
-pnpm --filter=@toolbox/crypto-lab test       # 102 passed
-pnpm --filter=@toolbox/crypto-lab lint       # 0 warnings/errors
-pnpm --filter=@toolbox/crypto-lab test:browser  # ✓
-pnpm check:privacy                           # ✓
-pnpm check:contracts                         # ✓
-pnpm build                                   # ✓ (7 apps)
-pnpm test                                    # ✓ (16 tasks)
-pnpm lint                                    # ✓ (10 tasks)
-pnpm test:browser                            # ✓ (6 apps)
-git diff --check                             # ✓
-```
+- 单工具单元测试：7 个文件、109 项通过；覆盖 Unicode 往返、随机性、篡改、错误私钥、大小限制与非规范 Base64URL。
+- 单工具 lint 与生产构建通过。
+- 生产构建浏览器 smoke 通过 8 组共享壳层矩阵，并完成真实的“生成密钥 → 生成二维码 → 上传识别 → 私钥解密”流程。
+- 手动检查桌面暗色中文与移动端亮色英文；无页面级横向溢出，布局使用连续分区而非卡片堆叠。
+- 候选分支仓库级隐私检查、build、test、lint 通过；`check:contracts` 仅因该旧分支早于 FormTran workspace 登记而失败，须在当前 `dev` 合并后复验。
 
-## 视觉检查矩阵
+## 已知边界
 
-| 组合 | 桌面 1440px | 移动 390px |
-|---|---|---|
-| 暗色 + 中文 | 通过 | 通过 |
-| 暗色 + 英文 | 通过 | 通过 |
-| 亮色 + 中文 | 通过 | 通过 |
-| 亮色 + 英文 | 通过 | 通过 |
-
-- 全局导航唯一，主题/语言切换正常。
-- 工具标题使用 canonical 40px app mark。
-- 输入/输出区在窄屏下未出现横向滚动。
-
-## 未完成项 / 已知风险
-
-- RSA 签名与加密不能复用同一密钥对，UI 中已用“加密密钥对”/“签名密钥对”的生成按钮区分，但可能需要更明显的说明。
-- ChaCha20 为纯 TS 实现，未进行性能优化；超大输入可能导致主线程阻塞。
-- 未持久化用户输入；刷新页面后状态丢失（符合隐私优先的默认策略）。
+- 公钥归属必须通过可信渠道确认；工具不能阻止攻击者替换公钥。
+- 刷新页面会清空私钥与消息，这是隐私策略而非数据保管功能。
+- 旧候选分支早于 FormTran 集成；合并到当前 `dev` 时应以 `dev` 的 lockfile/manifest 为基线重新生成依赖锁，避免移除 FormTran importer。
 
 ## 给集成模型的操作
 
-- 删除本 `NEW_TOOL_HANDOFF.md`。
-- 将持久信息保留在 `README.md` / `README.zh-CN.md`。
-- 如需公开，由维护者决定将 manifest 中 `crypto-lab` 的 `status` 从 `hidden` 改为 `preview`/`stable`。
-- 不更新 CHANGELOG（开发 Agent 不预先声明发布）。
+- 合并通过后删除本 `NEW_TOOL_HANDOFF.md`，只把长期有效信息留在双语 README 与平台文档中。
+- manifest 保持 `hidden`，除非维护者另行要求公开或发布。
+- 集成时更新 CHANGELOG / TASKS / INDEX 的持久信息，然后重新执行仓库级门禁。
