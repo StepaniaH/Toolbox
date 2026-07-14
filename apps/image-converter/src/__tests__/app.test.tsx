@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { App } from "../App";
 import { translations } from "../i18n";
 import { createZip } from "../lib/zip";
+import { PDFDocument } from "pdf-lib";
 
 afterEach(() => { cleanup(); localStorage.clear(); });
 
@@ -26,7 +27,7 @@ describe("application shell", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("FormTran");
     expect(container.querySelectorAll(".toolbox-nav")).toHaveLength(1);
     expect(container.querySelectorAll(".toolbox-footer")).toHaveLength(1);
-    expect(screen.getByRole("heading", { name: /Drop a file|把文件拖进来/ })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Bring content together|把内容放进来/ })).toBeTruthy();
   });
 
   it("normalizes valid JSON with unsafe persisted setting values", () => {
@@ -79,7 +80,7 @@ describe("application shell", () => {
   it("keeps the file-home queue while visiting another workspace", async () => {
     render(<App />);
     const png = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])], "kept.png");
-    fireEvent.change(screen.getByLabelText(/Choose files|选择文件/), { target: { files: [png] } });
+    fireEvent.change(screen.getByLabelText(/Add files|添加文件/), { target: { files: [png] } });
     await waitFor(() => expect(screen.getAllByText(/kept\.png/).length).toBeGreaterThan(0));
     const tabs = screen.getAllByRole("tab");
     fireEvent.click(tabs[1]);
@@ -91,8 +92,10 @@ describe("application shell", () => {
     render(<App />);
     const tabs = screen.getAllByRole("tab");
     fireEvent.click(tabs[5]);
-    const pdf = new File(["%PDF-1.7\n1 0 obj\n<< /Type /Page /MediaBox [0 0 612 792] >>\nendobj\n%%EOF"], "notes.pdf", { type: "application/pdf" });
-    fireEvent.change(screen.getByLabelText(/Open PDF|打开 PDF/), { target: { files: [pdf] } });
+    const pdfDocument = await PDFDocument.create();
+    pdfDocument.addPage([612, 792]);
+    const pdf = new File([Uint8Array.from(await pdfDocument.save()).buffer], "notes.pdf", { type: "application/pdf" });
+    fireEvent.change(screen.getByLabelText(/Add PDFs|添加 PDF/), { target: { files: [pdf] } });
     await waitFor(() => expect(screen.getByText("PDF 1.7")).toBeTruthy());
 
     fireEvent.click(tabs[6]);

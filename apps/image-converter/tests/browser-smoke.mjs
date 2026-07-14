@@ -4,6 +4,7 @@ import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
 import { chromium } from 'playwright'
+import { PDFDocument } from 'pdf-lib'
 import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
 
 const heicFixture = Buffer.from('AAAAJGZ0eXBoZWljAAAAAG1pZjFNaVBybWlhZk1pSEJoZWljAAABw21ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAHBpY3QAAAAAAAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAAADnBpdG0AAAAAAAEAAAA4aWluZgAAAAAAAgAAABVpbmZlAgAAAAABAABodmMxAAAAABVpbmZlAgAAAQACAABFeGlmAAAAABppcmVmAAAAAAAAAA5jZHNjAAIAAQABAAAA5mlwcnAAAADFaXBjbwAAABNjb2xybmNseAACAAIABoAAAAAMY2xsaQDLAEAAAAAUaXNwZQAAAAAAAAAwAAAAIAAAAAlpcm90AAAAABBwaXhpAAAAAAMICAgAAABxaHZjQwEDcAAAALAAAAAAAB7wAPz9+PgAAAsDoAABABdAAQwB//8DcAAAAwCwAAADAAADAB5wJKEAAQAjQgEBA3AAAAMAsAAAAwAAAwAeoBQgQcHMI4h7kWVTcCAgYAiiAAEACUQBwGcshAUyQAAAABlpcG1hAAAAAAAAAAEAAQaBAgMFhoQAAAAsaWxvYwAAAABEAAACAAEAAAABAAACMwAAAhQAAgAAAAEAAAH3AAAAPAAAAAFtZGF0AAAAAAAAAmAAAAAGRXhpZgAATU0AKgAAAAgAAwESAAMAAAABAAEAAAFCAAQAAAABAAAAMAFDAAQAAAABAAAAIAAAAAAAAAIQKAGvoT944QflDUMwKJI6ALro6myb9BP06r9PSpfUI34Y7+FLGR9uPURUGqLp2MyJXJoVnsnq1lzuEGY/dus2ZVzHyKpGdGF4iTbiCpqv56CByEXQGavEo4Gyl/m23SWeqLp7PgEinrZjT+eHVM0s/G+etKINafFzZX4YisvZ7RK/zCNnbAM+zrEX9/3U9coznx6LtvbnL67gyo+MAqeO6Ptr+AxqBo/3cThA3NVtd4B/3XZZhBpZ3pJVFzJ8598bda/g9cE1ZK/GVSIeBfdBhU4m8ypJdOI/CridS06AbKgUfwdgQ8KzsJhbyZj2LOWnP23E7KGLPtDICy4f4omyQ7XTxY+QirFKi2eDTHUzth/M6h0ux95Gjj/jWw8zfK6l95ia13VErcHKEdUoNMWTCwPwotTH5QGGHe10oHtGjc8lNBLLRYYNa+TZ+egb00cGL4chZtBjoAD1bTvNeDpR8EMeXjRxs/gEg7KcATZi/11cNRk5U8b2lRFYK1DdhzVCrnsFbtHl7oeC/19Id+yszLcVgIRWVWbZL9eKAfbJ+beoWqtOFX4akuOLPXG2cJZQ1cLM3PcCshPiROa0xrjmuJ14zkFXMAPBKU/3SgA8W20flVxKriAZgQ/NYtg5GyA3F6bnhWPi5KlIRJ85z//XON5//g4v/vlp1h6EJu/9gnOf4X2Cub0C3wjlMWQZNU+A', 'base64')
@@ -72,8 +73,11 @@ try {
   const pdfTab = page.getByRole('tab', { name: /PDF tools|PDF 工具/ })
   const archiveTab = page.getByRole('tab', { name: /Archives|压缩包/ })
   const knowledgeTab = page.getByRole('tab', { name: /Knowledge base|知识库/ })
+  await homeTab.click()
+  assert.equal(await page.locator('.unified-picker > summary').isVisible(), true)
+  assert.equal(await page.locator('.unified-picker input[type=file]').count(), 2)
   const pickerHeights = []
-  for (const tab of [homeTab, workspaceTab, gifTab, textTab, dataTab, pdfTab, archiveTab]) {
+  for (const tab of [workspaceTab, gifTab, textTab, dataTab, pdfTab, archiveTab]) {
     await tab.click()
     const picker = page.locator('main [role=tabpanel]:not([hidden]) .file-picker').first()
     assert.equal(await picker.isVisible(), true)
@@ -95,14 +99,16 @@ try {
     { name: 'budget.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: Buffer.from([0x50, 0x4b, 0x03, 0x04]) },
     { name: 'records.csv', mimeType: 'text/csv', buffer: Buffer.from('name,amount,note\nAlice,42,"local only"\nBob,7,=2+2') },
   ])
-  await page.waitForFunction(() => document.querySelectorAll('.home-file-list > div').length === 4 && !document.body.textContent.includes('Identifying locally'))
-  assert.equal(await page.locator('.home-file-list > div').count(), 4)
-  const spreadsheetRow = page.locator('.home-file-list > div').filter({ hasText: 'budget.xlsx' })
+  await page.waitForFunction(() => document.querySelectorAll('.home-file-row').length === 4 && !document.body.textContent.includes('Identifying locally'))
+  assert.equal(await page.locator('.home-file-row').count(), 4)
+  assert.equal(await page.locator('.home-family-group').count() >= 3, true)
+  assert.equal(await page.locator('.home-session-overview').isVisible(), true)
+  const spreadsheetRow = page.locator('.home-file-row').filter({ hasText: 'budget.xlsx' })
   await spreadsheetRow.locator('button').first().click()
   assert.match(await page.locator('.file-summary').textContent(), /XLSX/)
   assert.equal(await page.locator('.home-recommendations').getByRole('button', { name: /Open tool|打开工具/ }).count(), 1)
 
-  const csvRow = page.locator('.home-file-list > div').filter({ hasText: 'records.csv' })
+  const csvRow = page.locator('.home-file-row').filter({ hasText: 'records.csv' })
   await csvRow.locator('button').first().click()
   assert.match(await page.locator('.file-summary').textContent(), /CSV/)
   await page.locator('.home-recommendations').getByRole('button', { name: /Open tool|打开工具/ }).click()
@@ -125,8 +131,27 @@ try {
   assert.equal(await page.locator('.data-preview td').filter({ hasText: 'Alice' }).count(), 1)
   assert.match(await page.locator('.boundary-note').textContent(), /cached (?:file )?values|缓存值/)
 
+  const firstPdf = await PDFDocument.create()
+  firstPdf.addPage([300, 400])
+  firstPdf.addPage([500, 600])
+  const secondPdf = await PDFDocument.create()
+  secondPdf.addPage([700, 800])
+  await pdfTab.click()
+  await page.locator('#panel-pdf input[type=file]').setInputFiles([
+    { name: 'part-a.pdf', mimeType: 'application/pdf', buffer: Buffer.from(await firstPdf.save()) },
+    { name: 'part-b.pdf', mimeType: 'application/pdf', buffer: Buffer.from(await secondPdf.save()) },
+  ])
+  await page.waitForFunction(() => document.querySelectorAll('.pdf-document-list > div').length === 2 && document.querySelector('.inspection-grid')?.textContent.includes('2'))
+  assert.equal(await page.locator('.pdf-document-list > div').count(), 2)
+  const pdfDownloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: /Merge 2 PDFs|合并 2 份/ }).click()
+  await page.locator('.pdf-result').waitFor()
+  await page.getByRole('button', { name: /Download result|下载结果/ }).click()
+  const pdfDownload = await pdfDownloadPromise
+  assert.match(pdfDownload.suggestedFilename(), /formtran-merged-\d{4}-\d{2}-\d{2}\.pdf/)
+
   await homeTab.click()
-  await page.locator('.home-file-list > div').first().locator('button').first().click()
+  await page.locator('.home-file-row').first().locator('button').first().click()
   assert.match(await page.locator('.file-summary').textContent(), /PNG/)
   assert.equal(await page.locator('.capability.planned').count() > 0, true)
   const rotateTool = page.locator('.tool-row').filter({ hasText: /Rotate & flip|旋转与翻转/ })

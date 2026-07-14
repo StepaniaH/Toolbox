@@ -154,7 +154,7 @@ main 稳定线
 
 | 候选 | 首要能力 | 主要边界 / 实现前提 |
 |---|---|---|
-| FormTran | 本地文件工作台；已开放图片/GIF/文本、HEIC/HEIF、CSV/TSV/XLSX、PDF 检查与 ZIP 提取 | 首页只识别与分流，不自动处理；能力按可用/有限/规划分级，各文件族使用隔离工作台与资源预算 |
+| FormTran | 本地文件工作台；统一任务入口已开放图片/GIF/文本、HEIC/HEIF、CSV/TSV/XLSX、PDF 页面与 ZIP 提取 | 首页识别、分组、选择范围与总览，不自动处理；各文件族使用隔离工作台与资源预算，下一阶段接共享输出队列 |
 | Structured Data extensions | FormTran 已实现 CSV/TSV/XLSX 值转换；后续再评估 JSON / NDJSON / YAML / XML | 后续大文件优先流式解析；类型推断、数字精度、实体与公式注入必须显式治理 |
 | CryptoLab | dev hidden 候选已实现 Base64、URL/HTML/Hex、哈希、HMAC、AES/ChaCha20、RSA、JWT 与 Secure Share | 区分编码、哈希、加密和签名；私钥不进入二维码、URL、storage 或网络，浏览器能力缺失时明确失败 |
 | Text & Markup Converter | 已作为 FormTran 独立 Tab 实现 TXT / Markdown / Org-mode / RST / AsciiDoc / HTML 互转、结构解析与预览 | 使用轻量 AST 保留标题、段落、列表、链接、引用、代码块和分隔线；明确提示方言语法无法完整往返 |
@@ -164,10 +164,11 @@ main 稳定线
 | Document & Ebook Converter | EPUB / HTML 文档包及开放电子书格式 | 保留语义、目录和资源引用；与轻量标记文本转换分开，PDF/Office 高保真转换不承诺纯浏览器首版 |
 | Icon & Asset Packager | SVG / PNG / ICO、favicon 与多尺寸资源包 | SVG 必须清理脚本与外部引用；输出可复核的尺寸和 manifest |
 
-候选进入 TASKS 前必须形成独立 Brief、隐私与资源预算。FormTran 可以统一承载“本地文件处理”
-心智，但首页只负责识别和推荐；图片、GIF、PDF、文本数据与压缩包使用隔离的业务模块，并按需
-加载重型能力。音视频等显著增加包体、长任务与编解码风险的领域仍优先保持独立应用。任何能力
-都绝不为覆盖率静默上传文件。详细边界由候选内的 `docs/FILE_WORKBENCH.md` 维护。
+候选进入 TASKS 前必须形成独立 Brief、隐私与资源预算。FormTran 统一承载“本地文件任务”心智：
+首页负责一个入口、识别、分组、操作范围、总体/单项预览与工作台流转；图片、GIF、PDF、文本数据
+与压缩包继续使用隔离业务模块，并按需加载重型能力。共享输出队列建立后，处理结果才回到首页统一
+命名和导出。音视频等显著增加包体、长任务与编解码风险的领域仍优先保持独立应用。任何能力都绝不
+为覆盖率静默上传文件。详细边界由候选内的 `docs/FILE_WORKBENCH.md` 维护。
 
 ## 五、规划视野
 

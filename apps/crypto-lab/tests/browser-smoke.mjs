@@ -91,6 +91,11 @@ try {
       await desktop.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       true,
     )
+    assert.deepEqual(await desktop.locator('.cl-tabs').evaluate((tabs) => ({
+      overflowY: getComputedStyle(tabs).overflowY,
+      scrollbarWidth: getComputedStyle(tabs).scrollbarWidth,
+      verticalOverflow: tabs.scrollHeight > tabs.clientHeight,
+    })), { overflowY: 'hidden', scrollbarWidth: 'none', verticalOverflow: false })
   }
   await assertSharedPreferenceMatrix(desktop, assertDesktopSurface)
 
@@ -138,6 +143,11 @@ try {
       await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       true,
     )
+    assert.deepEqual(await mobile.locator('.cl-tabs').evaluate((tabs) => ({
+      overflowY: getComputedStyle(tabs).overflowY,
+      scrollbarWidth: getComputedStyle(tabs).scrollbarWidth,
+      verticalOverflow: tabs.scrollHeight > tabs.clientHeight,
+    })), { overflowY: 'hidden', scrollbarWidth: 'none', verticalOverflow: false })
   }
   await assertSharedPreferenceMatrix(mobile, assertMobileSurface)
 

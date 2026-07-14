@@ -2,16 +2,19 @@
 
 A private, browser-only file workspace for conversion, compression, editing, splitting, merging, encoding, parsing, and inspection. Its file home identifies inputs and recommends relevant tools before any operation runs. No source content leaves the device.
 
-The expansion is staged. Image conversion (including local HEIC/HEIF decoding), GIF composition, text/markup conversion, CSV/TSV/XLSX table conversion, lightweight PDF inspection, and bounded ZIP listing/extraction are available now. Image editing, GIF-specific processing, PDF page tools, and other archive formats stay closed until their own correctness and resource boundaries pass review. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
+The expansion is staged. Image conversion (including local HEIC/HEIF decoding), GIF composition, text/markup conversion, CSV/TSV/XLSX table conversion, bounded PDF page operations, and bounded ZIP listing/extraction are available now. Image editing, GIF-specific processing, visual PDF rendering, and other archive formats stay closed until their own correctness and resource boundaries pass review. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
 
 ## File home
 
-- Accepts mixed files and folders, with a 500-file / 2 GB queue budget.
+- Presents one intake surface for mixed files and folders, with a 500-file / 2 GB queue budget. The single “Add content” control reveals native file/folder choices only because browsers cannot combine them in one picker; drag-and-drop walks folders recursively.
 - Reads at most the first 64 KiB of each file to identify JPEG, PNG, WebP, AVIF, GIF, SVG, BMP, TIFF, HEIC/HEIF, ICO, PDF, ZIP, supported text, and structured-data names.
 - Prefers recognizable content signatures over extensions and warns when they disagree.
 - Distinguishes ZIP-based document containers such as XLSX, DOCX, ODS, and EPUB from ordinary ZIP archives, so they are not offered to the archive extractor.
+- Groups the queue by file family and supports current-item, checked-item, whole-family, and all-item selection without flattening the page into a card wall.
 - Shows available, limited, and planned capabilities separately; no conversion or parser starts automatically.
-- Can hand supported inputs into image conversion, GIF composition, text/markup conversion, table data, PDF inspection, or ZIP inspection, and generates image Data URLs locally up to 10 MB.
+- Can hand compatible selection scopes into image conversion, GIF composition, text/markup conversion, table data, PDF page tools, or ZIP inspection, and generates image Data URLs locally up to 10 MB.
+- Provides a live task overview plus a separate item dialog. Safe raster images and bounded text are previewed directly; PDF, archives, SVG, HEIC, and other active formats remain metadata-only until opened in their dedicated workspace.
+- Keeps the home task in memory while a dedicated workspace is open and offers an explicit return path. A shared result queue for returned outputs, family/global naming, and unified direct/ZIP export is the next workbench stage.
 - Provides editable image starting presets for web photos, transparent assets, and private sharing.
 
 ## Input and output
@@ -62,13 +65,16 @@ The knowledge base uses decision rows, expandable format references, and compari
 ## PDF and ZIP workspaces
 
 - Users can enter PDF and Archive tabs directly or route an identified file there from File Home.
-- PDF inspection reports the version, lightweight page/object estimates, encryption, linearization, metadata hints, and first media box. It reads at most 32 MB and does not claim full-parser accuracy.
+- PDF uses the MIT-licensed `pdf-lib` 1.17.1 only after the PDF workspace is opened. Its roughly 408 KB raw / 131 KB gzip parser-writer chunk does not enter the home startup path.
+- Parsed PDFs report an exact page count and can be merged in queue order, split into one-page PDFs, extracted, removed, reordered with a complete page list, or rotated by 90°/180°/270°. Every operation produces a new file and leaves sources untouched.
+- PDF budgets are 20 files, 32 MB per file, 128 MB total merge input, and 500 pages. Per-page ZIP splitting is limited to 50 pages and 256 MB of generated output. Encrypted/password-protected PDFs are rejected.
+- Page copying is not sanitization: annotations, links, and page actions may remain, while digital signatures, forms, outlines, and document-level attachments can break or be omitted. Thumbnail rendering and PDF-to-image remain unavailable pending a separate renderer and pixel-memory budget.
 - ZIP inspection is bounded to 5,000 entries, a 512 MB archive, 256 MB per expanded entry, and 1 GB expanded total.
 - Selective extraction blocks unsafe or duplicate paths, encryption, unknown methods, oversized entries, and suspicious ratios. Deflate output is stopped as soon as it exceeds the declared size, selected entries are expanded sequentially, and final size plus CRC are verified before download. Multiple selections are repackaged locally.
 
 ## Privacy and network behavior
 
-Files, identification prefixes, images, previews, conversions, parsed text, tables, and ZIP files stay in browser memory and are never uploaded. The app makes no business network requests and includes no account, backend, telemetry, ads, cookies, tracking, or remote fonts. Only conversion preferences are stored in `localStorage` under `toolbox.image-converter.settings`; file bytes, filenames, and identification results are not persisted.
+Files, identification prefixes, images, previews, conversions, parsed text, tables, PDFs, and ZIP files stay in browser memory and are never uploaded. The app makes no business network requests and includes no account, backend, telemetry, ads, cookies, tracking, or remote fonts. Only conversion preferences are stored in `localStorage` under `toolbox.image-converter.settings`; file bytes, filenames, and identification results are not persisted.
 
 The privacy notice sits below the active app tab. Image, GIF, text, PDF, archive, and knowledge pages each describe their actual local data flow.
 
@@ -87,6 +93,7 @@ The app works offline once its static assets are available. Unsupported browser 
 - GIF composition does not preserve source animation, per-frame transparency, disposal modes, or source-specific timing.
 - Markup conversion covers a practical common subset and is not a full CommonMark, Sphinx, Org Babel, or AsciiDoc processor.
 - Table conversion targets safe, inspectable values rather than Excel fidelity; it does not retain macros, formula logic, or workbook presentation.
+- PDF operations copy pages into new documents rather than editing sources. They are not a renderer, sanitizer, signature-preserving editor, or high-fidelity form/outlines workflow.
 
 ## Development
 

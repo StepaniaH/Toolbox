@@ -25,10 +25,10 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 844 |
 | Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 18 |
 | SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 20 |
-| FormTran | `/image-converter/` | React + TypeScript + Vite + Plain CSS | 浏览器本地文件、图片、表格、PDF 与 ZIP 工作台 | 52 |
+| FormTran | `/image-converter/` | React + TypeScript + Vite + Plain CSS | 浏览器本地文件、图片、表格、PDF 与 ZIP 工作台 | 56 |
 | CryptoLab（hidden） | `/crypto-lab/` | React + TypeScript + Vite + Tailwind | 本地密码学、公钥二维码安全分享与学习工具 | 109 |
 
-测试数量只用于说明覆盖现状，不作为质量本身的替代指标。7 个应用当前有 1,111 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；完整工作区共运行 1,127 条。CryptoLab 已进入 `dev` 但仍为 hidden，不会出现在稳定导航或部署清单。`v0.1` 发布时为 910 条。
+测试数量只用于说明覆盖现状，不作为质量本身的替代指标。7 个应用当前有 1,115 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；完整工作区共运行 1,131 条。CryptoLab 已进入 `dev` 但仍为 hidden，不会出现在稳定导航或部署清单。`v0.1` 发布时为 910 条。
 
 ## 三、仓库结构
 
@@ -89,9 +89,9 @@ Toolbox/
 
 | 检查 | 结果 | 备注 |
 |------|------|------|
-| `pnpm build` | 通过 | 7 个 Vite 应用构建成功；FormTran HEIC WASM 保持按需块 |
-| `pnpm test` | 通过 | 1,127 tests；数量不等同于覆盖率 |
-| `pnpm test:browser` | 通过 | 七个应用均有生产态回归；FormTran 额外覆盖真实 HEIC 与 XLSX 往返，CryptoLab 覆盖真实 Secure Share 二维码链路 |
+| `pnpm build` | 通过 | 7 个 Vite 应用构建成功；FormTran HEIC 与 PDF 解析改写能力保持按需块 |
+| `pnpm test` | 通过 | 1,131 tests；数量不等同于覆盖率 |
+| `pnpm test:browser` | 通过 | 七个应用均有生产态回归；FormTran 额外覆盖真实 HEIC、XLSX 往返与多页 PDF 合并，CryptoLab 覆盖真实 Secure Share 二维码链路与 Tab 无纵向溢出 |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 | `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |

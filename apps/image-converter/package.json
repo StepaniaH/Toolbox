@@ -17,6 +17,7 @@
     "@toolbox/nav": "workspace:*",
     "@toolbox/theme": "workspace:*",
     "@vitejs/plugin-react": "catalog:",
+    "pdf-lib": "1.17.1",
     "playwright": "^1.61.0",
     "react": "catalog:",
     "react-dom": "catalog:",

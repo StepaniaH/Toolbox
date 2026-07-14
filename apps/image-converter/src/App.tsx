@@ -45,6 +45,7 @@ type AppTab = "home" | "image" | "gif" | "text" | "data" | "pdf" | "archive" | "
 type NamePreview = { before: string; after: string; matched: boolean; groups: string[] };
 type DownloadMode = "files" | "zip";
 type ImportSummary = { accepted: number; rejected: number };
+type WorkspaceContext = { count: number; tab: Exclude<AppTab, "home" | "knowledge"> };
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -120,6 +121,7 @@ function AppSurface() {
   const [dataTransfer, setDataTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [pdfTransfer, setPdfTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [archiveTransfer, setArchiveTransfer] = useState<{ id: number; files: File[] } | undefined>();
+  const [workspaceContext, setWorkspaceContext] = useState<WorkspaceContext | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [downloadMode, setDownloadMode] = useState<DownloadMode>("files");
   const [lastImport, setLastImport] = useState<ImportSummary | null>(null);
@@ -255,13 +257,13 @@ function AppSurface() {
     if (preset === "web") setSettings((current) => ({ ...current, format: "webp", quality: 0.74, resizeMode: "original", keepSmallerOriginal: false }));
     if (preset === "transparent") setSettings((current) => ({ ...current, format: "png", resizeMode: "original", keepSmallerOriginal: false }));
     if (preset === "privacy") setSettings((current) => ({ ...current, keepSmallerOriginal: false }));
-    addFiles(files); setActiveTab("image");
+    addFiles(files); setWorkspaceContext({ count: files.length, tab: "image" }); setActiveTab("image");
   };
-  const openGif = (files: File[]) => { setGifTransfer({ id: Date.now(), files }); setActiveTab("gif"); };
-  const openText = (files: File[]) => { setTextTransfer({ id: Date.now(), files }); setActiveTab("text"); };
-  const openData = (files: File[]) => { setDataTransfer({ id: Date.now(), files }); setActiveTab("data"); };
-  const openPdf = (files: File[]) => { setPdfTransfer({ id: Date.now(), files }); setActiveTab("pdf"); };
-  const openArchive = (files: File[]) => { setArchiveTransfer({ id: Date.now(), files }); setActiveTab("archive"); };
+  const openGif = (files: File[]) => { setGifTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "gif" }); setActiveTab("gif"); };
+  const openText = (files: File[]) => { setTextTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "text" }); setActiveTab("text"); };
+  const openData = (files: File[]) => { setDataTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "data" }); setActiveTab("data"); };
+  const openPdf = (files: File[]) => { setPdfTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "pdf" }); setActiveTab("pdf"); };
+  const openArchive = (files: File[]) => { setArchiveTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "archive" }); setActiveTab("archive"); };
 
   return (
     <>
@@ -274,10 +276,14 @@ function AppSurface() {
           </div>
         </header>
 
-        <AppTabs active={activeTab} onChange={setActiveTab} />
+        <AppTabs active={activeTab} onChange={(next) => {
+          setActiveTab(next);
+          if (workspaceContext && next !== workspaceContext.tab) setWorkspaceContext(null);
+        }} />
 
         <main>
           <FileHome hidden={activeTab !== "home"} onOpenImage={openImages} onOpenGif={openGif} onOpenText={openText} onOpenData={openData} onOpenPdf={openPdf} onOpenArchive={openArchive}/>
+          {workspaceContext && activeTab !== "home" && activeTab !== "knowledge" && <WorkspaceReturnBar context={workspaceContext} onReturn={() => { setActiveTab("home"); setWorkspaceContext(null); }} onStay={() => setWorkspaceContext(null)}/>}
           {activeTab === "image" && (
             <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image">
               <div className="intake-grid">
@@ -342,6 +348,11 @@ function AppSurface() {
       {previewId && <PreviewDialog items={doneItems} activeId={previewId} onChange={setPreviewId} onClose={() => setPreviewId(null)} />}
     </>
   );
+}
+
+function WorkspaceReturnBar({ context, onReturn, onStay }: { context: WorkspaceContext; onReturn: () => void; onStay: () => void }) {
+  const { t } = useTranslation();
+  return <aside className="workspace-return" aria-label={t("session.title")}><div><span className="eyebrow">{t("session.eyebrow")}</span><strong>{t("session.title")}</strong><p>{t("session.detail", { count: context.count, workspace: t(`tabs.${context.tab}`) })}</p></div><div><button className="button secondary" type="button" onClick={onStay}>{t("session.stay")}</button><button className="button primary" type="button" onClick={onReturn}>{t("session.return")}</button></div></aside>;
 }
 
 function AppTabs({ active, onChange }: { active: AppTab; onChange: (tab: AppTab) => void }) {
