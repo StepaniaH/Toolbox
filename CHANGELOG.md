@@ -1,5 +1,46 @@
 # Changelog
 
+## Unreleased
+
+## v0.3.0 (2026-07-14)
+
+### Added
+
+- Added CryptoLab as a hidden `dev` candidate with local encoding, hashing, HMAC, symmetric and
+  asymmetric cryptography, JWT inspection, a security-focused About page, and bilingual guidance.
+- Added CryptoLab Secure Share: RSA-OAEP-SHA-256 wraps a random AES-256-GCM key in a versioned QR
+  packet, while the private key remains outside the QR code, URL, storage, and network.
+- Added a separate FormTran table-data workspace for bounded CSV/TSV/XLSX parsing, preview, and
+  value-oriented export to CSV, TSV, JSON, or macro-free XLSX.
+- Added local HEIC/HEIF input to FormTran with a native-browser path and an on-demand WASM fallback.
+- Added a shared FormTran result desk for individual, selected, same-family, or whole-task naming,
+  preview, removal, direct download, and family-grouped ZIP export.
+- Advanced FormTran PDF handling from lightweight inspection to bounded full parsing, queue-order
+  merge, per-page split, extract, remove, complete reorder, and selected-page rotation.
+
+### Changed
+
+- Kept spreadsheet conversion separate from ordinary archive extraction: XLSX follows workbook
+  relationships, ignores external links, never runs formulas or macros, and reads cached values only.
+- Reduced repeated ZIP reads by sharing one bounded archive buffer, and kept the HEIC decoder out of
+  FormTran's initial bundle so it loads only when an Apple image format requires it.
+- Extended FormTran's flatter section, list, and table hierarchy instead of adding a wall of cards.
+- Reorganized FormTran PDF work into queue, document-detail, and page-task levels with page presets,
+  live result ordering, aligned controls, and one task reset shared by Home and routed workspaces.
+- Unified the CryptoLab and FormTran responsive visual hierarchy; CryptoLab tabs no longer expose a
+  stray vertical scrollbar, while both tools retain the shared bilingual shell without card-heavy UI.
+
+### Security and quality
+
+- CSV/TSV export protects against spreadsheet formula injection by default; table size, row, column,
+  cell, XML-entry, HEIC byte, canvas-side, and pixel budgets are enforced before expensive work.
+- Production-browser coverage exercises real CSV→XLSX→re-import and HEIC→PNG flows in addition to
+  focused parser, crypto, privacy, contract, build, lint, and shell regressions.
+- Updated checkout, Node setup, and pnpm setup Actions to official Node 24-compatible releases pinned
+  by immutable commit SHA; CI remains read-only and production deployment remains manual from `main`.
+- Verified seven production builds, 1,138 tests, all seven browser suites, zero-warning lint, privacy
+  and application contracts, and a production dependency audit with no known vulnerabilities.
+
 ## v0.2.6 (2026-07-13)
 
 ### Added

@@ -4,7 +4,10 @@ import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
 import { chromium } from 'playwright'
+import { PDFDocument } from 'pdf-lib'
 import { assertAppMarkStyle, assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
+
+const heicFixture = Buffer.from('AAAAJGZ0eXBoZWljAAAAAG1pZjFNaVBybWlhZk1pSEJoZWljAAABw21ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAHBpY3QAAAAAAAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAAADnBpdG0AAAAAAAEAAAA4aWluZgAAAAAAAgAAABVpbmZlAgAAAAABAABodmMxAAAAABVpbmZlAgAAAQACAABFeGlmAAAAABppcmVmAAAAAAAAAA5jZHNjAAIAAQABAAAA5mlwcnAAAADFaXBjbwAAABNjb2xybmNseAACAAIABoAAAAAMY2xsaQDLAEAAAAAUaXNwZQAAAAAAAAAwAAAAIAAAAAlpcm90AAAAABBwaXhpAAAAAAMICAgAAABxaHZjQwEDcAAAALAAAAAAAB7wAPz9+PgAAAsDoAABABdAAQwB//8DcAAAAwCwAAADAAADAB5wJKEAAQAjQgEBA3AAAAMAsAAAAwAAAwAeoBQgQcHMI4h7kWVTcCAgYAiiAAEACUQBwGcshAUyQAAAABlpcG1hAAAAAAAAAAEAAQaBAgMFhoQAAAAsaWxvYwAAAABEAAACAAEAAAABAAACMwAAAhQAAgAAAAEAAAH3AAAAPAAAAAFtZGF0AAAAAAAAAmAAAAAGRXhpZgAATU0AKgAAAAgAAwESAAMAAAABAAEAAAFCAAQAAAABAAAAMAFDAAQAAAABAAAAIAAAAAAAAAIQKAGvoT944QflDUMwKJI6ALro6myb9BP06r9PSpfUI34Y7+FLGR9uPURUGqLp2MyJXJoVnsnq1lzuEGY/dus2ZVzHyKpGdGF4iTbiCpqv56CByEXQGavEo4Gyl/m23SWeqLp7PgEinrZjT+eHVM0s/G+etKINafFzZX4YisvZ7RK/zCNnbAM+zrEX9/3U9coznx6LtvbnL67gyo+MAqeO6Ptr+AxqBo/3cThA3NVtd4B/3XZZhBpZ3pJVFzJ8598bda/g9cE1ZK/GVSIeBfdBhU4m8ypJdOI/CridS06AbKgUfwdgQ8KzsJhbyZj2LOWnP23E7KGLPtDICy4f4omyQ7XTxY+QirFKi2eDTHUzth/M6h0ux95Gjj/jWw8zfK6l95ia13VErcHKEdUoNMWTCwPwotTH5QGGHe10oHtGjc8lNBLLRYYNa+TZ+egb00cGL4chZtBjoAD1bTvNeDpR8EMeXjRxs/gEg7KcATZi/11cNRk5U8b2lRFYK1DdhzVCrnsFbtHl7oeC/19Id+yszLcVgIRWVWbZL9eKAfbJ+beoWqtOFX4akuOLPXG2cJZQ1cLM3PcCshPiROa0xrjmuJ14zkFXMAPBKU/3SgA8W20flVxKriAZgQ/NYtg5GyA3F6bnhWPi5KlIRJ85z//XON5//g4v/vlp1h6EJu/9gnOf4X2Cub0C3wjlMWQZNU+A', 'base64')
 
 const appRoot = fileURLToPath(new URL('../', import.meta.url))
 const viteCli = fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url))
@@ -52,6 +55,8 @@ try {
     assert.equal(await page.locator('.family-overview').isVisible(), true)
     await page.getByRole('tab', { name: /PDF tools|PDF 工具/ }).click()
     assert.equal(await page.locator('.family-page:not([hidden]) .file-picker').isVisible(), true)
+    await page.getByRole('tab', { name: /Table data|表格数据/ }).click()
+    assert.equal(await page.locator('.family-page:not([hidden]) .file-picker').isVisible(), true)
     await page.getByRole('tab', { name: /Archives|压缩包/ }).click()
     assert.equal(await page.locator('.family-page:not([hidden]) .file-picker').isVisible(), true)
     await page.getByRole('tab', { name: /File home|文件首页/ }).click()
@@ -64,11 +69,15 @@ try {
   const workspaceTab = page.getByRole('tab', { name: /Image conversion|图片格式转换/ })
   const gifTab = page.getByRole('tab', { name: /GIF composer|GIF 合成/ })
   const textTab = page.getByRole('tab', { name: /Text & markup|文本与标记转换/ })
+  const dataTab = page.getByRole('tab', { name: /Table data|表格数据/ })
   const pdfTab = page.getByRole('tab', { name: /PDF tools|PDF 工具/ })
   const archiveTab = page.getByRole('tab', { name: /Archives|压缩包/ })
   const knowledgeTab = page.getByRole('tab', { name: /Knowledge base|知识库/ })
+  await homeTab.click()
+  assert.equal(await page.locator('.unified-picker > summary').isVisible(), true)
+  assert.equal(await page.locator('.unified-picker input[type=file]').count(), 2)
   const pickerHeights = []
-  for (const tab of [homeTab, workspaceTab, gifTab, textTab, pdfTab, archiveTab]) {
+  for (const tab of [workspaceTab, gifTab, textTab, dataTab, pdfTab, archiveTab]) {
     await tab.click()
     const picker = page.locator('main [role=tabpanel]:not([hidden]) .file-picker').first()
     assert.equal(await picker.isVisible(), true)
@@ -88,14 +97,75 @@ try {
     { name: 'IMG_sample.png', mimeType: 'image/png', buffer: png },
     { name: 'manual.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.7\n') },
     { name: 'budget.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: Buffer.from([0x50, 0x4b, 0x03, 0x04]) },
+    { name: 'records.csv', mimeType: 'text/csv', buffer: Buffer.from('name,amount,note\nAlice,42,"local only"\nBob,7,=2+2') },
   ])
-  await page.waitForFunction(() => document.querySelectorAll('.home-file-list > div').length === 3 && !document.body.textContent.includes('Identifying locally'))
-  assert.equal(await page.locator('.home-file-list > div').count(), 3)
-  const spreadsheetRow = page.locator('.home-file-list > div').filter({ hasText: 'budget.xlsx' })
+  await page.waitForFunction(() => document.querySelectorAll('.home-file-row').length === 4 && !document.body.textContent.includes('Identifying locally'))
+  assert.equal(await page.locator('.home-file-row').count(), 4)
+  assert.equal(await page.locator('.home-family-group').count() >= 3, true)
+  assert.equal(await page.locator('.home-session-overview').isVisible(), true)
+  const spreadsheetRow = page.locator('.home-file-row').filter({ hasText: 'budget.xlsx' })
   await spreadsheetRow.locator('button').first().click()
   assert.match(await page.locator('.file-summary').textContent(), /XLSX/)
-  assert.equal(await page.locator('.home-recommendations').getByRole('button', { name: /Open tool|打开工具/ }).count(), 0)
-  await page.locator('.home-file-list > div').first().locator('button').first().click()
+  assert.equal(await page.locator('.home-recommendations').getByRole('button', { name: /Open tool|打开工具/ }).count(), 1)
+
+  const csvRow = page.locator('.home-file-row').filter({ hasText: 'records.csv' })
+  await csvRow.locator('button').first().click()
+  assert.match(await page.locator('.file-summary').textContent(), /CSV/)
+  await page.locator('.home-recommendations').getByRole('button', { name: /Open tool|打开工具/ }).click()
+  assert.equal(await dataTab.getAttribute('aria-selected'), 'true')
+  await page.waitForFunction(() => document.querySelectorAll('.data-preview tbody tr').length === 3)
+  assert.match(await page.locator('.data-summary').textContent(), /CSV/)
+  assert.equal(await page.locator('.data-preview td').filter({ hasText: '=2+2' }).count(), 1)
+  await page.getByRole('button', { name: /Generate XLSX|生成 XLSX/ }).click()
+  await page.locator('.data-result').waitFor()
+  const xlsxDownloadPromise = page.waitForEvent('download')
+  await page.locator('.data-result').getByRole('button', { name: /Download separately|单独下载/ }).click()
+  const xlsxDownload = await xlsxDownloadPromise
+  const xlsxStream = await xlsxDownload.createReadStream()
+  const xlsxChunks = []
+  for await (const chunk of xlsxStream) xlsxChunks.push(chunk)
+  const generatedXlsx = Buffer.concat(xlsxChunks)
+  assert.equal(generatedXlsx.subarray(0, 2).toString(), 'PK')
+  await page.locator('.data-page input[type=file]').setInputFiles({
+    name: 'records.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: generatedXlsx,
+  })
+  await page.waitForFunction(() => document.querySelector('.data-summary')?.textContent.includes('XLSX'))
+  assert.equal(await page.locator('.data-preview td').filter({ hasText: 'Alice' }).count(), 1)
+  assert.match(await page.locator('.boundary-note').textContent(), /cached (?:file )?values|缓存值/)
+
+  const firstPdf = await PDFDocument.create()
+  firstPdf.addPage([300, 400])
+  firstPdf.addPage([500, 600])
+  const secondPdf = await PDFDocument.create()
+  secondPdf.addPage([700, 800])
+  await pdfTab.click()
+  await page.locator('#panel-pdf input[type=file]').setInputFiles([
+    { name: 'part-a.pdf', mimeType: 'application/pdf', buffer: Buffer.from(await firstPdf.save()) },
+    { name: 'part-b.pdf', mimeType: 'application/pdf', buffer: Buffer.from(await secondPdf.save()) },
+  ])
+  await page.waitForFunction(() => document.querySelectorAll('.pdf-document-list > div').length === 2 && document.querySelector('.inspection-grid')?.textContent.includes('2'))
+  assert.equal(await page.locator('.pdf-document-list > div').count(), 2)
+  assert.equal(await page.locator('.pdf-operation-list button').count(), 5)
+  assert.equal(await page.locator('.pdf-operation-layout').isVisible(), true)
+  const pageExpression = page.locator('.pdf-page-field input')
+  assert.equal((await pageExpression.boundingBox())?.height, 46)
+  await page.getByRole('button', { name: /^Odd$|^奇数页$/ }).click()
+  assert.equal(await pageExpression.inputValue(), '1')
+  assert.match(await page.locator('.pdf-page-plan').textContent(), /result 1 pages|结果 1 页/)
+  const pdfDownloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: /Merge 2 PDFs|合并 2 份/ }).click()
+  await page.locator('.pdf-result').waitFor()
+  await page.getByRole('button', { name: /Download result|下载结果/ }).click()
+  const pdfDownload = await pdfDownloadPromise
+  assert.match(pdfDownload.suggestedFilename(), /formtran-merged-\d{4}-\d{2}-\d{2}\.pdf/)
+
+  await homeTab.click()
+  assert.equal(await page.locator('.output-row').count() >= 2, true)
+  assert.match(await page.locator('.output-desk').textContent(), /records\.xlsx/)
+  assert.match(await page.locator('.output-desk').textContent(), /formtran-merged-\d{4}-\d{2}-\d{2}\.pdf/)
+  const outputControlRows = await page.locator('.output-control-main').evaluateAll((rows) => rows.map((row) => row.getBoundingClientRect()))
+  assert.equal(outputControlRows.every((row) => Math.abs(row.top - outputControlRows[0].top) < 1 && Math.abs(row.height - 44) < 1), true)
+  await page.locator('.home-file-row').first().locator('button').first().click()
   assert.match(await page.locator('.file-summary').textContent(), /PNG/)
   assert.equal(await page.locator('.capability.planned').count() > 0, true)
   const rotateTool = page.locator('.tool-row').filter({ hasText: /Rotate & flip|旋转与翻转/ })
@@ -179,6 +249,14 @@ try {
   await page.locator('.download-control').getByRole('button', { name: /^Download$|^下载$/ }).click()
   await page.waitForFunction(() => window.__formtranDownloads.length === 2)
   assert.match(await page.evaluate(() => window.__formtranDownloads[1]), /\.zip$/)
+  await homeTab.click()
+  await page.getByLabel(/Batch naming template|批量命名模板/).fill('bundle-{index}')
+  await page.getByRole('button', { name: /Apply names|应用命名/ }).click()
+  assert.equal(await page.locator('.output-name-editor input').evaluateAll((inputs) => inputs.every((input) => input.value.startsWith('bundle-'))), true)
+  await page.locator('.output-export-main').getByRole('button', { name: /Export results \(\d+\)|导出 \d+ 项/ }).click()
+  await page.waitForFunction(() => window.__formtranDownloads.length === 3)
+  assert.match(await page.evaluate(() => window.__formtranDownloads[2]), /^formtran-results-\d{4}-\d{2}-\d{2}\.zip$/)
+  await workspaceTab.click()
 
   await page.locator('.queue-panel').getByRole('button', { name: /^Clear$|^清空$/ }).click()
   await page.locator('.drop-zone input[type=file]').first().setInputFiles({
@@ -187,6 +265,21 @@ try {
   await page.getByRole('button', { name: /Convert images|开始转换/ }).click()
   await page.locator('.status-badge.done').waitFor()
   assert.match(await page.locator('.file-output small').textContent(), /3 × 2/)
+
+  await page.locator('.queue-panel').getByRole('button', { name: /^Clear$|^清空$/ }).click()
+  await page.getByRole('button', { name: '0°', exact: true }).click()
+  await page.getByRole('button', { name: 'PNG', exact: true }).click()
+  await page.locator('.drop-zone input[type=file]').first().setInputFiles({
+    name: 'iphone-photo.heic', mimeType: 'image/heic', buffer: heicFixture,
+  })
+  await page.locator('.file-row').waitFor()
+  assert.match(await page.locator('.file-row').textContent(), /HEIC/)
+  assert.equal(await page.locator('.thumbnail img').count(), 0)
+  await page.getByRole('button', { name: /Convert images|开始转换/ }).click()
+  await page.locator('.status-badge.done').waitFor()
+  assert.match(await page.locator('.file-row').textContent(), /iphone-photo\.png/)
+  assert.match(await page.locator('.file-output').textContent(), /48 × 32/)
+  assert.equal(await page.locator('.result-gallery img').count(), 1)
 
   await page.evaluate(() => window.ToolboxTheme.setTheme('light'))
   const lightSurfaces = await page.evaluate(() => ({
@@ -246,6 +339,13 @@ try {
   await page.locator('.gif-page').getByRole('button', { name: /^Clear$|^清空$/ }).click()
   assert.equal(await page.locator('.frame-strip article').count(), 0)
   assert.equal(await page.locator('.gif-result').count(), 0)
+
+  await homeTab.click()
+  await page.locator('.home-file-panel').getByRole('button', { name: /Clear task|清空任务/ }).click()
+  assert.equal(await page.locator('.home-file-row').count(), 0)
+  assert.equal(await page.locator('.output-row').count(), 0)
+  await pdfTab.click()
+  assert.equal(await page.locator('.pdf-document-list > div').count(), 0)
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(previewUrl, { waitUntil: 'networkidle' })

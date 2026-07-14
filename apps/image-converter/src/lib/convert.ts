@@ -1,18 +1,20 @@
 import type { ConversionSettings, ImageRotation, OutputFormat } from "./types";
 
-export const ACCEPTED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif", "bmp", "avif", "svg"] as const;
+export const ACCEPTED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif", "bmp", "avif", "svg", "heic", "heif"] as const;
 export const ACCEPT_ATTRIBUTE = ACCEPTED_EXTENSIONS.map((extension) => `.${extension}`).join(",");
 export const MAX_FILES = 500;
 export const MAX_FILE_BYTES = 512 * 1024 * 1024;
 export const MAX_TOTAL_BYTES = 2 * 1024 * 1024 * 1024;
 export const MAX_CANVAS_SIDE = 16384;
 export const MAX_MEGAPIXELS = 80;
+export const MAX_HEIC_INPUT_BYTES = 64 * 1024 * 1024;
 
 const SAFE_EMBEDDED_IMAGE = /^data:image\/(?:png|jpe?g|gif|webp|avif|bmp);base64,/i;
 
 const MIME_BY_EXTENSION: Record<string, string> = {
   jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp",
   gif: "image/gif", bmp: "image/bmp", avif: "image/avif", svg: "image/svg+xml",
+  heic: "image/heic", heif: "image/heif",
 };
 
 export type ConvertedImage = {
@@ -84,9 +86,38 @@ async function normalizedBlob(file: File): Promise<Blob> {
   return file.type ? file : new Blob([await file.arrayBuffer()], { type: MIME_BY_EXTENSION[extension] });
 }
 
-type Drawable = ImageBitmap | HTMLImageElement;
+type Drawable = ImageBitmap | HTMLImageElement | HTMLCanvasElement;
 
-async function decode(blob: Blob): Promise<{ drawable: Drawable; width: number; height: number; close: () => void }> {
+export function isHeicInput(file: Pick<File, "name" | "size">): boolean {
+  return ["heic", "heif"].includes(getFileExtension(file.name));
+}
+
+async function decodeHeic(blob: Blob): Promise<{ drawable: Drawable; width: number; height: number; close: () => void }> {
+  if (blob.size > MAX_HEIC_INPUT_BYTES) throw new Error("heic-file-limit");
+  try {
+    const { decode: decodeHeicImage } = await import("@discourse/heic");
+    const imageData = await decodeHeicImage(await blob.arrayBuffer());
+    if (!imageData.width || !imageData.height || imageData.width > MAX_CANVAS_SIDE || imageData.height > MAX_CANVAS_SIDE || imageData.width * imageData.height > MAX_MEGAPIXELS * 1_000_000) {
+      throw new Error("image-too-large");
+    }
+    if (typeof createImageBitmap === "function") {
+      const bitmap = await createImageBitmap(imageData);
+      return { drawable: bitmap, width: bitmap.width, height: bitmap.height, close: () => bitmap.close() };
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("canvas-unavailable");
+    context.putImageData(imageData, 0, 0);
+    return { drawable: canvas, width: canvas.width, height: canvas.height, close: () => {} };
+  } catch (error) {
+    if (error instanceof Error && ["heic-file-limit", "image-too-large", "canvas-unavailable"].includes(error.message)) throw error;
+    throw new Error("decode-failed");
+  }
+}
+
+async function decode(blob: Blob, extension: string): Promise<{ drawable: Drawable; width: number; height: number; close: () => void }> {
   if (typeof createImageBitmap === "function") {
     try {
       const bitmap = await createImageBitmap(blob, { imageOrientation: "from-image" });
@@ -107,6 +138,7 @@ async function decode(blob: Blob): Promise<{ drawable: Drawable; width: number; 
     return { drawable: image, width: image.naturalWidth, height: image.naturalHeight, close: () => URL.revokeObjectURL(url) };
   } catch (error) {
     URL.revokeObjectURL(url);
+    if (extension === "heic" || extension === "heif") return decodeHeic(blob);
     throw error;
   }
 }
@@ -119,7 +151,7 @@ function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number):
 
 export async function convertImage(file: File, settings: ConversionSettings): Promise<ConvertedImage> {
   const sourceBlob = await normalizedBlob(file);
-  const decoded = await decode(sourceBlob);
+  const decoded = await decode(sourceBlob, getFileExtension(file.name));
   try {
     const dimensions = calculateDimensions(decoded.width, decoded.height, settings);
     const outputDimensions = calculateOutputDimensions(dimensions.width, dimensions.height, settings.rotation);

@@ -19,6 +19,7 @@ A collection of privacy-first web tools. Core calculations run locally in your b
 | ChronoSphere | `/chrono-sphere/` | Date & timezone utility | React + TS + Vite |
 | Monitor Choice | `/monitor-choice/` | Display parameter lab | HTML + Vanilla JS (Canvas) |
 | SaneUnits | `/sane-units/` | Unit conversion & estimation | React + TS + Vite |
+| FormTran | `/image-converter/` | Local file, image, table, PDF, and ZIP workspace | React + TS + Vite |
 
 ---
 

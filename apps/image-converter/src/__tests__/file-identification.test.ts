@@ -30,6 +30,7 @@ describe("local file identification", () => {
   it("classifies supported text and data names without treating recognition as decoding", async () => {
     expect(await identifyFile(file("notes.md", "# Notes"))).toMatchObject({ family: "text", format: "Markdown", source: "extension" });
     expect(await identifyFile(file("records.yaml", "safe: true"))).toMatchObject({ family: "data", format: "YAML", source: "extension" });
+    expect(await identifyFile(file("records.tsv", "name\tvalue"))).toMatchObject({ family: "data", format: "TSV", source: "extension" });
     expect(await identifyFile(file("unknown.bin", [1, 2, 3]))).toMatchObject({ family: "unknown", source: "unknown" });
   });
 

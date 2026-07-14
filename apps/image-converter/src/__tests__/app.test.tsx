@@ -1,9 +1,10 @@
 import React from "react";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "../App";
 import { translations } from "../i18n";
 import { createZip } from "../lib/zip";
+import { PDFDocument } from "pdf-lib";
 
 afterEach(() => { cleanup(); localStorage.clear(); });
 
@@ -26,7 +27,7 @@ describe("application shell", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("FormTran");
     expect(container.querySelectorAll(".toolbox-nav")).toHaveLength(1);
     expect(container.querySelectorAll(".toolbox-footer")).toHaveLength(1);
-    expect(screen.getByRole("heading", { name: /Drop a file|把文件拖进来/ })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Bring content together|把内容放进来/ })).toBeTruthy();
   });
 
   it("normalizes valid JSON with unsafe persisted setting values", () => {
@@ -56,10 +57,10 @@ describe("application shell", () => {
   it("exposes automatic routing plus manual family workspaces", () => {
     render(<App />);
     const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(7);
+    expect(tabs).toHaveLength(8);
     expect(tabs[0].getAttribute("aria-selected")).toBe("true");
-    fireEvent.click(tabs[6]);
-    expect(tabs[6].getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(tabs[7]);
+    expect(tabs[7].getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tabpanel").id).toBe("panel-knowledge");
     expect(screen.getByText(/Knowledge base privacy|知识库隐私说明/)).toBeTruthy();
   });
@@ -79,7 +80,7 @@ describe("application shell", () => {
   it("keeps the file-home queue while visiting another workspace", async () => {
     render(<App />);
     const png = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])], "kept.png");
-    fireEvent.change(screen.getByLabelText(/Choose files|选择文件/), { target: { files: [png] } });
+    fireEvent.change(screen.getByLabelText(/Add files|添加文件/), { target: { files: [png] } });
     await waitFor(() => expect(screen.getAllByText(/kept\.png/).length).toBeGreaterThan(0));
     const tabs = screen.getAllByRole("tab");
     fireEvent.click(tabs[1]);
@@ -87,15 +88,40 @@ describe("application shell", () => {
     expect(screen.getAllByText(/kept\.png/).length).toBeGreaterThan(0);
   });
 
+  it("clears routed workspace state when the Home task is cleared", async () => {
+    const { container } = render(<App />);
+    const pdfDocument = await PDFDocument.create();
+    pdfDocument.addPage([612, 792]);
+    const pdf = new File([Uint8Array.from(await pdfDocument.save()).buffer], "routed.pdf", { type: "application/pdf" });
+    fireEvent.change(screen.getByLabelText(/Add files|添加文件/), { target: { files: [pdf] } });
+    await waitFor(() => expect(container.querySelectorAll(".home-file-row")).toHaveLength(1));
+    fireEvent.click(container.querySelector<HTMLButtonElement>(".home-file-row button")!);
+    await waitFor(() => expect(container.querySelector(".tool-row .button")).not.toBeNull());
+    fireEvent.click(container.querySelector<HTMLButtonElement>(".tool-row .button")!);
+    await waitFor(() => expect(container.querySelectorAll(".pdf-document-list > div")).toHaveLength(1));
+
+    fireEvent.click(screen.getAllByRole("tab")[0]);
+    fireEvent.click(within(container.querySelector<HTMLElement>(".home-file-panel")!).getByRole("button", { name: /Clear task|清空任务/ }));
+    fireEvent.click(screen.getAllByRole("tab")[5]);
+    expect(container.querySelectorAll(".pdf-document-list > div")).toHaveLength(0);
+  });
+
   it("opens PDF and ZIP families manually and reports local structure", async () => {
     render(<App />);
     const tabs = screen.getAllByRole("tab");
-    fireEvent.click(tabs[4]);
-    const pdf = new File(["%PDF-1.7\n1 0 obj\n<< /Type /Page /MediaBox [0 0 612 792] >>\nendobj\n%%EOF"], "notes.pdf", { type: "application/pdf" });
-    fireEvent.change(screen.getByLabelText(/Open PDF|打开 PDF/), { target: { files: [pdf] } });
-    await waitFor(() => expect(screen.getByText("PDF 1.7")).toBeTruthy());
-
     fireEvent.click(tabs[5]);
+    const pdfDocument = await PDFDocument.create();
+    pdfDocument.addPage([612, 792]);
+    const pdf = new File([Uint8Array.from(await pdfDocument.save()).buffer], "notes.pdf", { type: "application/pdf" });
+    fireEvent.change(screen.getByLabelText(/Add PDFs|添加 PDF/), { target: { files: [pdf] } });
+    await waitFor(() => expect(screen.getByText("PDF 1.7")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: /Generate new file|生成新文件/ }));
+    await waitFor(() => expect(screen.getAllByText("notes-extracted.pdf")).toHaveLength(2));
+    fireEvent.click(tabs[0]);
+    expect(screen.getByRole("heading", { name: /Task results|任务结果/ })).toBeTruthy();
+    expect(screen.getAllByText("notes-extracted.pdf").length).toBeGreaterThan(0);
+
+    fireEvent.click(tabs[6]);
     const zipBlob = await createZip([{ name: "safe/notes.txt", blob: new Blob(["local"]) }]);
     const zip = new File([await readBlob(zipBlob)], "notes.zip", { type: "application/zip" });
     fireEvent.change(screen.getByLabelText(/Open ZIP|打开 ZIP/), { target: { files: [zip] } });

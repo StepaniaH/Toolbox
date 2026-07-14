@@ -4,6 +4,7 @@ import { FilePicker } from "./FilePicker";
 import { ACCEPT_ATTRIBUTE, getFileExtension, isAcceptedImage, sanitizeSvg } from "./lib/convert";
 import { triggerDownload } from "./lib/download";
 import { encodeGif, type GifFrame } from "./lib/gif";
+import type { OutputDraft } from "./lib/output-registry";
 
 type SourceFrame = { id: string; file: File; url: string };
 
@@ -28,7 +29,7 @@ async function decodeFile(file: File): Promise<{ image: CanvasImageSource; width
   }
 }
 
-export function GifComposer({ hidden, incoming }: { hidden?: boolean; incoming?: { id: number; files: File[] } }) {
+export function GifComposer({ hidden, incoming, onOutput }: { hidden?: boolean; incoming?: { id: number; files: File[] }; onOutput?: (drafts: OutputDraft[]) => unknown }) {
   const { t } = useTranslation();
   const [frames, setFrames] = useState<SourceFrame[]>([]);
   const [width, setWidth] = useState(640);
@@ -112,6 +113,7 @@ export function GifComposer({ hidden, incoming }: { hidden?: boolean; incoming?:
       const blob = encodeGif(encodedFrames, { loop });
       if (result) URL.revokeObjectURL(result.url);
       setResult({ blob, url: URL.createObjectURL(blob) });
+      onOutput?.([{ blob, name: "formtran-animation.gif", sourceName: frames[0]?.file.name, family: "gif", tool: "gif" }]);
     } catch (caught) {
       const key = caught instanceof Error ? caught.message : "unknown";
       setError(t(`gif.errors.${key}`) === `gif.errors.${key}` ? t("gif.errors.unknown") : t(`gif.errors.${key}`));

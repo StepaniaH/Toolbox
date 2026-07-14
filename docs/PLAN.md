@@ -67,7 +67,7 @@ main 稳定线
 
 已经成立的基础：
 
-- 六个工具独立构建，根 build/test/lint/browser 自动发现 workspace。
+- 七个工具独立构建，根 build/test/lint/browser 自动发现 workspace。
 - theme/nav/i18n/manifest 已同时覆盖 React 与 Vanilla 工具。
 - 共享导航、双语关键词搜索、canonical icon、页脚和偏好状态已有生产浏览器门禁。
 - privacy/contracts 能检查应用隔离、base/output、受控依赖、storage、网络 allowlist 和脚本面。
@@ -154,9 +154,9 @@ main 稳定线
 
 | 候选 | 首要能力 | 主要边界 / 实现前提 |
 |---|---|---|
-| FormTran | 从格式转换扩展为本地文件工作台：首页识别文件并推荐转换、压缩、编辑、拆分、合并、编码、解析与信息查看工具 | 首页只识别与分流，不自动处理；能力按可用/有限/规划分级，图片、GIF、PDF、文本数据和压缩包仍使用独立业务工作台与资源预算 |
-| Data Converter | CSV / JSON / NDJSON / YAML / XML / TSV 互转 | 大文件使用流式解析；公式注入、类型推断和精度必须可配置 |
-| Text & Encoding Converter | UTF-8、Base64、URL、HTML 实体、换行与哈希 | 区分字符集、编码、加密与哈希，二进制预览设上限，避免把不可逆操作伪装成转换 |
+| FormTran | 本地文件工作台；统一任务入口已开放图片/GIF/文本、HEIC/HEIF、CSV/TSV/XLSX、PDF 页面与 ZIP 提取 | 首页负责识别、分组、范围、总览与共享结果；各文件族使用隔离工作台与资源预算，不自动处理源文件 |
+| Structured Data extensions | FormTran 已实现 CSV/TSV/XLSX 值转换；后续再评估 JSON / NDJSON / YAML / XML | 后续大文件优先流式解析；类型推断、数字精度、实体与公式注入必须显式治理 |
+| CryptoLab | dev hidden 候选已实现 Base64、URL/HTML/Hex、哈希、HMAC、AES/ChaCha20、RSA、JWT 与 Secure Share | 区分编码、哈希、加密和签名；私钥不进入二维码、URL、storage 或网络，浏览器能力缺失时明确失败 |
 | Text & Markup Converter | 已作为 FormTran 独立 Tab 实现 TXT / Markdown / Org-mode / RST / AsciiDoc / HTML 互转、结构解析与预览 | 使用轻量 AST 保留标题、段落、列表、链接、引用、代码块和分隔线；明确提示方言语法无法完整往返 |
 | Audio Converter | WAV / MP3 / AAC / Opus / FLAC 与裁切、码率 | 优先 WebCodecs，缺失编码器再评估可审计的本地 WASM 与包体预算 |
 | Video Converter | 容器/编码、分辨率、帧率、音轨与片段 | 依赖 WebCodecs/WASM、内存与长任务治理；先做能力检测和取消/恢复 |
@@ -164,10 +164,11 @@ main 稳定线
 | Document & Ebook Converter | EPUB / HTML 文档包及开放电子书格式 | 保留语义、目录和资源引用；与轻量标记文本转换分开，PDF/Office 高保真转换不承诺纯浏览器首版 |
 | Icon & Asset Packager | SVG / PNG / ICO、favicon 与多尺寸资源包 | SVG 必须清理脚本与外部引用；输出可复核的尺寸和 manifest |
 
-候选进入 TASKS 前必须形成独立 Brief、隐私与资源预算。FormTran 可以统一承载“本地文件处理”
-心智，但首页只负责识别和推荐；图片、GIF、PDF、文本数据与压缩包使用隔离的业务模块，并按需
-加载重型能力。音视频等显著增加包体、长任务与编解码风险的领域仍优先保持独立应用。任何能力
-都绝不为覆盖率静默上传文件。详细边界由候选内的 `docs/FILE_WORKBENCH.md` 维护。
+候选进入 TASKS 前必须形成独立 Brief、隐私与资源预算。FormTran 统一承载“本地文件任务”心智：
+首页负责一个入口、识别、分组、操作范围、总体/单项预览与工作台流转；图片、GIF、PDF、文本数据
+与压缩包继续使用隔离业务模块，并按需加载重型能力；处理结果回到首页共享队列，统一完成范围命名、
+预览和直接/ZIP 导出。音视频等显著增加包体、长任务与编解码风险的领域仍优先保持独立应用。任何能力都绝不
+为覆盖率静默上传文件。详细边界由候选内的 `docs/FILE_WORKBENCH.md` 维护。
 
 ## 五、规划视野
 

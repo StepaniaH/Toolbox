@@ -1,0 +1,223 @@
+{
+  "meta": {
+    "title": "CryptoLab · Local cryptography and secure sharing",
+    "description": "Encode, hash, encrypt, inspect JWTs, and share public-key encrypted QR messages locally in your browser"
+  },
+  "header": {
+    "subtitle": "Local cryptography, secure sharing, and JWT utilities"
+  },
+  "footer": {
+    "privacy": "All computation stays in your browser; no data leaves the page."
+  },
+  "nav": {
+    "share": "Secure share",
+    "encoding": "Encoding",
+    "hash": "Digest",
+    "cipher": "Symmetric",
+    "rsa": "RSA",
+    "jwt": "JWT",
+    "kb": "Knowledge",
+    "about": "About",
+    "aria": "Tool modules"
+  },
+  "common": {
+    "input": "Input",
+    "output": "Output",
+    "copyInput": "Copy input",
+    "copyOutput": "Copy output",
+    "clear": "Clear",
+    "swap": "Swap input/output",
+    "generate": "Generate",
+    "error": "Error",
+    "encrypt": "Encrypt",
+    "decrypt": "Decrypt",
+    "sign": "Sign",
+    "verify": "Verify",
+    "loading": "Loading module…"
+  },
+  "share": {
+    "title": "Encrypt a message for one recipient",
+    "intro": "The recipient keeps the private key and shares the public key. The sender creates a QR code or packet. A random AES key encrypts the message, then RSA wraps that AES key.",
+    "factsLabel": "Secure sharing properties",
+    "factLocal": "Processed entirely locally",
+    "factPrivate": "Private key never enters the QR code",
+    "factAuthenticated": "Tampering causes decryption to fail",
+    "packet": "CL1 encrypted packet",
+    "keys": {
+      "title": "Recipient prepares keys",
+      "detail": "Generate a 2048-bit RSA-OAEP key pair. Share only the public key with the sender; keep or safely back up the private key on the recipient side.",
+      "generate": "Generate recipient keys",
+      "generating": "Generating…",
+      "standard": "RSA-OAEP / SHA-256 · 2048 bit",
+      "public": "Recipient public key (safe to share)",
+      "publicPlaceholder": "Generate or paste a PEM public key",
+      "copyPublic": "Copy public key",
+      "privateSummary": "Reveal private key (recipient only)",
+      "private": "Recipient private key (never share)",
+      "privatePlaceholder": "Generate or paste a PEM private key",
+      "copyPrivate": "Copy private key",
+      "downloadPrivate": "Download private key",
+      "privateWarning": "Anyone with this private key can decrypt packets sent to it. CryptoLab does not save keys; store it offline because a lost key cannot be recovered."
+    },
+    "encrypt": {
+      "title": "Sender creates a QR code",
+      "detail": "Paste the recipient public key and enter a message. Every run creates a new AES-256-GCM key and random IV, so identical messages produce different packets.",
+      "message": "Message to encrypt",
+      "placeholder": "Enter a short message; QR works best for credentials, addresses, and brief instructions",
+      "bytes": "{{current}} / {{max}} UTF-8 bytes",
+      "create": "Encrypt and create QR",
+      "creating": "Encrypting…",
+      "qrAlt": "QR code containing a CL1 encrypted packet",
+      "qrHint": "The QR contains only ciphertext, a random IV, and the AES key wrapped by the public key.",
+      "copyPacket": "Copy packet",
+      "downloadQr": "Download QR",
+      "downloadPacket": "Download packet"
+    },
+    "decrypt": {
+      "title": "Recipient imports and decrypts",
+      "detail": "Upload the received QR image or .cryptolab packet, or paste the packet. Only the matching private key can complete authenticated decryption.",
+      "import": "Upload QR or packet",
+      "importing": "Reading…",
+      "importHint": "PNG / JPEG / WebP / .cryptolab / TXT, up to 8 MB",
+      "packetPlaceholder": "Paste a packet beginning with CL1.",
+      "privateReminder": "The private key is used only in this page's memory",
+      "action": "Decrypt with private key",
+      "decrypting": "Decrypting…",
+      "output": "Decrypted message",
+      "copy": "Copy decrypted message"
+    },
+    "status": {
+      "keysReady": "Keys were generated locally. Back up the private key safely before sharing the public key.",
+      "packetReady": "The QR code and packet were generated locally.",
+      "imported": "The file was read and its CL1 packet structure was validated.",
+      "decrypted": "Authenticated decryption succeeded; no packet tampering was detected."
+    },
+    "errors": {
+      "empty-message": "Enter a message to encrypt.",
+      "message-too-large": "The message exceeds the 1,024-byte safe QR budget.",
+      "invalid-packet": "This is not a valid CL1 packet, or a field violates its safety limits.",
+      "packet-too-large": "The packet exceeds the safe QR capacity.",
+      "encryption-failed": "This public key could not encrypt the message; check that it is an RSA-OAEP PEM public key.",
+      "decryption-failed": "Decryption failed: the private key does not match, or the packet is damaged or tampered with.",
+      "file-too-large": "The file exceeds the 8 MB import limit.",
+      "unsupported-file": "Only PNG, JPEG, WebP, .cryptolab, and TXT are supported.",
+      "image-too-large": "The image exceeds the local pixel safety budget.",
+      "image-unreadable": "The browser could not read this image.",
+      "qr-not-found": "No usable QR code was found in the image.",
+      "key-generation": "This browser could not generate an RSA key pair.",
+      "import-failed": "The file could not be read."
+    }
+  },
+  "about": {
+    "title": "About CryptoLab",
+    "intro": "CryptoLab is a local workbench for development, learning, and short-message exchange. It keeps the boundaries between encoding, hashing, and encryption explicit.",
+    "purpose": {
+      "title": "Purpose",
+      "body": "Encoding and radix tools, digests and HMAC, symmetric encryption, RSA, JWT inspection, and CL1 secure sharing live in one workbench. The knowledge base explains the capability and limits of each family."
+    },
+    "privacy": {
+      "title": "Privacy",
+      "body": "Messages, keys, tokens, QR codes, and files exist only in current browser memory. There are no accounts, backend, telemetry, ads, cookies, remote fonts, or business network requests. Refreshing clears the content."
+    },
+    "security": {
+      "title": "Security model",
+      "body": "Secure share uses RSA-OAEP/SHA-256 to wrap a random AES-256-GCM key and binds a fixed context as additional authenticated data. CL1 packets enforce strict version, length, and format checks; private keys never enter QR codes or URLs."
+    },
+    "limits": {
+      "title": "Limits",
+      "body": "QR messages are limited to 1,024 UTF-8 bytes. The tool does not provide identity authentication, key custody, revocation, forward secrecy, or protection from a compromised device. AES-CBC, raw ChaCha20, MD5, and SHA-1 are compatibility and learning tools only."
+    },
+    "disclaimer": "Do not treat an experimental utility as a key-management system. High-value or long-lived keys belong in audited hardware, a password manager, or an organizational security process."
+  },
+  "encoding": {
+    "kind": "Kind",
+    "url": "URL encode",
+    "urlComponent": "URL Component",
+    "html": "HTML entities",
+    "radix": "Radix",
+    "direction": "Direction",
+    "delimiter": "Delimiter",
+    "prefix": "Prefix",
+    "fromBase": "From",
+    "toBase": "To",
+    "alphabetPlaceholder": "Empty = default alphabet",
+    "inputPlaceholder": "Type text or encoded data",
+    "encode": "Encode",
+    "decode": "Decode",
+    "invalidInput": "Invalid input format"
+  },
+  "hash": {
+    "inputPlaceholder": "Type text to compute all hashes in real time",
+    "hmac": "HMAC",
+    "hmacKey": "Key",
+    "hmacKeyPlaceholder": "Enter HMAC key",
+    "hmacAlgo": "HMAC algorithm"
+  },
+  "cipher": {
+    "algorithm": "Algorithm",
+    "key": "Key",
+    "keyPlaceholder": "64 hex chars",
+    "iv": "IV / Nonce",
+    "ivPlaceholder": "GCM/ChaCha20: 24 hex · CBC: 32 hex",
+    "inputPlaceholder": "Enter plaintext or ciphertext",
+    "encryptFailed": "Encryption failed",
+    "decryptFailed": "Decryption failed",
+    "notice": {
+      "aesGcm": "Recommended for new data. Use a unique random IV for every key; the authentication tag detects a wrong key or tampering.",
+      "aesCbc": "Compatibility only. CBC does not authenticate integrity; do not use this output in a new protocol without a correct Encrypt-then-MAC design.",
+      "chacha20": "Learning and compatibility only. This is raw ChaCha20 without Poly1305 authentication; reusing a key and nonce breaks confidentiality."
+    }
+  },
+  "rsa": {
+    "keySize": "Key size",
+    "generateEncryptionKeys": "Generate key pair",
+    "generating": "Generating…",
+    "publicKey": "Public key (PEM)",
+    "publicKeyPlaceholder": "Paste PEM public key",
+    "privateKey": "Private key (PEM)",
+    "privateKeyPlaceholder": "Paste PEM private key",
+    "message": "Message / ciphertext",
+    "messagePlaceholder": "Enter message for encrypt/decrypt/sign; for verify put signature on line 1 and message below",
+    "generateFailed": "Generation failed",
+    "encryptFailed": "Encryption failed",
+    "decryptFailed": "Decryption failed",
+    "signFailed": "Signing failed",
+    "verifyFailed": "Verification failed",
+    "valid": "Signature valid",
+    "invalid": "Signature invalid"
+  },
+  "jwt": {
+    "token": "JWT Token",
+    "tokenPlaceholder": "eyJhbGciOiJIUzI1NiIs...",
+    "secret": "Secret",
+    "secretPlaceholder": "Enter secret to verify signature",
+    "header": "Header",
+    "payload": "Payload",
+    "signature": "Signature",
+    "valid": "Signature valid",
+    "invalid": "Signature invalid or algorithm mismatch",
+    "invalidToken": "Invalid token"
+  },
+  "kb": {
+    "concept": "Encoding vs Hashing vs Encryption",
+    "hash": "Hash Algorithm Comparison",
+    "hmac": "What is HMAC",
+    "symmetric": "Symmetric Encryption Comparison",
+    "rsa": "RSA Basics",
+    "jwt": "JWT Structure & Security",
+    "base": "Base Encoding Family"
+  },
+  "tip": {
+    "md5": "128-bit hash, broken. Legacy checksums only; never for security.",
+    "sha1": "160-bit hash, broken. Use SHA-256 or SHA-3 for new projects.",
+    "sha256": "256-bit hash, mainstream. Used in TLS, blockchain, etc.",
+    "sha512": "512-bit hash, better performance on 64-bit platforms.",
+    "sha3": "Keccak sponge, NIST 2015. Structurally distinct from SHA-2, length-extension resistant.",
+    "hmac": "Keyed hash that verifies both integrity and authenticity. Only key holders can produce valid HMAC.",
+    "aesGcm": "AES + GCM mode = AEAD. Built-in auth tag detects tampering. Used in TLS 1.3.",
+    "aesCbc": "AES + CBC mode, legacy block cipher. No built-in auth; pair with HMAC.",
+    "chacha20": "A stream cipher that can outperform AES without hardware acceleration. This panel implements raw ChaCha20 without Poly1305 authentication.",
+    "rsaKeySize": "1024-bit deprecated; 2048-bit minimum; 4096-bit safer but slower. RSA-OAEP for encryption, RSA-PSS for signing — cannot share key pairs.",
+    "jwt": "JWT = Header.Payload.Signature. Payload is Base64Url-encoded, not encrypted — anyone can read it. Signature guarantees integrity, not confidentiality."
+  }
+}

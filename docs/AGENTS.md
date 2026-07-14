@@ -68,7 +68,7 @@ deploy/      公开脚本与占位符模板
 1. 逻辑修改必须有测试；修 bug 先补复现测试。
 2. 视觉修改必须验证 light/dark、zh/en、mobile/desktop 和 keyboard focus。
 3. 共享包、部署或跨应用修改提交前必须通过 `pnpm build && pnpm test && pnpm lint`。
-4. 六个应用均已进入根质量命令；Canvas、响应式或视觉修改仍必须增加对应浏览器 smoke，不能只依赖单元测试。
+4. 所有 manifest 应用均已进入根质量命令；Canvas、响应式或视觉修改仍必须增加对应浏览器 smoke，不能只依赖单元测试。
 5. lint warning 会使门禁失败；不得用宽松退出码或 ignore 长期掩盖缺口。
 
 ## 四、已确认的长期设计偏好

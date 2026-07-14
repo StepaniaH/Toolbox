@@ -12,11 +12,16 @@ import { TextMarkupConverter } from "./TextMarkupConverter";
 import { FileHome } from "./FileHome";
 import { PdfWorkspace } from "./PdfWorkspace";
 import { ArchiveWorkspace } from "./ArchiveWorkspace";
+import { DataWorkspace } from "./DataWorkspace";
 import { FilePicker } from "./FilePicker";
 import { SelectMenu } from "./SelectMenu";
 import { ACCEPT_ATTRIBUTE, convertImage, getFileExtension } from "./lib/convert";
 import { triggerDownload } from "./lib/download";
 import { selectIncomingFiles } from "./lib/file-selection";
+import {
+  applyOutputTemplate, registerTaskOutputs, renameTaskOutput,
+  type OutputDraft, type OutputPublishResult, type TaskOutput,
+} from "./lib/output-registry";
 import {
   buildOutputName, insertToken, inspectRegexMatch, makeUniquePath, validateRename,
 } from "./lib/rename";
@@ -40,10 +45,11 @@ const REGEX_PRESETS = [
   { id: "copy", pattern: "\\s*\\(\\d+\\)$", replacement: "", global: false, ignoreCase: true },
 ] as const;
 type StoredSettings = { conversion: ConversionSettings; rename: RenameSettings };
-type AppTab = "home" | "image" | "gif" | "text" | "pdf" | "archive" | "knowledge";
+type AppTab = "home" | "image" | "gif" | "text" | "data" | "pdf" | "archive" | "knowledge";
 type NamePreview = { before: string; after: string; matched: boolean; groups: string[] };
 type DownloadMode = "files" | "zip";
 type ImportSummary = { accepted: number; rejected: number };
+type WorkspaceContext = { count: number; tab: Exclude<AppTab, "home" | "knowledge"> };
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -116,14 +122,23 @@ function AppSurface() {
   const [activeTab, setActiveTab] = useState<AppTab>("home");
   const [gifTransfer, setGifTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [textTransfer, setTextTransfer] = useState<{ id: number; files: File[] } | undefined>();
+  const [dataTransfer, setDataTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [pdfTransfer, setPdfTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [archiveTransfer, setArchiveTransfer] = useState<{ id: number; files: File[] } | undefined>();
+  const [workspaceContext, setWorkspaceContext] = useState<WorkspaceContext | null>(null);
+  const [taskEpoch, setTaskEpoch] = useState(0);
+  const [outputs, setOutputs] = useState<TaskOutput[]>([]);
+  const [outputRejected, setOutputRejected] = useState(0);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [downloadMode, setDownloadMode] = useState<DownloadMode>("files");
   const [lastImport, setLastImport] = useState<ImportSummary | null>(null);
   const cancelRef = useRef(false);
   const itemRef = useRef(items);
+  const outputRef = useRef(outputs);
+  const taskEpochRef = useRef(taskEpoch);
   itemRef.current = items;
+  outputRef.current = outputs;
+  taskEpochRef.current = taskEpoch;
 
   useEffect(() => {
     document.title = activeTab === "home" ? t("meta.title") : `${t(`tabs.${activeTab}`)} · ${t("brand.title")}`;
@@ -198,6 +213,49 @@ function AppSurface() {
     setLastImport(null);
   };
 
+  const publishOutputs = useMemo(() => {
+    const epoch = taskEpoch;
+    return (drafts: OutputDraft[]): OutputPublishResult => {
+      if (taskEpochRef.current !== epoch) return { outputs: outputRef.current, added: [], rejected: 0 };
+      const result = registerTaskOutputs(outputRef.current, drafts);
+      outputRef.current = result.outputs;
+      setOutputs(result.outputs);
+      setOutputRejected(result.rejected);
+      return result;
+    };
+  }, [taskEpoch]);
+  const renameOutput = useCallback((id: string, name: string) => {
+    const next = renameTaskOutput(outputRef.current, id, name);
+    outputRef.current = next; setOutputs(next);
+  }, []);
+  const batchRenameOutputs = useCallback((ids: string[], template: string) => {
+    const next = applyOutputTemplate(outputRef.current, ids, template);
+    outputRef.current = next; setOutputs(next);
+  }, []);
+  const removeOutput = useCallback((id: string) => {
+    const next = outputRef.current.filter((output) => output.id !== id);
+    outputRef.current = next; setOutputs(next); setOutputRejected(0);
+  }, []);
+  const clearOutputs = useCallback(() => {
+    outputRef.current = []; setOutputs([]); setOutputRejected(0);
+  }, []);
+  const clearTask = () => {
+    taskEpochRef.current += 1;
+    clearItems();
+    clearOutputs();
+    setRejections([]);
+    setDragging(false);
+    setRunning(false);
+    setGifTransfer(undefined);
+    setTextTransfer(undefined);
+    setDataTransfer(undefined);
+    setPdfTransfer(undefined);
+    setArchiveTransfer(undefined);
+    setWorkspaceContext(null);
+    setActiveTab("home");
+    setTaskEpoch(taskEpochRef.current);
+  };
+
   const convertAll = async () => {
     if (!items.length || renameError) return;
     cancelRef.current = false;
@@ -213,12 +271,14 @@ function AppSurface() {
       }));
       try {
         const result = await convertImage(item.file, settings);
+        if (cancelRef.current) break;
         const path = makeUniquePath(previewOutputPath({ ...item, outputWidth: result.outputWidth, outputHeight: result.outputHeight }, index + 1, settings, rename), used);
         const outputUrl = URL.createObjectURL(result.blob);
         setItems((current) => updateItem(current, item.id, {
           status: "done", output: result.blob, outputName: path, outputUrl, width: result.sourceWidth, height: result.sourceHeight,
           outputWidth: result.outputWidth, outputHeight: result.outputHeight, keptOriginal: result.keptOriginal,
         }));
+        publishOutputs([{ blob: result.blob, name: path, sourceName: item.relativePath, family: "image", tool: "image" }]);
       } catch (error) {
         const key = error instanceof Error ? error.message : "unknown";
         setItems((current) => updateItem(current, item.id, {
@@ -253,12 +313,13 @@ function AppSurface() {
     if (preset === "web") setSettings((current) => ({ ...current, format: "webp", quality: 0.74, resizeMode: "original", keepSmallerOriginal: false }));
     if (preset === "transparent") setSettings((current) => ({ ...current, format: "png", resizeMode: "original", keepSmallerOriginal: false }));
     if (preset === "privacy") setSettings((current) => ({ ...current, keepSmallerOriginal: false }));
-    addFiles(files); setActiveTab("image");
+    addFiles(files); setWorkspaceContext({ count: files.length, tab: "image" }); setActiveTab("image");
   };
-  const openGif = (files: File[]) => { setGifTransfer({ id: Date.now(), files }); setActiveTab("gif"); };
-  const openText = (files: File[]) => { setTextTransfer({ id: Date.now(), files }); setActiveTab("text"); };
-  const openPdf = (files: File[]) => { setPdfTransfer({ id: Date.now(), files }); setActiveTab("pdf"); };
-  const openArchive = (files: File[]) => { setArchiveTransfer({ id: Date.now(), files }); setActiveTab("archive"); };
+  const openGif = (files: File[]) => { setGifTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "gif" }); setActiveTab("gif"); };
+  const openText = (files: File[]) => { setTextTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "text" }); setActiveTab("text"); };
+  const openData = (files: File[]) => { setDataTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "data" }); setActiveTab("data"); };
+  const openPdf = (files: File[]) => { setPdfTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "pdf" }); setActiveTab("pdf"); };
+  const openArchive = (files: File[]) => { setArchiveTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "archive" }); setActiveTab("archive"); };
 
   return (
     <>
@@ -271,12 +332,34 @@ function AppSurface() {
           </div>
         </header>
 
-        <AppTabs active={activeTab} onChange={setActiveTab} />
+        <AppTabs active={activeTab} onChange={(next) => {
+          setActiveTab(next);
+          if (workspaceContext && next !== workspaceContext.tab) setWorkspaceContext(null);
+        }} />
 
         <main>
-          <FileHome hidden={activeTab !== "home"} onOpenImage={openImages} onOpenGif={openGif} onOpenText={openText} onOpenPdf={openPdf} onOpenArchive={openArchive}/>
+          <FileHome
+            key={`home-${taskEpoch}`}
+            hidden={activeTab !== "home"}
+            outputs={outputs}
+            outputNotice={outputRejected ? t("outputs.publishLimit", { count: outputRejected }) : null}
+            onOpenImage={openImages}
+            onOpenGif={openGif}
+            onOpenText={openText}
+            onOpenData={openData}
+            onOpenPdf={openPdf}
+            onOpenArchive={openArchive}
+            onOutput={publishOutputs}
+            onRenameOutput={renameOutput}
+            onBatchRenameOutputs={batchRenameOutputs}
+            onRemoveOutput={removeOutput}
+            onClearOutputs={clearOutputs}
+            onClearTask={clearTask}
+          />
+          {workspaceContext && activeTab !== "home" && activeTab !== "knowledge" && <WorkspaceReturnBar context={workspaceContext} onReturn={() => { setActiveTab("home"); setWorkspaceContext(null); }} onStay={() => setWorkspaceContext(null)}/>}
+          {outputRejected > 0 && activeTab !== "home" && activeTab !== "knowledge" && <p className="field-error output-error" role="alert">{t("outputs.publishLimit", { count: outputRejected })}</p>}
           {activeTab === "image" && (
-            <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image">
+            <section className="workspace" role="tabpanel" id="panel-image" aria-labelledby="tab-image" key={`image-${taskEpoch}`}>
               <div className="intake-grid">
                 <div className="intake-column">
                   <section className={`drop-zone ${dragging ? "is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
@@ -326,10 +409,11 @@ function AppSurface() {
               </div>
             </section>
           )}
-          <GifComposer hidden={activeTab !== "gif"} incoming={gifTransfer}/>
-          <TextMarkupConverter hidden={activeTab !== "text"} incoming={textTransfer}/>
-          <PdfWorkspace hidden={activeTab !== "pdf"} incoming={pdfTransfer}/>
-          <ArchiveWorkspace hidden={activeTab !== "archive"} incoming={archiveTransfer}/>
+          <GifComposer key={`gif-${taskEpoch}`} hidden={activeTab !== "gif"} incoming={gifTransfer} onOutput={publishOutputs}/>
+          <TextMarkupConverter key={`text-${taskEpoch}`} hidden={activeTab !== "text"} incoming={textTransfer} onOutput={publishOutputs}/>
+          <DataWorkspace key={`data-${taskEpoch}`} hidden={activeTab !== "data"} incoming={dataTransfer} onOutput={publishOutputs}/>
+          <PdfWorkspace key={`pdf-${taskEpoch}`} hidden={activeTab !== "pdf"} incoming={pdfTransfer} onOutput={publishOutputs}/>
+          <ArchiveWorkspace key={`archive-${taskEpoch}`} hidden={activeTab !== "archive"} incoming={archiveTransfer} onOutput={publishOutputs}/>
           {activeTab === "knowledge" && <KnowledgePage />}
         </main>
         <TabPrivacyNotice tab={activeTab} />
@@ -340,9 +424,14 @@ function AppSurface() {
   );
 }
 
+function WorkspaceReturnBar({ context, onReturn, onStay }: { context: WorkspaceContext; onReturn: () => void; onStay: () => void }) {
+  const { t } = useTranslation();
+  return <aside className="workspace-return" aria-label={t("session.title")}><div><span className="eyebrow">{t("session.eyebrow")}</span><strong>{t("session.title")}</strong><p>{t("session.detail", { count: context.count, workspace: t(`tabs.${context.tab}`) })}</p></div><div><button className="button secondary" type="button" onClick={onStay}>{t("session.stay")}</button><button className="button primary" type="button" onClick={onReturn}>{t("session.return")}</button></div></aside>;
+}
+
 function AppTabs({ active, onChange }: { active: AppTab; onChange: (tab: AppTab) => void }) {
   const { t } = useTranslation();
-  const tabs: AppTab[] = ["home", "image", "gif", "text", "pdf", "archive", "knowledge"];
+  const tabs: AppTab[] = ["home", "image", "gif", "text", "data", "pdf", "archive", "knowledge"];
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
@@ -446,13 +535,13 @@ function TokenChips({ onInsert }: { onInsert: (token: string) => void }) {
 function FileRow({ item, onDimensions, onDimensionsUnavailable, onRemove, onPreview, disabled }: { item: QueueItem; onDimensions: (width: number, height: number) => void; onDimensionsUnavailable: () => void; onRemove: () => void; onPreview: () => void; disabled: boolean }) {
   const { lang, t } = useTranslation();
   const extension = getFileExtension(item.file.name);
-  const canPreviewSource = extension !== "svg";
+  const canPreviewSource = !["svg", "heic", "heif"].includes(extension);
   const statusLabel = item.status === "error" ? t("queue.error") : t(`queue.${item.status}`);
   const dimensions = item.width && item.height ? `${item.width} × ${item.height}` : null;
   const pixels = item.width && item.height ? new Intl.NumberFormat(lang === "zh" ? "zh-CN" : "en").format(item.width * item.height) : null;
   const aspect = item.width && item.height ? simplifyRatio(item.width, item.height) : null;
   return <article className={`file-row status-${item.status}`}>
-    <div className="thumbnail">{canPreviewSource ? <img src={item.sourceUrl} alt="" onLoad={(event) => onDimensions(event.currentTarget.naturalWidth, event.currentTarget.naturalHeight)} onError={onDimensionsUnavailable} /> : <span>SVG</span>}</div>
+    <div className="thumbnail">{canPreviewSource ? <img src={item.sourceUrl} alt="" onLoad={(event) => onDimensions(event.currentTarget.naturalWidth, event.currentTarget.naturalHeight)} onError={onDimensionsUnavailable} /> : <span>{extension.toUpperCase()}</span>}</div>
     <div className="file-main"><strong title={item.relativePath}>{item.relativePath}</strong><div className="file-meta"><span>{extension.toUpperCase()}</span><span>{formatBytes(item.file.size)}</span><span>{dimensions ?? t(item.sourceInfoUnavailable || !canPreviewSource ? "queue.sizeUnavailable" : "queue.readingSize")}</span>{extension === "gif" && <span className="warning">{t("queue.firstFrame")}</span>}{extension === "svg" && <span className="warning">{t("queue.svgSafe")}</span>}</div>{dimensions && pixels && aspect && <details className="image-info"><summary>{t("queue.info")}</summary><dl><div><dt>{t("queue.dimensions")}</dt><dd>{dimensions}</dd></div><div><dt>{t("queue.pixels")}</dt><dd>{t("queue.pixelValue", { count: pixels })}</dd></div><div><dt>{t("queue.aspect")}</dt><dd>{aspect}</dd></div><div><dt>{t("queue.mime")}</dt><dd>{item.file.type || t("queue.mimeUnknown")}</dd></div></dl></details>}{item.outputName && <code title={item.outputName}>{item.outputName}</code>}{item.error && <p className="field-error">{item.error}</p>}</div>
     <div className="file-output"><span className={`status-badge ${item.status}`}>{statusLabel}</span>{item.output && <><strong>{formatBytes(item.output.size)}</strong><small>{item.outputWidth} × {item.outputHeight}{item.keptOriginal ? ` · ${t("queue.kept")}` : ""}</small><button className="text-button" type="button" onClick={onPreview}>{t("preview.open")}</button></>}{item.output && item.outputName && <button className="text-button" type="button" onClick={() => triggerDownload(item.output!, item.outputName!.split("/").pop()!)}>{t("queue.download")}</button>}</div>
     <button className="icon-button" type="button" onClick={onRemove} disabled={disabled} aria-label={`${t("queue.remove")} ${item.file.name}`}>×</button>
@@ -481,7 +570,7 @@ function PreviewDialog({ items, activeId, onChange, onClose }: { items: QueueIte
     return () => window.removeEventListener("keydown", onKey);
   }, [index, items, onChange, onClose]);
   if (!item?.outputUrl) return null;
-  const sourceSafe = getFileExtension(item.file.name) !== "svg";
+  const sourceSafe = !["svg", "heic", "heif"].includes(getFileExtension(item.file.name));
   return <div className="preview-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section className="preview-dialog" role="dialog" aria-modal="true" aria-labelledby="preview-title">
       <header><div><span className="eyebrow">{t("preview.position", { current: index + 1, total: items.length })}</span><h2 id="preview-title">{item.outputName}</h2></div><button autoFocus type="button" className="icon-button" onClick={onClose} aria-label={t("preview.close")}>×</button></header>

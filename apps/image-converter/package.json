@@ -12,10 +12,12 @@
     "lint": "oxlint --deny-warnings"
   },
   "dependencies": {
+    "@discourse/heic": "1.0.0",
     "@toolbox/i18n": "workspace:*",
     "@toolbox/nav": "workspace:*",
     "@toolbox/theme": "workspace:*",
     "@vitejs/plugin-react": "catalog:",
+    "pdf-lib": "1.17.1",
     "playwright": "^1.61.0",
     "react": "catalog:",
     "react-dom": "catalog:",
