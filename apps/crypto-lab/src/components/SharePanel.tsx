@@ -1,4 +1,4 @@
-import { useMemo, useState, type ChangeEvent } from 'react'
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import { useTranslation } from '@toolbox/i18n/react'
 import {
   decryptShareMessage,
@@ -12,6 +12,8 @@ import {
   exportPrivateKeyPem,
   exportPublicKeyPem,
   generateRsaKeyPair,
+  getPublicKeyFingerprint,
+  MAX_RSA_PEM_CHARS,
 } from '@/lib/rsa'
 import { copyText } from '@/lib/utils'
 
@@ -37,14 +39,57 @@ export function SharePanel() {
   const { t } = useTranslation()
   const [publicKey, setPublicKey] = useState('')
   const [privateKey, setPrivateKey] = useState('')
+  const [fingerprint, setFingerprint] = useState('')
   const [message, setMessage] = useState('')
-  const [packet, setPacket] = useState('')
+  const [generatedPacket, setGeneratedPacket] = useState('')
+  const [receivedPacket, setReceivedPacket] = useState('')
   const [qrDataUrl, setQrDataUrl] = useState('')
   const [decrypted, setDecrypted] = useState('')
   const [errorKey, setErrorKey] = useState('')
   const [statusKey, setStatusKey] = useState('')
   const [busy, setBusy] = useState<BusyAction>(null)
   const messageBytes = useMemo(() => shareMessageByteLength(message), [message])
+  const hasSensitiveData = Boolean(
+    publicKey || privateKey || message || generatedPacket || receivedPacket || qrDataUrl || decrypted,
+  )
+
+  useEffect(() => {
+    if (!publicKey.trim()) {
+      setFingerprint('')
+      return
+    }
+    let cancelled = false
+    getPublicKeyFingerprint(publicKey)
+      .then((nextFingerprint) => {
+        if (!cancelled) setFingerprint(nextFingerprint)
+      })
+      .catch(() => {
+        if (!cancelled) setFingerprint('')
+      })
+    return () => { cancelled = true }
+  }, [publicKey])
+
+  function clearFeedback() {
+    setErrorKey('')
+    setStatusKey('')
+  }
+
+  function clearGeneratedResult() {
+    setGeneratedPacket('')
+    setQrDataUrl('')
+  }
+
+  function clearAll() {
+    setPublicKey('')
+    setPrivateKey('')
+    setFingerprint('')
+    setMessage('')
+    setGeneratedPacket('')
+    setReceivedPacket('')
+    setQrDataUrl('')
+    setDecrypted('')
+    clearFeedback()
+  }
 
   function reportError(error: unknown, fallback: string) {
     setStatusKey('')
@@ -69,6 +114,9 @@ export function SharePanel() {
       ])
       setPublicKey(nextPublicKey)
       setPrivateKey(nextPrivateKey)
+      clearGeneratedResult()
+      setReceivedPacket('')
+      setDecrypted('')
       setStatusKey('share.status.keysReady')
     } catch (error) {
       reportError(error, 'share.errors.key-generation')
@@ -84,7 +132,7 @@ export function SharePanel() {
     try {
       const nextPacket = await encryptShareMessage(message, publicKey)
       const nextQr = await createShareQrDataUrl(nextPacket)
-      setPacket(nextPacket)
+      setGeneratedPacket(nextPacket)
       setQrDataUrl(nextQr)
       setStatusKey('share.status.packetReady')
     } catch (error) {
@@ -103,7 +151,7 @@ export function SharePanel() {
     setErrorKey('')
     setStatusKey('')
     try {
-      setPacket(await readSharePacketFile(file))
+      setReceivedPacket(await readSharePacketFile(file))
       setDecrypted('')
       setStatusKey('share.status.imported')
     } catch (error) {
@@ -118,7 +166,7 @@ export function SharePanel() {
     setErrorKey('')
     setStatusKey('')
     try {
-      setDecrypted(await decryptShareMessage(packet, privateKey))
+      setDecrypted(await decryptShareMessage(receivedPacket, privateKey))
       setStatusKey('share.status.decrypted')
     } catch (error) {
       setDecrypted('')
@@ -139,6 +187,15 @@ export function SharePanel() {
           <li>{t('share.factPrivate')}</li>
           <li>{t('share.factAuthenticated')}</li>
         </ul>
+        <button
+          type="button"
+          className="cl-text-action cl-clear-sensitive"
+          onClick={clearAll}
+          disabled={!hasSensitiveData || busy !== null}
+          title={t('share.clearHint')}
+        >
+          {t('share.clear')}
+        </button>
       </header>
 
       <section className="cl-share-section" aria-labelledby="share-keys-title">
@@ -162,13 +219,28 @@ export function SharePanel() {
               id="share-public-key"
               className="cl-input min-h-[8rem] text-xs"
               value={publicKey}
-              onChange={(event) => setPublicKey(event.target.value)}
+              maxLength={MAX_RSA_PEM_CHARS}
+              onChange={(event) => {
+                setPublicKey(event.target.value)
+                clearGeneratedResult()
+                clearFeedback()
+              }}
               placeholder={t('share.keys.publicPlaceholder')}
               spellCheck={false}
             />
             <button type="button" className="cl-text-action" disabled={!publicKey} onClick={() => copyText(publicKey)}>
               {t('share.keys.copyPublic')}
             </button>
+            {fingerprint && (
+              <div className="cl-fingerprint" aria-live="polite">
+                <span>{t('share.keys.fingerprint')}</span>
+                <code>{fingerprint}</code>
+                <button type="button" className="cl-text-action" onClick={() => copyText(fingerprint)}>
+                  {t('share.keys.copyFingerprint')}
+                </button>
+                <p>{t('share.keys.fingerprintHint')}</p>
+              </div>
+            )}
           </div>
           <details className="cl-private-key">
             <summary>{t('share.keys.privateSummary')}</summary>
@@ -177,7 +249,12 @@ export function SharePanel() {
               id="share-private-key"
               className="cl-input min-h-[8rem] text-xs"
               value={privateKey}
-              onChange={(event) => setPrivateKey(event.target.value)}
+              maxLength={MAX_RSA_PEM_CHARS}
+              onChange={(event) => {
+                setPrivateKey(event.target.value)
+                setDecrypted('')
+                clearFeedback()
+              }}
               placeholder={t('share.keys.privatePlaceholder')}
               spellCheck={false}
             />
@@ -207,15 +284,23 @@ export function SharePanel() {
           id="share-message"
           className="cl-input min-h-[7rem]"
           value={message}
-          onChange={(event) => setMessage(event.target.value)}
+          onChange={(event) => {
+            setMessage(event.target.value)
+            clearGeneratedResult()
+            clearFeedback()
+          }}
           placeholder={t('share.encrypt.placeholder')}
-          maxLength={MAX_SHARE_MESSAGE_BYTES}
         />
         <div className="cl-field-meta">
           <span className={messageBytes > MAX_SHARE_MESSAGE_BYTES ? 'cl-error' : ''}>
             {t('share.encrypt.bytes', { current: messageBytes, max: MAX_SHARE_MESSAGE_BYTES })}
           </span>
-          <button type="button" className="cl-btn cl-btn-primary" onClick={createPacket} disabled={busy !== null || !publicKey || !message}>
+          <button
+            type="button"
+            className="cl-btn cl-btn-primary"
+            onClick={createPacket}
+            disabled={busy !== null || !publicKey || !message || messageBytes > MAX_SHARE_MESSAGE_BYTES}
+          >
             {busy === 'encrypt' ? t('share.encrypt.creating') : t('share.encrypt.create')}
           </button>
         </div>
@@ -227,11 +312,11 @@ export function SharePanel() {
             </div>
             <div>
               <label className="cl-label" htmlFor="share-packet-output">{t('share.packet')}</label>
-              <textarea id="share-packet-output" className="cl-input min-h-[8rem] text-xs" value={packet} readOnly />
+              <textarea id="share-packet-output" className="cl-input min-h-[8rem] text-xs" value={generatedPacket} readOnly />
               <div className="cl-section-actions">
-                <button type="button" className="cl-btn" onClick={() => copyText(packet)}>{t('share.encrypt.copyPacket')}</button>
+                <button type="button" className="cl-btn" onClick={() => copyText(generatedPacket)}>{t('share.encrypt.copyPacket')}</button>
                 <button type="button" className="cl-btn" onClick={() => triggerDownload(qrDataUrl, 'cryptolab-secure-message.png')}>{t('share.encrypt.downloadQr')}</button>
-                <button type="button" className="cl-btn" onClick={() => downloadText(packet, 'cryptolab-secure-message.cryptolab')}>{t('share.encrypt.downloadPacket')}</button>
+                <button type="button" className="cl-btn" onClick={() => downloadText(generatedPacket, 'cryptolab-secure-message.cryptolab')}>{t('share.encrypt.downloadPacket')}</button>
               </div>
             </div>
           </div>
@@ -262,14 +347,18 @@ export function SharePanel() {
         <textarea
           id="share-packet-input"
           className="cl-input min-h-[7rem] text-xs"
-          value={packet}
-          onChange={(event) => setPacket(event.target.value)}
+          value={receivedPacket}
+          onChange={(event) => {
+            setReceivedPacket(event.target.value)
+            setDecrypted('')
+            clearFeedback()
+          }}
           placeholder={t('share.decrypt.packetPlaceholder')}
           spellCheck={false}
         />
         <div className="cl-field-meta cl-field-meta-end">
           <span>{t('share.decrypt.privateReminder')}</span>
-          <button type="button" className="cl-btn cl-btn-primary" onClick={decryptPacket} disabled={busy !== null || !packet || !privateKey}>
+          <button type="button" className="cl-btn cl-btn-primary" onClick={decryptPacket} disabled={busy !== null || !receivedPacket || !privateKey}>
             {busy === 'decrypt' ? t('share.decrypt.decrypting') : t('share.decrypt.action')}
           </button>
         </div>
