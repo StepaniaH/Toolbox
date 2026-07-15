@@ -16,7 +16,7 @@ function renderApp() {
 describe('CryptoLab app', () => {
   it('renders the header and all tabs', () => {
     renderApp()
-    expect(screen.getByText('CryptoLab')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'CryptoLab' })).toBeInTheDocument()
     expect(screen.getAllByRole('tab')).toHaveLength(8)
   })
 

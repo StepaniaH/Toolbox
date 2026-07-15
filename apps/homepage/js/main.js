@@ -43,6 +43,13 @@ const CARD_PRESENTATION = {
     descKey: "card.formtran.desc",
     badges: ["React", "TypeScript", "Vite"],
   },
+  "crypto-lab": {
+    id: "cryptolab",
+    titleKey: "card.cryptolab.title",
+    subtitleKey: "card.cryptolab.subtitle",
+    descKey: "card.cryptolab.desc",
+    badges: ["React", "TypeScript", "Web Crypto"],
+  },
 };
 
 const tools = getStableApps()

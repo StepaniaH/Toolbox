@@ -4,7 +4,7 @@ Shared navigation bar for every Toolbox app. Both surfaces project the stable
 entries from `@toolbox/app-manifest` over the same CSS:
 
 - **`nav-bar.js`** — vanilla JS, auto-mounts into `<div id="toolbox-nav"></div>`. Used by the Vanilla apps (`homepage`, `monitor-choice`).
-- **`NavBar.tsx`** — React component, `<NavBar currentApp="rate-lens" />`. Used by the React apps (`rate-lens`, `chrono-sphere`, `sane-units`).
+- **`NavBar.tsx`** — React component, `<NavBar currentApp="rate-lens" />`. Used by the React apps (`rate-lens`, `chrono-sphere`, `sane-units`, `image-converter`, `crypto-lab`).
 
 Both render the same layout:
 
@@ -25,7 +25,7 @@ Language/theme actions intentionally have no background box on pointer hover; ho
 Tool headers wrap their manifest icon in `.toolbox-app-mark`: a canonical 40px
 square with a 12px radius, 15% accent surface, 24px icon and no border,
 gradient or shadow. The production browser contract checks this geometry and
-surface across all six tools.
+surface across all seven applications.
 
 ## Tool list
 
@@ -37,6 +37,7 @@ surface across all six tools.
 | `monitor-choice` | Monitor Choice | `/monitor-choice/` | Display parameter lab |
 | `sane-units` | SaneUnits | `/sane-units/` | Unit conversion & estimation |
 | `image-converter` | FormTran | `/image-converter/` | Local file identification and processing |
+| `crypto-lab` | CryptoLab | `/crypto-lab/` | Local cryptography and public-key QR sharing |
 
 This table is generated in code from `@toolbox/app-manifest`. Add a single
 manifest entry with localized keywords (default `hidden`); do not edit `TOOLS` or
