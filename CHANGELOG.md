@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+## v0.3.1 (2026-07-15)
+
+### Added
+
+- Promoted CryptoLab from a hidden candidate to the stable `dev` catalog, Homepage, and shared
+  navigation with bilingual public-facing descriptions.
+- Added a SHA-256 public-key fingerprint to Secure Share and RSA workflows, plus a one-click action
+  that clears all sensitive CryptoLab state held by the current page.
+
+### Changed
+
+- Separated RSA-OAEP encryption from RSA-PSS signing, gave signatures their own field, and kept
+  private keys and JWT verification secrets concealed until the user chooses to reveal them.
+- Preserved visited CryptoLab workspaces while switching tabs, while keeping task reset and page
+  refresh as explicit local-data boundaries.
+- Distinguished decoded JWT content from cryptographically verified content and added local
+  `exp`, `nbf`, and `iat` NumericDate inspection against the device clock.
+
+### Security and quality
+
+- Enforced RSA-OAEP plaintext budgets before encryption, bounded PEM and JWT inputs, tightened PEM
+  and Base64Url parsing, and invalidated dependent output whenever its source input changes.
+- Verified seven production builds, 1,148 tests, all seven browser suites, zero-warning lint,
+  privacy checks, and application contracts before pushing the `dev` candidate.
+
 ## v0.3.0 (2026-07-14)
 
 ### Added

@@ -25,6 +25,7 @@ test('homepage lists every stable tool path exactly once', () => {
     '/monitor-choice/',
     '/sane-units/',
     '/image-converter/',
+    '/crypto-lab/',
   ])
   const presentationIds = [...main.matchAll(/^  "([a-z0-9-]+)": \{$/gm)]
     .map((match) => match[1])

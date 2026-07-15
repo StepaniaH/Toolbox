@@ -1,6 +1,6 @@
 # Toolbox — 项目全景
 
-> 最后核对：2026-07-14 · 当前生产稳定版本：`v0.2.3` · 当前 dev 候选：`v0.3.0`
+> 最后核对：2026-07-15 · 当前生产稳定版本：`v0.2.3` · 当前 dev 候选：`v0.3.1`
 >
 > `main` 是已部署的稳定线；`dev` 是审核集成线；新工具只在从 `dev` 派生的
 > `newdev/<tool-id>` 分支实现。
@@ -26,9 +26,9 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 18 |
 | SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 20 |
 | FormTran | `/image-converter/` | React + TypeScript + Vite + Plain CSS | 浏览器本地文件、图片、表格、PDF 与 ZIP 工作台 | 63 |
-| CryptoLab（hidden） | `/crypto-lab/` | React + TypeScript + Vite + Tailwind | 本地密码学、公钥二维码安全分享与学习工具 | 109 |
+| CryptoLab | `/crypto-lab/` | React + TypeScript + Vite + Tailwind | 本地密码学、公钥二维码安全分享与学习工具 | 119 |
 
-测试数量只用于说明覆盖现状，不作为质量本身的替代指标。7 个应用当前有 1,122 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；完整工作区共运行 1,138 条。CryptoLab 已进入 `dev` 但仍为 hidden，不会出现在稳定导航或部署清单。`v0.1` 发布时为 910 条。
+测试数量只用于说明覆盖现状，不作为质量本身的替代指标。7 个应用当前有 1,132 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；完整工作区共运行 1,148 条。CryptoLab 已在 `dev` 晋级 stable，进入开发候选的首页与全局导航；当前生产仍保持 `main` 上的 `v0.2.3`。`v0.1` 发布时为 910 条。
 
 ## 三、仓库结构
 
@@ -85,13 +85,13 @@ Toolbox/
 
 ## 五、质量基线
 
-2026-07-14 在当前 `dev` 集成候选完成基线验证：
+2026-07-15 在当前 `dev` 集成候选完成基线验证：
 
 | 检查 | 结果 | 备注 |
 |------|------|------|
 | `pnpm build` | 通过 | 7 个 Vite 应用构建成功；FormTran HEIC 与 PDF 解析改写能力保持按需块 |
-| `pnpm test` | 通过 | 1,138 tests；数量不等同于覆盖率 |
-| `pnpm test:browser` | 通过 | 七个应用均有生产态回归；FormTran 额外覆盖真实 HEIC、XLSX 往返、PDF 页面计划/合并、共享结果 ZIP 与整任务重置，CryptoLab 覆盖真实 Secure Share 二维码链路与 Tab 无纵向溢出 |
+| `pnpm test` | 通过 | 1,148 tests；数量不等同于覆盖率 |
+| `pnpm test:browser` | 通过 | 七个应用均有生产态回归；FormTran 覆盖真实 HEIC、XLSX、PDF、ZIP 与整任务重置，CryptoLab 覆盖指纹、二维码往返、状态失效/清除、工作区保留、PSS 签名、主题/语言与响应式 |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 | `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |

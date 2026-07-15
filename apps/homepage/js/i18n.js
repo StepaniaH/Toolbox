@@ -37,6 +37,10 @@ const i18n = {
     "card.formtran.subtitle": "本地文件处理工作台",
     "card.formtran.desc": "识别、转换、合成与检查文件，从输入到结果都留在浏览器本地。",
 
+    "card.cryptolab.title": "CryptoLab",
+    "card.cryptolab.subtitle": "本地密码学与安全分享",
+    "card.cryptolab.desc": "在浏览器本地完成编码、摘要、加解密、JWT 检查，以及公钥二维码安全分享。",
+
     "card.cta": "打开工具",
 
     "footer.privacy": "零追踪 · 零 Cookie · 系统字体",
@@ -70,6 +74,10 @@ const i18n = {
     "card.formtran.title": "FormTran",
     "card.formtran.subtitle": "Local File Workspace",
     "card.formtran.desc": "Identify, convert, compose, and inspect files while keeping every input and result in your browser.",
+
+    "card.cryptolab.title": "CryptoLab",
+    "card.cryptolab.subtitle": "Local Cryptography & Secure Sharing",
+    "card.cryptolab.desc": "Encode, hash, encrypt, inspect JWTs, and exchange public-key protected QR messages entirely in your browser.",
 
     "card.cta": "Open Tool",
 

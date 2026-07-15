@@ -1,5 +1,5 @@
 export const APP_STATUSES = Object.freeze(['hidden', 'preview', 'stable'])
-export const TOOLBOX_RELEASE = 'v0.3.0'
+export const TOOLBOX_RELEASE = 'v0.3.1'
 
 export function defineApp(input) {
   const app = {
@@ -129,6 +129,7 @@ export const TOOLBOX_APPS = Object.freeze([
       viewBox: '0 0 48 48',
       svg: '<circle cx="22" cy="24" r="7"/><path d="M33 24h6v6h-6z"/><path d="M39 24V18"/><path d="M15 24H9"/><path d="M22 31v7"/>',
     },
+    status: 'stable',
   }),
 ])
 

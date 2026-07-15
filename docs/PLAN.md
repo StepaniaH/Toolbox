@@ -156,7 +156,7 @@ main 稳定线
 |---|---|---|
 | FormTran | 本地文件工作台；统一任务入口已开放图片/GIF/文本、HEIC/HEIF、CSV/TSV/XLSX、PDF 页面与 ZIP 提取 | 首页负责识别、分组、范围、总览与共享结果；各文件族使用隔离工作台与资源预算，不自动处理源文件 |
 | Structured Data extensions | FormTran 已实现 CSV/TSV/XLSX 值转换；后续再评估 JSON / NDJSON / YAML / XML | 后续大文件优先流式解析；类型推断、数字精度、实体与公式注入必须显式治理 |
-| CryptoLab | dev hidden 候选已实现 Base64、URL/HTML/Hex、哈希、HMAC、AES/ChaCha20、RSA、JWT 与 Secure Share | 区分编码、哈希、加密和签名；私钥不进入二维码、URL、storage 或网络，浏览器能力缺失时明确失败 |
+| CryptoLab | dev stable 候选已开放 Base64、URL/HTML/Hex、哈希、HMAC、AES/ChaCha20、用途分离的 RSA、JWT 时效检查与 Secure Share | 公钥指纹需通过独立可信渠道核对；私钥不进入二维码、URL、storage 或网络，浏览器能力缺失时明确失败 |
 | Text & Markup Converter | 已作为 FormTran 独立 Tab 实现 TXT / Markdown / Org-mode / RST / AsciiDoc / HTML 互转、结构解析与预览 | 使用轻量 AST 保留标题、段落、列表、链接、引用、代码块和分隔线；明确提示方言语法无法完整往返 |
 | Audio Converter | WAV / MP3 / AAC / Opus / FLAC 与裁切、码率 | 优先 WebCodecs，缺失编码器再评估可审计的本地 WASM 与包体预算 |
 | Video Converter | 容器/编码、分辨率、帧率、音轨与片段 | 依赖 WebCodecs/WASM、内存与长任务治理；先做能力检测和取消/恢复 |

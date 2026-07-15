@@ -72,18 +72,18 @@ try {
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(page)
   const assertHomepageSurface = async () => {
-    assert.equal(await page.locator('.tool-card').count(), 5)
-    assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 5)
+    assert.equal(await page.locator('.tool-card').count(), 6)
+    assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 6)
     assert.equal(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       true,
     )
   }
   await assertSharedPreferenceMatrix(page, assertHomepageSurface)
-  assert.equal(await page.locator('.tool-card').count(), 5)
-  assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 5)
+  assert.equal(await page.locator('.tool-card').count(), 6)
+  assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 6)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
-  assert.equal(await page.getByText('v0.3.0', { exact: true }).count(), 1)
+  assert.equal(await page.getByText('v0.3.1', { exact: true }).count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   assert.equal(await page.locator('.toolbox-nav-brand-link').getAttribute('href'), '/')
 

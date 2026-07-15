@@ -111,7 +111,7 @@ log "  monitor-choice"
 rsync "${RSYNC_ARGS[@]}" \
   "$PROJECT_DIR/apps/monitor-choice/dist/" "$VPS_HOST:$VPS_WWW/monitor-choice/"
 
-for app in rate-lens chrono-sphere sane-units image-converter; do
+for app in rate-lens chrono-sphere sane-units image-converter crypto-lab; do
   log "  $app"
   rsync "${RSYNC_ARGS[@]}" \
     "$PROJECT_DIR/apps/$app/dist/" "$VPS_HOST:$VPS_WWW/$app/"

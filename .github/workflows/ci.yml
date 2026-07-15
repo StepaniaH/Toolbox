@@ -109,7 +109,7 @@ jobs:
             apps/monitor-choice/dist/ $USER@$HOST:$WWW/monitor-choice/
 
           # React apps (built dist/)
-          for app in rate-lens chrono-sphere sane-units image-converter; do
+          for app in rate-lens chrono-sphere sane-units image-converter crypto-lab; do
             rsync -az --delete --no-motd \
               apps/$app/dist/ $USER@$HOST:$WWW/$app/
           done
