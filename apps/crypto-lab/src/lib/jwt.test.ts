@@ -4,6 +4,8 @@ import {
   base64UrlDecode,
   base64UrlEncode,
   decodeJwt,
+  inspectJwtTimeClaims,
+  MAX_JWT_CHARS,
   verifyJwtHs256,
   verifyJwtHs512,
 } from './jwt.ts'
@@ -79,6 +81,45 @@ describe('decodeJwt', () => {
 
   it('throws for invalid Base64Url JSON', () => {
     expect(() => decodeJwt('a.b.c')).toThrow(/not valid Base64Url JSON/)
+  })
+
+  it('rejects non-canonical Base64Url and oversized tokens before decoding', () => {
+    expect(() => base64UrlDecode('YWJj=')).toThrow(/Base64Url/)
+    expect(() => decodeJwt(`a.${'A'.repeat(MAX_JWT_CHARS)}.c`)).toThrow(/safe input limit/)
+  })
+
+  it('requires JWT header and payload JSON to be objects', () => {
+    const header = base64UrlEncode(utf8ToBytes(JSON.stringify(['HS256'])))
+    const payload = base64UrlEncode(utf8ToBytes('null'))
+    expect(() => decodeJwt(`${header}.${payload}.AA`)).toThrow(/header/)
+  })
+})
+
+describe('inspectJwtTimeClaims', () => {
+  const now = 1_700_000_000
+
+  it('classifies expiration, not-before, and issued-at claims at a fixed time', () => {
+    expect(inspectJwtTimeClaims({ exp: now - 1, nbf: now + 30, iat: now + 5 }, now)).toEqual([
+      { claim: 'exp', status: 'expired', value: now - 1 },
+      { claim: 'nbf', status: 'not-yet-valid', value: now + 30 },
+      { claim: 'iat', status: 'future-issued', value: now + 5 },
+    ])
+  })
+
+  it('marks non-number NumericDate values invalid and omits absent claims', () => {
+    expect(inspectJwtTimeClaims({ exp: 'tomorrow', nbf: 1e300, iat: Number.NaN }, now)).toEqual([
+      { claim: 'exp', status: 'invalid' },
+      { claim: 'nbf', status: 'invalid' },
+      { claim: 'iat', status: 'invalid' },
+    ])
+  })
+
+  it('reports currently acceptable NumericDate claims', () => {
+    expect(inspectJwtTimeClaims({ exp: now + 10, nbf: now - 10, iat: now - 20 }, now)).toEqual([
+      { claim: 'exp', status: 'valid', value: now + 10 },
+      { claim: 'nbf', status: 'valid', value: now - 10 },
+      { claim: 'iat', status: 'valid', value: now - 20 },
+    ])
   })
 })
 

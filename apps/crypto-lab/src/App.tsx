@@ -27,6 +27,7 @@ type Tab = 'share' | 'encoding' | 'hash' | 'cipher' | 'rsa' | 'jwt' | 'kb' | 'ab
 function App() {
   const { t } = useTranslation()
   const [tab, setTab] = useState<Tab>('encoding')
+  const [visitedTabs, setVisitedTabs] = useState<Set<Tab>>(() => new Set(['encoding']))
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([])
 
   const tabs: { id: Tab; label: string }[] = [
@@ -57,6 +58,12 @@ function App() {
   }, [t])
 
   function selectTab(nextTab: Tab, focus = false) {
+    setVisitedTabs((current) => {
+      if (current.has(nextTab)) return current
+      const next = new Set(current)
+      next.add(nextTab)
+      return next
+    })
     if (focus) {
       const nextIndex = tabs.findIndex((item) => item.id === nextTab)
       tabRefs.current[nextIndex]?.focus()
@@ -101,15 +108,22 @@ function App() {
           ))}
         </nav>
 
-        <main
-          id={`panel-${tab}`}
-          role="tabpanel"
-          aria-labelledby={`tab-${tab}`}
-          tabIndex={0}
-        >
-          <Suspense fallback={<p className="cl-loading" role="status">{t('common.loading')}</p>}>
-            {panels[tab]}
-          </Suspense>
+        <main>
+          {tabs.map((item) => visitedTabs.has(item.id) && (
+            <section
+              key={item.id}
+              id={`panel-${item.id}`}
+              role="tabpanel"
+              aria-labelledby={`tab-${item.id}`}
+              tabIndex={0}
+              className="cl-tab-panel"
+              hidden={tab !== item.id}
+            >
+              <Suspense fallback={<p className="cl-loading" role="status">{t('common.loading')}</p>}>
+                {panels[item.id]}
+              </Suspense>
+            </section>
+          ))}
         </main>
 
         <Footer />

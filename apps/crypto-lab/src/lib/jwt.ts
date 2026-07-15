@@ -13,6 +13,16 @@ export type DecodedJwt = {
   raw: { header: string; payload: string; signature: string }
 }
 
+export const MAX_JWT_CHARS = 64 * 1024
+
+export type JwtTimeClaim = 'exp' | 'nbf' | 'iat'
+export type JwtTimeStatus = 'valid' | 'expired' | 'not-yet-valid' | 'future-issued' | 'invalid'
+export type JwtTimeInspection = {
+  claim: JwtTimeClaim
+  status: JwtTimeStatus
+  value?: number
+}
+
 export function base64UrlEncode(bytes: Uint8Array): string {
   return bytesToBase64(bytes)
     .replace(/\+/g, '-')
@@ -21,15 +31,30 @@ export function base64UrlEncode(bytes: Uint8Array): string {
 }
 
 export function base64UrlDecode(str: string): Uint8Array {
+  if (!/^[A-Za-z0-9_-]*$/.test(str)) throw new Error('Invalid Base64Url encoding')
   const padded =
     str.replace(/-/g, '+').replace(/_/g, '/') +
     '='.repeat((4 - (str.length % 4)) % 4)
-  return base64ToBytes(padded)
+  let decoded: Uint8Array
+  try {
+    decoded = base64ToBytes(padded)
+  } catch {
+    throw new Error('Invalid Base64Url encoding')
+  }
+  if (base64UrlEncode(decoded) !== str) throw new Error('Invalid Base64Url encoding')
+  return decoded
+}
+
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 export function decodeJwt(token: string): DecodedJwt {
   if (typeof token !== 'string') {
     throw new Error('JWT must be a string')
+  }
+  if (token.length > MAX_JWT_CHARS) {
+    throw new Error('JWT exceeds the safe input limit')
   }
 
   const parts = token.split('.')
@@ -46,19 +71,17 @@ export function decodeJwt(token: string): DecodedJwt {
   let payload: Record<string, unknown>
 
   try {
-    header = JSON.parse(bytesToUtf8(base64UrlDecode(headerB64))) as Record<
-      string,
-      unknown
-    >
+    const value: unknown = JSON.parse(bytesToUtf8(base64UrlDecode(headerB64)))
+    if (!isJsonObject(value)) throw new Error('JWT header must be a JSON object')
+    header = value
   } catch {
     throw new Error('Invalid JWT header: not valid Base64Url JSON')
   }
 
   try {
-    payload = JSON.parse(bytesToUtf8(base64UrlDecode(payloadB64))) as Record<
-      string,
-      unknown
-    >
+    const value: unknown = JSON.parse(bytesToUtf8(base64UrlDecode(payloadB64)))
+    if (!isJsonObject(value)) throw new Error('JWT payload must be a JSON object')
+    payload = value
   } catch {
     throw new Error('Invalid JWT payload: not valid Base64Url JSON')
   }
@@ -73,6 +96,29 @@ export function decodeJwt(token: string): DecodedJwt {
       signature: signatureB64,
     },
   }
+}
+
+export function inspectJwtTimeClaims(
+  payload: Record<string, unknown>,
+  nowSeconds = Date.now() / 1000,
+): JwtTimeInspection[] {
+  const claims: JwtTimeClaim[] = ['exp', 'nbf', 'iat']
+  return claims.flatMap((claim): JwtTimeInspection[] => {
+    if (!Object.prototype.hasOwnProperty.call(payload, claim)) return []
+    const value = payload[claim]
+    if (
+      typeof value !== 'number'
+      || !Number.isFinite(value)
+      || !Number.isFinite(value * 1000)
+      || Math.abs(value * 1000) > 8.64e15
+    ) {
+      return [{ claim, status: 'invalid' }]
+    }
+    if (claim === 'exp' && nowSeconds >= value) return [{ claim, status: 'expired', value }]
+    if (claim === 'nbf' && nowSeconds < value) return [{ claim, status: 'not-yet-valid', value }]
+    if (claim === 'iat' && nowSeconds < value) return [{ claim, status: 'future-issued', value }]
+    return [{ claim, status: 'valid', value }]
+  })
 }
 
 type HmacAlgorithm = 'SHA-256' | 'SHA-512'

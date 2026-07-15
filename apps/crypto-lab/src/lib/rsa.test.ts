@@ -3,8 +3,10 @@ import {
   exportPrivateKeyPem,
   exportPublicKeyPem,
   generateRsaKeyPair,
+  getPublicKeyFingerprint,
   importPrivateKeyPem,
   importPublicKeyPem,
+  rsaOaepMaxMessageBytes,
   rsaDecrypt,
   rsaEncrypt,
   rsaSign,
@@ -40,6 +42,30 @@ describe('RSA encryption key pair', () => {
     const ciphertext = await rsaEncrypt(plaintext, pair.publicKey)
     const decrypted = await rsaDecrypt(ciphertext, pair.privateKey)
     expect(decrypted).toBe(plaintext)
+  })
+
+  it('derives a stable SHA-256 fingerprint from the canonical public key', async () => {
+    const pair = await generateRsaKeyPair(1024, 'encryption')
+    const publicPem = await exportPublicKeyPem(pair.publicKey)
+    const first = await getPublicKeyFingerprint(publicPem)
+    const second = await getPublicKeyFingerprint(`\n${publicPem}\n`)
+
+    expect(first).toBe(second)
+    expect(first).toMatch(/^(?:[0-9A-F]{2}:){31}[0-9A-F]{2}$/)
+  })
+
+  it('enforces the RFC 8017 OAEP message budget before encryption', async () => {
+    const pair = await generateRsaKeyPair(1024, 'encryption')
+    expect(rsaOaepMaxMessageBytes(pair.publicKey)).toBe(62)
+    await expect(rsaEncrypt('x'.repeat(63), pair.publicKey)).rejects.toMatchObject({
+      code: 'message-too-large',
+      maxBytes: 62,
+    })
+  })
+
+  it('rejects oversized and incorrectly labelled PEM input before import', async () => {
+    await expect(importPublicKeyPem('x'.repeat(20_000), 'encryption')).rejects.toThrow(/PEM/)
+    await expect(importPublicKeyPem('-----BEGIN RSA PUBLIC KEY-----\nAA==\n-----END RSA PUBLIC KEY-----', 'encryption')).rejects.toThrow(/PUBLIC KEY/)
   })
 })
 

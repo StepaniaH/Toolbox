@@ -51,7 +51,21 @@ describe('CryptoLab app', () => {
     await userEvent.type(input, token)
     await waitFor(() => {
       expect(screen.getByText(/John Doe/)).toBeInTheDocument()
+      expect(screen.getByText(/仅完成解码，尚未验证签名/)).toBeInTheDocument()
     })
+  })
+
+  it('separates RSA encryption and signing key purposes', async () => {
+    renderApp()
+    await userEvent.click(screen.getByRole('tab', { name: 'RSA' }))
+    const publicKey = await screen.findByLabelText('公钥 (PEM)')
+    await userEvent.type(publicKey, 'temporary key material')
+    await userEvent.click(screen.getByRole('button', { name: '密钥用途' }))
+    await userEvent.click(screen.getByRole('button', { name: 'PSS 签名 / 验证' }))
+
+    expect(publicKey).toHaveValue('')
+    expect(screen.getByLabelText('Base64 签名')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '加密' })).not.toBeInTheDocument()
   })
 
   it('supports arrow-key tab navigation', async () => {
@@ -62,5 +76,16 @@ describe('CryptoLab app', () => {
     const shareTab = screen.getByRole('tab', { name: '安全分享' })
     expect(shareTab).toHaveAttribute('aria-selected', 'true')
     expect(shareTab).toHaveFocus()
+  })
+
+  it('keeps a visited workspace in page memory while reading another module', async () => {
+    renderApp()
+    await userEvent.click(screen.getByRole('tab', { name: '编码' }))
+    const input = await screen.findByLabelText('输入')
+    await userEvent.type(input, 'keep this locally')
+    await userEvent.click(screen.getByRole('tab', { name: '关于' }))
+    await screen.findByRole('heading', { name: '关于 CryptoLab' })
+    await userEvent.click(screen.getByRole('tab', { name: '编码' }))
+    expect(input).toHaveValue('keep this locally')
   })
 })
