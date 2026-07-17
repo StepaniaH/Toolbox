@@ -71,24 +71,156 @@ for (const file of workflowFiles) {
 }
 
 const ciWorkflow = read('.github/workflows/ci.yml')
-const deployJob = ciWorkflow.split(/\n  deploy:\s*\n/, 2)[1] ?? ''
+
+function workflowJob(content, jobName) {
+  const startMarker = `\n  ${jobName}:\n`
+  const start = content.indexOf(startMarker)
+  if (start < 0) return ''
+  const bodyStart = start + startMarker.length
+  const nextJob = content.slice(bodyStart).search(/\n  [a-zA-Z0-9_-]+:\n/)
+  return nextJob < 0
+    ? content.slice(bodyStart)
+    : content.slice(bodyStart, bodyStart + nextJob)
+}
+
+const buildAndTestJob = workflowJob(ciWorkflow, 'build-and-test')
+const deployVpsJob = workflowJob(ciWorkflow, 'deploy-vps')
+const deployPagesJob = workflowJob(ciWorkflow, 'deploy-pages')
 const localDeploy = read('deploy/deploy.sh')
+const staticAssembler = read('scripts/assemble-static-site.mjs')
+const buildGates = [
+  'pnpm check:privacy',
+  'pnpm check:contracts',
+  'pnpm build',
+  'pnpm test',
+  'pnpm test:browser',
+  'pnpm lint',
+]
 for (const requirement of [
   "github.event_name == 'workflow_dispatch'",
   "github.ref == 'refs/heads/main'",
   'inputs.deploy_production == true',
   'environment: production',
 ]) {
-  if (!deployJob.includes(requirement)) {
-    fail('manual-production-deploy-contract', '.github/workflows/ci.yml', `missing ${requirement}`)
+  for (const [jobName, job] of [
+    ['deploy-vps', deployVpsJob],
+    ['deploy-pages', deployPagesJob],
+  ]) {
+    if (!job.includes(requirement)) {
+      fail('manual-production-deploy-contract', '.github/workflows/ci.yml', `${jobName} missing ${requirement}`)
+    }
   }
 }
-if (deployJob.includes("github.event_name == 'push'")) {
-  fail(
-    'manual-production-deploy-contract',
-    '.github/workflows/ci.yml',
-    'a push to main must not deploy production automatically',
-  )
+for (const gate of buildGates) {
+  const gateIndex = buildAndTestJob.indexOf(gate)
+  const assemblyIndex = buildAndTestJob.indexOf('node scripts/assemble-static-site.mjs')
+  if (gateIndex < 0 || assemblyIndex < gateIndex) {
+    fail(
+      'verified-artifact-contract',
+      '.github/workflows/ci.yml',
+      `build-and-test must run ${gate} before static-site assembly`,
+    )
+  }
+}
+for (const [jobName, job, target, concurrencyGroup] of [
+  ['deploy-vps', deployVpsJob, 'vps', 'production-vps-deploy'],
+  ['deploy-pages', deployPagesJob, 'pages', 'production-pages-deploy'],
+]) {
+  for (const requirement of [
+    `inputs.deploy_target == '${target}'`,
+    "inputs.deploy_target == 'both'",
+    'concurrency:',
+    `group: ${concurrencyGroup}`,
+    'cancel-in-progress: false',
+  ]) {
+    if (!job.includes(requirement)) {
+      fail('production-target-contract', '.github/workflows/ci.yml', `${jobName} missing ${requirement}`)
+    }
+  }
+}
+for (const [jobName, job] of [
+  ['deploy-vps', deployVpsJob],
+  ['deploy-pages', deployPagesJob],
+]) {
+  if (job.includes("github.event_name == 'push'")) {
+    fail(
+      'manual-production-deploy-contract',
+      '.github/workflows/ci.yml',
+      `${jobName} must not deploy production from a push`,
+    )
+  }
+  for (const artifactRequirement of [
+    'needs: build-and-test',
+    'actions/download-artifact@',
+    'toolbox-static-site-${{ github.sha }}',
+    '${{ runner.temp }}/toolbox-static-site',
+  ]) {
+    if (!job.includes(artifactRequirement)) {
+      fail('verified-artifact-contract', '.github/workflows/ci.yml', `${jobName} missing ${artifactRequirement}`)
+    }
+  }
+}
+
+for (const requirement of [
+  'node scripts/assemble-static-site.mjs',
+  'actions/upload-artifact@',
+  'toolbox-static-site-${{ github.sha }}',
+]) {
+  if (!buildAndTestJob.includes(requirement)) {
+    fail('verified-artifact-contract', '.github/workflows/ci.yml', `build-and-test missing ${requirement}`)
+  }
+}
+for (const requirement of [
+  'tailscale/github-action@',
+  'secrets.VPS_SSH_KEY',
+  'secrets.VPS_HOST',
+  'secrets.VPS_USER',
+  'secrets.VPS_PORT',
+  'secrets.VPS_WWW',
+  'rsync -az --delete --no-motd',
+]) {
+  if (!deployVpsJob.includes(requirement)) {
+    fail('vps-deploy-contract', '.github/workflows/ci.yml', `deploy-vps missing ${requirement}`)
+  }
+}
+for (const requirement of [
+  'cloudflare/wrangler-action@',
+  'secrets.CLOUDFLARE_API_TOKEN',
+  'secrets.CLOUDFLARE_ACCOUNT_ID',
+  'secrets.CLOUDFLARE_PAGES_PROJECT',
+  'pages deploy ${{ runner.temp }}/toolbox-static-site',
+  '--branch=main',
+  "wranglerVersion: '4.94.0'",
+]) {
+  if (!deployPagesJob.includes(requirement)) {
+    fail('pages-deploy-contract', '.github/workflows/ci.yml', `deploy-pages missing ${requirement}`)
+  }
+}
+for (const forbiddenVpsReference of [
+  'tailscale',
+  'ssh',
+  'rsync',
+  'VPS_HOST',
+  'VPS_WWW',
+  'secrets.GITHUB_TOKEN',
+]) {
+  if (deployPagesJob.toLowerCase().includes(forbiddenVpsReference.toLowerCase())) {
+    fail(
+      'pages-vps-isolation-contract',
+      '.github/workflows/ci.yml',
+      `deploy-pages must not reference ${forbiddenVpsReference}`,
+    )
+  }
+}
+for (const requirement of [
+  'getStableApps()',
+  "resolve(root, 'apps', app.id, 'dist')",
+  "app.path === '/' ? outputDirectory : join(outputDirectory, app.id)",
+  'auditStaticSite(outputDirectory)',
+]) {
+  if (!staticAssembler.includes(requirement)) {
+    fail('static-site-assembly-contract', 'scripts/assemble-static-site.mjs', `missing ${requirement}`)
+  }
 }
 
 // ── Nav interaction and deploy-copy contract ─────────────
@@ -215,12 +347,19 @@ for (const app of TOOLBOX_APPS) {
     }
   }
   if (app.status === 'stable' && app.path !== '/') {
-    if (!deployJob.includes(app.id)) {
-      fail('stable-deploy-contract', '.github/workflows/ci.yml', `missing stable app ${app.id}`)
+    if (!staticAssembler.includes('getStableApps()')) {
+      fail('stable-deploy-contract', 'scripts/assemble-static-site.mjs', `missing stable app assembly for ${app.id}`)
     }
-    if (!localDeploy.includes(app.id)) {
-      fail('stable-deploy-contract', 'deploy/deploy.sh', `missing stable app ${app.id}`)
-    }
+  }
+}
+
+for (const requirement of [
+  'scripts/assemble-static-site.mjs',
+  'rsync "${RSYNC_ARGS[@]}"',
+  '"$STAGING_DIR/" "$VPS_HOST:$VPS_WWW/"',
+]) {
+  if (!localDeploy.includes(requirement)) {
+    fail('stable-deploy-contract', 'deploy/deploy.sh', `missing ${requirement}`)
   }
 }
 

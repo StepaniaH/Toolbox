@@ -90,7 +90,11 @@ pnpm install --frozen-lockfile
 log "Building all applications..."
 pnpm build
 
-# ── 4. Sync static artifacts ───────────────────────────────
+# ── 4. Assemble and sync the same public artifact as CI ────
+STAGING_DIR="$(mktemp -d "${TMPDIR:-/tmp}/toolbox-static-site.XXXXXX")"
+trap 'rm -rf -- "$STAGING_DIR"' EXIT
+node "$PROJECT_DIR/scripts/assemble-static-site.mjs" "$STAGING_DIR"
+
 log "Deploying verified static artifacts..."
 
 SSH_ARGS=(
@@ -103,18 +107,7 @@ RSYNC_ARGS=(-az --delete --no-motd)
 
 ssh "${SSH_ARGS[@]}" "$VPS_HOST" mkdir -p -- "$VPS_WWW"
 
-log "  homepage → root"
 rsync "${RSYNC_ARGS[@]}" \
-  "$PROJECT_DIR/apps/homepage/dist/" "$VPS_HOST:$VPS_WWW/"
+  "$STAGING_DIR/" "$VPS_HOST:$VPS_WWW/"
 
-log "  monitor-choice"
-rsync "${RSYNC_ARGS[@]}" \
-  "$PROJECT_DIR/apps/monitor-choice/dist/" "$VPS_HOST:$VPS_WWW/monitor-choice/"
-
-for app in rate-lens chrono-sphere sane-units image-converter crypto-lab; do
-  log "  $app"
-  rsync "${RSYNC_ARGS[@]}" \
-    "$PROJECT_DIR/apps/$app/dist/" "$VPS_HOST:$VPS_WWW/$app/"
-done
-
-log "Done → https://tools.s-ark.xyz"
+log "VPS deploy complete."

@@ -10,6 +10,7 @@ const appRoot = fileURLToPath(new URL('../', import.meta.url))
 const viteCli = fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url))
 const externalPreviewUrl = process.env.SANE_UNITS_PREVIEW_URL
 const previewUrl = externalPreviewUrl ?? 'http://127.0.0.1:19879/sane-units/'
+const appBasePath = new URL(previewUrl).pathname.replace(/\/$/, '')
 const preview = externalPreviewUrl
   ? null
   : spawn(
@@ -100,9 +101,10 @@ try {
     ['/power', 7],
     ['/about', 3],
   ]
-  const storageLink = page.locator('.section-nav a[href="/storage"]')
+  const storageLink = page.locator(`.section-nav a[href="${appBasePath}/storage"]`)
   assert.equal(await storageLink.count(), 1)
   await storageLink.click()
+  assert.equal(new URL(page.url()).pathname, `${appBasePath}/storage`)
   const assertStorageSurface = async () => {
     assert.equal(await page.locator('.calculator-grid-storage').count(), 1)
     assert.equal(await page.locator('.panel').count(), 7)
@@ -113,13 +115,18 @@ try {
   }
   await assertSharedPreferenceMatrix(page, assertStorageSurface)
   for (const [route, expectedPanels] of routeCases) {
-    const link = page.locator(`.section-nav a[href="${route}"]`)
+    const link = page.locator(`.section-nav a[href="${appBasePath}${route}"]`)
     assert.equal(await link.count(), 1)
     await link.click()
+    assert.equal(new URL(page.url()).pathname, `${appBasePath}${route}`)
     assert.ok((await page.locator('.page-header h2').textContent()).trim().length > 0)
     assert.equal(await page.locator('.page-header .toolbox-app-mark').count(), 0)
     assert.equal(await page.locator('.panel').count(), expectedPanels)
   }
+
+  await page.goto(`${previewUrl}storage/`, { waitUntil: 'networkidle' })
+  assert.equal(new URL(page.url()).pathname, `${appBasePath}/storage`)
+  await assertStorageSurface()
 
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   const languageButton = page.locator('.toolbox-nav-lang')
@@ -163,7 +170,8 @@ try {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertMobileSharedShell(page)
-  await page.locator('.section-nav a[href="/storage"]').click()
+  await page.locator(`.section-nav a[href="${appBasePath}/storage"]`).click()
+  assert.equal(new URL(page.url()).pathname, `${appBasePath}/storage`)
   await assertSharedPreferenceMatrix(page, assertStorageSurface)
   assert.equal(await page.locator('.sidebar, .mobile-topbar').count(), 0)
   assert.equal(await page.locator('.sane-app-header').isVisible(), true)
@@ -181,9 +189,10 @@ try {
   await toolMenu.waitFor({ state: 'hidden' })
 
   for (const [route, expectedPanels] of routeCases) {
-    const link = page.locator(`.section-nav a[href="${route}"]`)
+    const link = page.locator(`.section-nav a[href="${appBasePath}${route}"]`)
     assert.equal(await link.count(), 1)
     await link.click()
+    assert.equal(new URL(page.url()).pathname, `${appBasePath}${route}`)
     assert.equal(await page.locator('.panel').count(), expectedPanels)
   }
   assert.equal(

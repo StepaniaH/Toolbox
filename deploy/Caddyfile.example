@@ -1,10 +1,9 @@
 # deploy/Caddyfile.example
-# Append to VPS Caddyfile, then restart Docker Caddy
-# VPS: {{CADDY_DIR}}/Caddyfile
-# Container maps ~/www → /srv/www, so root paths use /srv/www/
+# Append to the private VPS Caddyfile, then restart Caddy.
+# Keep the real site domain and container web root in private deployment config.
 
-tools.s-ark.xyz {
-    root * /srv/www/toolbox
+{{VPS_SITE_DOMAIN}} {
+    root * {{VPS_CONTAINER_WEB_ROOT}}
     file_server
     encode gzip zstd
 

@@ -50,6 +50,7 @@ const contentChecks = [
     /\b(?:api[_-]?key|access[_-]?token|client[_-]?secret|password)\b\s*[:=]\s*["'](?!\{\{|<)[^"'\s]{8,}["']/i,
   ],
   ['personal-absolute-path', /\/(?:Users|home)\/(?![<{[])[^/\s]+/],
+  ['concrete-vps-web-root', /\/srv\/www(?:\/|\b)/],
 ]
 
 for (const file of trackedFiles) {
