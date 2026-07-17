@@ -39,6 +39,23 @@ import {
   writeStoredState,
 } from "./lib/storage";
 
+const APP_BASE_PATH = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function toAppPath(pathname: string): string {
+  const normalized = pathname.startsWith("/") ? pathname : `/${pathname}`;
+  if (!APP_BASE_PATH) return normalized;
+  return normalized === "/" ? `${APP_BASE_PATH}/` : `${APP_BASE_PATH}${normalized}`;
+}
+
+function fromAppPath(pathname: string): string {
+  if (!APP_BASE_PATH) return pathname;
+  if (pathname === APP_BASE_PATH) return "/";
+  if (pathname.startsWith(`${APP_BASE_PATH}/`)) {
+    return pathname.slice(APP_BASE_PATH.length) || "/";
+  }
+  return pathname;
+}
+
 const STORAGE_DEFAULTS = {
   value: 4,
   unit: "TB",
@@ -1114,7 +1131,7 @@ function NavLink({ to, active, onNavigate, children }: any) {
   return (
     <a
       className={`nav-link ${active ? "nav-link-active" : ""}`}
-      href={to}
+      href={toAppPath(to)}
       aria-current={active ? "page" : undefined}
       onClick={(event) => {
         event.preventDefault();
@@ -1136,8 +1153,9 @@ function useAppNavigation(): [string, (path: string) => void] {
   }, []);
 
   const navigate = (nextPath) => {
-    if (nextPath === currentPath()) return;
-    window.history.pushState({}, "", nextPath);
+    const route = normalizeRoute(nextPath);
+    if (route === currentPath()) return;
+    window.history.pushState({}, "", toAppPath(route));
     setPath(currentPath());
   };
 
@@ -1165,7 +1183,8 @@ function useSyncedState(
   useEffect(() => {
     writeStoredState(storageKey, state);
     const query = encode(state);
-    const nextUrl = query ? `${pathname}?${query}` : pathname;
+    const publicPath = toAppPath(pathname);
+    const nextUrl = query ? `${publicPath}?${query}` : publicPath;
     if (`${window.location.pathname}${window.location.search}` !== nextUrl) {
       window.history.replaceState({}, "", nextUrl);
     }
@@ -1299,12 +1318,13 @@ function encodeVideoState(state: any): string {
 }
 
 function currentPath(): string {
-  return normalizeRoute(window.location.pathname);
+  return normalizeRoute(fromAppPath(window.location.pathname));
 }
 
 function normalizeRoute(pathname: string): string {
-  if (pathname === "/storage" || pathname === "/network" || pathname === "/video" || pathname === "/power" || pathname === "/about") {
-    return pathname;
+  const route = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  if (route === "/storage" || route === "/network" || route === "/video" || route === "/power" || route === "/about") {
+    return route;
   }
   return "/";
 }
@@ -1330,7 +1350,8 @@ function buildShareUrl(pathname: string, state: Record<string, any>): string {
     }
   });
   const query = params.toString();
-  return `${pathname}${query ? `?${query}` : ""}`;
+  const publicPath = toAppPath(pathname);
+  return `${publicPath}${query ? `?${query}` : ""}`;
 }
 
 const NETWORK_PRESETS = [

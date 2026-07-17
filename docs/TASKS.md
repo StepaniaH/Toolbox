@@ -31,6 +31,13 @@
 - [ ] CHANGELOG、版本与受影响应用同步，并记录可回滚 commit。
 - [ ] `main` 只接受维护者明确晋级；合并不自动部署，生产仍需手动确认。
 
+### P0.3 · 双目标静态生产发布 `✅ 已完成`
+
+- [x] 将完整门禁后的多应用 `dist/` 组装为单一、可审计的静态站点 artifact。
+- [x] 保留 9929 VPS 的 Tailscale、SSH、rsync 与现有 Secrets，并增加 Cloudflare Pages Direct Upload。
+- [x] 两个目标只允许从 `main` 手动选择发布，使用 `production` environment 和独立并发保护。
+- [x] 文档只公开正式站点域名；VPS 目标、端口、路径和 Cloudflare 凭据继续使用占位符或 Secrets。
+
 ## P1 — 新工具积木与审核隔离
 
 ### P1.1 · 分支、skill 与交接契约 `✅ 已完成`

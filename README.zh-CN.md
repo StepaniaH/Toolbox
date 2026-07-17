@@ -6,7 +6,7 @@
 
 > 隐私说明：工具不会上传表单输入。RateLens 会自动向已披露的公开服务请求当前 USD/CNY 汇率；两个来源都失败时要求手动填写，不用硬编码汇率代替。
 
-**线上**: [tools.s-ark.xyz](https://tools.s-ark.xyz) · **源码**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox)
+**线上**: [toolbox.stepaniah.me](https://toolbox.stepaniah.me) · **源码**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox)
 
 ---
 

@@ -6,7 +6,7 @@ A collection of privacy-first web tools. Core calculations run locally in your b
 
 > Privacy note: form inputs are not uploaded. RateLens automatically requests only the current USD/CNY rate from the disclosed public services; if both fail, it asks for manual input instead of substituting a hardcoded rate.
 
-**Live**: [tools.s-ark.xyz](https://tools.s-ark.xyz) · **Source**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox)
+**Live**: [toolbox.stepaniah.me](https://toolbox.stepaniah.me) · **Source**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox)
 
 ---
 
