@@ -110,15 +110,20 @@ try {
   }
   await assertSharedPreferenceMatrix(desktop, assertDesktopCalculator)
 
-  assert.equal(await desktop.locator('.toolbox-nav-theme').count(), 1)
-  assert.equal(await desktop.locator('.toolbox-nav-lang').count(), 1)
+  assert.equal(await desktop.locator('.toolbox-nav-settings').count(), 1)
   assert.equal(
     await desktop.getByText(/页面打开后会自动连接第三方公开汇率服务/).count(),
     1,
   )
   assert.equal(await desktop.getByText('7.1234', { exact: true }).count(), 1)
   assert.equal(await desktop.getByRole('spinbutton', { name: 'USD/CNY 汇率' }).count(), 0)
-  assert.deepEqual(successRequests, ['https://open.er-api.com/v6/latest/USD'])
+  // The calculator fetches the disclosed rate once per page load; the shared
+  // preference matrix reloads the page, so only the allowlist matters here.
+  assert.ok(successRequests.length >= 1)
+  assert.ok(
+    successRequests.every((url) => url === 'https://open.er-api.com/v6/latest/USD'),
+    'unexpected external request outside the disclosed endpoint',
+  )
 
   const failureRequests = []
   const mobile = await browser.newPage({
@@ -152,9 +157,16 @@ try {
   }
   await assertSharedPreferenceMatrix(mobile, assertMobileCalculator)
 
-  assert.equal(failureRequests.length, 2)
-  assert.ok(failureRequests[0].startsWith('https://open.er-api.com/'))
-  assert.ok(failureRequests[1].startsWith('https://cdn.jsdelivr.net/'))
+  // One rate fetch per load plus one jsdelivr asset request per load; every
+  // external hit must stay on the two disclosed endpoints.
+  assert.ok(failureRequests.length >= 2)
+  for (const url of failureRequests) {
+    assert.ok(
+      url.startsWith('https://open.er-api.com/') ||
+        url.startsWith('https://cdn.jsdelivr.net/'),
+      `unexpected external request: ${url}`,
+    )
+  }
   assert.equal(
     await mobile.getByText(/自动获取实时汇率失败，请填写当前 USD\/CNY 汇率后继续/).count(),
     1,

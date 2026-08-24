@@ -59,7 +59,57 @@ try {
     assert.ok(heading && heading.trim().length > 0)
   }
 
+  const bodyBackground = () =>
+    page.evaluate(() => getComputedStyle(document.body).backgroundColor)
+
+  // Wait out the shared 0.3s body color transition before sampling.
+  const waitForBackground = (expected) =>
+    page.waitForFunction(
+      (rgb) => getComputedStyle(document.body).backgroundColor === rgb,
+      expected,
+    )
+
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
+
+  // Translations must render as copy, never as raw dotted keys.
+  const bodyText = await page.locator('body').textContent()
+  for (const banned of ['brand.', 'appearance.', 'homepage.']) {
+    assert.ok(!bodyText.includes(banned), `raw key prefix leaked into UI: ${banned}`)
+  }
+
+  // Palette families: dark Gruvbox and Solarized must actually restyle the page.
+  // Headless Chromium reports prefers-color-scheme: light, so pick dark first.
+  const segments = page.locator('.segment')
+  assert.deepEqual(await segments.allTextContents(), ['Dark', 'Light'])
+  await segments.first().click()
+  await waitForBackground('rgb(48, 52, 70)')
+
+  const swatches = page.locator('.swatch')
+  assert.equal(await swatches.count(), 3)
+  await swatches.filter({ hasText: 'Gruvbox' }).click()
+  await waitForBackground('rgb(40, 40, 40)')
+  assert.equal(await page.getAttribute('html', 'data-theme-family'), 'gruvbox')
+
+  await page.locator('.segment', { hasText: 'Light' }).click()
+  await waitForBackground('rgb(251, 241, 199)')
+
+  await swatches.filter({ hasText: 'Solarized' }).click()
+  await page.locator('.segment', { hasText: 'Dark' }).click()
+  await waitForBackground('rgb(0, 43, 54)')
+  assert.equal(await page.getAttribute('html', 'data-theme-family'), 'solarized')
+  assert.equal(await page.getAttribute('html', 'data-theme'), 'dark')
+
+  // Language options localize the whole page instantly and persist.
+  await page.locator('.language-option', { hasText: '简体中文' }).click()
+  await page.waitForFunction(() => document.documentElement.lang === 'zh-CN')
+  assert.equal(await page.locator('h1').first().textContent(), '设置')
+
+  await page.reload({ waitUntil: 'networkidle' })
+  assert.equal(await page.getAttribute('html', 'data-theme-family'), 'solarized')
+  assert.equal(await page.getAttribute('html', 'data-theme'), 'dark')
+  assert.equal((await bodyBackground()), 'rgb(0, 43, 54)')
+  assert.equal(await page.locator('h1').first().textContent(), '设置')
+
   await assertDesktopSharedShell(page)
   await assertSharedPreferenceMatrix(page, assertAppSurface)
 
