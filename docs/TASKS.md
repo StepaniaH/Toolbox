@@ -19,10 +19,10 @@
 
 ## P0 — 安全与发布
 
-### P0.1 · 依赖安全与许可证 `⏳ 待开始`
+### P0.1 · 依赖安全与许可证 `✅ 已完成`
 
-- [ ] 增加可复现的许可证清单与不兼容许可证门禁。
-- [ ] 增加高危依赖漏洞检查，避免把完整环境信息上传第三方服务。
+- [x] `check:licenses` 离线扫描全部安装包的 license 字段并对照已审阅的宽松许可允许清单。
+- [x] CI 执行 `check:audit`（生产依赖、high 起报）；仅向 registry 提交依赖名与版本。
 - [x] 保持 Actions 固定 SHA、Node 24 兼容运行时、只读权限、Turborepo telemetry opt-out 和显式生产部署。
 
 ### P0.2 · dev → main 晋级清单 `⏳ 待开始`
@@ -156,41 +156,41 @@
 ### P2.4 · 视觉回归基线 `🔄 进行中`
 
 - [x] 七应用 production smoke 覆盖 1440/390px、zh/en、light/dark、代表业务页、共享壳与溢出。
-- [ ] 生成并人工审核固定数据截图，再决定像素 diff 阈值。
-- [ ] 截图只保存有意义差异，不包含本地路径、个人数据或动态第三方响应。
+- [x] `pnpm shots` 以固定时钟、阻断跨域、reduced motion 捕获 8 页 × 2 主题 × 2 语言 ×
+  2 视口共 64 张基线，存于 docs/screenshots 供人工审核。
+- [ ] 维护者审核基线后决定像素 diff 阈值与执行时机。
+- [ ] 主题族（gruvbox/solarized）与新增语言纳入截图矩阵。
 
-### P2.7 · Settings 设置应用 `⏳ 待开始`
+### P2.7 · Settings 设置应用 `✅ 已完成`
 
-依赖：无。是 P2.8 / P2.9 的承载面。
-
-- [ ] 按 NEW_TOOL 流程在 `apps/settings` 完成隐藏候选：Appearance 与 Homepage 两节，
-  双语、主题、键盘、移动端全量达标。
-- [ ] 共享偏好键 `toolbox-homepage-prefs`（JSON：隐藏清单、密度、顺序）进入 contracts
-  校验；Settings 写入，Homepage 消费，默认值 = 现状渲染。
-- [ ] AGENTS 设计偏好条款更新：“快捷切换只由全局导航提供”，扩展配置归 Settings。
-- [ ] 首页按偏好渲染（隐藏/顺序/密度），清空偏好可完整回退默认。
+- [x] `apps/settings` 完成双语实现：Appearance（模式/语言）与 Homepage（可见性/顺序/
+  上限/重置）两节，键盘与移动端达标（窄屏纵向堆叠）。
+- [x] 新共享包 `@toolbox/prefs` 定义 `toolbox-homepage-prefs`（schema/hiddenIds/order/
+  limit），防御式归一化 + contractVersion 漂移守卫；Homepage 经 prefs 管线渲染。
+- [x] 两套 NavBar 增加齿轮入口（manifest 解析路径），进入 React/Vanilla 成对断言。
+- [x] 应用暂保持 `hidden`，随下次发布审核晋级 stable；导航齿轮在晋级后即指向真实路由。
 
 ### P2.8 · 主题族机制与首批双模式族 `⏳ 待开始`
 
 依赖：P2.7 提供选择界面；建议 P2.4 截图基线先覆盖默认主题。
 
-- [ ] theme 契约 v2：`data-theme-family` 属性、`toolbox-theme-family` 键、族清单与
-  `prePaintScript()` 双属性解析；默认族渲染与现状一致（契约测试锁定）。
-- [ ] tokens.css 支持 `[data-theme-family]` × `[data-theme]` 组合；首批新增 gruvbox、
-  solarized 双模式族，语义 token 全覆盖并通过对比度检查。
-- [ ] Settings Appearance 提供色板选择器（Port Light 式预览）；NavBar 明暗按钮保持只切模式。
-- [ ] 七应用 browser smoke 在新族下各跑一轮关键页。
+- [x] theme 契约 v2（包 1.1.0）：`data-theme-family` 属性、`toolbox-theme-family` 键、
+  族清单与 `prePaintScript()` 双属性解析；六个应用内联片段逐字更新。
+- [x] tokens.css 族块只覆盖原始 `--ctp-*` 层，语义别名经 var() 自动跟随；gruvbox、
+  solarized 双模式族落地，契约测试锁定原始色覆盖与默认族逐字节不变。
+- [x] WCAG 对比度门禁进入 theme 契约测试，并推动 solarized 双模式文字阶梯加深。
+- [x] Settings Appearance 提供色板选择器（双模式渐变预览）；NavBar 明暗按钮保持只切模式。
+- [x] 八应用 build/test/lint/browser 全量通过。
 
 ### P2.9 · 语言注册表与 zh-Hant 试点 `⏳ 待开始`
 
 依赖：P2.7 提供选择界面。
 
-- [ ] i18n 包新增语言注册表（code、nativeName、覆盖状态）与 Apple 式两行选择器组件
-  （React/Vanilla 等价，进 P2.5 成对断言）；副显示名用 `Intl.DisplayNames` 生成。
-- [ ] `toolbox-lang` 值域扩展为注册表推导；非法值回退 `en`，既有 zh/en 用户无感。
-- [ ] 七应用 + Homepage + Settings 全量文案 `zh-Hant` 覆盖（含 manifest 关键词与
-  keywords 搜索），key 完整性测试按语言矩阵扩展。
-- [ ] 覆盖度门禁：未达标语言不出现在选择器。
+- [x] i18n 包新增语言注册表（code、nativeName、zhName、覆盖状态）与 Settings 的
+  Apple 式两行选择器；副显示名由 `Intl.DisplayNames` 运行时生成，无手工译名矩阵。
+- [x] 覆盖度门禁：未覆盖语言不出现在选择器；注册表版本进 contracts 漂移守卫。
+- [ ] `zh-Hant` 全量翻译覆盖（七应用 + Homepage + Settings 文案与 manifest 双语
+  关键词），完成后将注册表 covered 置 true 并扩展 key 完整性测试矩阵。
 
 ## P3 — 性能与可维护性
 
@@ -200,11 +200,13 @@
 - [x] 用不透明 Catppuccin surface 保留信息层级，降低滚动与 Canvas 更新时的 GPU 重绘成本。
 - [x] 构建测试拒绝重新引入 `backdrop-filter`，production browser smoke 验证五个 Tab 与七个 Canvas。
 
-### P3.2 · 可解释性能预算 `⏳ 待开始`
+### P3.2 · 可解释性能预算 `🔄 进行中`
 
-- [ ] 记录每个 app 首屏 JS/CSS、最大 chunk、图片与初次交互基线。
-- [ ] 优先核对 ChronoSphere timezone lazy chunk 与 RateLens 首包的真实加载/缓存，而非盲目拆包。
-- [ ] CI 报告趋势；超预算需要说明和审核，不用不可解释的硬阈值阻塞小型合理变化。
+- [x] `measure-perf` 从构建产物生成 raw/gzip 体积表与最大 chunk，写入
+  docs/PERFORMANCE.md 基线；CI 在 build 后输出报告（仅报告，不做硬阈值）。
+- [ ] 优先核对 ChronoSphere timezone lazy chunk（122.8k gzip）与 RateLens 首包
+  （113.6k gzip）的真实加载/缓存，再决定拆包策略。
+- [ ] 交互延迟与缓存行为的可解释基线。
 
 ### P3.3 · 结构性维护 `🔄 进行中`
 

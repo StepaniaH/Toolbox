@@ -41,12 +41,14 @@ Toolbox/
 │   ├── monitor-choice/
 │   ├── sane-units/
 │   ├── image-converter/
-│   └── crypto-lab/
+│   ├── crypto-lab/
+│   └── settings/         # 设置中心（hidden，随下次发布晋级）
 ├── packages/             # 跨应用平台能力
-│   ├── theme/            # 主题 token 与切换运行时
+│   ├── theme/            # 主题 token/族与切换运行时（契约 v2）
 │   ├── nav/              # React / Vanilla 导航实现
-│   ├── i18n/             # 语言状态与 React Provider
-│   └── app-manifest/     # 应用目录、路径与公开状态
+│   ├── i18n/             # 语言注册表、状态与 React Provider
+│   ├── app-manifest/     # 应用目录、路径与公开状态
+│   └── prefs/            # 本机偏好存储契约（首页个性化）
 ├── docs/                 # 架构、规范、任务和 agent 约束
 ├── deploy/               # 可公开的部署脚本与配置模板
 ├── .github/workflows/    # CI 与 main 手动部署流程
@@ -85,8 +87,9 @@ Toolbox/
 
 ## 五、质量基线
 
-2026-08-24 在本地 `dev` 完成基线验证（privacy / contracts / release / build / test /
-lint / 七应用 browser smoke 全部通过）：
+2026-08-24 在本地 `dev` 完成基线验证（privacy / contracts / release / licenses /
+build / test / lint / 八应用 browser smoke 全部通过；性能体积基线见
+[PERFORMANCE.md](./PERFORMANCE.md)，截图基线见 [screenshots/INDEX.md](./screenshots/INDEX.md)）：
 
 | 检查 | 结果 | 备注 |
 |------|------|------|
