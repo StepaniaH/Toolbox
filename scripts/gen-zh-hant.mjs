@@ -66,20 +66,27 @@ for (const app of ['chrono-sphere', 'rate-lens', 'crypto-lab']) convertJsonApp(a
   const extra = extractObject(source, 'const extraKnowledgeZh', [], [])
   const extraEn = extractObject(source, 'const extraKnowledgeEn', [], [])
   const converted = convertTree(
-    extractObject(source, 'export const translations', ['extraKnowledgeZh', 'extraKnowledgeEn'], [extra, extraEn]),
+    // Extract the zh subtree only; the imported zh-Hant map is the output
+    // of this step and must not be evaluated.
+    extractObject(source, 'zh: {', ['extraKnowledgeZh', 'extraKnowledgeEn'], [extra, extraEn]),
   )
   writeFileSync(
     resolve(root, 'apps/image-converter/src/i18n.zh-hant.generated.json'),
-    JSON.stringify(converted.zh, null, 2) + '\n',
+    JSON.stringify(converted, null, 2) + '\n',
   )
   console.log('[gen] image-converter i18n.zh-hant.generated.json')
 }
 
 // ── sane-units: TRANSLATIONS['zh-CN'] → generated JSON ──
-convertInlineTs('sane-units', 'src/lib/i18n.ts', 'const TRANSLATIONS', (path, converted) => {
-  writeFileSync(resolve(root, 'apps/sane-units/src/lib/translations.zh-hant.generated.json'), JSON.stringify(converted['zh-CN'] ?? converted.zh ?? converted, null, 2) + '\n')
+{
+  const sourcePath = resolve(root, 'apps/sane-units/src/lib/i18n.ts')
+  const source = readFileSync(sourcePath, 'utf8')
+  // Extract the zh-CN subtree only; the imported zh-Hant map is the output
+  // of this step and must not be evaluated.
+  const converted = convertTree(extractObject(source, '"zh-CN": {', [], []))
+  writeFileSync(resolve(root, 'apps/sane-units/src/lib/translations.zh-hant.generated.json'), JSON.stringify(converted, null, 2) + '\n')
   console.log('[gen] sane-units translations.zh-hant.generated.json')
-})
+}
 
 // ── settings: `const zh = {...}` → generated JSON ──
 convertInlineTs('settings', 'src/translations.ts', 'const zh =', (path, converted) => {
@@ -88,10 +95,15 @@ convertInlineTs('settings', 'src/translations.ts', 'const zh =', (path, converte
 })
 
 // ── homepage: inline i18n dict zh block → generated JSON ──
-convertInlineTs('homepage', 'js/i18n.js', 'const i18n = {', (path, converted) => {
-  writeFileSync(resolve(root, 'apps/homepage/js/zh-hant.generated.json'), JSON.stringify(converted.zh, null, 2) + '\n')
+{
+  const sourcePath = resolve(root, 'apps/homepage/js/i18n.js')
+  const source = readFileSync(sourcePath, 'utf8')
+  // Extract the zh subtree only; the imported zh-Hant map is the output
+  // of this step and must not be evaluated.
+  const converted = convertTree(extractObject(source, 'zh: {', [], []))
+  writeFileSync(resolve(root, 'apps/homepage/js/zh-hant.generated.json'), JSON.stringify(converted, null, 2) + '\n')
   console.log('[gen] homepage zh-hant.generated.json')
-})
+}
 
 // ── monitor-choice: flat assignment map → generated sibling script ──
 {
