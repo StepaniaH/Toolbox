@@ -117,10 +117,14 @@ vX.Y.Z tag（版本准备提交保证三处版本一致）
 
 目标：工具数量增加后仍然快、稳、可验证。
 
-- 为每个 app 建立首屏 JS/CSS、最大 chunk、图片、交互延迟和缓存行为的可解释基线。
+- 为每个 app 建立首屏 JS/CSS、最大 chunk 的可解释基线：`scripts/measure-perf.mjs` 从
+  构建产物生成体积表并写入 `docs/PERFORMANCE.md`，CI 输出对照；超预算先说明后处理，
+  不设不可解释的硬失败阈值。交互延迟与缓存行为待真实证据后再补测量。
 - 优先测量 RateLens 首包与 ChronoSphere timezone lazy chunk，再决定拆包或数据加载策略。
 - 维护 light/dark × zh/en × desktop/mobile × keyboard 的代表业务矩阵。
-- 建立人工审核截图基线；像素 diff 只在动态数据固定且误报可控后引入。
+- 建立人工审核截图基线：`scripts/capture-screens.mjs` 以固定时钟、固定预览数据在
+  1440/390 视口捕获 stable 应用关键页的 light/dark × zh/en 矩阵，基线入库存档；像素
+  diff 阈值在基线经人工审核后再引入。
 - 持续检查焦点、语义 HTML、Canvas 文本替代、reduced motion、损坏 storage/query 和异常恢复。
 - 统一顶层错误、404、离线说明；Service Worker 只有在缓存失效策略可靠后才考虑。
 
@@ -151,7 +155,14 @@ vX.Y.Z tag（版本准备提交保证三处版本一致）
   部署的多层确认。
 - 版本事实源唯一：根 `package.json`、`TOOLBOX_RELEASE` 与 CHANGELOG 由 `check:release`
   强制一致，tag 与版本不符时 Release 工作流失败。
-- 建立依赖许可证与高危漏洞检查，同时避免向第三方上传完整环境信息。
+- 平台包版本策略：契约版本（THEME_CONTRACT_VERSION 等）升级必须同步包版本——兼容扩展
+  升 minor，破坏性变更升 major 并在包 README 记录迁移说明与受影响应用清单；由
+  DEPENDENCIES.md 约束，contracts 检查契约版本与包版本的同步声明。
+- 建立依赖许可证与高危漏洞检查：`check:licenses` 离线扫描 node_modules 的 license
+  字段并对照允许清单；`check:audit` 在 CI 内执行生产依赖漏洞审计，仅上传依赖名与版本。
+- 统一 404 与离线体验：assemble 生成根级双语 404 页（内联主题，无外部资源）与站点
+  favicon；根级 Service Worker 采用“哈希资产 cache-first、导航 network-first、离线回退
+  页”策略，注册脚本由 assemble 注入，应用代码不感知。
 - 为每次 release 记录版本、受影响 app、验证结果与可回滚 commit。
 - 统一 favicon、错误页和部署产物清单；长期考虑可复现构建与静态资产完整性。
 - 不用 force push、历史改写或自动部署换取表面简化。
