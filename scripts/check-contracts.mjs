@@ -399,6 +399,42 @@ for (const consumer of [
   }
 }
 
+// ── React/Vanilla platform pair equivalence (ADR-11) ─────────
+// Both implementations of a shared surface must expose the same consumption
+// points; a change on one side without the mirrored change fails here.
+for (const [file, requirements] of [
+  ['packages/nav/ToolboxFooter.tsx', ['getAppById', 'TOOLBOX_RELEASE', 'noopener noreferrer', '@toolbox/app-manifest']],
+  ['packages/nav/toolbox-footer.js', ['getAppById', 'TOOLBOX_RELEASE', 'noopener noreferrer', '@toolbox/app-manifest']],
+  ['packages/i18n/react.ts', ['translations/zh.json', 'translations/en.json', 'onChange']],
+  ['packages/i18n/core.ts', ['export function getLang', 'export function setLang', 'export function onChange']],
+]) {
+  const content = read(file)
+  for (const requirement of requirements) {
+    if (!content.includes(requirement)) {
+      fail('platform-pair-contract', file, `missing ${requirement}`)
+    }
+  }
+}
+
+// ── Preference key hygiene ────────────────────────────────────
+// Platform packages may reference the shared keys only by their exact
+// contract values; anything else indicates drift from @toolbox/theme.
+for (const file of [
+  'packages/nav/NavBar.tsx',
+  'packages/nav/nav-bar.js',
+  'packages/nav/ToolboxFooter.tsx',
+  'packages/nav/toolbox-footer.js',
+  'packages/i18n/core.ts',
+  'packages/i18n/react.ts',
+]) {
+  const content = read(file)
+  for (const match of content.matchAll(/["']toolbox-[a-z0-9-]+["']/g)) {
+    if (!/^["']toolbox-(theme|lang)["']$/.test(match[0])) {
+      fail('preference-key-contract', file, `unknown shared key ${match[0]}`)
+    }
+  }
+}
+
 for (const [file, requirements] of [
   ['apps/homepage/js/main.js', ['app.icon', 'toolbox-footer.js']],
   ['apps/monitor-choice/entry.js', ['mountAppIcon', 'autoMountToolboxFooters']],
