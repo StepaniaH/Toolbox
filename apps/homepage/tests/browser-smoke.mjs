@@ -121,6 +121,12 @@ try {
     (previousTheme) => document.documentElement.getAttribute('data-theme') !== previousTheme,
     themeBefore,
   )
+  // The shared baseline transitions body colors over 0.3s; sample after the
+  // transition instead of at its first frame.
+  await page.waitForFunction(
+    (previousBackground) => getComputedStyle(document.body).backgroundColor !== previousBackground,
+    backgroundBefore,
+  )
   assert.notEqual(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), backgroundBefore)
 
   await page.setViewportSize({ width: 390, height: 844 })

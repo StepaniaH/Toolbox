@@ -1,10 +1,25 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import test from 'node:test'
+import vm from 'node:vm'
 import { getStableApps } from '@toolbox/app-manifest'
 
 const appRoot = new URL('../', import.meta.url)
 const read = (path) => readFileSync(new URL(path, appRoot), 'utf8')
+
+function loadPrePaintScript() {
+  const runtime = read('../../packages/theme/toggle.js')
+  const window = {}
+  vm.runInNewContext(runtime, { window })
+  return window.ToolboxTheme.prePaintScript()
+}
+
+test('index.html embeds the canonical pre-paint snippet verbatim', () => {
+  const html = read('index.html')
+  const match = html.match(/<script>([\s\S]*?)<\/script>/)
+  assert.ok(match, 'inline pre-paint script missing from index.html')
+  assert.equal(match[1], loadPrePaintScript())
+})
 
 test('homepage keeps its public root shell and secure source link', () => {
   const html = read('index.html')
