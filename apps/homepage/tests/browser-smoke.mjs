@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
+import { TOOLBOX_RELEASE } from '@toolbox/app-manifest'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
@@ -83,7 +84,7 @@ try {
   assert.equal(await page.locator('.tool-card').count(), 6)
   assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 6)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
-  assert.equal(await page.getByText('v0.3.1', { exact: true }).count(), 1)
+  assert.equal(await page.getByText(TOOLBOX_RELEASE, { exact: true }).count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   assert.equal(await page.locator('.toolbox-nav-brand-link').getAttribute('href'), '/')
 

@@ -228,6 +228,7 @@ pnpm --filter=@toolbox/<tool-id> lint
 pnpm --filter=@toolbox/<tool-id> test:browser
 pnpm check:privacy
 pnpm check:contracts
+pnpm check:release
 pnpm build
 pnpm test
 pnpm lint

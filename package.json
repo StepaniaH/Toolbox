@@ -9,6 +9,7 @@
     "test:browser": "pnpm -r --if-present run test:browser",
     "check:privacy": "node scripts/check-privacy.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
+    "check:release": "node scripts/check-release.mjs",
     "deploy": "bash deploy/deploy.sh",
     "lint": "turbo lint",
     "clean": "turbo clean"
