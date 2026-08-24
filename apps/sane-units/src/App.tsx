@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { NavBar } from "@toolbox/nav";
 import { AppIcon } from "@toolbox/nav/AppIcon.tsx";
 import { ToolboxFooter } from "@toolbox/nav/ToolboxFooter.tsx";
@@ -8,6 +8,7 @@ import {
   NETWORK_SIZE_OPTIONS,
   NETWORK_UNIT_OPTIONS,
   POWER_CURRENCY_OPTIONS,
+  NETWORK_PRESETS,
   POWER_PRESETS,
   VIDEO_BITRATE_OPTIONS,
   VIDEO_DURATION_OPTIONS,
@@ -31,141 +32,46 @@ import {
   formatPercent,
 } from "./lib/units";
 import { useTranslation, LanguageProvider } from "./lib/i18n";
-import { useTheme } from "./lib/theme";
 import {
   LEGACY_STATE_STORAGE_KEYS,
   STATE_STORAGE_KEYS,
-  readStoredState,
-  writeStoredState,
 } from "./lib/storage";
-
-const APP_BASE_PATH = import.meta.env.BASE_URL.replace(/\/$/, "");
-
-function toAppPath(pathname: string): string {
-  const normalized = pathname.startsWith("/") ? pathname : `/${pathname}`;
-  if (!APP_BASE_PATH) return normalized;
-  return normalized === "/" ? `${APP_BASE_PATH}/` : `${APP_BASE_PATH}${normalized}`;
-}
-
-function fromAppPath(pathname: string): string {
-  if (!APP_BASE_PATH) return pathname;
-  if (pathname === APP_BASE_PATH) return "/";
-  if (pathname.startsWith(`${APP_BASE_PATH}/`)) {
-    return pathname.slice(APP_BASE_PATH.length) || "/";
-  }
-  return pathname;
-}
-
-const STORAGE_DEFAULTS = {
-  value: 4,
-  unit: "TB",
-  scenario: "drive",
-  preset: "4TB",
-};
-
-const NETWORK_DEFAULTS = {
-  bandwidthValue: 1000,
-  bandwidthUnit: "Mbps",
-  sizeValue: 1,
-  sizeUnit: "TiB",
-  scenario: "wired-lan",
-  efficiency: 85,
-  preset: "1TiB-1000Mbps",
-};
-
-const VIDEO_DEFAULTS = {
-  mode: "size",
-  bitrateValue: 8,
-  bitrateUnit: "Mbps",
-  durationValue: 1,
-  durationUnit: "h",
-  sizeValue: 1,
-  sizeUnit: "GB",
-  audioBitrateValue: 128,
-  audioBitrateUnit: "Kbps",
-  overheadPercent: 1,
-  preset: "8Mbps / 1h",
-};
-
-const POWER_DEFAULTS = {
-  watt: 30,
-  hoursPerDay: 24,
-  daysPerYear: 365,
-  price: 0.56,
-  currency: "CNY",
-  preset: "30W",
-};
-
-function App() {
-  const [path, navigate] = useAppNavigation();
-  const route = normalizeRoute(path);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }, [route]);
-
-  const { t } = useTranslation();
-  const { toggleTheme } = useTheme();
-
-  useEffect(() => {
-    document.title = t(`pageTitles.${route}`) ?? "SaneUnits";
-  }, [route, t]);
-
-  const routes = [
-    { path: "/", label: t("nav.home") },
-    { path: "/storage", label: t("nav.storage") },
-    { path: "/network", label: t("nav.network") },
-    { path: "/video", label: t("nav.video") },
-    { path: "/power", label: t("nav.power") },
-    { path: "/about", label: t("nav.about") },
-  ];
-
-  return (
-    <>
-      <NavBar currentApp="sane-units" onToggleTheme={toggleTheme} />
-      <div className="app-shell">
-        <header className="sane-app-header">
-          <div className="brand-lockup">
-            <div className="brand-mark toolbox-app-mark" aria-hidden="true">
-              <AppIcon appId="sane-units" />
-            </div>
-            <div>
-              <h1 className="brand-name">{t("brand.name")}</h1>
-              <p className="brand-subtitle">{t("home.heroLead")}</p>
-            </div>
-          </div>
-
-          <nav className="section-nav" aria-label={t("nav.home")}>
-            {routes.map((item) => (
-              <NavLink key={item.path} to={item.path} active={route === item.path} onNavigate={navigate}>
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
-          </nav>
-        </header>
-
-        <main className="workspace">
-          {route === "/" ? <HomePage onNavigate={navigate} /> : null}
-          {route === "/storage" ? <StoragePage /> : null}
-          {route === "/network" ? <NetworkPage /> : null}
-          {route === "/video" ? <VideoPage /> : null}
-          {route === "/power" ? <PowerPage /> : null}
-          {route === "/about" ? <AboutPage /> : null}
-        </main>
-
-        <ToolboxFooter appId="sane-units" className="sane-footer" />
-      </div>
-    </>
-  );
-}
-
-function AppRoot() {
-  return React.createElement(
-    LanguageProvider,
-    null,
-    React.createElement(App),
-  );
-}
+import { useTheme } from "./lib/theme";
+import {
+  normalizeRoute,
+  useAppNavigation,
+  NavLink,
+} from "./lib/router";
+import {
+  useSyncedState,
+  decodeStorageState,
+  encodeStorageState,
+  decodeNetworkState,
+  encodeNetworkState,
+  decodePowerState,
+  encodePowerState,
+  decodeVideoState,
+  encodeVideoState,
+  STORAGE_DEFAULTS,
+  NETWORK_DEFAULTS,
+  VIDEO_DEFAULTS,
+  POWER_DEFAULTS,
+  buildShareUrl,
+} from "./lib/persisted-url-state";
+import {
+  PageHeader,
+  Panel,
+  MetricBadge,
+  StatBlock,
+  InfoBox,
+  FormulaBlock,
+  FieldRow,
+  ToggleChip,
+  NumberInput,
+  SelectInput,
+  ShareLink,
+  formatExampleCount,
+} from "./components/ui";
 
 function HomePage({ onNavigate }: any) {
   const { t } = useTranslation();
@@ -991,406 +897,75 @@ function AboutPage() {
   );
 }
 
-function PageHeader({ title, description }: any) {
-  return (
-    <header className="page-header">
-      <div>
-        <h2>{title}</h2>
-        <p className="lead compact">{description}</p>
-      </div>
-    </header>
-  );
-}
+function App() {
+  const [path, navigate] = useAppNavigation();
+  const route = normalizeRoute(path);
 
-function Panel({ title, subtitle, children, className = "" }: any) {
-  return (
-    <section className={`panel ${className}`.trim()}>
-      <div className="panel-head">
-        <div>
-          <h3>{title}</h3>
-          {subtitle ? <p>{subtitle}</p> : null}
-        </div>
-      </div>
-      {children}
-    </section>
-  );
-}
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [route]);
 
-function MetricBadge({ label, value }: any) {
-  return (
-    <div className="metric-badge">
-      <div className="metric-value">{value}</div>
-      <div className="metric-label">{label}</div>
-    </div>
-  );
-}
-
-function StatBlock({ label, value }: any) {
-  return (
-    <div className="stat-block">
-      <div className="stat-label">{label}</div>
-      <div className="stat-value">{value}</div>
-    </div>
-  );
-}
-
-function InfoBox({ tone, title, text }: any) {
-  return (
-    <div className={`info-box tone-${tone}`}>
-      <div className="info-title">{title}</div>
-      <div className="info-text">{text}</div>
-    </div>
-  );
-}
-
-function FormulaBlock({ children }: any) {
-  return <div className="formula-block">{children}</div>;
-}
-
-function FieldRow({ label, children, hint }: any) {
-  return (
-    <label className="field-row">
-      <span className="field-label">
-        {label}
-        {hint ? (
-          <span className="field-hint">
-            <span className="field-hint-icon" aria-hidden="true">i</span>
-            <span className="field-hint-popup">{hint}</span>
-          </span>
-        ) : null}
-      </span>
-      {children}
-    </label>
-  );
-}
-
-function ToggleChip({ active, children, onClick }: any) {
-  return (
-    <button
-      type="button"
-      className={`chip ${active ? "chip-active" : ""}`}
-      onClick={onClick}
-      aria-pressed={active}
-    >
-      {children}
-    </button>
-  );
-}
-
-function NumberInput({ value, onChange, ...props }: any) {
-  return (
-    <input
-      className="input input-number"
-      type="number"
-      inputMode="decimal"
-      value={Number.isFinite(value) ? value : ""}
-      onChange={(event) => onChange(parseNumber(event.target.value, value))}
-      {...props}
-    />
-  );
-}
-
-function SelectInput({ value, onChange, options, ...props }: any) {
-  return (
-    <select className="input input-select" value={value} onChange={(event) => onChange(event.target.value)} {...props}>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-function ShareLink({ url }: any) {
   const { t } = useTranslation();
-  const [copyState, setCopyState] = useState("copy");
+  const { toggleTheme } = useTheme();
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopyState("copied");
-      window.setTimeout(() => setCopyState("copy"), 1800);
-    } catch {
-      setCopyState("copyFailed");
-      window.setTimeout(() => setCopyState("copy"), 1800);
-    }
-  };
+  useEffect(() => {
+    document.title = t(`pageTitles.${route}`) ?? "SaneUnits";
+  }, [route, t]);
+
+  const routes = [
+    { path: "/", label: t("nav.home") },
+    { path: "/storage", label: t("nav.storage") },
+    { path: "/network", label: t("nav.network") },
+    { path: "/video", label: t("nav.video") },
+    { path: "/power", label: t("nav.power") },
+    { path: "/about", label: t("nav.about") },
+  ];
 
   return (
-    <div className="share-link">
-      <input className="input share-input" value={url} readOnly />
-      <button type="button" className="button" onClick={handleCopy}>
-        {t(`common.${copyState}`)}
-      </button>
-    </div>
+    <>
+      <NavBar currentApp="sane-units" onToggleTheme={toggleTheme} />
+      <div className="app-shell">
+        <header className="sane-app-header">
+          <div className="brand-lockup">
+            <div className="brand-mark toolbox-app-mark" aria-hidden="true">
+              <AppIcon appId="sane-units" />
+            </div>
+            <div>
+              <h1 className="brand-name">{t("brand.name")}</h1>
+              <p className="brand-subtitle">{t("home.heroLead")}</p>
+            </div>
+          </div>
+
+          <nav className="section-nav" aria-label={t("nav.home")}>
+            {routes.map((item) => (
+              <NavLink key={item.path} to={item.path} active={route === item.path} onNavigate={navigate}>
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </header>
+
+        <main className="workspace">
+          {route === "/" ? <HomePage onNavigate={navigate} /> : null}
+          {route === "/storage" ? <StoragePage /> : null}
+          {route === "/network" ? <NetworkPage /> : null}
+          {route === "/video" ? <VideoPage /> : null}
+          {route === "/power" ? <PowerPage /> : null}
+          {route === "/about" ? <AboutPage /> : null}
+        </main>
+
+        <ToolboxFooter appId="sane-units" className="sane-footer" />
+      </div>
+    </>
   );
 }
 
-function NavLink({ to, active, onNavigate, children }: any) {
-  return (
-    <a
-      className={`nav-link ${active ? "nav-link-active" : ""}`}
-      href={toAppPath(to)}
-      aria-current={active ? "page" : undefined}
-      onClick={(event) => {
-        event.preventDefault();
-        onNavigate(to);
-      }}
-    >
-      {children}
-    </a>
+function AppRoot() {
+  return React.createElement(
+    LanguageProvider,
+    null,
+    React.createElement(App),
   );
 }
-
-function useAppNavigation(): [string, (path: string) => void] {
-  const [path, setPath] = useState(() => currentPath());
-
-  useEffect(() => {
-    const handlePopState = () => setPath(currentPath());
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
-  const navigate = (nextPath) => {
-    const route = normalizeRoute(nextPath);
-    if (route === currentPath()) return;
-    window.history.pushState({}, "", toAppPath(route));
-    setPath(currentPath());
-  };
-
-  return [path, navigate];
-}
-
-function useSyncedState(
-  storageKey: string,
-  legacyStorageKey: string,
-  defaults: any,
-  pathname: string,
-  decode: (params: URLSearchParams) => any,
-  encode: (state: any) => string,
-): [any, React.Dispatch<React.SetStateAction<any>>] {
-  const [state, setState] = useState(() => {
-    const fromQuery = decode(new URLSearchParams(window.location.search));
-    const fromStorage = readStoredState(storageKey, legacyStorageKey);
-    return {
-      ...defaults,
-      ...fromStorage,
-      ...fromQuery,
-    };
-  });
-
-  useEffect(() => {
-    writeStoredState(storageKey, state);
-    const query = encode(state);
-    const publicPath = toAppPath(pathname);
-    const nextUrl = query ? `${publicPath}?${query}` : publicPath;
-    if (`${window.location.pathname}${window.location.search}` !== nextUrl) {
-      window.history.replaceState({}, "", nextUrl);
-    }
-  }, [state, storageKey, pathname, encode]);
-
-  return [state, setState];
-}
-
-function decodeStorageState(params: URLSearchParams) {
-  const value = parseNumber(params.get("value"));
-  const unit = params.get("unit");
-  const scenario = params.get("scenario");
-  const preset = params.get("preset");
-
-  return {
-    value: Number.isFinite(value) ? value : STORAGE_DEFAULTS.value,
-    unit: STORAGE_UNIT_OPTIONS.some((item) => item.value === unit) ? unit : STORAGE_DEFAULTS.unit,
-    scenario: STORAGE_SCENARIOS.some((item) => item.value === scenario) ? scenario : STORAGE_DEFAULTS.scenario,
-    preset: preset ?? STORAGE_DEFAULTS.preset,
-  };
-}
-
-function encodeStorageState(state: any): string {
-  const params = new URLSearchParams();
-  params.set("value", String(state.value));
-  params.set("unit", state.unit);
-  params.set("scenario", state.scenario);
-  return params.toString();
-}
-
-function decodeNetworkState(params: URLSearchParams) {
-  const bandwidthValue = parseNumber(params.get("bandwidthValue"));
-  const bandwidthUnit = params.get("bandwidthUnit");
-  const sizeValue = parseNumber(params.get("sizeValue"));
-  const sizeUnit = params.get("sizeUnit");
-  const scenario = params.get("scenario");
-  const efficiency = parseNumber(params.get("efficiency"));
-  const preset = params.get("preset");
-
-  return {
-    bandwidthValue: Number.isFinite(bandwidthValue) ? bandwidthValue : NETWORK_DEFAULTS.bandwidthValue,
-    bandwidthUnit: NETWORK_UNIT_OPTIONS.some((item) => item.value === bandwidthUnit) ? bandwidthUnit : NETWORK_DEFAULTS.bandwidthUnit,
-    sizeValue: Number.isFinite(sizeValue) ? sizeValue : NETWORK_DEFAULTS.sizeValue,
-    sizeUnit: NETWORK_SIZE_OPTIONS.some((item) => item.value === sizeUnit) ? sizeUnit : NETWORK_DEFAULTS.sizeUnit,
-    scenario: NETWORK_SCENARIOS.some((item) => item.value === scenario) ? scenario : NETWORK_DEFAULTS.scenario,
-    efficiency: Number.isFinite(efficiency) ? efficiency : NETWORK_DEFAULTS.efficiency,
-    preset: preset ?? NETWORK_DEFAULTS.preset,
-  };
-}
-
-function encodeNetworkState(state: any): string {
-  const params = new URLSearchParams();
-  params.set("bandwidthValue", String(state.bandwidthValue));
-  params.set("bandwidthUnit", state.bandwidthUnit);
-  params.set("sizeValue", String(state.sizeValue));
-  params.set("sizeUnit", state.sizeUnit);
-  params.set("scenario", state.scenario);
-  params.set("efficiency", String(state.efficiency));
-  return params.toString();
-}
-
-function decodePowerState(params: URLSearchParams) {
-  const watt = parseNumber(params.get("watt"));
-  const hoursPerDay = parseNumber(params.get("hours"));
-  const daysPerYear = parseNumber(params.get("days"));
-  const price = parseNumber(params.get("price"));
-  const currency = params.get("currency");
-  const preset = params.get("preset");
-
-  return {
-    watt: Number.isFinite(watt) ? watt : POWER_DEFAULTS.watt,
-    hoursPerDay: Number.isFinite(hoursPerDay) ? hoursPerDay : POWER_DEFAULTS.hoursPerDay,
-    daysPerYear: Number.isFinite(daysPerYear) ? daysPerYear : POWER_DEFAULTS.daysPerYear,
-    price: Number.isFinite(price) ? price : POWER_DEFAULTS.price,
-    currency: POWER_CURRENCY_OPTIONS.some((item) => item.value === currency) ? currency : POWER_DEFAULTS.currency,
-    preset: preset ?? POWER_DEFAULTS.preset,
-  };
-}
-
-function encodePowerState(state: any): string {
-  const params = new URLSearchParams();
-  params.set("watt", String(state.watt));
-  params.set("hours", String(state.hoursPerDay));
-  params.set("days", String(state.daysPerYear));
-  params.set("price", String(state.price));
-  params.set("currency", state.currency);
-  return params.toString();
-}
-
-function decodeVideoState(params: URLSearchParams) {
-  const mode = params.get("mode");
-  const bitrateValue = parseNumber(params.get("bitrateValue"));
-  const bitrateUnit = params.get("bitrateUnit");
-  const durationValue = parseNumber(params.get("durationValue"));
-  const durationUnit = params.get("durationUnit");
-  const sizeValue = parseNumber(params.get("sizeValue"));
-  const sizeUnit = params.get("sizeUnit");
-  const audioBitrateValue = parseNumber(params.get("audioBitrateValue"));
-  const audioBitrateUnit = params.get("audioBitrateUnit");
-  const overheadPercent = parseNumber(params.get("overhead"));
-  const preset = params.get("preset");
-
-  return {
-    mode: VIDEO_TARGET_OPTIONS.some((item) => item.value === mode) ? mode : VIDEO_DEFAULTS.mode,
-    bitrateValue: Number.isFinite(bitrateValue) ? bitrateValue : VIDEO_DEFAULTS.bitrateValue,
-    bitrateUnit: VIDEO_BITRATE_OPTIONS.some((item) => item.value === bitrateUnit) ? bitrateUnit : VIDEO_DEFAULTS.bitrateUnit,
-    durationValue: Number.isFinite(durationValue) ? durationValue : VIDEO_DEFAULTS.durationValue,
-    durationUnit: VIDEO_DURATION_OPTIONS.some((item) => item.value === durationUnit) ? durationUnit : VIDEO_DEFAULTS.durationUnit,
-    sizeValue: Number.isFinite(sizeValue) ? sizeValue : VIDEO_DEFAULTS.sizeValue,
-    sizeUnit: VIDEO_SIZE_OPTIONS.some((item) => item.value === sizeUnit) ? sizeUnit : VIDEO_DEFAULTS.sizeUnit,
-    audioBitrateValue: Number.isFinite(audioBitrateValue) ? audioBitrateValue : VIDEO_DEFAULTS.audioBitrateValue,
-    audioBitrateUnit: VIDEO_BITRATE_OPTIONS.some((item) => item.value === audioBitrateUnit) ? audioBitrateUnit : VIDEO_DEFAULTS.audioBitrateUnit,
-    overheadPercent: Number.isFinite(overheadPercent) ? overheadPercent : VIDEO_DEFAULTS.overheadPercent,
-    preset: preset ?? VIDEO_DEFAULTS.preset,
-  };
-}
-
-function encodeVideoState(state: any): string {
-  const params = new URLSearchParams();
-  params.set("mode", state.mode);
-  params.set("bitrateValue", String(state.bitrateValue));
-  params.set("bitrateUnit", state.bitrateUnit);
-  params.set("durationValue", String(state.durationValue));
-  params.set("durationUnit", state.durationUnit);
-  params.set("sizeValue", String(state.sizeValue));
-  params.set("sizeUnit", state.sizeUnit);
-  params.set("audioBitrateValue", String(state.audioBitrateValue));
-  params.set("audioBitrateUnit", state.audioBitrateUnit);
-  params.set("overhead", String(state.overheadPercent));
-  return params.toString();
-}
-
-function currentPath(): string {
-  return normalizeRoute(fromAppPath(window.location.pathname));
-}
-
-function normalizeRoute(pathname: string): string {
-  const route = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-  if (route === "/storage" || route === "/network" || route === "/video" || route === "/power" || route === "/about") {
-    return route;
-  }
-  return "/";
-}
-
-function formatExampleCount(n: number): string | null {
-  if (!Number.isFinite(n) || n <= 0) return null;
-  if (n < 0.5) return "< 1";
-  return Math.round(n).toLocaleString();
-}
-
-function parseNumber(value: string | null, fallback: number = Number.NaN): number {
-  if (value === null || value === "") return Number.NaN;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-
-function buildShareUrl(pathname: string, state: Record<string, any>): string {
-  const params = new URLSearchParams();
-  Object.entries(state).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      params.set(key, String(value));
-    }
-  });
-  const query = params.toString();
-  const publicPath = toAppPath(pathname);
-  return `${publicPath}${query ? `?${query}` : ""}`;
-}
-
-const NETWORK_PRESETS = [
-  {
-    label: "1TiB / 1000Mbps",
-    bandwidthValue: 1000,
-    bandwidthUnit: "Mbps",
-    sizeValue: 1,
-    sizeUnit: "TiB",
-    scenario: "wired-lan",
-    efficiency: 85,
-  },
-  {
-    label: "100GB / 1000Mbps",
-    bandwidthValue: 1000,
-    bandwidthUnit: "Mbps",
-    sizeValue: 100,
-    sizeUnit: "GB",
-    scenario: "wired-lan",
-    efficiency: 90,
-  },
-  {
-    label: "1TB / 2.5Gbps",
-    bandwidthValue: 2.5,
-    bandwidthUnit: "Gbps",
-    sizeValue: 1,
-    sizeUnit: "TB",
-    scenario: "wired-lan",
-    efficiency: 95,
-  },
-  {
-    label: "100GB / VPN",
-    bandwidthValue: 500,
-    bandwidthUnit: "Mbps",
-    sizeValue: 100,
-    sizeUnit: "GB",
-    scenario: "vpn",
-    efficiency: 70,
-  },
-];
 
 export { AppRoot as App };
