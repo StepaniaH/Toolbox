@@ -673,7 +673,7 @@ for (const file of packageFiles) {
 }
 
 // ── localStorage namespace contract ──────────────────────
-const globalStorageKeys = new Set(['toolbox-theme', 'toolbox-lang'])
+const globalStorageKeys = new Set(['toolbox-theme', 'toolbox-lang', 'toolbox-theme-family'])
 const legacyStorageKeys = {
   'chrono-sphere': new Set(['chrono-sphere.theme']),
   'monitor-choice': new Set(['monitor-choice-prefs-v1']),

@@ -118,7 +118,7 @@
       "t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';",
       "}",
       "document.documentElement.setAttribute('" + ATTRIBUTE + "',t);",
-      "var f=localStorage.getItem(" + JSON.stringify(FAMILY_STORAGE_KEY) + ");",
+      "var fk=" + JSON.stringify(FAMILY_STORAGE_KEY) + ",f=localStorage.getItem(fk);",
       "if(f!=='gruvbox'&&f!=='solarized'){f='" + DEFAULT_FAMILY + "';}",
       "document.documentElement.setAttribute('" + FAMILY_ATTRIBUTE + "',f);",
       "}catch(e){document.documentElement.setAttribute('" + ATTRIBUTE + "','dark');document.documentElement.setAttribute('" + FAMILY_ATTRIBUTE + "','" + DEFAULT_FAMILY + "');}",
