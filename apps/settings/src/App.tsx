@@ -17,8 +17,18 @@ const THEME_API = (window as unknown as {
   ToolboxTheme?: {
     getTheme?: () => "dark" | "light";
     setTheme?: (theme: "dark" | "light") => void;
+    getThemeFamily?: () => string;
+    setThemeFamily?: (family: string) => void;
+    THEME_FAMILIES?: readonly string[];
   };
 }).ToolboxTheme;
+
+const FAMILIES = THEME_API?.THEME_FAMILIES ?? ["catppuccin"];
+const FAMILY_SWATCHES: Record<string, { dark: string; light: string; accent: string }> = {
+  catppuccin: { dark: "#303446", light: "#eff1f5", accent: "#8caaee" },
+  gruvbox: { dark: "#282828", light: "#fbf1c7", accent: "#b8bb26" },
+  solarized: { dark: "#002b36", light: "#fdf6e3", accent: "#2aa198" },
+};
 
 type Lang = "zh" | "en";
 
@@ -51,6 +61,14 @@ function AppearanceSection() {
   const [theme, setThemeState] = useState<"dark" | "light">(
     () => THEME_API?.getTheme?.() ?? "dark",
   );
+  const [family, setFamilyState] = useState<string>(
+    () => THEME_API?.getThemeFamily?.() ?? "catppuccin",
+  );
+
+  const applyFamily = (next: string) => {
+    THEME_API?.setThemeFamily?.(next);
+    setFamilyState(next);
+  };
 
   const applyTheme = (next: "dark" | "light") => {
     THEME_API?.setTheme?.(next);
@@ -75,6 +93,37 @@ function AppearanceSection() {
           ))}
         </div>
       </div>
+      {FAMILIES.length > 1 ? (
+        <div className="settings-row" role="group" aria-label={t("appearance.family")}>
+          <span className="settings-row-label">{t("appearance.family")}</span>
+          <div className="swatches">
+            {FAMILIES.map((name) => {
+              const swatch = FAMILY_SWATCHES[name] ?? FAMILY_SWATCHES.catppuccin;
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  className={family === name ? "swatch is-active" : "swatch"}
+                  aria-pressed={family === name}
+                  title={name}
+                  onClick={() => applyFamily(name)}
+                >
+                  <span
+                    className="swatch-preview"
+                    aria-hidden="true"
+                    style={{
+                      background: `linear-gradient(135deg, ${swatch.dark} 50%, ${swatch.light} 50%)`,
+                    }}
+                  >
+                    <i style={{ background: swatch.accent }} />
+                  </span>
+                  <span className="swatch-name">{name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
       <div className="settings-row" role="group" aria-label={t("appearance.language")}>
         <span className="settings-row-label">{t("appearance.language")}</span>
         <div className="segmented">

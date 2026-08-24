@@ -187,3 +187,144 @@
     "Noto Sans SC", sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
 }
+
+/* ──────────────────────────────────────────────────────────────
+   Theme families. Family blocks only redefine the raw --ctp-* layer
+   (plus the few literal borders/foregrounds); every semantic alias
+   and convenience name above resolves through var() and follows
+   automatically. catppuccin is the default and needs no block.
+   ────────────────────────────────────────────────────────────── */
+
+/* ── Gruvbox ── */
+[data-theme-family="gruvbox"] {
+  color-scheme: dark;
+  --ctp-rosewater: #ebdbb2;
+  --ctp-flamingo: #d3869b;
+  --ctp-pink: #d3869b;
+  --ctp-mauve: #d3869b;
+  --ctp-red: #fb4934;
+  --ctp-maroon: #cc241d;
+  --ctp-peach: #fe8019;
+  --ctp-yellow: #fabd2f;
+  --ctp-green: #b8bb26;
+  --ctp-teal: #8ec07c;
+  --ctp-sky: #83a598;
+  --ctp-sapphire: #458588;
+  --ctp-blue: #83a598;
+  --ctp-lavender: #b16286;
+  --ctp-text: #ebdbb2;
+  --ctp-subtext-1: #d5c4a1;
+  --ctp-subtext-0: #bdae93;
+  --ctp-overlay-2: #a89984;
+  --ctp-overlay-1: #928374;
+  --ctp-overlay-0: #7c6f64;
+  --ctp-surface-2: #665c54;
+  --ctp-surface-1: #504945;
+  --ctp-surface-0: #3c3836;
+  --ctp-base: #282828;
+  --ctp-mantle: #1d2021;
+  --ctp-crust: #161819;
+  --border-subtle: rgba(235, 219, 178, 0.08);
+  --border-strong: rgba(235, 219, 178, 0.16);
+}
+
+[data-theme-family="gruvbox"][data-theme="light"] {
+  color-scheme: light;
+  --ctp-rosewater: #c39a6c;
+  --ctp-flamingo: #b16286;
+  --ctp-pink: #b16286;
+  --ctp-mauve: #8f3f71;
+  --ctp-red: #cc241d;
+  --ctp-maroon: #9d0006;
+  --ctp-peach: #d65d0e;
+  --ctp-yellow: #d79921;
+  --ctp-green: #98971a;
+  --ctp-teal: #689d6a;
+  --ctp-sky: #458588;
+  --ctp-sapphire: #076678;
+  --ctp-blue: #458588;
+  --ctp-lavender: #b16286;
+  --ctp-text: #3c3836;
+  --ctp-subtext-1: #665c54;
+  --ctp-subtext-0: #7c6f64;
+  --ctp-overlay-2: #bdae93;
+  --ctp-overlay-1: #a89984;
+  --ctp-overlay-0: #928374;
+  --ctp-surface-2: #d5c4a1;
+  --ctp-surface-1: #e2d5ae;
+  --ctp-surface-0: #ede3c2;
+  --ctp-base: #fbf1c7;
+  --ctp-mantle: #f2e5bc;
+  --ctp-crust: #d5c4a1;
+  --border-subtle: rgba(60, 56, 54, 0.1);
+  --border-strong: rgba(60, 56, 54, 0.18);
+  --primary-foreground: #ffffff;
+  --destructive-foreground: #ffffff;
+}
+
+/* ── Solarized ── */
+[data-theme-family="solarized"] {
+  color-scheme: dark;
+  --ctp-rosewater: #eee8d5;
+  --ctp-flamingo: #d33682;
+  --ctp-pink: #d33682;
+  --ctp-mauve: #d33682;
+  --ctp-red: #dc322f;
+  --ctp-maroon: #cb4b16;
+  --ctp-peach: #cb4b16;
+  --ctp-yellow: #b58900;
+  --ctp-green: #859900;
+  --ctp-teal: #2aa198;
+  --ctp-sky: #268bd2;
+  --ctp-sapphire: #268bd2;
+  --ctp-blue: #268bd2;
+  --ctp-lavender: #6c71c4;
+  --ctp-text: #93a1a1;
+  --ctp-subtext-1: #839496;
+  --ctp-subtext-0: #7b939c;
+  --ctp-overlay-2: #4a6570;
+  --ctp-overlay-1: #3f5866;
+  --ctp-overlay-0: #35505b;
+  --ctp-surface-2: #1c4f5c;
+  --ctp-surface-1: #0d3f4c;
+  --ctp-surface-0: #073642;
+  --ctp-base: #002b36;
+  --ctp-mantle: #01222c;
+  --ctp-crust: #011a21;
+  --border-subtle: rgba(147, 161, 161, 0.08);
+  --border-strong: rgba(147, 161, 161, 0.16);
+}
+
+[data-theme-family="solarized"][data-theme="light"] {
+  color-scheme: light;
+  --ctp-rosewater: #e3dcc9;
+  --ctp-flamingo: #d33682;
+  --ctp-pink: #d33682;
+  --ctp-mauve: #d33682;
+  --ctp-red: #dc322f;
+  --ctp-maroon: #cb4b16;
+  --ctp-peach: #cb4b16;
+  --ctp-yellow: #b58900;
+  --ctp-green: #859900;
+  --ctp-teal: #2aa198;
+  --ctp-sky: #268bd2;
+  --ctp-sapphire: #268bd2;
+  --ctp-blue: #268bd2;
+  --ctp-lavender: #6c71c4;
+  --ctp-text: #586e75;
+  --ctp-subtext-1: #5f767f;
+  --ctp-subtext-0: #647c83;
+  --ctp-overlay-2: #c0c9c4;
+  --ctp-overlay-1: #a9b7b1;
+  --ctp-overlay-0: #93a1a1;
+  --ctp-surface-2: #d6cfba;
+  --ctp-surface-1: #dfd6c1;
+  --ctp-surface-0: #eee8d5;
+  --ctp-base: #fdf6e3;
+  --ctp-mantle: #eee8d5;
+  --ctp-crust: #e4ddc9;
+  --border-subtle: rgba(101, 123, 131, 0.1);
+  --border-strong: rgba(101, 123, 131, 0.18);
+  --primary-foreground: #ffffff;
+  --destructive-foreground: #ffffff;
+}

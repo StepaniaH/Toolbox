@@ -17,6 +17,10 @@ import {
 - 样式消费语义 token，例如 `--color-bg`、`--color-text`、`--color-border`、`--color-primary` 和 `--color-ring`。
 - `styles.css` = token 层 + 共享元素基线；`tokens.css` 只含 token 层。受 Tailwind preflight
   等全局样式约束、不能接受元素基线的应用，应只引入 `tokens.css`。
+- 调色板族通过 `data-theme-family` 表达，`ToolboxTheme.getThemeFamily/setThemeFamily`
+  读写 `toolbox-theme-family`。族只覆盖原始 `--ctp-*` 层，语义别名自动跟随；当前内置
+  `catppuccin`（默认）、`gruvbox`、`solarized`，均为双模式族。族与模式的组合必须通过
+  契约测试中的 WCAG 对比度门禁。
 - runtime 暴露 `window.ToolboxTheme.getTheme/setTheme/toggleTheme/prePaintScript`。
 - 全局偏好只写 `localStorage['toolbox-theme']`，并同步到 `<html data-theme="dark|light">`。
   该键的值域只有 `dark|light`；“跟随系统”等扩展模式保存在应用私有命名空间。

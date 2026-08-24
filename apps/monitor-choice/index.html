@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-i18n="app.title">显示器参数实验室</title>
   <link rel="stylesheet" href="./styles.css">
-  <script>(function(){try{var k="toolbox-theme",t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+  <script>(function(){try{var k="toolbox-theme",t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem("toolbox-theme-family");if(f!=='gruvbox'&&f!=='solarized'){f='catppuccin';}document.documentElement.setAttribute('data-theme-family',f);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 </head>
 <body>
   <div id="toolbox-nav"></div>

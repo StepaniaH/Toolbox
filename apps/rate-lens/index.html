@@ -30,6 +30,11 @@
               ? 'light' : 'dark';
           }
           document.documentElement.setAttribute('data-theme', t);
+          var f = localStorage.getItem('toolbox-theme-family');
+          if (f !== 'gruvbox' && f !== 'solarized') {
+            f = 'catppuccin';
+          }
+          document.documentElement.setAttribute('data-theme-family', f);
         } catch (e) {
           document.documentElement.setAttribute('data-theme', 'dark');
         }

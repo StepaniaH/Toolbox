@@ -1,8 +1,13 @@
-export const THEME_CONTRACT_VERSION = 1
+export const THEME_CONTRACT_VERSION = 2
 export const THEME_STORAGE_KEY = 'toolbox-theme'
 export const THEME_ATTRIBUTE = 'data-theme'
 export const DEFAULT_THEME = 'dark'
 export const THEMES = Object.freeze(['dark', 'light'])
+
+export const THEME_FAMILY_STORAGE_KEY = 'toolbox-theme-family'
+export const THEME_FAMILY_ATTRIBUTE = 'data-theme-family'
+export const DEFAULT_THEME_FAMILY = 'catppuccin'
+export const THEME_FAMILIES = Object.freeze(['catppuccin', 'gruvbox', 'solarized'])
 
 export const SEMANTIC_COLOR_TOKENS = Object.freeze([
   '--color-bg',
@@ -40,4 +45,8 @@ export const FOUNDATION_TOKENS = Object.freeze([
 
 export function isTheme(value) {
   return THEMES.includes(value)
+}
+
+export function isThemeFamily(value) {
+  return THEME_FAMILIES.includes(value)
 }
