@@ -14,6 +14,14 @@ export function defineApp(input) {
     }),
     icon: Object.freeze({ ...input.icon }),
   }
+  if (app.presentation) {
+    app.presentation = Object.freeze({
+      title: app.presentation.title ? Object.freeze({ ...app.presentation.title }) : undefined,
+      subtitle: Object.freeze({ ...app.presentation.subtitle }),
+      description: Object.freeze({ ...app.presentation.description }),
+      badges: Object.freeze([...app.presentation.badges]),
+    })
+  }
   return Object.freeze(app)
 }
 
@@ -49,6 +57,14 @@ export const TOOLBOX_APPS = Object.freeze([
       viewBox: '0 0 48 48',
       svg: '<rect x="8" y="8" width="32" height="32" rx="6"/><circle cx="24" cy="20" r="7"/><path d="M24 13V8"/><circle cx="22" cy="19" r="1.5" class="app-icon-fill"/>',
     },
+    presentation: {
+      subtitle: { zh: 'AI 模型价格倍率计算器', en: 'AI Model Pricing Calculator' },
+      description: {
+        zh: '倍率正算与扣费反推，实时换算 AI 模型实付价格与官方成本对比。',
+        en: 'Forward and reverse rate calculation for AI model pricing.',
+      },
+      badges: ['React', 'TypeScript', 'Vite', 'Tailwind'],
+    },
     status: 'stable',
   }),
   defineApp({
@@ -64,6 +80,14 @@ export const TOOLBOX_APPS = Object.freeze([
     icon: {
       viewBox: '0 0 48 48',
       svg: '<circle cx="24" cy="24" r="19"/><circle cx="24" cy="24" r="2" class="app-icon-fill"/><path d="M24 24V11M24 24l7-6"/><circle cx="24" cy="24" r="14" opacity=".25"/>',
+    },
+    presentation: {
+      subtitle: { zh: '日期与时间工具', en: 'Date & Time Utility' },
+      description: {
+        zh: '时区偏移推算、日期间隔计算（明确起止端点，杜绝模糊计数）、夏令时变更审计、中国农历与节气转换。',
+        en: 'Timezone-aware date offsets, interval calculation with explicit endpoint counting, DST transition auditing, and Chinese lunar calendar with solar terms.',
+      },
+      badges: ['React', 'TypeScript', 'Vite'],
     },
     status: 'stable',
   }),
@@ -81,6 +105,14 @@ export const TOOLBOX_APPS = Object.freeze([
       viewBox: '0 0 48 48',
       svg: '<rect x="8" y="8" width="32" height="22" rx="3"/><path d="M20 34h8M24 30v6"/><rect x="16" y="12" width="16" height="12" rx="1" opacity=".4"/>',
     },
+    presentation: {
+      subtitle: { zh: '显示器参数实验室', en: 'Display Parameter Lab' },
+      description: {
+        zh: 'PPI 清晰度计算、3D 观看距离模拟、色彩空间对比、面板技术百科。帮你做出自己的选择。',
+        en: 'PPI sharpness, 3D viewing distance, color space comparison, panel technology encyclopedia. Make your own informed choice.',
+      },
+      badges: ['Vanilla JS', 'Canvas 2D'],
+    },
     status: 'stable',
   }),
   defineApp({
@@ -96,6 +128,14 @@ export const TOOLBOX_APPS = Object.freeze([
     icon: {
       viewBox: '0 0 48 48',
       svg: '<path d="M8 40h32M14 40V14M24 40V8M34 40V22"/><circle cx="14" cy="11" r="3"/><circle cx="24" cy="5" r="3"/><circle cx="34" cy="19" r="3"/>',
+    },
+    presentation: {
+      subtitle: { zh: '单位换算与实感估算', en: 'Unit Conversion & Estimation' },
+      description: {
+        zh: '存储进制混淆、网络带宽换算、视频码率推算、电器功耗估算——用真实数据打破单位迷雾。',
+        en: 'Storage binary confusion, network bandwidth math, video bitrate solving, power consumption estimation — real numbers, no BS.',
+      },
+      badges: ['React', 'Vite'],
     },
     status: 'stable',
   }),
@@ -113,6 +153,14 @@ export const TOOLBOX_APPS = Object.freeze([
       viewBox: '0 0 48 48',
       svg: '<rect x="7" y="10" width="27" height="27" rx="5"/><path d="m11 31 7-8 5 5 4-4 7 7M17 18h.01M31 7l7 5-7 5M38 12H27M17 41l-7-5 7-5M10 36h11"/>',
     },
+    presentation: {
+      subtitle: { zh: '本地文件处理工作台', en: 'Local File Workspace' },
+      description: {
+        zh: '识别、转换、合成与检查文件，从输入到结果都留在浏览器本地。',
+        en: 'Identify, convert, compose, and inspect files while keeping every input and result in your browser.',
+      },
+      badges: ['React', 'TypeScript', 'Vite'],
+    },
     status: 'stable',
   }),
   defineApp({
@@ -128,6 +176,14 @@ export const TOOLBOX_APPS = Object.freeze([
     icon: {
       viewBox: '0 0 48 48',
       svg: '<circle cx="22" cy="24" r="7"/><path d="M33 24h6v6h-6z"/><path d="M39 24V18"/><path d="M15 24H9"/><path d="M22 31v7"/>',
+    },
+    presentation: {
+      subtitle: { zh: '本地密码学与安全分享', en: 'Local Cryptography & Secure Sharing' },
+      description: {
+        zh: '在浏览器本地完成编码、摘要、加解密、JWT 检查，以及公钥二维码安全分享。',
+        en: 'Encode, hash, encrypt, inspect JWTs, and exchange public-key protected QR messages entirely in your browser.',
+      },
+      badges: ['React', 'TypeScript', 'Web Crypto'],
     },
     status: 'stable',
   }),

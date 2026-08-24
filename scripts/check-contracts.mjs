@@ -320,6 +320,7 @@ const allowedManifestFields = new Set([
   'description',
   'keywords',
   'icon',
+  'presentation',
   'status',
 ])
 for (const app of TOOLBOX_APPS) {
@@ -349,6 +350,19 @@ for (const app of TOOLBOX_APPS) {
   if (app.status === 'stable' && app.path !== '/') {
     if (!staticAssembler.includes('getStableApps()')) {
       fail('stable-deploy-contract', 'scripts/assemble-static-site.mjs', `missing stable app assembly for ${app.id}`)
+    }
+    const presentation = app.presentation
+    const localized =
+      presentation?.subtitle?.zh &&
+      presentation.subtitle.en &&
+      presentation.description?.zh &&
+      presentation.description.en
+    if (!localized || !Array.isArray(presentation.badges) || presentation.badges.length === 0) {
+      fail(
+        'app-manifest-contract',
+        'packages/app-manifest/manifest.js',
+        `${app.id} is missing bilingual card presentation and badges`,
+      )
     }
   }
 }

@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict'
 import { assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
-import { TOOLBOX_RELEASE } from '@toolbox/app-manifest'
+import { TOOLBOX_RELEASE, getStableApps } from '@toolbox/app-manifest'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
 import { chromium } from 'playwright'
 
+const toolCount = getStableApps().filter((app) => app.path !== '/').length
 const appRoot = fileURLToPath(new URL('../', import.meta.url))
 const viteCli = fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url))
 const previewUrl = 'http://127.0.0.1:19883/'
@@ -73,16 +74,16 @@ try {
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(page)
   const assertHomepageSurface = async () => {
-    assert.equal(await page.locator('.tool-card').count(), 6)
-    assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 6)
+    assert.equal(await page.locator('.tool-card').count(), toolCount)
+    assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), toolCount)
     assert.equal(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       true,
     )
   }
   await assertSharedPreferenceMatrix(page, assertHomepageSurface)
-  assert.equal(await page.locator('.tool-card').count(), 6)
-  assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 6)
+  assert.equal(await page.locator('.tool-card').count(), toolCount)
+  assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), toolCount)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
   assert.equal(await page.getByText(TOOLBOX_RELEASE, { exact: true }).count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)

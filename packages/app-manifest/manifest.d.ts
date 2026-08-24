@@ -15,6 +15,13 @@ export type AppIcon = Readonly<{
   svg: string
 }>
 
+export type CardPresentation = Readonly<{
+  title?: LocalizedText
+  subtitle: LocalizedText
+  description: LocalizedText
+  badges: readonly string[]
+}>
+
 export type ToolboxApp = Readonly<{
   id: string
   navId: string
@@ -24,6 +31,7 @@ export type ToolboxApp = Readonly<{
   description: LocalizedText
   keywords: LocalizedKeywords
   icon: AppIcon
+  presentation?: CardPresentation
   status: AppStatus
 }>
 

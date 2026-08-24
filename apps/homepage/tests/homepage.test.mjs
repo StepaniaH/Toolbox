@@ -16,20 +16,21 @@ test('homepage keeps its public root shell and secure source link', () => {
   assert.match(read('../../packages/nav/toolbox-footer.js'), /noopener noreferrer/)
 })
 
-test('homepage lists every stable tool path exactly once', () => {
+test('homepage renders every stable tool from the manifest presentation contract', () => {
   const main = read('js/main.js')
   const apps = getStableApps().filter((app) => app.path !== '/')
-  assert.deepEqual(apps.map((app) => app.path), [
-    '/rate-lens/',
-    '/chrono-sphere/',
-    '/monitor-choice/',
-    '/sane-units/',
-    '/image-converter/',
-    '/crypto-lab/',
-  ])
-  const presentationIds = [...main.matchAll(/^  "([a-z0-9-]+)": \{$/gm)]
-    .map((match) => match[1])
-  assert.deepEqual(presentationIds, apps.map((app) => app.id))
+  assert.ok(apps.length >= 1)
+  for (const app of apps) {
+    assert.ok(app.presentation, `${app.id} must carry its card presentation in the manifest`)
+    for (const lang of ['zh', 'en']) {
+      assert.ok(app.presentation.subtitle[lang], `${app.id} needs a ${lang} subtitle`)
+      assert.ok(app.presentation.description[lang], `${app.id} needs a ${lang} description`)
+    }
+    assert.ok(app.presentation.badges.length > 0, `${app.id} needs card badges`)
+  }
+  assert.match(main, /registerCardStrings/)
+  assert.match(main, /presentation/)
+  assert.doesNotMatch(main, /CARD_PRESENTATION/)
 })
 
 test('homepage consumes shared platform packages instead of copied runtimes', () => {
