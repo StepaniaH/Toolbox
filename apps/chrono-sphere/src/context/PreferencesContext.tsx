@@ -2,9 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { THEME_ATTRIBUTE } from '@toolbox/theme/contract';
 import type { ResolvedTheme, ThemeMode } from '../i18n';
 import {
-  THEME_STORAGE_KEY,
   getSystemTheme,
   readStoredTheme,
+  writeResolvedTheme,
+  writeStoredThemeMode,
   PreferencesContext,
   type PreferencesContextValue,
 } from './preferencesCore';
@@ -28,9 +29,15 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+    // The mode (including 'system') stays in the app-private namespace.
+    writeStoredThemeMode(themeMode);
   }, [themeMode]);
+
+  useEffect(() => {
+    // The shared contract key only ever carries the resolved value; writing
+    // it here also completes the one-time migration of overloaded entries.
+    writeResolvedTheme(resolvedTheme);
+  }, [resolvedTheme]);
 
   useEffect(() => {
     if (typeof document === 'undefined') return;

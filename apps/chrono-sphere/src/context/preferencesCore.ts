@@ -17,17 +17,60 @@ export interface PreferencesContextValue {
 
 export const PreferencesContext = createContext<PreferencesContextValue | null>(null);
 
+/**
+ * App-private key holding the full theme mode, including 'system'.
+ * The shared toolbox-theme key only ever stores resolved dark|light
+ * values so other apps can consume it safely (see docs/PLAN.md ADR-12).
+ */
+export const THEME_MODE_STORAGE_KEY = 'toolbox.chrono-sphere.theme-mode';
+
+/** Pre-contract key kept as a read-only migration source. */
 export const LEGACY_THEME_STORAGE_KEY = 'chrono-sphere.theme';
 
+function isThemeMode(value: string | null | undefined): value is ThemeMode {
+  return value === 'system' || isTheme(value);
+}
+
+function readStorage(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    // localStorage may be unavailable (private mode / SSR); ignore.
+    return null;
+  }
+}
+
 /**
- * Read persisted theme mode from localStorage. Falls back to 'system' when
- * window is unavailable (SSR) or the stored value is not a valid theme mode.
+ * Read the persisted theme mode. Modes live in the app-private namespace;
+ * a valid mode found under the shared key or the legacy key is treated as
+ * one-time migration input and is rewritten to the right place by the
+ * provider's persistence effects.
  */
 export function readStoredTheme(): ThemeMode {
-  if (typeof window === 'undefined') return 'system';
-  const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
-    ?? window.localStorage.getItem(LEGACY_THEME_STORAGE_KEY);
-  return isTheme(stored) || stored === 'system' ? stored : 'system';
+  const own = readStorage(THEME_MODE_STORAGE_KEY);
+  if (isThemeMode(own)) return own;
+  const previous =
+    readStorage(THEME_STORAGE_KEY) ?? readStorage(LEGACY_THEME_STORAGE_KEY);
+  return isThemeMode(previous) ? previous : 'system';
+}
+
+export function writeStoredThemeMode(mode: ThemeMode): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(THEME_MODE_STORAGE_KEY, mode);
+  } catch {
+    // Persistence failures must not break theme application.
+  }
+}
+
+export function writeResolvedTheme(theme: ResolvedTheme): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // Persistence failures must not break theme application.
+  }
 }
 
 /**
