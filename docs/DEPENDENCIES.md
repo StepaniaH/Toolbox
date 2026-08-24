@@ -76,7 +76,21 @@ pnpm lint
 - 平台实现本身有全局缺陷时，回滚平台提交和所有依赖它的消费者提交，并重新构建每个应用产物。
 - 发布记录必须写明可回滚 commit 和受影响应用，真实部署目标与环境值不进入仓库。
 
-## 五、机器门禁
+## 五、平台包版本策略
+
+平台包（`packages/*`）按语义化版本发布到 workspace，版本号只表达“公共契约”的变化：
+
+| 变更 | 版本动作 | 必须随附 |
+|---|---|---|
+| 新增 token、属性、方法或可选字段；默认行为逐字节不变 | minor | 契约测试覆盖新面；包 README 增补用法 |
+| 改名、删除、值域收窄、默认值变化、存储键语义变化 | major | 迁移说明（旧→新）、受影响应用清单、逐应用迁移提交 |
+| 纯内部实现调整，公共面零变化 | patch | 既有测试全绿 |
+
+契约常量（如 `THEME_CONTRACT_VERSION`）每扩展一次公共契约面就递增，与 semver 档位独立。
+包的 `package.json` 用 `contractVersion` 字段声明当前常量值，`check:contracts` 校验代码
+常量与该声明一致，防止两处漂移；semver 档位与迁移说明由发布审核按本表核对。
+
+## 六、机器门禁
 
 `pnpm check:contracts` 会拒绝：
 
@@ -85,6 +99,7 @@ pnpm lint
 - React 与 React DOM 使用不同 catalog；
 - Vite 与 React plugin 使用不同 catalog；
 - Vitest 根 override 绕过默认 catalog；
-- app 级 npm/yarn 锁文件或缺失的根锁文件。
+- app 级 npm/yarn 锁文件或缺失的根锁文件；
+- 平台包代码内的契约常量与 `package.json` 的 `contractVersion` 声明不一致。
 
 门禁保证声明结构不漂移；许可证、高危漏洞、升级兼容性和视觉差异仍需各自的专项检查。

@@ -20,6 +20,20 @@ function fail(category, file, message) {
 }
 
 const rootPackage = JSON.parse(read('package.json'))
+{
+  const themePackage = JSON.parse(read('packages/theme/package.json'))
+  const declared = themePackage.contractVersion
+  const constant = Number(
+    /THEME_CONTRACT_VERSION\s*=\s*(\d+)/.exec(read('packages/theme/contract.mjs'))?.[1],
+  )
+  if (!Number.isInteger(constant) || declared !== constant) {
+    fail(
+      'platform-version-contract',
+      'packages/theme/package.json',
+      `contractVersion ${declared} must equal THEME_CONTRACT_VERSION ${constant}`,
+    )
+  }
+}
 if (TOOLBOX_RELEASE !== `v${rootPackage.version}`) {
   fail(
     'release-version-contract',
