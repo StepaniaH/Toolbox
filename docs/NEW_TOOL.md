@@ -66,7 +66,9 @@ Agent 应做可逆的合理判断，而不是连续询问技术偏好。只有�
 ## 3. 技术与目录契约
 
 默认使用 Vite 构建壳：简单表单/计算器优先 Vanilla TypeScript，复杂状态优先
-React + TypeScript，Canvas/WebGL 仍必须通过 Vite 独立构建。
+React + TypeScript，Canvas/WebGL 仍必须通过 Vite 独立构建。推荐用生成器创建骨架：
+`node scripts/new-app.mjs <tool-id> --variant vanilla|react`，再替换其中的占位文案、
+icon 与关键词。
 
 ```text
 apps/<tool-id>/

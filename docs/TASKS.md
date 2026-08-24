@@ -42,11 +42,11 @@
 
 - [x] 删除远端 `dev`，远端只保留 `origin/main`；本地 `dev` 成为唯一开发分支。
 - [x] AGENTS / NEW_TOOL / RELEASE / skill 同步单线开发与 tag 发布模型。
-- [ ] 新增 `check:release`：根版本、`TOOLBOX_RELEASE` 与 CHANGELOG 最新小节强制一致，
+- [x] 新增 `check:release`：根版本、`TOOLBOX_RELEASE` 与 CHANGELOG 最新小节强制一致，
   并支持 CI 中校验当前 tag。
-- [ ] 新增 Release 工作流：push `v*` tag 触发全仓门禁，通过后从 CHANGELOG 小节创建
+- [x] 新增 Release 工作流：push `v*` tag 触发全仓门禁，通过后从 CHANGELOG 小节创建
   GitHub Release。
-- [ ] CI push 触发面收敛到 `main`；生产部署保持从 `main` 手动触发。
+- [x] CI push 触发面收敛到 `main`；生产部署保持从 `main` 手动触发。
 - [ ] 首个 tag 在生产服务器迁移完成后由维护者创建；在此之前不推送任何 tag。
 
 ## P1 — 新工具积木与审核隔离
@@ -65,18 +65,18 @@
   base/output、storage、网络 allowlist 与双语搜索关键词。
 - [x] 根 `pnpm test:browser` 自动发现带 browser suite 的 workspace，不维护硬编码 app 名单。
 
-### P1.2 · 可运行生成器 `🔄 进行中`
+### P1.2 · 可运行生成器 `✅ 已完成`
 
-- [ ] 提供 Vanilla TypeScript 与 React TypeScript 两种最小变体（`scripts/new-app.mjs`）。
-- [ ] 自动创建 package/base、hidden manifest 注册、双语 README（含 Brief）与测试骨架。
-- [ ] 生成器自身有 dry-run、冲突恢复、build/test/lint/browser 测试；不是无人维护的复制目录。
-- [ ] 先用一个真实脚手架演练 build/test 全链路后再宣布为正式入口。
+- [x] 提供 Vanilla TypeScript 与 React TypeScript 两种最小变体（`scripts/new-app.mjs`）。
+- [x] 自动创建 package/base、hidden manifest 注册、双语 README（含 Brief）与测试骨架。
+- [x] 生成器自身有 dry-run、冲突保护与 out-of-tree 自测；模板消费 theme/nav/i18n/manifest 契约。
+- [x] 真实脚手架演练通过 build/test/lint/browser 全链路后清理，宣布为正式入口。
 
-### P1.3 · 新工具展示单一事实源 `🔄 进行中`
+### P1.3 · 新工具展示单一事实源 `✅ 已完成`
 
-- [ ] 将 Homepage 的 `CARD_PRESENTATION` 字段收敛进 manifest 展示契约。
-- [ ] 新 stable 工具不再需要手改首页和导航中的第二份 id/path 映射。
-- [ ] 保持业务长文案归 app 所有，避免 manifest 演变成页面内容仓库。
+- [x] 将 Homepage 卡片文案收敛进 manifest 的 `presentation` 展示契约。
+- [x] 首页从 manifest 渲染卡片并在启动时注册文案；删除最后一份 id/path 映射。
+- [x] `check:contracts` 要求 stable 工具提供双语文案与 badges；业务长文案仍归 app 所有。
 
 ### P1.4 · FormTran 本地候选 `✅ 已完成`
 

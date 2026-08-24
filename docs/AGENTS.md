@@ -176,8 +176,8 @@ chore: ...
 ## 七、新工具准入
 
 不存在可直接假设可用的 `apps/_template`；以 [NEW_TOOL.md](./NEW_TOOL.md) 为事实源，并由
-仓库内 `$develop-toolbox-tool` skill 执行。模板或生成器只有在自己能持续 build/test 后
-才可成为准入路径。
+仓库内 `$develop-toolbox-tool` skill 执行。生成器 `scripts/new-app.mjs` 已通过自测与真实
+脚手架演练，是新工具的推荐起点。
 
 核心准入条件：
 
