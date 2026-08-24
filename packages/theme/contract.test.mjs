@@ -13,7 +13,7 @@ import {
   THEME_STORAGE_KEY,
 } from './contract.mjs'
 
-const css = await readFile(new URL('./index.css', import.meta.url), 'utf8')
+const css = await readFile(new URL('./tokens.css', import.meta.url), 'utf8')
 const runtime = await readFile(new URL('./toggle.js', import.meta.url), 'utf8')
 
 function ruleBody(selector) {

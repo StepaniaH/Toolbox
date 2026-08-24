@@ -5,6 +5,7 @@
   "main": "index.css",
   "exports": {
     "./styles.css": "./index.css",
+    "./tokens.css": "./tokens.css",
     "./toggle.js": "./toggle.js",
     "./contract": {
       "types": "./contract.d.ts",
@@ -15,6 +16,7 @@
   },
   "files": [
     "index.css",
+    "tokens.css",
     "toggle.js",
     "contract.mjs",
     "contract.d.ts",

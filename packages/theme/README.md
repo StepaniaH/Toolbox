@@ -15,8 +15,11 @@ import {
 ```
 
 - 样式消费语义 token，例如 `--color-bg`、`--color-text`、`--color-border`、`--color-primary` 和 `--color-ring`。
+- `styles.css` = token 层 + 共享元素基线；`tokens.css` 只含 token 层。受 Tailwind preflight
+  等全局样式约束、不能接受元素基线的应用，应只引入 `tokens.css`。
 - runtime 暴露 `window.ToolboxTheme.getTheme/setTheme/toggleTheme/prePaintScript`。
 - 全局偏好只写 `localStorage['toolbox-theme']`，并同步到 `<html data-theme="dark|light">`。
+  该键的值域只有 `dark|light`；“跟随系统”等扩展模式保存在应用私有命名空间。
 - 没有有效保存值时遵循系统浅色偏好，否则默认深色。
 
 应用可以保留业务级 token 映射，但不得复制主题解析、创建第二个全局 storage key，或重新定义共享 token 的语义。
