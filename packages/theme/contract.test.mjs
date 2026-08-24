@@ -278,11 +278,21 @@ function contrastRatio(foreground, background) {
 const FAMILY_BLOCKS = [
   ['catppuccin', 'dark', ':root,\n:root[data-theme="dark"]'],
   ['catppuccin', 'light', ':root[data-theme="light"]'],
-  ['gruvbox', 'dark', '[data-theme-family="gruvbox"] \n'],
-  ['gruvbox', 'light', '[data-theme-family="gruvbox"][data-theme="light"]'],
-  ['solarized', 'dark', '[data-theme-family="solarized"] \n'],
-  ['solarized', 'light', '[data-theme-family="solarized"][data-theme="light"]'],
+  ['gruvbox', 'dark', ':root[data-theme-family="gruvbox"] \n'],
+  ['gruvbox', 'light', ':root[data-theme-family="gruvbox"][data-theme="light"]'],
+  ['solarized', 'dark', ':root[data-theme-family="solarized"] \n'],
+  ['solarized', 'light', ':root[data-theme-family="solarized"][data-theme="light"]'],
 ]
+
+test('family selectors keep up with the :root[data-theme] specificity', () => {
+  for (const [family, mode, selector] of FAMILY_BLOCKS) {
+    if (family === 'catppuccin') continue
+    assert.ok(
+      selector.trim().startsWith(':root['),
+      `${family}/${mode} selector must be rooted on :root or ":root[data-theme=\\"dark\\"]" wins the cascade`,
+    )
+  }
+})
 
 test('every family and mode defines the complete raw palette', () => {
   for (const [family, mode, selector] of FAMILY_BLOCKS) {

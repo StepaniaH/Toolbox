@@ -193,10 +193,13 @@
    (plus the few literal borders/foregrounds); every semantic alias
    and convenience name above resolves through var() and follows
    automatically. catppuccin is the default and needs no block.
+   Family selectors are prefixed with :root so they match the (0,2,0)
+   specificity of ":root[data-theme=…]" default blocks; without the
+   prefix an explicit data-theme="dark" would always win.
    ────────────────────────────────────────────────────────────── */
 
 /* ── Gruvbox ── */
-[data-theme-family="gruvbox"] {
+:root[data-theme-family="gruvbox"] {
   color-scheme: dark;
   --ctp-rosewater: #ebdbb2;
   --ctp-flamingo: #d3869b;
@@ -228,7 +231,7 @@
   --border-strong: rgba(235, 219, 178, 0.16);
 }
 
-[data-theme-family="gruvbox"][data-theme="light"] {
+:root[data-theme-family="gruvbox"][data-theme="light"] {
   color-scheme: light;
   --ctp-rosewater: #c39a6c;
   --ctp-flamingo: #b16286;
@@ -263,7 +266,7 @@
 }
 
 /* ── Solarized ── */
-[data-theme-family="solarized"] {
+:root[data-theme-family="solarized"] {
   color-scheme: dark;
   --ctp-rosewater: #eee8d5;
   --ctp-flamingo: #d33682;
@@ -295,7 +298,7 @@
   --border-strong: rgba(147, 161, 161, 0.16);
 }
 
-[data-theme-family="solarized"][data-theme="light"] {
+:root[data-theme-family="solarized"][data-theme="light"] {
   color-scheme: light;
   --ctp-rosewater: #e3dcc9;
   --ctp-flamingo: #d33682;
