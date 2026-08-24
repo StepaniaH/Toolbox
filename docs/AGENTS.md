@@ -118,6 +118,7 @@ pnpm --filter=@toolbox/<app> lint
 pnpm check:privacy
 pnpm check:contracts
 pnpm check:release
+pnpm check:licenses
 pnpm build
 pnpm test
 pnpm lint

@@ -48,6 +48,8 @@ jobs:
       - run: pnpm check:privacy
       - run: pnpm check:contracts
       - run: pnpm install --frozen-lockfile
+      - run: pnpm check:licenses
+      - run: pnpm check:audit
       - run: pnpm --filter=@toolbox/monitor-choice exec playwright install --with-deps chromium
       - run: pnpm build
       - run: pnpm test
