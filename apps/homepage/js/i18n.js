@@ -15,11 +15,7 @@ const i18n = {
 
   zh: {
     "site.title": "工具箱",
-    "site.tagline": "别人略过的，工具都算上了。",
-    "nav.lang": "EN",
-    "nav.langTitle": "Switch to English",
-    "nav.theme": "🌓",
-    "nav.themeTitle": "切换明暗主题",
+    "site.tagline": "隐私优先的网页工具集。",
 
     "card.cta": "打开工具",
 
@@ -29,11 +25,7 @@ const i18n = {
 
   en: {
     "site.title": "Toolbox",
-    "site.tagline": "What others skip, these tools count.",
-    "nav.lang": "中文",
-    "nav.langTitle": "切换到中文",
-    "nav.theme": "🌓",
-    "nav.themeTitle": "Toggle theme",
+    "site.tagline": "Privacy-first web tools.",
 
     "card.cta": "Open Tool",
 
