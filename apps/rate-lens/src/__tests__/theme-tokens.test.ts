@@ -19,8 +19,10 @@ describe('theme token collision guard', () => {
     expect(css).not.toMatch(/--color-base\s*:/)
   })
 
-  it('index.css keeps --base as a raw var (used by --background and body)', () => {
+  it('index.css sources --base from @toolbox/theme/tokens.css instead of raw hex', () => {
     const css = readFileSync(resolve(__dirname, '../index.css'), 'utf8')
-    expect(css).toMatch(/--base:\s*#/)
+    expect(css).toMatch(/--background:\s*var\(--base\)/)
+    expect(css).not.toMatch(/--base:\s*#/)
+    expect(css).not.toMatch(/--ctp-[a-z0-9-]+\s*:/)
   })
 })
