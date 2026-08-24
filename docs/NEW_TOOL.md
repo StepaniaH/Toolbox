@@ -56,7 +56,7 @@ Brief 小节：
 - 纯客户端、无外部业务请求、无账号/后端/遥测/广告/远端字体/Cookie。
 - 新工具 `hidden`，不改变部署，不触碰 `main`/`dev`。
 - 小工具使用 Vanilla TypeScript + Vite；复杂交互使用 React + TypeScript + Vite。
-- 首版同时提供 zh/en、共享主题/导航/页脚/icon、键盘与移动端支持。
+- 首版同时提供 zh / zh-Hant / en（zh-Hant 由 `scripts/gen-zh-hant.mjs` 生成）、共享主题/导航/页脚/icon、键盘与移动端支持。
 - 只实现最小完整主流程；未经要求的扩展放入 non-goals 或后续建议。
 - 只有确实改善体验时才保存本地状态；storage/query 损坏必须安全恢复。
 
@@ -112,7 +112,7 @@ apps/<tool-id>/
 | `@toolbox/theme` | pre-paint、light/dark 状态、语义 token、系统字体 | 复制 Catppuccin 色号、远端字体、自建全局主题键 |
 | `@toolbox/nav` | 唯一顶部 NavBar、当前 app、统一页脚、canonical app icon | 工具内部再放语言/主题按钮、复制导航 CSS/JS |
 | `@toolbox/i18n` | `zh`/`en` 状态、订阅或 React Provider、HTML `lang` 同步 | 只翻译可见正文、拼接依赖语序的半句话 |
-| `@toolbox/app-manifest` | id、route、名称、描述、icon、双语关键词、公开状态 | 在首页或 Nav 中手写另一份工具列表 |
+| `@toolbox/app-manifest` | id、route、名称、描述、icon、三语关键词、公开状态 | 在首页或 Nav 中手写另一份工具列表 |
 
 精确 API 以各包 README 和类型声明为准。共享包 API 不能为了单个新工具随意破坏；确需
 扩展时，先写契约测试和兼容方案，并在应用 README 的 Brief 中单列影响范围。
@@ -151,7 +151,7 @@ defineApp({
 - 全局控件 hover 只允许优雅的颜色/图标反馈，不画背景选中框；keyboard
   `:focus-visible` 必须清楚。
 - 工具业务导航与全局 NavBar 分层；业务页面不能覆盖 `.toolbox-*` 共享类名。
-- 首次提交即验证 light/dark、zh/en、375/390px mobile、1440px desktop、键盘导航与
+- 首次提交即验证 light/dark、zh/zh-Hant/en、375/390px mobile、1440px desktop、键盘导航与
   `prefers-reduced-motion`。
 - 页面 title、meta description、label、placeholder、aria label、错误、空状态和降级提示
   必须同时提供中英文。
@@ -190,9 +190,9 @@ defineApp({
 
 - 核心纯函数：正常、边界、非法值、单位、舍入和异常。
 - 一条主要渲染/交互流程，以及损坏 query/storage 的安全恢复。
-- zh/en key 完整性与 `<html lang>` 同步。
+- zh / zh-Hant / en key 完整性（`scripts/check-i18n-parity` 或等价测试）与 `<html lang>` 同步。
 - 主题 token、全局/私有 storage key、唯一 NavBar/页脚契约。
-- 375/390px 与 1440px production browser smoke；覆盖 light/dark、zh/en、keyboard focus、
+- 375/390px 与 1440px production browser smoke；覆盖 light/dark、三语、keyboard focus、
   横向溢出、console/page errors 和失败资源。
 - Canvas/WebGL：计算数据测试、可见渲染 smoke、resize/cleanup，以及可理解的文本替代。
 - 外部请求：注入 fetcher/adapter，覆盖成功、超时、全部来源失败和 fallback，不访问真实网络。
@@ -243,9 +243,9 @@ pnpm test:browser
 完成时必须确认：
 
 - [ ] 工作在本地 `dev` 上以聚焦提交存在；`main` 未被改动。
-- [ ] manifest 仍为 `hidden`，关键词、icon、双语描述完整。
+- [ ] manifest 仍为 `hidden`，关键词、icon、三语描述完整。
 - [ ] 只修改目标 app、必要 manifest/平台契约和对应测试，没有跨 app import。
-- [ ] light/dark × zh/en × mobile/desktop 与键盘检查通过。
+- [ ] light/dark × 三语 × mobile/desktop 与键盘检查通过。
 - [ ] 隐私、联网、storage、query、fallback 与 README 一致。
 - [ ] README 双语文档完整，Brief 为最新产品契约。
 - [ ] 没有 dist、日志、截图、临时 fixture、app lockfile 或真实环境数据待提交。
@@ -269,5 +269,5 @@ pnpm test:browser
 ## 12. 何时扩展共享包
 
 只有同一语义能力已在至少三个工具出现、API 在真实使用中稳定、没有工具业务状态、并已有
-light/dark、zh/en、keyboard、mobile 契约测试时，才考虑进入共享 UI 层。否则保留在工具
+light/dark、三语、keyboard、mobile 契约测试时，才考虑进入共享 UI 层。否则保留在工具
 内部；适度重复比过早耦合安全。

@@ -1,6 +1,6 @@
 # Toolbox — 项目全景
 
-> 最后核对：2026-08-24 · 当前生产稳定版本：`v0.2.3` · 当前开发线版本：`v0.3.1`
+> 最后核对：2026-08-25 · 当前生产稳定版本：`v0.2.3` · 当前开发线版本：`v0.3.1`
 >
 > `main` 是已发布的稳定线，远端只保留它；本地 `dev` 是唯一开发分支，不推送。
 > 发布由 `main` 上的 `vX.Y.Z` tag 记录。
@@ -20,15 +20,16 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 
 | 工具 | 路径 | 技术栈 | 主要职责 | 自动化测试 |
 |------|------|--------|----------|:----------:|
-| Homepage | `/` | Vanilla JS + Vite + Plain CSS | 工具目录与项目入口 | 5 |
+| Homepage | `/` | Vanilla JS + Vite + Plain CSS | 工具目录与项目入口 | 6 |
 | RateLens | `/rate-lens/` | React + TypeScript + Vite + Tailwind | AI 模型价格倍率计算 | 63 |
-| ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 844 |
-| Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 18 |
-| SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 20 |
+| ChronoSphere | `/chrono-sphere/` | React + TypeScript + Vite | 日期、区间、时区、农历 | 842 |
+| Monitor Choice | `/monitor-choice/` | Vanilla JS + Vite + Canvas | 显示器参数实验室 | 21 |
+| SaneUnits | `/sane-units/` | React + TypeScript + Vite + Plain CSS | 单位换算与现实估算 | 18 |
 | FormTran | `/image-converter/` | React + TypeScript + Vite + Plain CSS | 浏览器本地文件、图片、表格、PDF 与 ZIP 工作台 | 63 |
 | CryptoLab | `/crypto-lab/` | React + TypeScript + Vite + Tailwind | 本地密码学、公钥二维码安全分享与学习工具 | 119 |
+| Settings | `/settings/` | React + TypeScript + Vite + Plain CSS | 语言、明暗模式、配色族与首页个性化 | 3 |
 
-测试规模以「质量基线」小节记录的日期与命令为准，实时数字以 `pnpm test` 输出为准，本文不逐版本维护计数。CryptoLab 已晋级 stable 并进入首页与全局导航；当前生产仍保持 `main` 上的 `v0.2.3`。界面语言为 zh / zh-Hant / en，注册表见 `@toolbox/i18n/registry`。
+测试规模以「质量基线」小节记录的日期与命令为准，实时数字以 `pnpm test` 输出为准，本文不逐版本维护计数。界面语言为 zh / zh-Hant / en，注册表见 `@toolbox/i18n/registry`。
 
 ## 三、仓库结构
 
@@ -42,10 +43,10 @@ Toolbox/
 │   ├── sane-units/
 │   ├── image-converter/
 │   ├── crypto-lab/
-│   └── settings/         # 设置中心（hidden，随下次发布晋级）
+│   └── settings/         # 设置中心：语言、明暗模式、配色族与首页个性化
 ├── packages/             # 跨应用平台能力
-│   ├── theme/            # 主题 token/族与切换运行时（契约 v2）
-│   ├── nav/              # React / Vanilla 导航实现
+│   ├── theme/            # 主题 token/族与 pre-paint 运行时（契约 v2）
+│   ├── nav/              # React / Vanilla 导航实现（右侧仅设置入口）
 │   ├── i18n/             # 语言注册表、状态与 React Provider
 │   ├── app-manifest/     # 应用目录、路径与公开状态
 │   └── prefs/            # 本机偏好存储契约（首页个性化）
@@ -62,7 +63,7 @@ Toolbox/
 
 ### 应用隔离
 
-- 七个工具都由 Vite 独立构建，分别输出自己的 `dist/`；Vanilla 与 React 应用使用同一质量流水线。
+- 八个工具都由 Vite 独立构建，分别输出自己的 `dist/`；Vanilla 与 React 应用使用同一质量流水线。
 - 工具之间没有 `apps/* → apps/*` 依赖，这是当前最重要的稳定性边界。
 - 同一域名下使用路径路由；各应用必须正确设置自己的生产 `base`。
 - 受控工具链版本集中在 `pnpm-workspace.yaml` catalog；当前保留 Vite 6 稳定线与 Vite 7/8 显式迁移线，完整解析结果只由根锁文件记录。
@@ -72,38 +73,39 @@ Toolbox/
 | 能力 | React 工具 | 静态工具 | 当前问题 |
 |------|------------|----------|----------|
 | `@toolbox/i18n` | RateLens、ChronoSphere、FormTran、CryptoLab 直接使用；SaneUnits 有兼容桥 | Homepage 使用 core；Monitor Choice 通过 core adapter 驱动自有翻译表 | 翻译资源与调用方式仍不完全统一 |
-| `@toolbox/nav` | 五个工具直接使用 React 组件 | Homepage 与 Monitor Choice 直接使用 workspace Vanilla 运行时 | React / Vanilla API 仍是两种入口 |
-| `@toolbox/theme` | 五个 React 工具均已消费 v1 runtime 契约 | Homepage 与 Monitor Choice 使用 workspace runtime | 所有页面仍保留 app-specific token 映射，语义 CSS token 需逐个迁移 |
-| `@toolbox/app-manifest` | React Nav 统一消费 stable 目录 | Homepage 与 Vanilla Nav 消费同一目录 | 名称、描述、图标和双语搜索关键词已集中；页面长文案仍由应用拥有 |
+| `@toolbox/nav` | 五个工具直接使用 React 组件 | Homepage 与 Monitor Choice 直接使用 workspace Vanilla 运行时 | React / Vanilla API 仍是两种入口；偏好控件已收敛到设置页 |
+| `@toolbox/theme` | 五个 React 工具消费 v2 契约（模式 + 配色族） | Homepage 与 Monitor Choice 使用 workspace runtime | 所有页面仍保留 app-specific token 映射，语义 CSS token 需逐个迁移 |
+| `@toolbox/app-manifest` | React Nav 统一消费 stable 目录 | Homepage 与 Vanilla Nav 消费同一目录 | 名称、描述、图标和三语搜索关键词已集中；页面长文案仍由应用拥有 |
 
 因此，当前是“共享导航/i18n 已部分落地，主题仍主要靠约定保持接近”，而不是完整设计系统。后续要通过版本化契约和自动一致性检查解决，不能只靠继续复制 CSS。
 
 ### 用户偏好
 
-- 全局语言键：`toolbox-lang`
-- 全局主题键：`toolbox-theme`
+- 语言、明暗模式与配色族由设置页统一提供，是全站唯一入口。
+- 全局键：`toolbox-lang`、`toolbox-theme`、`toolbox-theme-family`；首页个性化为
+  `toolbox-homepage-prefs`。
 - 工具私有状态应使用 `toolbox.<app-id>.*` 命名，避免同域名下互相覆盖。
 - 用户内容默认不得离开浏览器；外部请求必须显式说明并最小化。RateLens 是经维护者确认的自动实时数据例外，只请求公开 USD/CNY 汇率，不发送计算输入，并提供手动失败恢复。
 
 ## 五、质量基线
 
-2026-08-24 在本地 `dev` 完成基线验证（privacy / contracts / release / licenses /
+2026-08-25 在本地 `dev` 完成基线验证（privacy / contracts / release / licenses /
 build / test / lint / 八应用 browser smoke 全部通过；性能体积基线见
 [PERFORMANCE.md](./PERFORMANCE.md)，截图基线见 [screenshots/INDEX.md](./screenshots/INDEX.md)）：
 
 | 检查 | 结果 | 备注 |
 |------|------|------|
-| `pnpm build` | 通过 | 7 个 Vite 应用构建成功；FormTran HEIC 与 PDF 解析改写能力保持按需块 |
-| `pnpm test` | 通过 | 1,148 tests；数量不等同于覆盖率 |
-| `pnpm test:browser` | 通过 | 七个应用均有生产态回归；FormTran 覆盖真实 HEIC、XLSX、PDF、ZIP 与整任务重置，CryptoLab 覆盖指纹、二维码往返、状态失效/清除、工作区保留、PSS 签名、主题/语言与响应式 |
+| `pnpm build` | 通过 | 8 个 Vite 应用构建成功；FormTran HEIC 与 PDF 解析改写能力保持按需块 |
+| `pnpm test` | 通过 | 约 1,150 tests；数量不等同于覆盖率 |
+| `pnpm test:browser` | 通过 | 八个应用均有生产态回归；FormTran 覆盖真实 HEIC、XLSX、PDF、ZIP 与整任务重置，CryptoLab 覆盖指纹、二维码往返、状态失效/清除、工作区保留、PSS 签名、主题/语言与响应式 |
 | `pnpm lint` | 通过 | 当前参与根 lint 的应用为 0 warning |
 | `pnpm check:privacy` | 通过 | 未发现实际密钥、真实绝对路径、内网/Tailscale IP；仍需人工复查 staged diff |
 | `pnpm check:contracts` | 通过 | 应用隔离、包/base/output、依赖 catalog、storage、网络 allowlist 与 Nav 状态通过 |
 
 当前最明显的质量缺口：
 
-- 七个工具都已直接消费 `@toolbox/theme` runtime；页面 token 仍有 app-specific 映射，尚未形成完整单一事实源。
-- SaneUnits 已移除重复偏好控件和本地色板，并有逐页生产 browser smoke；下一项设计系统缺口是七应用截图回归矩阵。
+- 八个工具都已直接消费 `@toolbox/theme` runtime；页面 token 仍有 app-specific 映射，尚未形成完整单一事实源。
+- 截图矩阵尚未纳入 gruvbox/solarized 配色族维度。
 
 这些问题的执行优先级见 [TASKS.md](./TASKS.md)。
 

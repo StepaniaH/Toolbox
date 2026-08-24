@@ -1,6 +1,6 @@
 # Toolbox — 当前任务与进度
 
-> 最后更新：2026-08-24
+> 最后更新：2026-08-25
 >
 > 这里只保留当前与下一阶段工作。已发布结果见 [CHANGELOG.md](../CHANGELOG.md)，架构理由见
 > [PLAN.md](./PLAN.md)。不保存过程日志、聊天摘要、真实服务器或个人环境信息。
@@ -164,23 +164,23 @@
 
 ### P2.7 · Settings 设置应用 `✅ 已完成`
 
-- [x] `apps/settings` 完成双语实现：Appearance（模式/语言）与 Homepage（可见性/顺序/
-  上限/重置）两节，键盘与移动端达标（窄屏纵向堆叠）。
+- [x] `apps/settings` 完成三语实现：Appearance（模式/配色族/语言）与 Homepage（可见性/
+  顺序/上限/重置）两节，键盘与移动端达标（窄屏纵向堆叠）。
 - [x] 新共享包 `@toolbox/prefs` 定义 `toolbox-homepage-prefs`（schema/hiddenIds/order/
   limit），防御式归一化 + contractVersion 漂移守卫；Homepage 经 prefs 管线渲染。
 - [x] 两套 NavBar 增加齿轮入口（manifest 解析路径），进入 React/Vanilla 成对断言。
-- [x] 应用暂保持 `hidden`，随下次发布审核晋级 stable；导航齿轮在晋级后即指向真实路由。
+- [x] 已晋级 stable，进入导航与生产部署清单。
 
-### P2.8 · 主题族机制与首批双模式族 `⏳ 待开始`
+### P2.8 · 主题族机制与首批双模式族 `✅ 已完成`
 
 依赖：P2.7 提供选择界面；建议 P2.4 截图基线先覆盖默认主题。
 
 - [x] theme 契约 v2（包 1.1.0）：`data-theme-family` 属性、`toolbox-theme-family` 键、
-  族清单与 `prePaintScript()` 双属性解析；六个应用内联片段逐字更新。
+  族清单与 `prePaintScript()` 双属性解析；应用内联片段逐字更新。
 - [x] tokens.css 族块只覆盖原始 `--ctp-*` 层，语义别名经 var() 自动跟随；gruvbox、
   solarized 双模式族落地，契约测试锁定原始色覆盖与默认族逐字节不变。
 - [x] WCAG 对比度门禁进入 theme 契约测试，并推动 solarized 双模式文字阶梯加深。
-- [x] Settings Appearance 提供色板选择器（双模式渐变预览）；NavBar 明暗按钮保持只切模式。
+- [x] Settings Appearance 提供色板选择器（双模式渐变预览）。
 - [x] 八应用 build/test/lint/browser 全量通过。
 
 ### P2.9 · 语言注册表与 zh-Hant `✅ 已完成`
@@ -192,8 +192,22 @@
 - [x] 覆盖度门禁：未覆盖语言不出现在选择器；注册表版本进 contracts 漂移守卫。
 - [x] `zh-Hant` 全量覆盖：`scripts/gen-zh-hant.mjs`（OpenCC cn→tw，仅构建期）从简体
   源生成全部应用词表、共享词表与 manifest zhHant 字段；i18n core 值域扩展（html lang
-  zh-TW）、双 NavBar 语言菜单、注册表 covered、三语 parity/key 完整性测试、截图基线
+  zh-TW）、Settings 语言选择器、注册表 covered、三语 parity/key 完整性测试、截图基线
   扩至 96 张。台湾惯用语（如 記憶體/設定 级别的词组审校）由维护者抽查后迭代。
+
+### P2.10 · 偏好入口收敛到设置页 `✅ 已完成`
+
+- [x] 两套 NavBar 移除语言菜单与明暗按钮，右侧只保留设置齿轮；`check:contracts`
+  拒绝在导航中重新引入偏好控件，设计文档同步更新。
+- [x] rate-lens 删除 use-theme 钩子；sane-units 删除 lib/theme 并补齐 canonical
+  pre-paint 与产品标题；monitor-choice 只保留画布重绘与系统跟随适配。
+- [x] chrono-sphere 改为跟随共享 `toolbox-theme`（遗留键一次性迁移），不再以私有
+  theme-mode 覆盖全局选择（ADR-12 更新记录撤销理由）。
+- [x] 共享 browser 契约改为“写入共享键 + reload”驱动偏好矩阵，等价于用户从设置页
+  返回；settings smoke 直接点击真实控件验证三语文案、双模式族背景与持久化。
+- [x] 修复 theme 族选择器被默认暗色块特异性压制导致 gruvbox/solarized 暗色不生效；
+  settings 词表扁平键导致整页渲染原始 key；gen-zh-hant 因评估 import 绑定而中断；
+  assemble 路由回退页缺少 favicon/SW 注入。
 
 ## P3 — 性能与可维护性
 
