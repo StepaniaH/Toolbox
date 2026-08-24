@@ -52,10 +52,10 @@ See [`docs/INDEX.md`](./docs/INDEX.md) for the project overview, [`docs/PLAN.md`
 
 For a new tool, the maintainer only needs to describe the product normally. The agent must
 automatically use [`$develop-toolbox-tool`](./.agents/skills/develop-toolbox-tool/SKILL.md),
-create a local `newdev/<tool-id>` from `dev`, and own the brief, platform integration,
-localized docs, privacy, and tests. Candidate branches are not pushed by default; an
-explicitly authorized integration review merges locally into `dev`, then pushes only `dev`
-when requested.
+infer the internal brief and safe defaults, and own platform integration, localized docs,
+privacy, and tests. All work lands as focused commits on the local `dev` branch; review
+against `main`, the merge, the push, and the release tag are separate maintainer-controlled
+steps described in [docs/RELEASE.md](./docs/RELEASE.md).
 
 ---
 
