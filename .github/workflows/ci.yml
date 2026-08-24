@@ -52,6 +52,7 @@ jobs:
       - run: pnpm check:audit
       - run: pnpm --filter=@toolbox/monitor-choice exec playwright install --with-deps chromium
       - run: pnpm build
+      - run: node scripts/measure-perf.mjs
       - run: pnpm test
       - run: pnpm test:browser
       - run: pnpm lint
