@@ -127,29 +127,11 @@ try {
     }
   }
 
-  const languageButton = page.locator('.toolbox-nav-lang')
-  assert.equal(await languageButton.count(), 1)
-  const languageBefore = await page.locator('html').getAttribute('lang')
-  await languageButton.focus()
-  await page.keyboard.press('Enter')
-  const languageMenu = page.locator('.toolbox-nav-language-menu')
-  await languageMenu.waitFor({ state: 'visible' })
-  assert.equal(await languageMenu.isVisible(), true)
-  assert.equal(
-    await languageMenu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
-    1,
-  )
-  const targetLanguage = languageBefore?.startsWith('zh') ? 'en' : 'zh'
-  await languageMenu.locator(`[data-lang="${targetLanguage}"]`).click()
-  const languageAfter = await page.locator('html').getAttribute('lang')
-  assert.notEqual(languageAfter, languageBefore)
-
-  const themeButton = page.locator('.toolbox-nav-theme')
-  assert.equal(await themeButton.count(), 1)
-  const themeBefore = await page.locator('html').getAttribute('data-theme')
-  await themeButton.click()
-  const themeAfter = await page.locator('html').getAttribute('data-theme')
-  assert.notEqual(themeAfter, themeBefore)
+  // Language and theme are switched from the Settings app; the shared
+  // preference matrix below verifies both surfaces react to the change.
+  const settingsLink = page.locator('.toolbox-nav-settings')
+  assert.equal(await settingsLink.count(), 1)
+  assert.equal(await settingsLink.getAttribute('href'), '/settings/')
 
   await page.setViewportSize({ width: 390, height: 844 })
   await assertMobileSharedShell(page)

@@ -9,7 +9,6 @@ import zhHantJson from './translations/zh-Hant.json';
 import enJson from './translations/en.json';
 
 export type Locale = Lang;
-export type ThemeMode = 'system' | 'light' | 'dark';
 export type ResolvedTheme = 'light' | 'dark';
 
 export const zhTranslations = zhJson as unknown as Translations;

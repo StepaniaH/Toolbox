@@ -125,9 +125,6 @@
   zhHant['panel.section.unsuitable'] = '不適合場景';
   zhHant['footer.privacy'] = '所有數據在本地瀏覽器中計算處理，不上傳任何信息，不使用第三方追蹤。';
   zhHant['footer.hosting'] = '自託管靜態站點';
-  zhHant['theme.toggle'] = '切換明暗主題';
-  zhHant['theme.toLight'] = '切換到亮色主題';
-  zhHant['theme.toDark'] = '切換到暗色主題';
   zhHant['lang.toggle'] = 'English';
   zhHant['lang.switchTo'] = '切換語言';
   zhHant['tooltip.ppi'] = 'Pixels Per Inch：每英寸像素數，衡量屏幕像素密度。數值越高畫面越細膩。';

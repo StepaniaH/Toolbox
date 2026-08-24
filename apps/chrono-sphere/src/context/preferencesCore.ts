@@ -2,34 +2,21 @@ import { createContext } from 'react';
 import {
   DEFAULT_THEME,
   isTheme,
+  THEME_ATTRIBUTE,
   THEME_STORAGE_KEY,
 } from '@toolbox/theme/contract';
-import type { ResolvedTheme, ThemeMode } from '../i18n';
+import type { ResolvedTheme } from '../i18n';
 
-export { THEME_STORAGE_KEY };
+export { THEME_ATTRIBUTE, THEME_STORAGE_KEY };
 
 export interface PreferencesContextValue {
-  themeMode: ThemeMode;
   resolvedTheme: ResolvedTheme;
-  toggleTheme: () => void;
-  setThemeMode: (mode: ThemeMode) => void;
 }
 
 export const PreferencesContext = createContext<PreferencesContextValue | null>(null);
 
-/**
- * App-private key holding the full theme mode, including 'system'.
- * The shared toolbox-theme key only ever stores resolved dark|light
- * values so other apps can consume it safely (see docs/PLAN.md ADR-12).
- */
-export const THEME_MODE_STORAGE_KEY = 'toolbox.chrono-sphere.theme-mode';
-
-/** Pre-contract key kept as a read-only migration source. */
+/** Pre-contract key kept as a one-time migration source. */
 export const LEGACY_THEME_STORAGE_KEY = 'chrono-sphere.theme';
-
-function isThemeMode(value: string | null | undefined): value is ThemeMode {
-  return value === 'system' || isTheme(value);
-}
 
 function readStorage(key: string): string | null {
   if (typeof window === 'undefined') return null;
@@ -42,42 +29,28 @@ function readStorage(key: string): string | null {
 }
 
 /**
- * Read the persisted theme mode. Modes live in the app-private namespace;
- * a valid mode found under the shared key or the legacy key is treated as
- * one-time migration input and is rewritten to the right place by the
- * provider's persistence effects.
- */
-export function readStoredTheme(): ThemeMode {
-  const own = readStorage(THEME_MODE_STORAGE_KEY);
-  if (isThemeMode(own)) return own;
-  const previous =
-    readStorage(THEME_STORAGE_KEY) ?? readStorage(LEGACY_THEME_STORAGE_KEY);
-  return isThemeMode(previous) ? previous : 'system';
-}
-
-export function writeStoredThemeMode(mode: ThemeMode): void {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(THEME_MODE_STORAGE_KEY, mode);
-  } catch {
-    // Persistence failures must not break theme application.
-  }
-}
-
-export function writeResolvedTheme(theme: ResolvedTheme): void {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-  } catch {
-    // Persistence failures must not break theme application.
-  }
-}
-
-/**
  * Resolve the OS-level color scheme preference. Falls back to 'dark' when
  * window or matchMedia is unavailable (SSR).
  */
 export function getSystemTheme(): ResolvedTheme {
   if (typeof window === 'undefined') return DEFAULT_THEME;
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+/**
+ * Read the active theme. The shared contract key written by the Settings
+ * app is authoritative; the legacy pre-contract key is honored once for
+ * existing visitors; otherwise the app follows the OS preference.
+ */
+export function readStoredTheme(): ResolvedTheme {
+  const shared = readStorage(THEME_STORAGE_KEY);
+  if (isTheme(shared)) return shared;
+  const legacy = readStorage(LEGACY_THEME_STORAGE_KEY);
+  if (isTheme(legacy)) return legacy;
+  return getSystemTheme();
+}
+
+/** True when the visitor has an explicit stored choice (shared or legacy). */
+export function hasExplicitThemeChoice(): boolean {
+  return isTheme(readStorage(THEME_STORAGE_KEY)) || isTheme(readStorage(LEGACY_THEME_STORAGE_KEY));
 }

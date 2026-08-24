@@ -2,10 +2,11 @@
  * theme.js — thin adapter over the @toolbox/theme runtime.
  *
  * The shared runtime owns storage ("toolbox-theme"), the data-theme
- * attribute and persistence. This module keeps only what the app adds on
- * top: system-follow until the first explicit choice, canvas redraw
- * notifications, and the legacy header button sync. Canvas readers resolve
- * --bg-canvas / --canvas-* custom properties from css/theme.css.
+ * attribute and persistence; the Settings app is the only place users
+ * change them. This module keeps only what the app adds on top:
+ * system-follow until the first explicit choice and canvas redraw
+ * notifications. Canvas readers resolve --bg-canvas / --canvas-* custom
+ * properties from css/theme.css.
  */
 (function () {
   'use strict';
@@ -22,31 +23,10 @@
     document.documentElement.setAttribute('data-theme', theme);
   }
 
-  function updateButton(theme) {
-    var btn = document.getElementById('themeToggle');
-    if (btn) {
-      btn.textContent = theme === 'dark' ? '☀️' : '🌙';
-      btn.title = theme === 'dark' ? '切换到亮色主题' : '切换到暗色主题';
-    }
-  }
-
   function notifyListeners(theme) {
     listeners.forEach(function (fn) {
       try { fn(theme); } catch {}
     });
-  }
-
-  function syncFromRuntime(theme) {
-    updateButton(theme);
-    notifyListeners(theme);
-  }
-
-  /** Toggle, persist via the shared runtime, then notify app listeners. */
-  function toggle() {
-    var next = currentTheme() === 'dark' ? 'light' : 'dark';
-    api.setTheme(next);
-    syncFromRuntime(next);
-    return next;
   }
 
   function getStoredTheme() {
@@ -85,17 +65,11 @@
     };
   }
 
-  /** Apply the resolved theme without persisting, wire the legacy button,
-      follow OS changes while the user has not made an explicit choice, and
-      route shared-runtime toggles into the notification fan-out. */
+  /** Apply the resolved theme without persisting, and follow OS changes
+      while the user has not made an explicit choice. */
   function init() {
     applyTheme(currentTheme());
-    updateButton(currentTheme());
-
-    var btn = document.getElementById('themeToggle');
-    if (btn) {
-      btn.addEventListener('click', toggle);
-    }
+    notifyListeners(currentTheme());
 
     window
       .matchMedia('(prefers-color-scheme: dark)')
@@ -103,23 +77,13 @@
         if (!getStoredTheme()) {
           var next = e.matches ? 'dark' : 'light';
           applyTheme(next);
-          syncFromRuntime(next);
+          notifyListeners(next);
         }
       });
   }
 
-  // The NavBar delegates its default toggle to window.ToolboxTheme; wrap it
-  // so every toggle fans out to canvas redraw listeners exactly once.
-  var originalToggle = api.toggleTheme.bind(api);
-  api.toggleTheme = function () {
-    var next = originalToggle();
-    syncFromRuntime(next);
-    return next;
-  };
-
   window.ThemeManager = {
     init: init,
-    toggle: toggle,
     getStoredTheme: getStoredTheme,
     getCanvasBg: getCanvasBg,
     getCanvasColor: getCanvasColor,

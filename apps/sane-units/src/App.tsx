@@ -4,7 +4,6 @@ import { AppIcon } from "@toolbox/nav/AppIcon.tsx";
 import { ToolboxFooter } from "@toolbox/nav/ToolboxFooter.tsx";
 import "@toolbox/nav/nav-bar.css";
 import { useTranslation, LanguageProvider } from "./lib/i18n";
-import { useTheme } from "./lib/theme";
 import { normalizeRoute, useAppNavigation, NavLink } from "./lib/router";
 import {
   HomePage,
@@ -24,7 +23,6 @@ function App() {
   }, [route]);
 
   const { t } = useTranslation();
-  const { toggleTheme } = useTheme();
 
   useEffect(() => {
     document.title = t(`pageTitles.${route}`) ?? "SaneUnits";
@@ -41,7 +39,7 @@ function App() {
 
   return (
     <>
-      <NavBar currentApp="sane-units" onToggleTheme={toggleTheme} />
+      <NavBar currentApp="sane-units" />
       <div className="app-shell">
         <header className="sane-app-header">
           <div className="brand-lockup">

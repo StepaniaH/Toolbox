@@ -89,17 +89,11 @@ try {
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   assert.equal(await page.locator('.toolbox-nav-brand-link').getAttribute('href'), '/')
 
-  const languageButton = page.locator('.toolbox-nav-lang')
+  // Language and theme are switched from the Settings app; verify the
+  // homepage reacts to the persisted preferences.
   const titleBefore = await page.locator('.site-title').textContent()
-  await languageButton.focus()
-  await page.keyboard.press('Enter')
-  const languageMenu = page.locator('.toolbox-nav-language-menu')
-  await languageMenu.waitFor({ state: 'visible' })
-  assert.equal(
-    await languageMenu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
-    1,
-  )
-  await languageMenu.locator('[data-lang="en"]').click()
+  await page.evaluate(() => window.localStorage.setItem('toolbox-lang', 'en'))
+  await page.reload({ waitUntil: 'networkidle' })
   await page.waitForFunction(() => document.documentElement.lang === 'en')
   assert.notEqual(await page.locator('.site-title').textContent(), titleBefore)
   assert.equal(await page.locator('.toolbox-footer-description').textContent(), 'Toolbox navigation hub')
@@ -116,11 +110,11 @@ try {
 
   const themeBefore = await page.locator('html').getAttribute('data-theme')
   const backgroundBefore = await page.evaluate(() => getComputedStyle(document.body).backgroundColor)
-  await page.locator('.toolbox-nav-theme').click()
-  await page.waitForFunction(
-    (previousTheme) => document.documentElement.getAttribute('data-theme') !== previousTheme,
-    themeBefore,
+  await page.evaluate(
+    (theme) => window.localStorage.setItem('toolbox-theme', theme),
+    themeBefore === 'dark' ? 'light' : 'dark',
   )
+  await page.reload({ waitUntil: 'networkidle' })
   // The shared baseline transitions body colors over 0.3s; sample after the
   // transition instead of at its first frame.
   await page.waitForFunction(

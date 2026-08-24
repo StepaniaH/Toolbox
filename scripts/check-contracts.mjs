@@ -306,16 +306,6 @@ if (
   fail('nav-focus-contract', 'packages/nav/nav-bar.css', 'focus-visible lacks the 2px blue outline')
 }
 
-for (const selector of [
-  '.toolbox-nav-language-menu',
-  '.toolbox-nav-language-option',
-  '.toolbox-nav-theme-sun',
-  '.toolbox-nav-theme-moon',
-]) {
-  if (!navCss.includes(selector)) {
-    fail('nav-control-contract', 'packages/nav/nav-bar.css', `missing ${selector}`)
-  }
-}
 for (const [file, content] of [
   ['packages/nav/NavBar.tsx', navReact],
   ['packages/nav/nav-bar.js', navVanilla],
@@ -324,21 +314,28 @@ for (const [file, content] of [
     'toolbox-nav-brand-link',
     'toolbox-nav-menu-btn',
     'toolbox-nav-search-input',
-    'toolbox-nav-language-menu',
-    'menuitemradio',
-    'data-lang',
-    'toolbox-nav-theme-sun',
-    'toolbox-nav-theme-moon',
+    'toolbox-nav-settings',
   ]) {
     if (!content.includes(requirement)) {
       fail('nav-control-contract', file, `missing ${requirement}`)
     }
   }
+  for (const banned of [
+    'toolbox-nav-language',
+    'toolbox-nav-theme-sun',
+    'toolbox-nav-theme-moon',
+    'toggleTheme',
+  ]) {
+    if (content.includes(banned)) {
+      fail(
+        'nav-control-contract',
+        file,
+        `must not embed a second "${banned}" preference control; Settings is the single entry point`,
+      )
+    }
+  }
   if (content.includes('toolbox-nav-hamburger') || content.includes('toolbox-nav-mobile')) {
     fail('nav-mobile-contract', file, 'duplicates the Toolbox tool switcher on mobile')
-  }
-  if (content.includes('🌓') || content.includes('is-animating')) {
-    fail('nav-theme-contract', file, 'uses the legacy rotating emoji theme control')
   }
 }
 if (!navReact.includes('href="/"') || !navVanilla.includes('link("/", "toolbox-nav-brand-link")')) {

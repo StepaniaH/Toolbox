@@ -2,58 +2,17 @@
 //
 // Drop-in `<NavBar />` for the React + Vite apps (rate-lens, chrono-sphere,
 // sane-units). Mirrors the vanilla `nav-bar.js` bar: left Toolbox dropdown
-// (active tool highlighted) and right theme + language controls. The left
-// dropdown is the single tool switcher on both desktop and mobile.
+// with local tool search (the single switcher on desktop and mobile) and a
+// settings gear on the right. Language and theme live in the Settings app;
+// the bar intentionally offers no second entry point.
 //
 // Pair with `@toolbox/nav/nav-bar.css` and `@toolbox/theme` (index.css +
-// toggle.js). The theme toggle delegates to `window.ToolboxTheme.toggleTheme`
-// by default — pass `onToggleTheme` to override. `currentApp` highlights the
-// matching link and should match a `NavApp["id"]` from `NAV_APPS` below.
+// toggle.js). `currentApp` highlights the matching link and should match a
+// `NavApp["id"]` from `NAV_APPS` below.
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { setLang, getLang, onChange } from "@toolbox/i18n";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { getLang, onChange } from "@toolbox/i18n";
 import { getAppById, getStableApps } from "@toolbox/app-manifest";
-
-const LANGUAGES = [
-  { code: "zh", label: "中文（简体）", lang: "zh-CN" },
-  { code: "zh-Hant", label: "繁體中文", lang: "zh-TW" },
-  { code: "en", label: "English", lang: "en" },
-] as const;
-
-function GlobeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
-    </svg>
-  );
-}
-
-function SunIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="m5 12 4 4L19 6" />
-    </svg>
-  );
-}
-
 
 function GearIcon() {
   return (
@@ -107,45 +66,22 @@ export type NavBarProps = {
   currentApp?: string;
   /** Override the default tool list. */
   apps?: NavApp[];
-  /** Override the theme-toggle handler. Defaults to window.ToolboxTheme.toggleTheme. */
-  onToggleTheme?: () => void;
-  /** "zh" | "en". Defaults to localStorage("toolbox-lang") → navigator.language. */
-  lang?: "zh" | "en";
-  /** Optional React nodes rendered before the theme button on the right edge. */
-  rightSlot?: ReactNode;
   /** Extra className on the root <header>. */
   className?: string;
 };
 
-export function NavBar({
-  currentApp,
-  apps = NAV_APPS,
-  onToggleTheme,
-  lang,
-  rightSlot,
-  className,
-}: NavBarProps) {
+export function NavBar({ currentApp, apps = NAV_APPS, className }: NavBarProps) {
   const rootRef = useRef<HTMLElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [languageOpen, setLanguageOpen] = useState(false);
   const [toolQuery, setToolQuery] = useState("");
-  const [resolvedLang, setResolvedLang] = useState<UiLang>(
-    lang ?? getLang,
-  );
+  const [resolvedLang, setResolvedLang] = useState<UiLang>(getLang);
 
-  useEffect(() => {
-    if (lang) {
-      setResolvedLang(lang);
-      return;
-    }
-    // Keep in sync with the global language (setLang from this bar or any
-    // other component) via the @toolbox/i18n core's onChange channel.
-    return onChange(setResolvedLang);
-  }, [lang]);
+  // Keep in sync with the global language (setLang from Settings or any
+  // other component) via the @toolbox/i18n core's onChange channel.
+  useEffect(() => onChange(setResolvedLang), []);
 
-  const uiLang = resolvedLang as UiLang;
-  const preferEn = uiLang === "en";
+  const uiLang = resolvedLang;
   const normalizedQuery = toolQuery.trim().normalize("NFKC").toLocaleLowerCase();
   const filteredApps = useMemo(
     () => apps.filter((app) => {
@@ -158,7 +94,7 @@ export function NavBar({
       ].join(" ").normalize("NFKC").toLocaleLowerCase();
       return text.includes(normalizedQuery);
     }),
-    [apps, normalizedQuery, preferEn],
+    [apps, normalizedQuery, uiLang],
   );
 
   // Close on outside click or Escape.
@@ -168,13 +104,11 @@ export function NavBar({
     const onDocClick = (e: MouseEvent) => {
       if (!root.contains(e.target as Node)) {
         setDropdownOpen(false);
-        setLanguageOpen(false);
       }
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setDropdownOpen(false);
-        setLanguageOpen(false);
       }
     };
     document.addEventListener("click", onDocClick);
@@ -185,22 +119,8 @@ export function NavBar({
     };
   }, []);
 
-  const toggleTheme = () => {
-    const fn =
-      onToggleTheme ??
-      (typeof window !== "undefined" &&
-      (window as unknown as { ToolboxTheme?: { toggleTheme?: () => void } })
-        .ToolboxTheme?.toggleTheme
-        ? (window as unknown as { ToolboxTheme: { toggleTheme: () => void } })
-            .ToolboxTheme.toggleTheme
-        : undefined);
-    fn?.();
-  };
-
-  const themeTitle = preferEn ? "Toggle theme" : "切换明暗主题";
-  const langTitle = preferEn ? "Choose language" : "选择语言";
-  const toolMenuTitle = preferEn ? "Open tool menu" : "打开工具菜单";
-  const searchTitle = preferEn ? "Search tools" : "搜索工具";
+  const toolMenuTitle = uiLang === "en" ? "Open tool menu" : "打开工具菜单";
+  const searchTitle = uiLang === "en" ? "Search tools" : "搜索工具";
 
   return (
     <header
@@ -227,7 +147,6 @@ export function NavBar({
                 event.preventDefault();
                 event.stopPropagation();
                 const shouldFocusSearch = !dropdownOpen && event.detail === 0;
-                setLanguageOpen(false);
                 setDropdownOpen((value) => !value);
                 if (shouldFocusSearch) {
                   window.requestAnimationFrame(() => searchRef.current?.focus());
@@ -247,7 +166,7 @@ export function NavBar({
                 autoComplete="off"
                 spellCheck={false}
                 aria-label={searchTitle}
-                placeholder={preferEn ? "Search tools or tasks…" : "搜索工具或用途…"}
+                placeholder={uiLang === "en" ? "Search tools or tasks…" : "搜索工具或用途…"}
                 value={toolQuery}
                 onChange={(event) => setToolQuery(event.target.value)}
               />
@@ -274,94 +193,24 @@ export function NavBar({
             ))}
             {filteredApps.length === 0 ? (
               <p className="toolbox-nav-search-empty">
-                {preferEn ? "No matching tools" : "没有匹配的工具"}
+                {uiLang === "en" ? "No matching tools" : "没有匹配的工具"}
               </p>
             ) : null}
           </div>
         </div>
 
-        {/* Right: actions */}
+        {/* Right: settings */}
         <div className="toolbox-nav-actions">
-          {rightSlot}
           {getAppById("settings")?.status === "stable" && (
             <a
               className="toolbox-nav-icon-btn toolbox-nav-settings"
               href={getAppById("settings")!.path}
-              aria-label={preferEn ? "Settings" : "设置"}
-              title={preferEn ? "Settings" : "设置"}
+              aria-label={uiLang === "en" ? "Settings" : "设置"}
+              title={uiLang === "en" ? "Settings" : "设置"}
             >
               <GearIcon />
             </a>
           )}
-          <div
-            className={
-              languageOpen
-                ? "toolbox-nav-language is-open"
-                : "toolbox-nav-language"
-            }
-          >
-            <button
-              type="button"
-              className="toolbox-nav-icon-btn toolbox-nav-lang"
-              aria-label={langTitle}
-              title={langTitle}
-              aria-haspopup="menu"
-              aria-expanded={languageOpen}
-              onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                setDropdownOpen(false);
-                setLanguageOpen((value) => !value);
-              }}
-            >
-              <GlobeIcon />
-            </button>
-            <div className="toolbox-nav-language-menu" role="menu">
-              {LANGUAGES.map((language) => {
-                const selected = language.code === resolvedLang;
-                return (
-                  <button
-                    type="button"
-                    key={language.code}
-                    role="menuitemradio"
-                    aria-checked={selected}
-                    data-lang={language.code}
-                    lang={language.lang}
-                    className={
-                      selected
-                        ? "toolbox-nav-language-option is-active"
-                        : "toolbox-nav-language-option"
-                    }
-                    onClick={() => {
-                      setLang(language.code);
-                      setLanguageOpen(false);
-                    }}
-                  >
-                    <span className="toolbox-nav-language-label">
-                      {language.label}
-                    </span>
-                    <span className="toolbox-nav-language-check">
-                      {selected ? <CheckIcon /> : null}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <button
-            type="button"
-            className="toolbox-nav-icon-btn toolbox-nav-theme"
-            aria-label={themeTitle}
-            title={themeTitle}
-            onClick={toggleTheme}
-          >
-            <span className="toolbox-nav-theme-icon toolbox-nav-theme-sun">
-              <SunIcon />
-            </span>
-            <span className="toolbox-nav-theme-icon toolbox-nav-theme-moon">
-              <MoonIcon />
-            </span>
-          </button>
         </div>
       </div>
     </header>

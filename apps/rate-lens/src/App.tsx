@@ -11,7 +11,6 @@ import { FundingInputs } from '@/components/FundingInputs'
 import { ExchangeRateDisplay } from '@/components/ExchangeRateDisplay'
 import { ForwardCalculator } from '@/components/ForwardCalculator'
 import { ReverseCalculator } from '@/components/ReverseCalculator'
-import { useTheme } from '@/hooks/use-theme'
 import { useExchangeRate } from '@/hooks/use-exchange-rate'
 import { useLocalStorage } from '@/hooks/use-local-storage'
 import { parseNum } from '@/lib/utils'
@@ -48,7 +47,6 @@ const EMPTY_PAID: ReversePaidInput = {
 
 function App() {
   const { t } = useTranslation()
-  const { toggle } = useTheme()
   const { rate, loading, error, source, setManual, refetch } = useExchangeRate()
 
   const [state, setState] = useLocalStorage<AppState>(
@@ -92,7 +90,7 @@ function App() {
 
   return (
     <>
-      <NavBar currentApp="rate-lens" onToggleTheme={toggle} />
+      <NavBar currentApp="rate-lens" />
       <div className="mx-auto max-w-4xl px-4 pb-12">
         <Header />
 

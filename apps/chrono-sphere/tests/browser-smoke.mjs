@@ -80,8 +80,7 @@ try {
   assert.equal(await page.locator('.toolbox-app-icon').count() >= 1, true)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
-  assert.equal(await page.locator('.toolbox-nav-theme-sun').count(), 1)
-  assert.equal(await page.locator('.toolbox-nav-theme-moon').count(), 1)
+  assert.equal(await page.locator('.toolbox-nav-settings').count(), 1)
   const compositingState = await page.evaluate(() => ({
     appTransform: getComputedStyle(document.querySelector('.app-container')).transform,
     tabsBackdrop: getComputedStyle(document.querySelector('.tabs-container')).backdropFilter,
@@ -102,6 +101,16 @@ try {
   const absoluteTime = page.locator('.absolute-time-value')
   await absoluteTime.waitFor()
   const assertIntervalSurface = async () => {
+    // The matrix reloads the page, so restore the interval scenario first
+    // (tab name is localized; dates reset to empty on a fresh load).
+    await page.getByRole('tab', { name: /日期区间计算|Interval calculator/ }).click()
+    await page.waitForFunction(
+      () => document.querySelectorAll('.interval-config-box input[type="date"]').length === 2,
+    )
+    const dateInputs = page.locator('.interval-config-box input[type="date"]')
+    await dateInputs.nth(0).fill('2026-03-01')
+    await dateInputs.nth(1).fill('2026-03-11')
+    await absoluteTime.waitFor()
     assert.equal(await page.locator('.main-card').count(), 1)
     assert.equal(await absoluteTime.isVisible(), true)
     assert.ok((await absoluteTime.textContent()).trim().length > 0)
@@ -113,25 +122,22 @@ try {
   await assertSharedPreferenceMatrix(page, assertIntervalSurface)
   assert.equal((await absoluteTime.textContent()).trim(), '10 天 0 小时')
 
-  const languageButton = page.locator('.toolbox-nav-lang')
-  await languageButton.click()
-  const languageMenu = page.locator('.toolbox-nav-language-menu')
-  await languageMenu.waitFor({ state: 'visible' })
-  assert.equal(await languageMenu.isVisible(), true)
-  assert.equal(
-    await languageMenu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
-    1,
-  )
-  await languageMenu.locator('[role="menuitemradio"][lang="en"]').click()
+  // Language and theme are switched from the Settings app; drive the same
+  // persisted preferences and verify the surface follows.
+  await page.evaluate(() => window.localStorage.setItem('toolbox-lang', 'en'))
+  await page.reload({ waitUntil: 'networkidle' })
   await page.waitForFunction(() => document.documentElement.lang === 'en')
+  await assertIntervalSurface()
   assert.match((await absoluteTime.textContent()).trim(), /^-?\d+ days \d+ hours$/)
 
   const themeBefore = await page.locator('html').getAttribute('data-theme')
-  await page.locator('.toolbox-nav-theme').click()
-  await page.waitForFunction(
-    (previousTheme) => document.documentElement.getAttribute('data-theme') !== previousTheme,
-    themeBefore,
+  await page.evaluate(
+    (theme) => window.localStorage.setItem('toolbox-theme', theme),
+    themeBefore === 'dark' ? 'light' : 'dark',
   )
+  await page.reload({ waitUntil: 'networkidle' })
+  await assertIntervalSurface()
+  assert.equal(await page.getAttribute('html', 'data-theme'), themeBefore === 'dark' ? 'light' : 'dark')
 
   await page.setViewportSize({ width: 390, height: 844 })
   await assertMobileSharedShell(page)

@@ -85,8 +85,7 @@ try {
   })
   for (const tokenValue of Object.values(styleState)) assert.notEqual(tokenValue, '')
 
-  assert.equal(await page.locator('.toolbox-nav-theme').count(), 1)
-  assert.equal(await page.locator('.toolbox-nav-lang').count(), 1)
+  assert.equal(await page.locator('.toolbox-nav-settings').count(), 1)
   assert.equal(await page.locator('.control-btn, .sidebar-controls, .mobile-controls').count(), 0)
   assert.equal(await page.locator('.sidebar, .mobile-topbar').count(), 0)
   assert.equal(await page.locator('.sane-app-header').isVisible(), true)
@@ -129,43 +128,14 @@ try {
   await assertStorageSurface()
 
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
-  const languageButton = page.locator('.toolbox-nav-lang')
-  const languageBefore = await page.locator('html').getAttribute('lang')
-  const copyBefore = await page.locator('.brand-subtitle').textContent()
-  await languageButton.click()
-  const languageMenu = page.locator('.toolbox-nav-language-menu')
-  await languageMenu.waitFor({ state: 'visible' })
-  assert.equal(await languageMenu.isVisible(), true)
-  assert.equal(
-    await languageMenu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
-    1,
-  )
-  const targetLanguage = languageBefore?.startsWith('zh') ? 'en' : 'zh'
-  await languageMenu.locator(`[data-lang="${targetLanguage}"]`).click()
-  await page.waitForFunction(
-    (previousLanguage) => document.documentElement.lang !== previousLanguage,
-    languageBefore,
-  )
-  assert.notEqual(await page.locator('html').getAttribute('lang'), languageBefore)
-  assert.notEqual(await page.locator('.brand-subtitle').textContent(), copyBefore)
 
-  const themeButton = page.locator('.toolbox-nav-theme')
-  const themeBefore = await page.locator('html').getAttribute('data-theme')
-  const backgroundBefore = await page.evaluate(() =>
-    getComputedStyle(document.documentElement).getPropertyValue('--color-bg').trim(),
-  )
-  await themeButton.click()
-  await page.waitForFunction(
-    (previousTheme) => document.documentElement.getAttribute('data-theme') !== previousTheme,
-    themeBefore,
-  )
-  assert.notEqual(await page.locator('html').getAttribute('data-theme'), themeBefore)
-  assert.notEqual(
-    await page.evaluate(() =>
-      getComputedStyle(document.documentElement).getPropertyValue('--color-bg').trim(),
-    ),
-    backgroundBefore,
-  )
+  // Language and theme are switched from the Settings app; verify the app
+  // surface reacts to the persisted preferences instead.
+  const languageBefore = await page.locator('html').getAttribute('lang')
+  const targetLanguage = languageBefore?.startsWith('zh') ? 'en' : 'zh'
+  await page.evaluate((lang) => window.localStorage.setItem('toolbox-lang', lang), targetLanguage)
+  await page.reload({ waitUntil: 'networkidle' })
+  assert.notEqual(await page.locator('html').getAttribute('lang'), languageBefore)
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
@@ -176,8 +146,7 @@ try {
   assert.equal(await page.locator('.sidebar, .mobile-topbar').count(), 0)
   assert.equal(await page.locator('.sane-app-header').isVisible(), true)
   assert.equal(await page.locator('.section-nav').isVisible(), true)
-  assert.equal(await page.locator('.toolbox-nav-theme').count(), 1)
-  assert.equal(await page.locator('.toolbox-nav-lang').count(), 1)
+  assert.equal(await page.locator('.toolbox-nav-settings').count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   const brandButton = page.locator('.toolbox-nav-menu-btn')
   await brandButton.click()

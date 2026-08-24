@@ -111,41 +111,16 @@ async function readPreferenceState(page) {
   }))
 }
 
-async function selectLanguage(page, target) {
-  const button = page.locator('.toolbox-nav-lang')
-  assert.equal(await button.count(), 1)
-  await button.click()
-
-  const menu = page.locator('.toolbox-nav-language-menu')
-  await menu.waitFor({ state: 'visible' })
-  const chineseLabel = menu.locator('[data-lang="zh"] .toolbox-nav-language-label')
-  const englishLabel = menu.locator('[data-lang="en"] .toolbox-nav-language-label')
-  assert.equal(await chineseLabel.count(), 1)
-  assert.equal(await englishLabel.count(), 1)
-  assert.equal((await chineseLabel.textContent()).trim(), '中文（简体）')
-  assert.equal((await englishLabel.textContent()).trim(), 'English')
-  assert.equal(
-    await menu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
-    1,
-  )
-
-  const option = menu.locator(`[data-lang="${target}"]`)
-  assert.equal(await option.count(), 1)
-  await option.click()
-  await page.waitForFunction(
-    (language) => document.documentElement.lang.toLowerCase().startsWith(language),
-    target,
-  )
-}
-
-async function toggleTheme(page, previousTheme) {
-  const button = page.locator('.toolbox-nav-theme')
-  assert.equal(await button.count(), 1)
-  await button.click()
-  await page.waitForFunction(
-    (theme) => document.documentElement.getAttribute('data-theme') !== theme,
-    previousTheme,
-  )
+// Language and theme are switched from the Settings app, not from the shared
+// bar. This helper applies the same persisted preferences the Settings app
+// writes ("toolbox-lang" / "toolbox-theme") and reloads, which is exactly
+// what a user returning from Settings experiences.
+async function applyGlobalPreferences(page, prefs) {
+  await page.evaluate((next) => {
+    if ('lang' in next) window.localStorage.setItem('toolbox-lang', next.lang)
+    if ('theme' in next) window.localStorage.setItem('toolbox-theme', next.theme)
+  }, prefs)
+  await page.reload({ waitUntil: 'load' })
 }
 
 export async function assertSharedPreferenceMatrix(page, assertSurface) {
@@ -161,24 +136,24 @@ export async function assertSharedPreferenceMatrix(page, assertSurface) {
 
   await assertState(initial)
 
-  await selectLanguage(page, alternateLanguage)
+  await applyGlobalPreferences(page, { lang: alternateLanguage })
   await assertState({
     lang: alternateLanguage,
     theme: initial.theme,
   })
 
-  await toggleTheme(page, initial.theme)
+  await applyGlobalPreferences(page, { theme: alternateTheme })
   await assertState({
     lang: alternateLanguage,
     theme: alternateTheme,
   })
 
-  await selectLanguage(page, initial.lang)
+  await applyGlobalPreferences(page, { lang: initial.lang })
   await assertState({
     lang: initial.lang,
     theme: alternateTheme,
   })
 
-  await toggleTheme(page, alternateTheme)
+  await applyGlobalPreferences(page, { theme: initial.theme })
   await assertState(initial)
 }

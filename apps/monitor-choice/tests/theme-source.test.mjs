@@ -37,6 +37,6 @@ test('theme css sources the palette from tokens and keeps canvas constants scope
 test('theme adapter delegates persistence to the shared runtime', () => {
   const source = read('js/theme.js')
   assert.match(source, /@toolbox\/theme|ToolboxTheme/)
-  assert.match(source, /api\.setTheme/)
+  assert.match(source, /api\.STORAGE_KEY/)
   assert.doesNotMatch(source, /localStorage\.setItem\(\s*'toolbox-theme'/)
 })
