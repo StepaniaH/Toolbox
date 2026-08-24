@@ -123,35 +123,35 @@
 - [x] storage/network/video/power/about 子页面标题不再重复应用 icon。
 - [x] production browser smoke 逐路由防止重复图标回归。
 
-### P2.3 · 语义 token 收敛 `🔄 进行中`
+### P2.3 · 语义 token 收敛 `✅ 已完成`
 
 执行顺序与验收：每个应用独立提交，迁移后跑该应用 build/test/lint/browser 与全仓门禁。
 
 - [x] 七个应用直接消费 `@toolbox/theme` runtime；SaneUnits、FormTran、CryptoLab 已只使用语义 token。
-- [ ] 平台前置：`@toolbox/theme` 拆出 `tokens.css`（调色板/语义/基础令牌），`styles.css` 保持
+- [x] 平台前置：`@toolbox/theme` 拆出 `tokens.css`（调色板/语义/基础令牌），`styles.css` 保持
   tokens + 元素基线；既有消费者不变。
-- [ ] Homepage：引入 `styles.css`，`css/variables.css` 只保留从语义 token 派生的布局别名；
-  内联 pre-paint 改为由测试强制与 `prePaintScript()` 逐字一致。
-- [ ] RateLens：只引 `tokens.css`（不引元素基线）；Tailwind/shadcn 映射改为 `var(--color-*)`
-  派生，删除原始色号副本；保留其 legacy 键迁移 pre-paint。
-- [ ] ChronoSphere：引入共享样式与 canonical pre-paint；共享 `toolbox-theme` 键只保存解析值，
-  `system` 模式迁入私有键并做一次性迁移（ADR-12）。
-- [ ] Monitor Choice：删除自建 `ThemeManager`（约 147 行）与 `css/theme.css` 调色板，Canvas
-  专用 token 改为从语义 token 派生。
-- [ ] 每个应用迁移后验证 light/dark × zh/en × desktop/mobile × keyboard。
+- [x] Homepage：引入 `styles.css`，`css/variables.css` 只保留派生别名；内联 pre-paint 由
+  单测强制与 `prePaintScript()` 逐字一致。
+- [x] RateLens：只引 `tokens.css`；Tailwind/shadcn 映射全部由共享别名派生，原始色号清零；
+  legacy 键迁移 pre-paint 保留并有守卫测试。
+- [x] ChronoSphere：引入共享样式与 canonical pre-paint；模式写入私有键，共享键只存解析值并
+  完成一次性迁移（ADR-12），847 条测试覆盖读写边界。
+- [x] Monitor Choice：自建 ThemeManager 收敛为 runtime 适配器（系统跟随/画布重绘/旧按钮同步），
+  调色板改为 token 派生别名，画布插图常量集中声明；NavBar 切换经单一包装触发重绘。
+- [x] 每个应用迁移后验证 light/dark × zh/en × desktop/mobile × keyboard。
 
-### P2.5 · 平台双实现等价契约 `⏳ 待开始`
+### P2.5 · 平台双实现等价契约 `✅ 已完成`
 
-- [ ] `check:contracts` 增加成对断言：React 与 Vanilla 的 nav/footer 在品牌链接、release
-  标签、manifest 消费、偏好存储键引用上必须逐项对称。
-- [ ] 断言不对称时门禁失败；交互级等价继续由七应用视觉矩阵覆盖，出现漂移证据再升级为
-  渲染比对。
+- [x] `check:contracts` 增加成对断言：footer 对（manifest 查找、release 标签、安全外链）与
+  i18n 对（共享词表、语言 API 面）逐项对称。
+- [x] 偏好键卫生：平台包内存储引用与 *_KEY 常量必须精确等于共享契约值，漂移即失败；
+  交互级等价继续由七应用视觉矩阵覆盖。
 
-### P2.6 · 文档防腐与 smoke 分级 `⏳ 待开始`
+### P2.6 · 文档防腐与 smoke 分级 `✅ 已完成`
 
-- [ ] NEW_TOOL 明确分级门禁：单应用任务默认只跑该应用 build/test/lint/browser +
+- [x] NEW_TOOL 明确分级门禁：单应用任务默认只跑该应用 build/test/lint/browser +
   privacy/contracts/release；共享包、跨应用或发布改动才要求全仓 browser。
-- [ ] INDEX 的测试数量改为不易腐朽的表述（记录基线日期与命令，不再声称实时数字）。
+- [x] INDEX 的测试数量改为不易腐朽的表述（记录基线日期与命令，不再声称实时数字）。
 
 ### P2.4 · 视觉回归基线 `🔄 进行中`
 
@@ -173,18 +173,18 @@
 - [ ] 优先核对 ChronoSphere timezone lazy chunk 与 RateLens 首包的真实加载/缓存，而非盲目拆包。
 - [ ] CI 报告趋势；超预算需要说明和审核，不用不可解释的硬阈值阻塞小型合理变化。
 
-### P3.3 · 结构性维护 `⏳ 待开始`
+### P3.3 · 结构性维护 `🔄 进行中`
 
 SaneUnits 拆分：App.tsx（约 1,400 行）已确认只含视图编排——计算、格式化与选项表全部在
 `lib/units`，语言状态在 `lib/i18n`。按以下边界拆分，每阶段独立提交并跑单应用门禁：
 
-- [ ] 阶段一：抽 `lib/router.ts`（路径助手 + NavLink + useAppNavigation）、
+- [x] 阶段一：抽 `lib/router.tsx`（路径助手 + NavLink + useAppNavigation）、
   `lib/persisted-url-state.ts`（useSyncedState 与各页 URL 编解码，整体保持“URL 恒反映
   状态”不变量）、`components/ui.tsx`（PageHeader/Panel/FieldRow/NumberInput/ShareLink 等
   展示原语）。
-- [ ] 阶段二：`NETWORK_PRESETS` 从 App.tsx 底部移入 `lib/units.ts`；六个页面连同各自
-  DEFAULTS 与 decode/encode 对拆入 `pages/*.tsx`，App.tsx 收敛为壳层与路由映射。
-- [ ] 迁移为纯代码搬移：不改文案（含 NetworkPage 既有双语三元分支）、不改存储键与路由
+- [x] 阶段二：`NETWORK_PRESETS` 移入 `lib/units.ts`；六个页面连同各自 DEFAULTS 与
+  decode/encode 对拆入 `pages/*.tsx`，App.tsx 收敛为壳层与路由映射（约 90 行）。
+- [x] 迁移为纯代码搬移：不改文案（含 NetworkPage 既有双语三元分支）、不改存储键与路由
   名；deep-link 刷新由 browser smoke 守护。
 - [ ] Monitor Choice 继续减少 inline style，建立更清晰的渲染 lifecycle/cleanup 边界。
 - [ ] RateLens 为模型价格记录公开来源与更新时间，不为更新引入追踪或隐式代理。

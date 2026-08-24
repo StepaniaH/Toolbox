@@ -216,8 +216,11 @@ pnpm --filter=@toolbox/<tool-id> lint
 pnpm --filter=@toolbox/<tool-id> test:browser
 ```
 
-注意：这是开发优化，不是合并豁免。工具完成、修改共享包或准备发布审核时仍要运行全仓门禁。
-Vite dev server 只按访问路径转换所需模块；production preview 前只构建目标 app 即可。
+注意：这是开发优化，不是合并豁免。门禁按变更面分级——只改单个应用时，默认跑该应用的
+`build`/`test`/`lint`/`test:browser` 加根级 `check:privacy`/`check:contracts`/
+`check:release`；触及共享包、多个应用或准备发布审核时，才要求全仓 `pnpm build && pnpm
+test && pnpm lint && pnpm test:browser`。Vite dev server 只按访问路径转换所需模块；
+production preview 前只构建目标 app 即可。
 
 ## 10. 完成门禁
 

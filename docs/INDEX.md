@@ -28,7 +28,7 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | FormTran | `/image-converter/` | React + TypeScript + Vite + Plain CSS | 浏览器本地文件、图片、表格、PDF 与 ZIP 工作台 | 63 |
 | CryptoLab | `/crypto-lab/` | React + TypeScript + Vite + Tailwind | 本地密码学、公钥二维码安全分享与学习工具 | 119 |
 
-测试数量只用于说明覆盖现状，不作为质量本身的替代指标。7 个应用当前有 1,132 条测试，另有 5 条 app manifest 和 11 条 theme 契约测试；完整工作区共运行 1,148 条。CryptoLab 已在 `dev` 晋级 stable，进入开发候选的首页与全局导航；当前生产仍保持 `main` 上的 `v0.2.3`。`v0.1` 发布时为 910 条。
+测试规模以「质量基线」小节记录的日期与命令为准，实时数字以 `pnpm test` 输出为准，本文不逐版本维护计数。CryptoLab 已晋级 stable 并进入首页与全局导航；当前生产仍保持 `main` 上的 `v0.2.3`。
 
 ## 三、仓库结构
 
@@ -85,7 +85,8 @@ Toolbox/
 
 ## 五、质量基线
 
-2026-07-15 在当前 `dev` 集成候选完成基线验证：
+2026-08-24 在本地 `dev` 完成基线验证（privacy / contracts / release / build / test /
+lint / 七应用 browser smoke 全部通过）：
 
 | 检查 | 结果 | 备注 |
 |------|------|------|
