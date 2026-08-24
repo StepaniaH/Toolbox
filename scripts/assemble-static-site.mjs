@@ -349,7 +349,9 @@ export function assembleStaticSite(outputPath) {
     for (const route of STATIC_ROUTE_FALLBACKS[app.id] ?? []) {
       const routeDirectory = join(destination, route)
       mkdirSync(routeDirectory, { recursive: true })
-      cpSync(join(source, 'index.html'), join(routeDirectory, 'index.html'), {
+      // Deep routes serve the same assembled document as the app root so
+      // favicons and service-worker registration behave identically.
+      cpSync(indexHtml, join(routeDirectory, 'index.html'), {
         errorOnExist: true,
         force: false,
       })
