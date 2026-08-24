@@ -5,6 +5,10 @@ import "@toolbox/nav/nav-bar.css";
 import { useTranslation } from "@toolbox/i18n/react";
 import { getLang, onChange, setLang } from "@toolbox/i18n/core";
 import {
+  COVERED_LANGUAGES,
+  languageDisplayName,
+} from "@toolbox/i18n/registry";
+import {
   clearHomepagePrefs,
   readHomepagePrefs,
   writeHomepagePrefs,
@@ -124,22 +128,31 @@ function AppearanceSection() {
           </div>
         </div>
       ) : null}
-      <div className="settings-row" role="group" aria-label={t("appearance.language")}>
+      <div
+        className="settings-row settings-row-top"
+        role="group"
+        aria-label={t("appearance.language")}
+      >
         <span className="settings-row-label">{t("appearance.language")}</span>
-        <div className="segmented">
-          {([["zh", "简体中文"], ["en", "English"]] as const).map(([code, native]) => (
-            <button
-              key={code}
-              type="button"
-              lang={code === "zh" ? "zh-CN" : "en"}
-              className={lang === code ? "segment is-active" : "segment"}
-              aria-pressed={lang === code}
-              onClick={() => setLang(code)}
-            >
-              {native}
-            </button>
+        <ul className="language-list">
+          {COVERED_LANGUAGES.map((entry) => (
+            <li key={entry.code}>
+              <button
+                type="button"
+                lang={entry.code === "zh" ? "zh-CN" : entry.code}
+                className={lang === entry.code ? "language-option is-active" : "language-option"}
+                aria-pressed={lang === entry.code}
+                onClick={() => setLang(entry.code as Lang)}
+              >
+                <span className="language-native">{entry.nativeName}</span>
+                <span className="language-display" aria-hidden="true">
+                  {languageDisplayName(entry.code, lang)}
+                </span>
+                {lang === entry.code ? <span className="language-check" aria-hidden="true">✓</span> : null}
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </Section>
   );

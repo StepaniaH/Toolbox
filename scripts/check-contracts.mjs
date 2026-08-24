@@ -21,6 +21,21 @@ function fail(category, file, message) {
 
 const rootPackage = JSON.parse(read('package.json'))
 {
+  const i18nPackage = JSON.parse(read('packages/i18n/package.json'))
+  const declaredLang = i18nPackage.contractVersion
+  const constantLang = Number(
+    /LANG_REGISTRY_VERSION\s*=\s*(\d+)/.exec(read('packages/i18n/registry.ts'))?.[1],
+  )
+  if (!Number.isInteger(constantLang) || declaredLang !== constantLang) {
+    fail(
+      'platform-version-contract',
+      'packages/i18n/package.json',
+      `contractVersion ${declaredLang} must equal LANG_REGISTRY_VERSION ${constantLang}`,
+    )
+  }
+}
+
+{
   const prefsPackage = JSON.parse(read('packages/prefs/package.json'))
   const declaredPrefs = prefsPackage.contractVersion
   const constantPrefs = Number(
