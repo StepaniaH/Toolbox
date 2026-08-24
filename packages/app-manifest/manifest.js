@@ -227,7 +227,7 @@ export const TOOLBOX_APPS = Object.freeze([
       },
       badges: ['React', 'TypeScript'],
     },
-    status: 'hidden',
+    status: 'stable',
   }),
 ])
 

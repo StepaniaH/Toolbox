@@ -283,14 +283,16 @@ export function NavBar({
         {/* Right: actions */}
         <div className="toolbox-nav-actions">
           {rightSlot}
-          <a
-            className="toolbox-nav-icon-btn toolbox-nav-settings"
-            href={getAppById("settings")!.path}
-            aria-label={preferEn ? "Settings" : "设置"}
-            title={preferEn ? "Settings" : "设置"}
-          >
-            <GearIcon />
-          </a>
+          {getAppById("settings")?.status === "stable" && (
+            <a
+              className="toolbox-nav-icon-btn toolbox-nav-settings"
+              href={getAppById("settings")!.path}
+              aria-label={preferEn ? "Settings" : "设置"}
+              title={preferEn ? "Settings" : "设置"}
+            >
+              <GearIcon />
+            </a>
+          )}
           <div
             className={
               languageOpen
