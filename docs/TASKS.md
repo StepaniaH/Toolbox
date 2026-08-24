@@ -1,6 +1,6 @@
 # Toolbox — 当前任务与进度
 
-> 最后更新：2026-07-15
+> 最后更新：2026-08-24
 >
 > 这里只保留当前与下一阶段工作。已发布结果见 [CHANGELOG.md](../CHANGELOG.md)，架构理由见
 > [PLAN.md](./PLAN.md)。不保存过程日志、聊天摘要、真实服务器或个人环境信息。
@@ -9,12 +9,12 @@
 
 ## 工作流规则
 
-- `main` 是已部署稳定线；`dev` 是维护者审核集成线。
-- 新工具只在从干净 `dev` 创建的 `newdev/<tool-id>` 实现，开发 Agent 不得修改或合并
-  `dev`/`main`。完整流程见 [NEW_TOOL.md](./NEW_TOOL.md)。
-- 维护者只描述自然语言需求；开发 Agent 自动生成 Brief 和安全默认值，在本地候选分支完成
-  聚焦提交后停止，默认不 push。审核/合并/push `dev` 分别需要明确授权。
-- 共享包、跨应用与部署变更必须跑 privacy/contracts/build/test/lint/browser 全仓门禁。
+- `main` 是已发布稳定线；本地 `dev` 是唯一开发分支，不推送远端；远端只有 `origin/main`。
+- 全部实现以聚焦提交落在 `dev`；对照 `main` 的审核、合并、push、打 tag 是四个互相独立的
+  维护者授权。发布由 `vX.Y.Z` tag 触发 Release 工作流，生产部署仍需手动确认。
+- 维护者只描述自然语言需求；开发 Agent 自动生成 Brief 和安全默认值，写入应用双语 README，
+  完成聚焦提交后停止，不 push、不打 tag。
+- 共享包、跨应用与部署变更必须跑 privacy/contracts/release/build/test/lint/browser 全仓门禁。
 - 完成项的用户可见结果在发布时进入 CHANGELOG；本文件不长期保存已结束的实施过程。
 
 ## P0 — 安全与发布
@@ -38,6 +38,17 @@
 - [x] 两个目标只允许从 `main` 手动选择发布，使用 `production` environment 和独立并发保护。
 - [x] 文档只公开正式站点域名；VPS 目标、端口、路径和 Cloudflare 凭据继续使用占位符或 Secrets。
 
+### P0.4 · 分支模型切换与 tag 发布流水线 `🔄 进行中`
+
+- [x] 删除远端 `dev`，远端只保留 `origin/main`；本地 `dev` 成为唯一开发分支。
+- [x] AGENTS / NEW_TOOL / RELEASE / skill 同步单线开发与 tag 发布模型。
+- [ ] 新增 `check:release`：根版本、`TOOLBOX_RELEASE` 与 CHANGELOG 最新小节强制一致，
+  并支持 CI 中校验当前 tag。
+- [ ] 新增 Release 工作流：push `v*` tag 触发全仓门禁，通过后从 CHANGELOG 小节创建
+  GitHub Release。
+- [ ] CI push 触发面收敛到 `main`；生产部署保持从 `main` 手动触发。
+- [ ] 首个 tag 在生产服务器迁移完成后由维护者创建；在此之前不推送任何 tag。
+
 ## P1 — 新工具积木与审核隔离
 
 ### P1.1 · 分支、skill 与交接契约 `✅ 已完成`
@@ -54,16 +65,16 @@
   base/output、storage、网络 allowlist 与双语搜索关键词。
 - [x] 根 `pnpm test:browser` 自动发现带 browser suite 的 workspace，不维护硬编码 app 名单。
 
-### P1.2 · 可运行生成器 `⏳ 待开始`
+### P1.2 · 可运行生成器 `🔄 进行中`
 
-- [ ] 提供 Vanilla TypeScript 与 React TypeScript 两种最小变体。
-- [ ] 自动创建本地 `newdev/<tool-id>`、package/base、hidden manifest、双语 README、handoff 与测试骨架；默认不 push。
+- [ ] 提供 Vanilla TypeScript 与 React TypeScript 两种最小变体（`scripts/new-app.mjs`）。
+- [ ] 自动创建 package/base、hidden manifest 注册、双语 README（含 Brief）与测试骨架。
 - [ ] 生成器自身有 dry-run、冲突恢复、build/test/lint/browser 测试；不是无人维护的复制目录。
-- [ ] 先在一个实验工具分支演练，再宣布为正式入口。
+- [ ] 先用一个真实脚手架演练 build/test 全链路后再宣布为正式入口。
 
-### P1.3 · 新工具展示单一事实源 `⏳ 待开始`
+### P1.3 · 新工具展示单一事实源 `🔄 进行中`
 
-- [ ] 将 Homepage 的 `CARD_PRESENTATION` 字段收敛进 manifest 或稳定展示扩展契约。
+- [ ] 将 Homepage 的 `CARD_PRESENTATION` 字段收敛进 manifest 展示契约。
 - [ ] 新 stable 工具不再需要手改首页和导航中的第二份 id/path 映射。
 - [ ] 保持业务长文案归 app 所有，避免 manifest 演变成页面内容仓库。
 
@@ -114,9 +125,17 @@
 
 ### P2.3 · 语义 token 收敛 `🔄 进行中`
 
-- [x] 七个应用直接消费 `@toolbox/theme` runtime；SaneUnits 已完成代表性语义 token 迁移。
-- [ ] 逐个迁移 Homepage、Monitor Choice、ChronoSphere、RateLens 的 app-specific token 映射。
-- [ ] 删除各应用重复主题解析和 pre-paint 片段，只保留必要兼容 fallback。
+- [x] 七个应用直接消费 `@toolbox/theme` runtime；SaneUnits、FormTran、CryptoLab 已只使用语义 token。
+- [ ] Homepage：引入 `styles.css`，删除 `css/variables.css` 调色板副本与 index.html 内联 pre-paint 副本。
+- [ ] Monitor Choice：删除自建 `ThemeManager`（约 147 行）与 `css/theme.css` 调色板，Canvas 专用 token 改为从语义 token 派生。
+- [ ] ChronoSphere：引入共享样式与 pre-paint；停止把 `system` 写入共享 `toolbox-theme` 键（契约值域只有 `dark|light`）。
+- [ ] RateLens：在保持 Tailwind 基础层的前提下，将调色板与 shadcn 映射改为从语义 token 派生；pre-paint 与契约对齐。
+- [ ] 每个应用迁移后验证 light/dark × zh/en × desktop/mobile × keyboard。
+
+### P2.5 · 平台双实现等价契约 `⏳ 待开始`
+
+- [ ] 为 `@toolbox/nav` 与 `@toolbox/i18n` 的 React/Vanilla 入口建立行为等价断言（ADR-11）。
+- [ ] 契约版本一起升级；一侧变更未同步另一侧时 `check:contracts` 失败。
 
 ### P2.4 · 视觉回归基线 `🔄 进行中`
 

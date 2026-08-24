@@ -11,8 +11,8 @@ Toolbox 要成为一个可以长期维护、持续加入新工具的隐私优先
 同一仓库里的页面。
 
 理想状态下，维护者只需要描述“想解决什么问题”。实现 Agent 自动继承分支隔离、主题、
-语言、导航、图标、文档、隐私和测试；审核 Agent 可以独立判断候选质量，再把它安全地纳入
-`dev`。用户则始终获得快速、清楚、一致、无需账号且尽量离线可用的工具。
+语言、导航、图标、文档、隐私和测试；发布审核对照 `main` 独立进行，由维护者控制合并、
+推送与 tag。用户则始终获得快速、清楚、一致、无需账号且尽量离线可用的工具。
 
 所有路线都必须同时守住四个不变量：
 
@@ -25,20 +25,17 @@ Toolbox 要成为一个可以长期维护、持续加入新工具的隐私优先
 
 ```text
 自然语言产品需求
-  ↓ develop-toolbox-tool
-本地 newdev/<tool-id> 候选
-  ├─ 独立业务代码、README、handoff、测试与 build output
+  ↓ develop-toolbox-tool / scripts/new-app.mjs
+本地 dev 聚焦提交
+  ├─ 独立业务代码、双语 README（含 Brief）、测试与 build output
   ├─ theme / nav / i18n / manifest 稳定契约
-  └─ privacy / contracts / unit / browser 自动门禁
-  ↓ 明确授权后的独立审核
-本地 dev 集成
-  ├─ 删除临时 handoff
-  ├─ 更新长期文档与 release note
-  └─ 全仓回归后按要求 push dev
-  ↓ 维护者明确晋级
-main 稳定线
-  ↓ 再次手动确认
-生产部署
+  └─ privacy / contracts / release / unit / browser 自动门禁
+  ↓ 维护者审核 main...dev 并明确授权
+main 稳定线（merge commit）
+  ↓ 授权后 push origin/main，CI 全绿
+vX.Y.Z tag（版本准备提交保证三处版本一致）
+  ├─ Release 工作流完整门禁并生成 GitHub Release
+  └─ 手动确认后生产部署
 ```
 
 ### 应用边界
@@ -71,8 +68,9 @@ main 稳定线
 - theme/nav/i18n/manifest 已同时覆盖 React 与 Vanilla 工具。
 - 共享导航、双语关键词搜索、canonical icon、页脚和偏好状态已有生产浏览器门禁。
 - privacy/contracts 能检查应用隔离、base/output、受控依赖、storage、网络 allowlist 和脚本面。
-- `main`、`dev`、本地 `newdev/*` 与手动生产部署的权限边界已经明确。
-- 新工具 skill 已能从自然语言需求生成内部 Brief，并默认停在本地候选分支。
+- `main`、本地 `dev` 与手动生产部署的权限边界已经明确；远端只保留 `origin/main`，
+  发布由 `vX.Y.Z` tag 记录。
+- 新工具 skill 已能从自然语言需求生成内部 Brief，并默认停在本地 `dev`。
 
 仍未完全成立的“积木化”：
 
@@ -91,12 +89,12 @@ main 稳定线
 
 目标：维护者只描述需求，Agent 完成剩余工程约束。
 
-- 先用一个真实新工具验证自然语言 → 本地候选 → 审核 → dev 的完整闭环。
-- 再提炼可运行生成器，提供 Vanilla TypeScript 与 React TypeScript 两个最小变体。
-- 生成器负责 branch、package/base、hidden manifest、双语 README、handoff、测试和 preview，
-  并具备 dry-run、冲突保护和自测。
-- 将 Homepage 卡片展示字段收敛进 manifest 或明确的展示扩展契约，消除最后一份工具目录映射。
-- 保持候选分支默认本地；单机工作流不为“像团队协作”而引入无意义远端分支。
+- 可运行生成器 `scripts/new-app.mjs` 是新工具的正式入口，提供 Vanilla TypeScript 与
+  React TypeScript 两个最小变体。
+- 生成器负责 package/base、hidden manifest 注册、双语 README（含 Brief）、测试骨架与
+  browser smoke，并具备 dry-run、冲突保护和自测；分支操作仍由维护者流程控制。
+- 将 Homepage 卡片展示字段收敛进 manifest 展示契约，消除最后一份工具目录映射。
+- 开发全部发生在本地 `dev`；不为“像团队协作”而引入无意义远端分支。
 
 ### 方向 B：稳定而克制的平台能力
 
@@ -142,7 +140,10 @@ main 稳定线
 
 目标：单人项目也拥有清楚、低风险、可恢复的发布秩序。
 
-- 保持本地候选 → dev 集成 → 远端 CI → main 晋级 → 手动生产部署的多层确认。
+- 保持本地 dev 聚焦提交 → 维护者审核 → main 合并 → push 触发 CI → tag 发布 → 手动生产
+  部署的多层确认。
+- 版本事实源唯一：根 `package.json`、`TOOLBOX_RELEASE` 与 CHANGELOG 由 `check:release`
+  强制一致，tag 与版本不符时 Release 工作流失败。
 - 建立依赖许可证与高危漏洞检查，同时避免向第三方上传完整环境信息。
 - 为每次 release 记录版本、受影响 app、验证结果与可回滚 commit。
 - 统一 favicon、错误页和部署产物清单；长期考虑可复现构建与静态资产完整性。
@@ -174,10 +175,10 @@ main 稳定线
 
 | 视野 | 当前重点 | 进入条件 |
 |---|---|---|
-| Now | 实战验证新工具本地闭环；生成器前置设计；性能/截图基线；token 收敛 | 已有明确问题和可验证结果 |
-| Next | Homepage 单一展示事实源；平台版本策略；统一错误/离线体验；依赖安全 | Now 的契约稳定且重复成本出现 |
+| Now | 语义 token 收敛；性能/截图基线；SaneUnits 结构拆分 | 已有明确问题和可验证结果 |
+| Next | 平台版本策略；统一错误/离线体验；依赖安全；PWA 离线评估 | Now 的契约稳定且重复成本出现 |
 | Later | 更强工具分类与发现；可信数据更新流水线；共享 UI primitives | 工具数量或重复场景提供真实证据 |
-| Explore | PWA/离线缓存、多语言扩展、收藏/最近使用、更复杂本地搜索 | 不牺牲隐私、性能和维护成本 |
+| Explore | 多语言扩展、收藏/最近使用、更复杂本地搜索 | 不牺牲隐私、性能和维护成本 |
 
 “Later/Explore”不是承诺。新的脑洞可以先进入 PLAN 的方向或候选池，只有确认价值、边界和
 验证方式后才进入 TASKS。
@@ -246,10 +247,27 @@ storage 和全局 CSS。
 
 React、Vite、Vitest、TypeScript 等版本由根 workspace 管理；升级必须逐应用验证并能回滚。
 
-### ADR-8：新工具候选默认只在本地
+### ADR-8：新工具候选默认只在本地（已被 ADR-9 取代）
 
-单机开发不默认 push `newdev/*`。实现 Agent 在本地提交并交接；审核模型收到明确授权后合入
-本地 `dev`，全仓验证后才按要求 push `dev`。这减少远端噪音，同时保留审核隔离。
+原方案为每个新工具维护本地 `newdev/<tool-id>` 候选分支。单机维护下分支往返的审核成本
+高于其隔离收益，已由 ADR-9 的单线模型取代。
+
+### ADR-9：单一本地开发线
+
+`dev` 是唯一开发分支，只存在于本机，不推送远端。全部实现以聚焦提交落在线上；对照
+`main` 的审核、合并、推送与打 tag 是四个互相独立的维护者授权。远端只保留 `origin/main`。
+
+### ADR-10：tag 是发布事实源
+
+发布以 `main` 上的 `vX.Y.Z` annotated tag 记录。push tag 触发 Release 工作流重跑完整
+门禁并从 CHANGELOG 生成 GitHub Release；生产部署仍需从 `main` 手动触发。回滚通过
+revert commit 加新的 patch tag 完成，不改写历史、不移动已有 tag。
+
+### ADR-11：React 与 Vanilla 平台双实现视为一个版本化契约
+
+`@toolbox/nav`、`@toolbox/i18n`、`@toolbox/theme` 同时提供 React 与 Vanilla 入口是长期
+状态，不是迁移中间态。两套 API 必须行为等价：一侧变更必须同步另一侧并有等价断言，
+契约版本一起升级；不以“代码只剩一份”为目标。
 
 ## 八、平台成熟的完成定义
 
