@@ -81,7 +81,7 @@ describe('useTheme', () => {
   })
 
   it('consumes the shared v1 theme contract', () => {
-    expect(THEME_CONTRACT_VERSION).toBe(1)
+    expect(THEME_CONTRACT_VERSION).toBe(2)
     expect(HOOK_THEME_STORAGE_KEY).toBe(THEME_STORAGE_KEY)
     expect(THEME_ATTRIBUTE).toBe('data-theme')
     expect(DEFAULT_THEME).toBe('dark')

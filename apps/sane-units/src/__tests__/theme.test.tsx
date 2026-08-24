@@ -38,7 +38,7 @@ describe("SaneUnits shared theme storage", () => {
   });
 
   it("consumes the shared v1 theme contract", () => {
-    expect(THEME_CONTRACT_VERSION).toBe(1);
+    expect(THEME_CONTRACT_VERSION).toBe(2);
     expect(THEME_STORAGE_KEY).toBe(CONTRACT_THEME_STORAGE_KEY);
     expect(THEME_ATTRIBUTE).toBe("data-theme");
   });

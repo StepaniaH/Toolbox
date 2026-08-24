@@ -165,7 +165,7 @@ describe('getSystemTheme — 系统主题解析', () => {
 
 describe('storage key stability', () => {
   it('consumes the shared v1 theme contract without changing legacy fallback', () => {
-    expect(THEME_CONTRACT_VERSION).toBe(1);
+    expect(THEME_CONTRACT_VERSION).toBe(2);
     expect(THEME_STORAGE_KEY).toBe(CONTRACT_THEME_STORAGE_KEY);
     expect(DEFAULT_THEME).toBe('dark');
     expect(THEME_ATTRIBUTE).toBe('data-theme');
