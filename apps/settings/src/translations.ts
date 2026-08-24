@@ -44,4 +44,6 @@ const en = {
   "homepage.saved": "Saved",
 };
 
-export const translations = { zh, en };
+import zhHant from "./translations.zh-hant.generated.json" with { type: "json" };
+
+export const translations = { zh, "zh-Hant": zhHant, en };

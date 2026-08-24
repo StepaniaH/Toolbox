@@ -14,7 +14,7 @@
 
 const STORAGE_KEY = "toolbox-lang";
 
-export type Lang = "zh" | "en";
+export type Lang = "zh" | "zh-Hant" | "en";
 
 /** Nested translation map: leaves are strings, branches are nested maps. */
 export type Translations = { [key: string]: string | Translations };
@@ -25,9 +25,15 @@ export type TranslateFn = (key: string, params?: TranslateParams) => string;
 
 const listeners = new Set<(lang: Lang) => void>();
 
+const DOCUMENT_LANGS: Record<Lang, string> = {
+  zh: "zh-CN",
+  "zh-Hant": "zh-TW",
+  en: "en",
+};
+
 function applyDocumentLang(lang: Lang): void {
   if (typeof document !== "undefined") {
-    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+    document.documentElement.lang = DOCUMENT_LANGS[lang];
   }
 }
 
@@ -35,7 +41,7 @@ function detectInitialLang(): Lang {
   if (typeof window === "undefined") return "zh";
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "zh" || stored === "en") return stored;
+    if (stored === "zh" || stored === "zh-Hant" || stored === "en") return stored;
   } catch {
     /* localStorage unavailable (private mode / SSR) — fall through */
   }
@@ -49,15 +55,15 @@ function detectInitialLang(): Lang {
 let currentLang: Lang = detectInitialLang();
 applyDocumentLang(currentLang);
 
-/** Current active language ("zh" | "en"). */
+/** Current active language ("zh" | "zh-Hant" | "en"). */
 export function getLang(): Lang {
   return currentLang;
 }
 
 /** Persist + switch the active language, then notify every onChange listener. */
 export function setLang(lang: Lang): Lang {
-  if (lang !== "zh" && lang !== "en") {
-    throw new Error(`setLang: expected "zh" or "en", got ${String(lang)}`);
+  if (lang !== "zh" && lang !== "zh-Hant" && lang !== "en") {
+    throw new Error(`setLang: expected "zh", "zh-Hant" or "en", got ${String(lang)}`);
   }
   applyDocumentLang(lang);
   if (lang === currentLang) return lang;

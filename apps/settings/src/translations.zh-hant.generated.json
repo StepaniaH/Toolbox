@@ -1,0 +1,22 @@
+{
+  "brand.title": "設置",
+  "brand.lead": "外觀與首頁個性化，全部只保存在本機瀏覽器。",
+  "appearance.title": "外觀",
+  "appearance.description": "明暗主題與界面語言，與全局導航按鈕共享同一偏好。",
+  "appearance.theme": "主題",
+  "appearance.theme_dark": "深色",
+  "appearance.theme_light": "淺色",
+  "appearance.language": "語言",
+  "appearance.family": "主題風格",
+  "homepage.title": "首頁展示",
+  "homepage.description": "控制首頁工具卡片的顯示、數量與順序。",
+  "homepage.hint": "更改立即生效並寫入本機，可隨時恢復默認。",
+  "homepage.moveUp": "上移",
+  "homepage.moveDown": "下移",
+  "homepage.hide": "隱藏",
+  "homepage.show": "顯示",
+  "homepage.limit": "最多展示",
+  "homepage.limitAll": "全部",
+  "homepage.reset": "恢復默認",
+  "homepage.saved": "已保存"
+}

@@ -23,7 +23,7 @@ export type LanguageRegistryEntry = {
 export const LANGUAGE_REGISTRY: readonly LanguageRegistryEntry[] = Object.freeze([
   { code: 'en', nativeName: 'English', zhName: '英语', covered: true },
   { code: 'zh', nativeName: '简体中文', zhName: '简体中文', covered: true },
-  { code: 'zh-Hant', nativeName: '繁體中文', zhName: '繁體中文', covered: false },
+  { code: 'zh-Hant', nativeName: '繁體中文', zhName: '繁體中文', covered: true },
 ])
 
 export const COVERED_LANGUAGES: readonly LanguageRegistryEntry[] = Object.freeze(

@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "home": "首頁",
+    "theme": "主題",
+    "lang": "語言",
+    "about": "關於",
+    "menu": "菜單"
+  },
+  "action": {
+    "toggleTheme": "切換明暗主題",
+    "toggleLang": "切換語言",
+    "copy": "複製",
+    "copied": "已複製",
+    "share": "分享",
+    "cancel": "取消",
+    "confirm": "確定"
+  },
+  "common": {
+    "greeting": "你好，{{name}}！",
+    "loading": "加載中…",
+    "error": "出錯了",
+    "notFound": "未找到"
+  }
+}

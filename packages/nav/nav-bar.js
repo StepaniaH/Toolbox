@@ -34,9 +34,11 @@ import { getAppById, getStableApps } from "@toolbox/app-manifest";
   var LANG_KEY = "toolbox-lang";
   var LANG_EVENT = "toolbox-lang-change";
   var ZH = "zh";
+  var ZH_HANT = "zh-Hant";
   var EN = "en";
   var LANGUAGES = [
     { code: ZH, label: "中文（简体）", lang: "zh-CN" },
+    { code: ZH_HANT, label: "繁體中文", lang: "zh-TW" },
     { code: EN, label: "English", lang: "en" }
   ];
 
@@ -45,7 +47,7 @@ import { getAppById, getStableApps } from "@toolbox/app-manifest";
       var saved = global.localStorage
         ? global.localStorage.getItem(LANG_KEY)
         : null;
-      if (saved === ZH || saved === EN) return saved === ZH;
+      if (saved === ZH || saved === ZH_HANT || saved === EN) return saved === ZH;
     } catch {
       /* ignore */
     }
@@ -62,7 +64,7 @@ import { getAppById, getStableApps } from "@toolbox/app-manifest";
   function currentLang() {
     if (global.ToolboxI18n && typeof global.ToolboxI18n.getLang === "function") {
       var lang = global.ToolboxI18n.getLang();
-      if (lang === ZH || lang === EN) return lang;
+      if (lang === ZH || lang === ZH_HANT || lang === EN) return lang;
     }
     return isZh() ? ZH : EN;
   }
@@ -72,7 +74,7 @@ import { getAppById, getStableApps } from "@toolbox/app-manifest";
   // temporary local fallback: write localStorage and dispatch a custom
   // "toolbox-lang-change" event so other scripts can react.
   function applyLang(lang) {
-    if (lang !== ZH && lang !== EN) return;
+    if (lang !== ZH && lang !== ZH_HANT && lang !== EN) return;
     if (
       global.ToolboxI18n &&
       typeof global.ToolboxI18n.setLang === "function"
@@ -92,16 +94,23 @@ import { getAppById, getStableApps } from "@toolbox/app-manifest";
     }
   }
 
+  function pickLang(zh, zhHant, en) {
+    var lang = currentLang();
+    if (lang === EN) return en;
+    if (lang === ZH_HANT && zhHant !== undefined && zhHant !== null) return zhHant;
+    return zh;
+  }
+
   function labelOf(tool) {
-    return currentLang() === ZH ? tool.label : tool.labelEn;
+    return pickLang(tool.label, tool.labelZhHant, tool.labelEn);
   }
 
   function descOf(tool) {
-    return currentLang() === ZH ? tool.desc : tool.descEn;
+    return pickLang(tool.desc, tool.descZhHant, tool.descEn);
   }
 
   function searchTextOf(tool) {
-    var terms = currentLang() === ZH ? tool.keywords : tool.keywordsEn;
+    var terms = pickLang(tool.keywords, tool.keywordsZhHant, tool.keywordsEn);
     return [labelOf(tool), descOf(tool)].concat(terms).join(" ")
       .normalize("NFKC")
       .toLocaleLowerCase();

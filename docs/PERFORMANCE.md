@@ -7,11 +7,11 @@
 
 | App | JS files | JS raw | JS gzip | CSS raw | CSS gzip | Largest gzip asset |
 |---|---:|---:|---:|---:|---:|---|
-| Toolbox | 3 | 27.6k | 10.8k | 21.1k | 4.8k | index-Brr1IUUB.js (7.3k) |
-| RateLens | 2 | 353.0k | 113.6k | 54.1k | 10.4k | index-DPLWUzrk.js (113.6k) |
-| ChronoSphere | 8 | 630.6k | 202.6k | 36.5k | 7.3k | TimezoneSelect-DL83jzh1.js (122.8k) |
-| Monitor Choice | 2 | 96.4k | 33.3k | 52.8k | 9.1k | index-CoD0Rd5j.js (33.3k) |
-| SaneUnits | 2 | 272.3k | 83.6k | 27.5k | 5.7k | index-BJ-_4G6Z.js (83.6k) |
-| FormTran | 4 | 888.4k | 324.8k | 91.9k | 15.4k | index-5LPZ9UXp.js (177.3k) |
-| CryptoLab | 11 | 451.7k | 153.3k | 40.6k | 8.6k | index-DivwCetT.js (81.1k) |
-| **Total** | | | **983.2k gzip** | | | |
+| Toolbox | 3 | 30.8k | 11.8k | 21.1k | 4.8k | index-DGeDOpJJ.js (8.2k) |
+| RateLens | 2 | 361.0k | 115.8k | 54.1k | 10.4k | index-rHtbI4sn.js (115.8k) |
+| ChronoSphere | 8 | 638.8k | 204.6k | 36.5k | 7.3k | TimezoneSelect-B_s6dAe7.js (122.8k) |
+| Monitor Choice | 2 | 106.0k | 35.6k | 52.8k | 9.1k | index-VmWR1LYD.js (35.6k) |
+| SaneUnits | 2 | 286.1k | 87.1k | 27.5k | 5.7k | index-GFPdvxax.js (87.1k) |
+| FormTran | 4 | 929.7k | 339.9k | 91.9k | 15.4k | index-D65Gg7O4.js (177.3k) |
+| CryptoLab | 11 | 465.5k | 156.8k | 40.6k | 8.6k | index-DeeHff7K.js (84.5k) |
+| **Total** | | | **1012.6k gzip** | | | |

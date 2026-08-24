@@ -8,8 +8,11 @@ import {
   onChange,
   setLang as setCoreLang,
 } from "@toolbox/i18n/core";
+import zhHant from "./zh-hant.generated.json";
 
 const i18n = {
+  "zh-Hant": zhHant,
+
   zh: {
     "site.title": "工具箱",
     "site.tagline": "别人略过的，工具都算上了。",
@@ -69,7 +72,7 @@ function applyTranslations(lang) {
   const toggle = document.getElementById("langToggle");
   if (toggle) toggle.textContent = i18n[lang]["nav.lang"];
   // Update HTML lang attr
-  document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+  document.documentElement.lang = lang === "en" ? "en" : lang === "zh-Hant" ? "zh-TW" : "zh-CN";
 }
 
 export function setLang(lang) {

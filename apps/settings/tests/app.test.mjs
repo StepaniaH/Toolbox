@@ -17,10 +17,16 @@ test('private storage keys stay inside the toolbox.settings namespace', () => {
   assert.match(`toolbox.settings.example`, /^toolbox\.settings\./)
 })
 
-test('settings translations keep zh and en key sets identical', async () => {
+test('settings translations keep zh, zh-Hant and en key sets identical', async () => {
   const { translations } = await import('../src/translations.ts')
-  const zh = Object.keys(translations.zh).sort()
-  const en = Object.keys(translations.en).sort()
-  assert.deepEqual(zh, en)
+  const flatten = (node, prefix = '') =>
+    Object.entries(node).flatMap(([key, value]) =>
+      typeof value === 'object' ? flatten(value, `${prefix}${key}.`) : [`${prefix}${key}`],
+    )
+  const zh = flatten(translations.zh).sort()
+  const zhHant = flatten(translations['zh-Hant']).sort()
+  const en = flatten(translations.en).sort()
+  assert.deepEqual(zhHant, zh)
+  assert.deepEqual(en, zh)
   assert.ok(zh.length >= 15)
 })

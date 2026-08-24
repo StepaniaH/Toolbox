@@ -1,0 +1,178 @@
+{
+  "header": {
+    "subtitle": "AI 模型價格倍率計算器",
+    "toggleTheme": "切換主題",
+    "switchToLight": "切換到淺色",
+    "switchToDark": "切換到深色"
+  },
+  "footer": {
+    "tagline": "零追蹤 · 純前端 · MIT License ·",
+    "disclaimer": "匯率與定價數據僅供參考，以各平臺實際扣費為準"
+  },
+  "glossary": {
+    "title": "名詞解釋",
+    "explanation": "為什麼要算最終使用倍率？—— 平臺顯示的分組倍率會因充值比例（匯率加價）而被放大或縮小，換算成 1:1 等效倍率後才能與官方定價直接對比，判斷是否划算。",
+    "terms": {
+      "rechargeAmount": {
+        "term": "充值金額",
+        "desc": "實際花費的人民幣金額"
+      },
+      "arrivedAmount": {
+        "term": "到賬金額",
+        "desc": "充值後到賬的美元餘額"
+      },
+      "groupRate": {
+        "term": "分組倍率",
+        "desc": "平臺對模型分組設置的計費倍數，越低扣費越少"
+      },
+      "rechargeRatio": {
+        "term": "充值比例",
+        "desc": "充值金額 ÷ 到賬金額，即每 1 美元實際成本"
+      },
+      "officialCostRatio": {
+        "term": "佔官方成本",
+        "desc": "實際成本相對於官網價的百分比"
+      },
+      "inputOutput": {
+        "term": "輸入 / 輸出",
+        "desc": "輸入 = 發給模型的內容，輸出 = 模型回覆，通常輸出更貴"
+      },
+      "cacheWriteRead": {
+        "term": "緩存寫入 / 讀取",
+        "desc": "寫入 = 存儲可複用內容，讀取 = 複用內容，讀取更便宜"
+      },
+      "tokens": {
+        "term": "1M tokens",
+        "desc": "計費用量單位，約一百萬個文本片段"
+      }
+    }
+  },
+  "mode": {
+    "forward": "倍率正算",
+    "reverse": "扣費反推",
+    "ariaLabel": "計算模式"
+  },
+  "steps": {
+    "forward": {
+      "one": "輸入充值金額、到賬金額與分組倍率",
+      "two": "換算充值比例與 1:1 等效倍率",
+      "three": "對比官方成本，查看價格表"
+    },
+    "reverse": {
+      "one": "選擇參照模型，輸入實付價格",
+      "two": "反推真實分組倍率與等效倍率",
+      "three": "判定比官方便宜 / 貴 / 持平"
+    }
+  },
+  "funding": {
+    "recharge": "充值金額",
+    "cnyUnit": "（¥）",
+    "arrived": "到賬金額",
+    "usdUnit": "（$）",
+    "placeholder": "例如 100"
+  },
+  "forwardCalc": {
+    "groupRate": "分組倍率",
+    "placeholder": "例如 1.1",
+    "groupRateHint": "平臺對模型分組設置的計費倍數"
+  },
+  "forwardResult": {
+    "rechargeRatio": "充值比例",
+    "rechargeRatioHint": "每 1 美元實際成本",
+    "equivalentRate": "1:1 等效分組倍率",
+    "equivalentRateHint": "可與官方直接對比",
+    "officialCost": "佔官方成本",
+    "officialCostHint": "越低越划算"
+  },
+  "conclusion": {
+    "title": "結論",
+    "empty": "請填寫充值金額、到賬金額、分組倍率與匯率以查看結論",
+    "currentEquiv": "當前 1:1 等效倍率為",
+    "officialCost": "，佔官方成本",
+    "comma": "，",
+    "period": "。",
+    "tableHint": "價格表展示各模型實付 ¥ 與官方 ¥ 的逐項對比。"
+  },
+  "verdict": {
+    "cheaper": "比官方便宜 {{pct}}%",
+    "expensive": "比官方貴 {{pct}}%",
+    "flat": "與官方持平",
+    "na": "不適用"
+  },
+  "exchange": {
+    "sourceAuto": "實時",
+    "sourceManual": "手動",
+    "rateLabel": "USD/CNY 匯率",
+    "confirm": "確認",
+    "edit": "編輯匯率",
+    "fetchLive": "重新獲取實時匯率",
+    "fetching": "正在獲取實時匯率",
+    "manualPlaceholder": "請填寫當前匯率",
+    "networkDisclosure": "頁面打開後會自動連接第三方公開匯率服務 open.er-api.com，失敗時回退 jsDelivr；只請求 USD/CNY 匯率，不會發送本頁輸入、模型選擇或計算結果。第三方仍會收到 IP、請求頭和訪問時間等常規網絡信息。",
+    "fetchFailed": "自動獲取實時匯率失敗，請填寫當前 USD/CNY 匯率後繼續。"
+  },
+  "preset": {
+    "recharge100arrived100": "充值100到賬100",
+    "recharge100arrived50": "充值100到賬50",
+    "rate06": "倍率 0.6",
+    "rate11": "倍率 1.1"
+  },
+  "provider": {
+    "ariaLabel": "模型分類"
+  },
+  "priceTable": {
+    "title": "價格表 · 實付 ¥ 對比",
+    "fillHint": "填寫上方輸入後顯示實付價",
+    "colModel": "模型",
+    "colContext": "上下文",
+    "colInput": "輸入價",
+    "colCacheWrite": "緩存寫入",
+    "colCacheRead": "緩存讀取",
+    "colOutput": "輸出價",
+    "billedAsInput": "按輸入價計費",
+    "pending": "待輸入",
+    "official": "官方"
+  },
+  "reverse": {
+    "referenceModel": "參照模型",
+    "selectModel": "選擇參照模型",
+    "paidInput": "輸入實付",
+    "paidOutput": "輸出實付",
+    "phInput": "例如 5",
+    "phOutput": "例如 25",
+    "cacheWrite": "緩存寫入實付",
+    "cacheRead": "緩存讀取實付",
+    "phCacheWrite": "例如 6.25",
+    "phCacheRead": "例如 0.5",
+    "cnyPerM": "（¥/1M）",
+    "cacheToggle": "緩存項實付"
+  },
+  "reverseResult": {
+    "paid": "實付",
+    "notApplicable": "該模型無此項，不適用",
+    "realGroupRate": "真實分組倍率",
+    "equivalentRate": "1:1 等效倍率",
+    "officialCost": "佔官方成本",
+    "rateWord": "倍率",
+    "selectModelHint": "請選擇參照模型並填寫實付價格以查看反推結果",
+    "fillPaidHint": "請至少填寫一項實付價格（輸入 / 輸出 / 緩存）",
+    "summary": "彙總",
+    "avgRate": "平均反推倍率",
+    "best": "最划算",
+    "worst": "最貴",
+    "kind": {
+      "input": "輸入",
+      "output": "輸出",
+      "cacheWrite": "緩存寫入",
+      "cacheRead": "緩存讀取"
+    }
+  },
+  "errorBoundary": {
+    "title": "出錯了",
+    "description": "應用遇到意外錯誤。可以嘗試重置後繼續使用。",
+    "reset": "重置"
+  },
+  "app": {
+    "clearPaid": "清空實付輸入"
+  }
+}

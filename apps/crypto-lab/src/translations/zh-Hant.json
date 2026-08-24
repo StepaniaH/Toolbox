@@ -1,0 +1,260 @@
+{
+  "meta": {
+    "title": "CryptoLab · 本地密碼學與安全分享工具",
+    "description": "在瀏覽器本地完成編碼、摘要、加解密、JWT 檢查和公鑰二維碼安全分享"
+  },
+  "header": {
+    "subtitle": "本地密碼學、安全分享與 JWT 工具"
+  },
+  "footer": {
+    "privacy": "純前端計算，數據不會離開瀏覽器。"
+  },
+  "nav": {
+    "share": "安全分享",
+    "encoding": "編碼",
+    "hash": "摘要",
+    "cipher": "對稱加密",
+    "rsa": "RSA",
+    "jwt": "JWT",
+    "kb": "知識庫",
+    "about": "關於",
+    "aria": "工具模塊"
+  },
+  "common": {
+    "input": "輸入",
+    "output": "輸出",
+    "copyInput": "複製輸入",
+    "copyOutput": "複製輸出",
+    "clear": "清空",
+    "swap": "交換輸入輸出",
+    "generate": "生成",
+    "error": "錯誤",
+    "encrypt": "加密",
+    "decrypt": "解密",
+    "sign": "簽名",
+    "verify": "驗證",
+    "loading": "正在載入模塊…"
+  },
+  "share": {
+    "title": "把信息加密給指定收件人",
+    "intro": "收件人先保管私鑰併發送公鑰；發送方用公鑰生成二維碼或數據包。正文由隨機 AES 密鑰加密，AES 密鑰再由 RSA 公鑰封裝。",
+    "factsLabel": "安全分享特性",
+    "factLocal": "全程本地處理",
+    "factPrivate": "私鑰不進入二維碼",
+    "factAuthenticated": "篡改會導致解密失敗",
+    "packet": "CL1 加密數據包",
+    "clear": "清除全部敏感數據",
+    "clearHint": "清除密鑰、消息、數據包、二維碼與解密結果",
+    "keys": {
+      "title": "收件人準備密鑰",
+      "detail": "生成 2048-bit RSA-OAEP 密鑰對。只把公鑰發給發送方；私鑰留在收件人設備或由收件人安全備份。",
+      "generate": "生成收件人密鑰",
+      "generating": "正在生成…",
+      "standard": "RSA-OAEP / SHA-256 · 2048 bit",
+      "public": "收件人公鑰（可以分享）",
+      "publicPlaceholder": "生成或粘貼 PEM 公鑰",
+      "copyPublic": "複製公鑰",
+      "fingerprint": "公鑰 SHA-256 指紋",
+      "fingerprintHint": "請通過另一個可信渠道與收件人核對完整指紋；指紋本身不證明身份。",
+      "copyFingerprint": "複製指紋",
+      "privateSummary": "展開私鑰（僅收件人）",
+      "private": "收件人私鑰（不得分享）",
+      "privatePlaceholder": "生成或粘貼 PEM 私鑰",
+      "copyPrivate": "複製私鑰",
+      "downloadPrivate": "下載私鑰",
+      "privateWarning": "任何拿到私鑰的人都可以解密發給它的數據。CryptoLab 不保存密鑰；請離線保管，丟失後無法恢復。"
+    },
+    "encrypt": {
+      "title": "發送方生成二維碼",
+      "detail": "粘貼收件人公鑰並輸入信息。每次都會生成新的 AES-256-GCM 密鑰與隨機 IV，同一信息的結果也不同。",
+      "message": "要加密的信息",
+      "placeholder": "輸入短消息；二維碼適合憑據、地址、說明等短內容",
+      "bytes": "{{current}} / {{max}} UTF-8 字節",
+      "create": "加密並生成二維碼",
+      "creating": "正在加密…",
+      "qrAlt": "包含 CL1 加密數據包的二維碼",
+      "qrHint": "二維碼只包含密文、隨機 IV 與被公鑰封裝的 AES 密鑰。",
+      "copyPacket": "複製數據包",
+      "downloadQr": "下載二維碼",
+      "downloadPacket": "下載數據包"
+    },
+    "decrypt": {
+      "title": "收件人導入並解密",
+      "detail": "上傳對方發來的二維碼圖片或 .cryptolab 數據包，也可以直接粘貼數據包；只有匹配的私鑰才能通過認證解密。",
+      "import": "上傳二維碼或數據包",
+      "importing": "正在讀取…",
+      "importHint": "PNG / JPEG / WebP / .cryptolab / TXT，最大 8 MB",
+      "packetPlaceholder": "粘貼以 CL1. 開頭的數據包",
+      "privateReminder": "私鑰只在當前頁面內存中使用",
+      "action": "使用私鑰解密",
+      "decrypting": "正在解密…",
+      "output": "解密結果",
+      "copy": "複製解密結果"
+    },
+    "status": {
+      "keysReady": "密鑰已在本地生成。請先安全備份私鑰，再分享公鑰。",
+      "packetReady": "二維碼和數據包已在本地生成。",
+      "imported": "已從文件讀取並驗證 CL1 數據包結構。",
+      "decrypted": "認證解密成功，數據包未檢測到篡改。"
+    },
+    "errors": {
+      "empty-message": "請輸入要加密的信息。",
+      "message-too-large": "信息超過二維碼的 1024 字節安全預算。",
+      "invalid-packet": "這不是有效的 CL1 數據包，或字段長度不符合安全限制。",
+      "packet-too-large": "數據包超過二維碼安全容量。",
+      "encryption-failed": "無法使用這個公鑰加密；請檢查是否為 RSA-OAEP PEM 公鑰。",
+      "decryption-failed": "解密失敗：私鑰不匹配、數據已損壞或被篡改。",
+      "file-too-large": "文件超過 8 MB 導入限制。",
+      "unsupported-file": "只支持 PNG、JPEG、WebP、.cryptolab 和 TXT。",
+      "image-too-large": "圖片像素量超過本地解碼安全預算。",
+      "image-unreadable": "瀏覽器無法讀取這張圖片。",
+      "qr-not-found": "圖片中沒有識別到可用二維碼。",
+      "key-generation": "瀏覽器無法生成 RSA 密鑰對。",
+      "import-failed": "無法讀取這個文件。"
+    }
+  },
+  "about": {
+    "title": "關於 CryptoLab",
+    "intro": "CryptoLab 是面向開發、學習和短消息安全交換的本地工作臺；它強調明確的算法邊界，而不是把編碼、哈希和加密混為一談。",
+    "purpose": {
+      "title": "定位",
+      "body": "提供編碼/進制、摘要/HMAC、對稱加密、RSA、JWT 檢查與 CL1 安全分享。知識庫解釋每類工具能做什麼、不能做什麼。"
+    },
+    "privacy": {
+      "title": "隱私",
+      "body": "消息、密鑰、令牌、二維碼和文件只存在於當前瀏覽器內存；沒有賬號、後端、遙測、廣告、Cookie、遠端字體或業務網絡請求。刷新頁面會清除內容。"
+    },
+    "security": {
+      "title": "安全模型",
+      "body": "安全分享使用 RSA-OAEP/SHA-256 封裝隨機 AES-256-GCM 密鑰，固定上下文作為附加認證數據。CL1 數據包有嚴格版本、長度和格式校驗；私鑰不會進入二維碼或 URL。"
+    },
+    "limits": {
+      "title": "限制",
+      "body": "二維碼消息最多 1024 個 UTF-8 字節；不提供身份認證、密鑰託管、撤銷、前向保密或受感染設備防護。AES-CBC、裸 ChaCha20、MD5 與 SHA-1 僅用於兼容和學習。"
+    },
+    "disclaimer": "請勿把實驗工具當作密鑰管理系統。高價值或長期密鑰應使用經過審計的專用硬件、密碼管理器或組織安全流程。"
+  },
+  "encoding": {
+    "kind": "類型",
+    "url": "URL 編碼",
+    "urlComponent": "URL Component",
+    "html": "HTML 實體",
+    "radix": "進制轉換",
+    "direction": "方向",
+    "delimiter": "分隔符",
+    "prefix": "前綴",
+    "fromBase": "源進制",
+    "toBase": "目標進制",
+    "alphabetPlaceholder": "留空使用默認字母表",
+    "inputPlaceholder": "輸入文本或編碼結果",
+    "encode": "編碼",
+    "decode": "解碼",
+    "invalidInput": "輸入格式無效"
+  },
+  "hash": {
+    "inputPlaceholder": "輸入文本，實時計算所有哈希",
+    "hmac": "HMAC",
+    "hmacKey": "密鑰",
+    "hmacKeyPlaceholder": "輸入 HMAC 密鑰",
+    "hmacAlgo": "HMAC 算法"
+  },
+  "cipher": {
+    "algorithm": "算法",
+    "key": "密鑰",
+    "keyPlaceholder": "64 位十六進制",
+    "iv": "IV / Nonce",
+    "ivPlaceholder": "GCM/ChaCha20: 24 位 · CBC: 32 位",
+    "inputPlaceholder": "輸入明文或密文",
+    "encryptFailed": "加密失敗",
+    "decryptFailed": "解密失敗",
+    "notice": {
+      "aesGcm": "推薦用於新數據。每個密鑰下必須使用唯一隨機 IV；認證標籤會檢測錯誤密鑰或篡改。",
+      "aesCbc": "僅用於兼容。CBC 不驗證完整性；不要把此處輸出用於新協議，除非另有正確的 Encrypt-then-MAC 設計。",
+      "chacha20": "僅用於學習與兼容。這裡是裸 ChaCha20，沒有 Poly1305 認證；密鑰與 Nonce 重用會破壞保密性。"
+    }
+  },
+  "rsa": {
+    "purpose": "密鑰用途",
+    "encryption": "OAEP 加密 / 解密",
+    "signing": "PSS 簽名 / 驗證",
+    "purposeNotice": "切換用途會清除當前密鑰和結果，避免把同一組密鑰材料同時用於加密與簽名。",
+    "keySize": "密鑰長度",
+    "generateEncryptionKeys": "生成 OAEP 密鑰對",
+    "generateSigningKeys": "生成 PSS 密鑰對",
+    "generating": "生成中…",
+    "publicKey": "公鑰 (PEM)",
+    "publicKeyPlaceholder": "粘貼 PEM 公鑰",
+    "privateKey": "私鑰 (PEM)",
+    "privateKeyPlaceholder": "粘貼 PEM 私鑰",
+    "privateSummary": "展開私鑰（僅在需要時）",
+    "encryptionInput": "明文 / Base64 密文",
+    "encryptionPlaceholder": "加密時輸入短明文；解密時輸入 Base64 密文",
+    "signingMessage": "待簽名或驗證的消息",
+    "signingPlaceholder": "輸入需要簽名或驗證的原始消息",
+    "signature": "Base64 簽名",
+    "signaturePlaceholder": "簽名會生成在這裡；驗證時粘貼 Base64 簽名",
+    "oaepBytes": "當前明文 {{current}} 字節；這把密鑰最多 {{max}} 字節",
+    "messageTooLong": "明文為 {{current}} 個 UTF-8 字節，超過這把密鑰的 {{max}} 字節 OAEP 上限。",
+    "pemTooLarge": "PEM 密鑰超過安全輸入限制。",
+    "generateFailed": "生成失敗",
+    "encryptFailed": "加密失敗",
+    "decryptFailed": "解密失敗",
+    "signFailed": "簽名失敗",
+    "verifyFailed": "驗證失敗",
+    "valid": "簽名有效",
+    "invalid": "簽名無效"
+  },
+  "jwt": {
+    "token": "JWT Token",
+    "tokenPlaceholder": "eyJhbGciOiJIUzI1NiIs...",
+    "secret": "Secret",
+    "secretPlaceholder": "輸入密鑰以校驗簽名",
+    "secretHint": "只支持本地驗證 HS256 / HS512；Secret 默認隱藏且不會保存。",
+    "showSecret": "顯示 Secret",
+    "hideSecret": "隱藏 Secret",
+    "header": "Header",
+    "payload": "Payload",
+    "signature": "Signature",
+    "invalidToken": "Token 格式錯誤",
+    "inputTooLarge": "Token 超過 64 KiB 安全輸入限制。",
+    "verification": {
+      "title": "簽名狀態",
+      "unverified": "僅完成解碼，尚未驗證簽名；不要據此信任 Payload。",
+      "verifying": "正在本地驗證簽名…",
+      "valid": "HS 簽名有效，但仍需由業務方檢查 issuer、audience 與授權規則。",
+      "invalid": "簽名無效或算法與 Secret 不匹配。",
+      "unsupported": "已解碼；當前面板不驗證 {{algorithm}} 簽名。"
+    },
+    "time": {
+      "title": "標準時效聲明",
+      "none": "沒有 exp、nbf 或 iat 聲明。",
+      "valid": "當前可接受 · {{date}}",
+      "expired": "已過期 · {{date}}",
+      "not-yet-valid": "尚未生效 · {{date}}",
+      "future-issued": "簽發時間在未來 · {{date}}",
+      "invalid": "不是有效的 NumericDate 數值"
+    }
+  },
+  "kb": {
+    "concept": "編碼 vs 哈希 vs 加密",
+    "hash": "哈希算法對比",
+    "hmac": "HMAC 是什麼",
+    "symmetric": "對稱加密對比",
+    "rsa": "RSA 基礎",
+    "jwt": "JWT 結構與安全",
+    "base": "Base 編碼家族"
+  },
+  "tip": {
+    "md5": "128 位哈希，已被攻破，僅用於校驗/調試，不應用於安全場景。",
+    "sha1": "160 位哈希，已被攻破，新項目應使用 SHA-256 或 SHA-3。",
+    "sha256": "256 位哈希，當前主流，用於 TLS、區塊鏈等。",
+    "sha512": "512 位哈希，在 64 位平臺上性能更優。",
+    "sha3": "Keccak 海綿結構，NIST 2015 標準化，與 SHA-2 結構不同，抗長度擴展攻擊。",
+    "hmac": "用密鑰和哈希函數生成帶密鑰的摘要，同時驗證完整性和身份認證。",
+    "aesGcm": "AES + GCM 模式，提供認證加密（AEAD），自帶認證標籤可檢測篡改，TLS 1.3 使用。",
+    "aesCbc": "AES + CBC 模式，經典分組加密，無內置認證，需配合 HMAC 使用。",
+    "chacha20": "流密碼，純軟件實現可在無硬件加速時快於 AES。此面板僅實現裸 ChaCha20，未包含 Poly1305 認證。",
+    "rsaKeySize": "1024 位已不推薦；2048 位是最低安全基線；4096 位更高餘量但更慢。RSA-OAEP 用於加解密，RSA-PSS 用於簽名，兩種用途應使用不同密鑰對。",
+    "jwt": "JWT = Header.Payload.Signature，Payload 是 Base64Url 編碼而非加密，任何人可讀。簽名只保證完整性，不保證保密。"
+  }
+}

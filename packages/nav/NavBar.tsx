@@ -16,6 +16,7 @@ import { getAppById, getStableApps } from "@toolbox/app-manifest";
 
 const LANGUAGES = [
   { code: "zh", label: "中文（简体）", lang: "zh-CN" },
+  { code: "zh-Hant", label: "繁體中文", lang: "zh-TW" },
   { code: "en", label: "English", lang: "en" },
 ] as const;
 
@@ -67,11 +68,14 @@ export type NavApp = {
   id: string;
   label: string;
   labelEn?: string;
+  labelZhHant?: string;
   href: string;
   desc: string;
   descEn?: string;
+  descZhHant?: string;
   keywords: readonly string[];
   keywordsEn?: readonly string[];
+  keywordsZhHant?: readonly string[];
 };
 
 /** Navigation projection of the canonical public app manifest. */
@@ -79,16 +83,23 @@ export const NAV_APPS: NavApp[] = getStableApps().map((app) => ({
   id: app.navId,
   label: app.navLabel.zh,
   labelEn: app.navLabel.en,
+  labelZhHant: app.navLabel.zhHant,
   href: app.path,
   desc: app.description.zh,
   descEn: app.description.en,
+  descZhHant: app.description.zhHant,
   keywords: app.keywords.zh,
   keywordsEn: app.keywords.en,
+  keywordsZhHant: app.keywords.zhHant,
 }));
 
-/** Resolve `?lang=`-aware label/desc. Apps without an i18n context just get zh. */
-function pick<T>(zh: T, en: T | undefined, preferEn: boolean): T {
-  return preferEn && en !== undefined ? en : zh;
+type UiLang = "zh" | "zh-Hant" | "en";
+
+/** Resolve the language-aware value; zh-Hant falls back to zh when absent. */
+function pick<T>(zh: T, zhHant: T | undefined, en: T | undefined, lang: UiLang): T {
+  if (lang === "en" && en !== undefined) return en;
+  if (lang === "zh-Hant" && zhHant !== undefined) return zhHant;
+  return zh;
 }
 
 export type NavBarProps = {
@@ -119,7 +130,7 @@ export function NavBar({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
   const [toolQuery, setToolQuery] = useState("");
-  const [resolvedLang, setResolvedLang] = useState<"zh" | "en">(
+  const [resolvedLang, setResolvedLang] = useState<UiLang>(
     lang ?? getLang,
   );
 
@@ -133,15 +144,16 @@ export function NavBar({
     return onChange(setResolvedLang);
   }, [lang]);
 
-  const preferEn = resolvedLang === "en";
+  const uiLang = resolvedLang as UiLang;
+  const preferEn = uiLang === "en";
   const normalizedQuery = toolQuery.trim().normalize("NFKC").toLocaleLowerCase();
   const filteredApps = useMemo(
     () => apps.filter((app) => {
       if (!normalizedQuery) return true;
-      const keywords = pick(app.keywords, app.keywordsEn, preferEn);
+      const keywords = pick(app.keywords, app.keywordsZhHant, app.keywordsEn, uiLang);
       const text = [
-        pick(app.label, app.labelEn, preferEn),
-        pick(app.desc, app.descEn, preferEn),
+        pick(app.label, app.labelZhHant, app.labelEn, uiLang),
+        pick(app.desc, app.descZhHant, app.descEn, uiLang),
         ...keywords,
       ].join(" ").normalize("NFKC").toLocaleLowerCase();
       return text.includes(normalizedQuery);
@@ -253,10 +265,10 @@ export function NavBar({
                 onClick={() => setDropdownOpen(false)}
               >
                 <span className="toolbox-nav-item-title">
-                  {pick(a.label, a.labelEn, preferEn)}
+                  {pick(a.label, a.labelZhHant, a.labelEn, uiLang)}
                 </span>
                 <span className="toolbox-nav-item-desc">
-                  {pick(a.desc, a.descEn, preferEn)}
+                  {pick(a.desc, a.descZhHant, a.descEn, uiLang)}
                 </span>
               </a>
             ))}

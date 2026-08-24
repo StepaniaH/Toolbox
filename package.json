@@ -18,6 +18,7 @@
     "shots": "node scripts/capture-screens.mjs docs/screenshots"
   },
   "devDependencies": {
+    "opencc-js": "^1.0.5",
     "playwright": "^1.61.0",
     "turbo": "^2.0.0"
   },

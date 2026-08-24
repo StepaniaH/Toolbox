@@ -7,4 +7,4 @@ cross-origin traffic, reduced motion, and seeded theme/language storage.
 Regenerate after intentional visual changes and review the diff before
 committing. Pixel diff thresholds are intentionally not enforced yet.
 
-Matrix: 8 pages × 2 modes × 2 languages × 2 viewports.
+Matrix: 8 pages × 2 modes × 3 languages × 2 viewports.

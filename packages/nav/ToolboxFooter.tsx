@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getLang, onChange } from "@toolbox/i18n";
-import { getAppById, TOOLBOX_RELEASE } from "@toolbox/app-manifest";
+import { getAppById, localizedText, TOOLBOX_RELEASE } from "@toolbox/app-manifest";
 
 export type ToolboxFooterProps = {
   appId: string;
@@ -9,7 +9,7 @@ export type ToolboxFooterProps = {
 
 export function ToolboxFooter({ appId, className }: ToolboxFooterProps) {
   const app = getAppById(appId);
-  const [lang, setResolvedLang] = useState<"zh" | "en">(getLang);
+  const [lang, setResolvedLang] = useState<ReturnType<typeof getLang>>(getLang);
 
   useEffect(() => onChange(setResolvedLang), []);
   if (!app) throw new Error(`Unknown Toolbox footer app: ${appId}`);
@@ -17,7 +17,7 @@ export function ToolboxFooter({ appId, className }: ToolboxFooterProps) {
   return (
     <footer className={["toolbox-footer", className].filter(Boolean).join(" ")}>
       <p className="toolbox-footer-description">
-        {lang === "zh" ? app.description.zh : app.description.en}
+        {localizedText(app.description, lang)}
       </p>
       <div className="toolbox-footer-meta">
         <a

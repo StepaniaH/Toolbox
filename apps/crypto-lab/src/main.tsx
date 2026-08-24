@@ -6,11 +6,12 @@ import '@toolbox/theme/toggle.js'
 import './index.css'
 import App from './App.tsx'
 import zh from './translations/zh.json'
+import zhHant from './translations/zh-Hant.json'
 import en from './translations/en.json'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <I18nProvider translations={{ zh, en }}>
+    <I18nProvider translations={{ zh, 'zh-Hant': zhHant, en }}>
       <App />
     </I18nProvider>
   </StrictMode>,

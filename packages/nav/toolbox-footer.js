@@ -1,11 +1,13 @@
-import { getAppById, TOOLBOX_RELEASE } from "@toolbox/app-manifest";
+import { getAppById, localizedText, TOOLBOX_RELEASE } from "@toolbox/app-manifest";
 
 function currentLang() {
   if (window.ToolboxI18n && typeof window.ToolboxI18n.getLang === "function") {
     return window.ToolboxI18n.getLang();
   }
   try {
-    return localStorage.getItem("toolbox-lang") === "en" ? "en" : "zh";
+    var stored = localStorage.getItem("toolbox-lang");
+    if (stored === "en" || stored === "zh-Hant" || stored === "zh") return stored;
+    return "zh";
   } catch {
     return "zh";
   }
@@ -48,9 +50,7 @@ export function mountToolboxFooter(target, appId) {
   node.replaceChildren(description, meta);
 
   var render = function () {
-    description.textContent = currentLang() === "en"
-      ? app.description.en
-      : app.description.zh;
+    description.textContent = localizedText(app.description, currentLang());
   };
   render();
 

@@ -14,7 +14,10 @@ const extraKnowledgeEn = {
   archiveComparison: { title: "Archive support scope", headers: { support: "Read support", safety: "Primary boundary", available: "Current status" }, rows: { zip: { name: "ZIP", support: "Store / Deflate", safety: "Paths, budgets, and CRC", available: "Available" }, zip64: { name: "ZIP64 / multipart", support: "Not parsed", safety: "Large sizes and segments", available: "Unsupported" }, other: { name: "7z / RAR / TAR", support: "Needs separate parsers", safety: "Methods, links, permissions", available: "Planned" } } },
 };
 
-export const translations: Record<"zh" | "en", Translations> = {
+import zhHant from "./i18n.zh-hant.generated.json";
+
+export const translations: Record<"zh" | "zh-Hant" | "en", Translations> = {
+  "zh-Hant": zhHant,
   zh: {
     meta: { title: "FormTran · Toolbox", description: "在浏览器本地识别文件，并使用转换、压缩、编辑、编码、解析和信息查看工具" },
     brand: { title: "FormTran", subtitle: "从识别到处理，每一步都留在本机" },

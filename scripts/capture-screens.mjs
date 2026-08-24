@@ -15,7 +15,7 @@ const VIEWPORTS = {
   mobile: { width: 390, height: 844 },
 }
 const MODES = ['dark', 'light']
-const LANGS = ['zh', 'en']
+const LANGS = ['zh', 'zh-Hant', 'en']
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
