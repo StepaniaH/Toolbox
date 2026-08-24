@@ -159,6 +159,39 @@
 - [ ] 生成并人工审核固定数据截图，再决定像素 diff 阈值。
 - [ ] 截图只保存有意义差异，不包含本地路径、个人数据或动态第三方响应。
 
+### P2.7 · Settings 设置应用 `⏳ 待开始`
+
+依赖：无。是 P2.8 / P2.9 的承载面。
+
+- [ ] 按 NEW_TOOL 流程在 `apps/settings` 完成隐藏候选：Appearance 与 Homepage 两节，
+  双语、主题、键盘、移动端全量达标。
+- [ ] 共享偏好键 `toolbox-homepage-prefs`（JSON：隐藏清单、密度、顺序）进入 contracts
+  校验；Settings 写入，Homepage 消费，默认值 = 现状渲染。
+- [ ] AGENTS 设计偏好条款更新：“快捷切换只由全局导航提供”，扩展配置归 Settings。
+- [ ] 首页按偏好渲染（隐藏/顺序/密度），清空偏好可完整回退默认。
+
+### P2.8 · 主题族机制与首批双模式族 `⏳ 待开始`
+
+依赖：P2.7 提供选择界面；建议 P2.4 截图基线先覆盖默认主题。
+
+- [ ] theme 契约 v2：`data-theme-family` 属性、`toolbox-theme-family` 键、族清单与
+  `prePaintScript()` 双属性解析；默认族渲染与现状一致（契约测试锁定）。
+- [ ] tokens.css 支持 `[data-theme-family]` × `[data-theme]` 组合；首批新增 gruvbox、
+  solarized 双模式族，语义 token 全覆盖并通过对比度检查。
+- [ ] Settings Appearance 提供色板选择器（Port Light 式预览）；NavBar 明暗按钮保持只切模式。
+- [ ] 七应用 browser smoke 在新族下各跑一轮关键页。
+
+### P2.9 · 语言注册表与 zh-Hant 试点 `⏳ 待开始`
+
+依赖：P2.7 提供选择界面。
+
+- [ ] i18n 包新增语言注册表（code、nativeName、覆盖状态）与 Apple 式两行选择器组件
+  （React/Vanilla 等价，进 P2.5 成对断言）；副显示名用 `Intl.DisplayNames` 生成。
+- [ ] `toolbox-lang` 值域扩展为注册表推导；非法值回退 `en`，既有 zh/en 用户无感。
+- [ ] 七应用 + Homepage + Settings 全量文案 `zh-Hant` 覆盖（含 manifest 关键词与
+  keywords 搜索），key 完整性测试按语言矩阵扩展。
+- [ ] 覆盖度门禁：未达标语言不出现在选择器。
+
 ## P3 — 性能与可维护性
 
 ### P3.1 · 合成层第一轮优化 `✅ 已完成`
