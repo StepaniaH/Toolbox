@@ -5,6 +5,7 @@
 import "./platform.js";
 import { getLang, setLang, toggleLang, registerCardStrings } from "./i18n.js";
 import { getStableApps } from "@toolbox/app-manifest";
+import { applyHomepagePrefs, readHomepagePrefs } from "@toolbox/prefs";
 import { autoMountToolboxFooters } from "@toolbox/nav/toolbox-footer.js";
 
 const tools = getStableApps()
@@ -18,6 +19,11 @@ const tools = getStableApps()
   }));
 
 registerCardStrings(tools);
+
+const visibleTools = applyHomepagePrefs(
+  tools,
+  readHomepagePrefs(tools.map((tool) => tool.id)),
+);
 
 /* ---- CTA arrow SVG ---- */
 const ARROW_SVG =
@@ -56,7 +62,7 @@ function renderCard(tool) {
 /* ---- Init ---- */
 document.addEventListener("DOMContentLoaded", function () {
   var grid = document.getElementById("tools-grid");
-  tools.forEach(function (tool) {
+  visibleTools.forEach(function (tool) {
     grid.appendChild(renderCard(tool));
   });
   autoMountToolboxFooters();

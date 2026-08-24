@@ -12,7 +12,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { setLang, getLang, onChange } from "@toolbox/i18n";
-import { getStableApps } from "@toolbox/app-manifest";
+import { getAppById, getStableApps } from "@toolbox/app-manifest";
 
 const LANGUAGES = [
   { code: "zh", label: "中文（简体）", lang: "zh-CN" },
@@ -49,6 +49,16 @@ function CheckIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="m5 12 4 4L19 6" />
+    </svg>
+  );
+}
+
+
+function GearIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
   );
 }
@@ -261,6 +271,14 @@ export function NavBar({
         {/* Right: actions */}
         <div className="toolbox-nav-actions">
           {rightSlot}
+          <a
+            className="toolbox-nav-icon-btn toolbox-nav-settings"
+            href={getAppById("settings")!.path}
+            aria-label={preferEn ? "Settings" : "设置"}
+            title={preferEn ? "Settings" : "设置"}
+          >
+            <GearIcon />
+          </a>
           <div
             className={
               languageOpen

@@ -21,6 +21,21 @@ function fail(category, file, message) {
 
 const rootPackage = JSON.parse(read('package.json'))
 {
+  const prefsPackage = JSON.parse(read('packages/prefs/package.json'))
+  const declaredPrefs = prefsPackage.contractVersion
+  const constantPrefs = Number(
+    /PREFS_CONTRACT_VERSION\s*=\s*(\d+)/.exec(read('packages/prefs/prefs.mjs'))?.[1],
+  )
+  if (!Number.isInteger(constantPrefs) || declaredPrefs !== constantPrefs) {
+    fail(
+      'platform-version-contract',
+      'packages/prefs/package.json',
+      `contractVersion ${declaredPrefs} must equal PREFS_CONTRACT_VERSION ${constantPrefs}`,
+    )
+  }
+}
+
+{
   const themePackage = JSON.parse(read('packages/theme/package.json'))
   const declared = themePackage.contractVersion
   const constant = Number(
@@ -421,6 +436,8 @@ for (const [file, requirements] of [
   ['packages/nav/toolbox-footer.js', ['getAppById', 'TOOLBOX_RELEASE', 'noopener noreferrer', '@toolbox/app-manifest']],
   ['packages/i18n/react.ts', ['translations/zh.json', 'translations/en.json', 'onChange']],
   ['packages/i18n/core.ts', ['export function getLang', 'export function setLang', 'export function onChange']],
+  ['packages/nav/NavBar.tsx', ['toolbox-nav-settings', 'getAppById("settings")']],
+  ['packages/nav/nav-bar.js', ['toolbox-nav-settings', 'getAppById("settings")']],
 ]) {
   const content = read(file)
   for (const requirement of requirements) {

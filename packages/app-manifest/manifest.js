@@ -187,6 +187,30 @@ export const TOOLBOX_APPS = Object.freeze([
     },
     status: 'stable',
   }),
+  defineApp({
+    id: 'settings',
+    path: '/settings/',
+    name: 'Settings',
+    navLabel: { zh: '设置', en: 'Settings' },
+    description: { zh: '外观与首页个性化偏好', en: 'Appearance and homepage preferences' },
+    keywords: {
+      zh: ['设置', '偏好', '主题', '语言', '首页', '排序', '隐藏'],
+      en: ['settings', 'preferences', 'theme', 'language', 'homepage', 'order', 'hide'],
+    },
+    icon: {
+      viewBox: '0 0 48 48',
+      svg: '<circle cx="24" cy="24" r="6"/><path d="M24 8v5M24 35v5M8 24h5M35 24h5M13 13l3.5 3.5M31.5 31.5L35 35M35 13l-3.5 3.5M16.5 31.5L13 35"/>',
+    },
+    presentation: {
+      subtitle: { zh: '外观与首页偏好', en: 'Appearance & homepage prefs' },
+      description: {
+        zh: '调整明暗主题、界面语言与首页工具的展示、数量和顺序，全部保存在本机。',
+        en: 'Adjust theme, language, and which tools the homepage shows, how many, and in what order. Stored locally.',
+      },
+      badges: ['React', 'TypeScript'],
+    },
+    status: 'hidden',
+  }),
 ])
 
 export function getStableApps() {

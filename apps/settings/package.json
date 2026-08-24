@@ -1,5 +1,5 @@
 {
-  "name": "@toolbox/homepage",
+  "name": "@toolbox/settings",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,19 +9,24 @@
     "preview": "vite preview --host 127.0.0.1",
     "test": "vite build && node --test tests/*.test.mjs",
     "test:browser": "vite build && node tests/browser-smoke.mjs",
-    "lint": "oxlint --deny-warnings",
-    "smoke": "pnpm test"
+    "lint": "oxlint --deny-warnings"
   },
   "dependencies": {
     "@toolbox/app-manifest": "workspace:*",
     "@toolbox/i18n": "workspace:*",
     "@toolbox/nav": "workspace:*",
     "@toolbox/prefs": "workspace:*",
-    "@toolbox/theme": "workspace:*"
+    "@toolbox/theme": "workspace:*",
+    "@vitejs/plugin-react": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "oxlint": "^1.73.0",
     "playwright": "^1.61.0",
+    "typescript": "catalog:",
     "vite": "catalog:"
   }
 }

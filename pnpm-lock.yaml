@@ -213,6 +213,9 @@ importers:
       '@toolbox/nav':
         specifier: workspace:*
         version: link:../../packages/nav
+      '@toolbox/prefs':
+        specifier: workspace:*
+        version: link:../../packages/prefs
       '@toolbox/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -435,6 +438,52 @@ importers:
         specifier: 3.2.7
         version: 3.2.7(@types/node@26.1.1)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)
 
+  apps/settings:
+    dependencies:
+      '@toolbox/app-manifest':
+        specifier: workspace:*
+        version: link:../../packages/app-manifest
+      '@toolbox/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@toolbox/nav':
+        specifier: workspace:*
+        version: link:../../packages/nav
+      '@toolbox/prefs':
+        specifier: workspace:*
+        version: link:../../packages/prefs
+      '@toolbox/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
+      '@vitejs/plugin-react':
+        specifier: 'catalog:'
+        version: 5.0.4(vite@6.4.3(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0))
+      react:
+        specifier: 'catalog:'
+        version: 19.2.7
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.7(react@19.2.7)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.17
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.17)
+      oxlint:
+        specifier: ^1.73.0
+        version: 1.73.0
+      playwright:
+        specifier: ^1.61.0
+        version: 1.61.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 6.4.3(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)
+
   packages/app-manifest:
     devDependencies:
       oxlint:
@@ -471,6 +520,8 @@ importers:
       react:
         specifier: 'catalog:'
         version: 19.2.7
+
+  packages/prefs: {}
 
   packages/theme:
     devDependencies:
