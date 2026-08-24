@@ -175,6 +175,11 @@
   margin-top: 16px;
 }
 
+.settings-footer-page {
+  padding-top: 0;
+  padding-bottom: 24px;
+}
+
 .saved {
   color: var(--color-success);
   font-size: 13px;

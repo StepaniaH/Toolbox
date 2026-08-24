@@ -3,7 +3,7 @@ import { NavBar } from "@toolbox/nav";
 import { ToolboxFooter } from "@toolbox/nav/ToolboxFooter.tsx";
 import "@toolbox/nav/nav-bar.css";
 import { useTranslation } from "@toolbox/i18n/react";
-import { getLang, onChange, setLang } from "@toolbox/i18n/core";
+import { getLang, onChange, setLang, type Lang } from "@toolbox/i18n/core";
 import {
   COVERED_LANGUAGES,
   languageDisplayName,
@@ -13,7 +13,7 @@ import {
   readHomepagePrefs,
   writeHomepagePrefs,
 } from "@toolbox/prefs";
-import { getStableApps } from "@toolbox/app-manifest";
+import { getStableApps, localizedText } from "@toolbox/app-manifest";
 import "./styles.css";
 
 const TOOLS = getStableApps().filter((app) => app.path !== "/");
@@ -33,8 +33,11 @@ const FAMILY_SWATCHES: Record<string, { dark: string; light: string; accent: str
   gruvbox: { dark: "#282828", light: "#fbf1c7", accent: "#b8bb26" },
   solarized: { dark: "#002b36", light: "#fdf6e3", accent: "#2aa198" },
 };
-
-type Lang = "zh" | "en";
+const FAMILY_LABELS: Record<string, string> = {
+  catppuccin: "Catppuccin",
+  gruvbox: "Gruvbox",
+  solarized: "Solarized",
+};
 
 function useCurrentLang(): Lang {
   const [lang, setLangState] = useState<Lang>(getLang);
@@ -56,7 +59,10 @@ function Section({ title, description, children }: { title: string; description:
 
 function toolName(id: string, lang: Lang): string {
   const app = TOOLS.find((tool) => tool.id === id);
-  return app?.presentation?.title?.[lang] ?? app?.name ?? id;
+  if (!app) return id;
+  return app.presentation?.title
+    ? localizedText(app.presentation.title, lang)
+    : app.name ?? id;
 }
 
 function AppearanceSection() {
@@ -92,7 +98,7 @@ function AppearanceSection() {
               aria-pressed={theme === mode}
               onClick={() => applyTheme(mode)}
             >
-              {t(`appearance.theme_${mode}`)}
+              {t(mode === "dark" ? "appearance.themeDark" : "appearance.themeLight")}
             </button>
           ))}
         </div>
@@ -121,7 +127,9 @@ function AppearanceSection() {
                   >
                     <i style={{ background: swatch.accent }} />
                   </span>
-                  <span className="swatch-name">{name}</span>
+                  <span className="swatch-name">
+                    {FAMILY_LABELS[name] ?? name}
+                  </span>
                 </button>
               );
             })}
@@ -266,7 +274,9 @@ export default function App() {
         <AppearanceSection />
         <HomepageSection />
       </main>
-      <ToolboxFooter appId="settings" />
+      <div className="page settings-footer-page">
+        <ToolboxFooter appId="settings" />
+      </div>
     </>
   );
 }
