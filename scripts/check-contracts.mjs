@@ -417,8 +417,11 @@ for (const [file, requirements] of [
 }
 
 // ── Preference key hygiene ────────────────────────────────────
-// Platform packages may reference the shared keys only by their exact
-// contract values; anything else indicates drift from @toolbox/theme.
+// Storage reads/writes and *KEY constants inside platform packages may only
+// reference the shared preference keys by their exact contract values;
+// anything else indicates drift from @toolbox/theme. CSS class prefixes and
+// event-name constants are out of scope.
+const PREFERENCE_KEY_PATTERN = /^toolbox-(theme|lang)$/
 for (const file of [
   'packages/nav/NavBar.tsx',
   'packages/nav/nav-bar.js',
@@ -428,9 +431,13 @@ for (const file of [
   'packages/i18n/react.ts',
 ]) {
   const content = read(file)
-  for (const match of content.matchAll(/["']toolbox-[a-z0-9-]+["']/g)) {
-    if (!/^["']toolbox-(theme|lang)["']$/.test(match[0])) {
-      fail('preference-key-contract', file, `unknown shared key ${match[0]}`)
+  const references = [
+    ...content.matchAll(/(?:getItem|setItem)\(\s*["'](toolbox-[a-z0-9-]+)["']/g),
+    ...content.matchAll(/\b[A-Z0-9_]*_KEY\s*=\s*["'](toolbox-[a-z0-9-]+)["']/g),
+  ]
+  for (const match of references) {
+    if (!PREFERENCE_KEY_PATTERN.test(match[1])) {
+      fail('preference-key-contract', file, `unknown shared key ${match[1]}`)
     }
   }
 }
