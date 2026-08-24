@@ -28,7 +28,7 @@ Toolbox 是一个开源、隐私优先的网页工具集合。每个工具解决
 | FormTran | `/image-converter/` | React + TypeScript + Vite + Plain CSS | 浏览器本地文件、图片、表格、PDF 与 ZIP 工作台 | 63 |
 | CryptoLab | `/crypto-lab/` | React + TypeScript + Vite + Tailwind | 本地密码学、公钥二维码安全分享与学习工具 | 119 |
 
-测试规模以「质量基线」小节记录的日期与命令为准，实时数字以 `pnpm test` 输出为准，本文不逐版本维护计数。CryptoLab 已晋级 stable 并进入首页与全局导航；当前生产仍保持 `main` 上的 `v0.2.3`。
+测试规模以「质量基线」小节记录的日期与命令为准，实时数字以 `pnpm test` 输出为准，本文不逐版本维护计数。CryptoLab 已晋级 stable 并进入首页与全局导航；当前生产仍保持 `main` 上的 `v0.2.3`。界面语言为 zh / zh-Hant / en，注册表见 `@toolbox/i18n/registry`。
 
 ## 三、仓库结构
 

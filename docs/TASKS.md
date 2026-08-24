@@ -159,7 +159,8 @@
 - [x] `pnpm shots` 以固定时钟、阻断跨域、reduced motion 捕获 8 页 × 2 主题 × 2 语言 ×
   2 视口共 64 张基线，存于 docs/screenshots 供人工审核。
 - [ ] 维护者审核基线后决定像素 diff 阈值与执行时机。
-- [ ] 主题族（gruvbox/solarized）与新增语言纳入截图矩阵。
+- [x] 主题族与 zh-Hant 纳入截图矩阵（zh-Hant 维度已随基线更新；主题族维度待
+  capture-screens 增加 family 参数）。
 
 ### P2.7 · Settings 设置应用 `✅ 已完成`
 
@@ -182,15 +183,17 @@
 - [x] Settings Appearance 提供色板选择器（双模式渐变预览）；NavBar 明暗按钮保持只切模式。
 - [x] 八应用 build/test/lint/browser 全量通过。
 
-### P2.9 · 语言注册表与 zh-Hant 试点 `⏳ 待开始`
+### P2.9 · 语言注册表与 zh-Hant `✅ 已完成`
 
 依赖：P2.7 提供选择界面。
 
 - [x] i18n 包新增语言注册表（code、nativeName、zhName、覆盖状态）与 Settings 的
   Apple 式两行选择器；副显示名由 `Intl.DisplayNames` 运行时生成，无手工译名矩阵。
 - [x] 覆盖度门禁：未覆盖语言不出现在选择器；注册表版本进 contracts 漂移守卫。
-- [ ] `zh-Hant` 全量翻译覆盖（七应用 + Homepage + Settings 文案与 manifest 双语
-  关键词），完成后将注册表 covered 置 true 并扩展 key 完整性测试矩阵。
+- [x] `zh-Hant` 全量覆盖：`scripts/gen-zh-hant.mjs`（OpenCC cn→tw，仅构建期）从简体
+  源生成全部应用词表、共享词表与 manifest zhHant 字段；i18n core 值域扩展（html lang
+  zh-TW）、双 NavBar 语言菜单、注册表 covered、三语 parity/key 完整性测试、截图基线
+  扩至 96 张。台湾惯用语（如 記憶體/設定 级别的词组审校）由维护者抽查后迭代。
 
 ## P3 — 性能与可维护性
 
