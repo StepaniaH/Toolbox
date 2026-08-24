@@ -1,85 +1,82 @@
 /* =====================================================================
-   monitor-choice — Catppuccin Theme System
-   Latte (light) + Frappé (dark) · zero external resources
+   monitor-choice — layout aliases derived from @toolbox/theme tokens.
+   The shared stylesheet supplies the palette, the NavBar --ctp-* set and
+   element baselines; this file maps the local names the app was written
+   against. Raw Catppuccin values must not appear here — only deliberate
+   illustration constants for canvas drawings may stay literal.
    ===================================================================== */
 
-/* ---------------------------------------------------------------------
-   Shared fallback (defaults to Frappé dark, overridden by [data-theme])
-   --------------------------------------------------------------------- */
 :root {
-  /* ── Frappé (dark) — default ── */
-  --bg-base: #303446;
-  --bg-card: #414559;
-  --bg-card-strong: #51576d;
-  --bg-canvas: #232634;
-  --bg-tooltip: #292c3c;
-  --bg-input: rgba(35, 38, 52, 0.92);
+  --bg-base: var(--color-bg);
+  --bg-card: var(--color-bg-elevated);
+  --bg-card-strong: var(--color-bg-muted);
+  --bg-canvas: var(--crust);
+  --bg-tooltip: var(--mantle);
+  --bg-input: color-mix(in srgb, var(--crust) 92%, transparent);
 
-  --text-primary: #c6d0f5;
-  --text-muted: #a5adce;
+  --text-primary: var(--text);
+  --text-muted: var(--subtext-0);
 
-  --border: rgba(198, 208, 245, 0.14);
+  --border: color-mix(in srgb, var(--color-text) 14%, transparent);
 
-  --accent-blue: #8caaee;
-  --accent-purple: #babbf1;
-  --good-green: #a6d189;
-  --warn-yellow: #e5c890;
-  --bad-red: #e78284;
+  --accent-blue: var(--blue);
+  --accent-purple: var(--lavender);
+  --good-green: var(--green);
+  --warn-yellow: var(--yellow);
+  --bad-red: var(--red);
 
-  --accent-text: #232634;
-  --accent-shadow: 0 0 20px rgba(140, 170, 238, 0.25);
+  --accent-text: var(--crust);
+  --accent-shadow: 0 0 20px color-mix(in srgb, var(--blue) 25%, transparent);
 
-  /* Canvas drawing colors (theme-dependent) */
-  --canvas-text: #e8e8e8;
-  --canvas-text-muted: #aaa;
-  --canvas-grid: rgba(198, 208, 245, 0.08);
-  --canvas-axis: rgba(198, 208, 245, 0.20);
-  --canvas-label: rgba(198, 208, 245, 0.35);
-  --canvas-tick: rgba(198, 208, 245, 0.25);
-  --canvas-accent: #8caaee;
-  --canvas-accent-fill: rgba(140, 170, 238, 0.10);
-  --canvas-accent-ghost: rgba(140, 170, 238, 0.03);
-  --canvas-accent-border: rgba(140, 170, 238, 0.40);
-  --canvas-ghost: rgba(198, 208, 245, 0.04);
+  /* Canvas drawing colors (theme-dependent, derived from tokens) */
+  --canvas-text: color-mix(in srgb, var(--text) 92%, #fff);
+  --canvas-text-muted: var(--subtext-1);
+  --canvas-grid: color-mix(in srgb, var(--color-text) 8%, transparent);
+  --canvas-axis: color-mix(in srgb, var(--color-text) 20%, transparent);
+  --canvas-label: color-mix(in srgb, var(--color-text) 35%, transparent);
+  --canvas-tick: color-mix(in srgb, var(--color-text) 25%, transparent);
+  --canvas-accent: var(--blue);
+  --canvas-accent-fill: color-mix(in srgb, var(--blue) 10%, transparent);
+  --canvas-accent-ghost: color-mix(in srgb, var(--blue) 3%, transparent);
+  --canvas-accent-border: color-mix(in srgb, var(--blue) 40%, transparent);
+  --canvas-ghost: color-mix(in srgb, var(--color-text) 4%, transparent);
+  --canvas-d65-fill: var(--ctp-text);
+  --canvas-d65-stroke: var(--crust);
+  --canvas-d65-label: color-mix(in srgb, var(--color-text) 60%, transparent);
+  --canvas-stand: color-mix(in srgb, var(--blue) 20%, transparent);
+  --canvas-stand-border: color-mix(in srgb, var(--blue) 40%, transparent);
+
+  /* Illustration constants (desk scene / color lab fixtures). These depict
+     physical objects, not theme palette; they stay literal by design. */
   --canvas-highlight: #ff9a3c;
   --canvas-fov: rgba(166, 209, 137, 0.7);
   --canvas-desk-fill: rgba(180, 140, 80, 0.12);
-  --canvas-desk-stroke: rgba(200, 160, 100, 0.40);
+  --canvas-desk-stroke: rgba(200, 160, 100, 0.4);
   --canvas-person: rgba(241, 201, 165, 0.6);
   --canvas-person-stroke: rgba(241, 201, 165, 0.8);
   --canvas-clothes: rgba(179, 156, 255, 0.15);
   --canvas-clothes-stroke: rgba(179, 156, 255, 0.4);
-  --canvas-stand: rgba(140, 170, 238, 0.20);
-  --canvas-stand-border: rgba(140, 170, 238, 0.4);
   --canvas-side: rgba(100, 100, 110, 0.15);
   --canvas-side-border: rgba(150, 150, 160, 0.3);
-  --canvas-d65-fill: #fff;
-  --canvas-d65-stroke: #000;
-  --canvas-d65-label: rgba(198, 208, 245, 0.6);
 
-  /* Hover / ghost / focus — theme-dependent */
-  --bg-hover: rgba(198, 208, 245, 0.08);
-  --bg-hover-strong: rgba(198, 208, 245, 0.14);
-  --bg-ghost: rgba(198, 208, 245, 0.05);
-  --bg-accent-hover: rgba(140, 170, 238, 0.12);
-  --ring-focus: rgba(140, 170, 238, 0.18);
-  --logo-shadow: rgba(140, 170, 238, 0.30);
+  /* Hover / ghost / focus */
+  --bg-hover: color-mix(in srgb, var(--color-text) 8%, transparent);
+  --bg-hover-strong: color-mix(in srgb, var(--color-text) 14%, transparent);
+  --bg-ghost: color-mix(in srgb, var(--color-text) 5%, transparent);
+  --bg-accent-hover: color-mix(in srgb, var(--blue) 12%, transparent);
+  --ring-focus: color-mix(in srgb, var(--blue) 18%, transparent);
+  --logo-shadow: color-mix(in srgb, var(--blue) 30%, transparent);
 
   /* Shared — unaffected by theme */
-  --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
-  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Fira Code",
-               "JetBrains Mono", Consolas, monospace;
+  --font: var(--font-sans);
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 40px;
   --space-2xl: 64px;
-  --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 28px;
-  --radius-pill: 999px;
 
   --shadow-card: 0 20px 80px rgba(0, 0, 0, 0.25);
   --shadow-sticky: 0 12px 40px rgba(0, 0, 0, 0.35);
@@ -94,56 +91,26 @@
    Latte (light theme)
    --------------------------------------------------------------------- */
 [data-theme="light"] {
-  --bg-base: #eff1f5;
-  --glass-bg: var(--bg-card);
-  --glass-bg-strong: var(--bg-card-strong);
-  --bg-card: #ccd0da;
-  --bg-card-strong: #bcc0cc;
-  --bg-canvas: #e6e9ef;
-  --bg-tooltip: #dce0e8;
-  --bg-input: rgba(230, 233, 239, 0.92);
+  --bg-canvas: var(--mantle);
+  --bg-tooltip: var(--crust);
+  --bg-input: color-mix(in srgb, var(--mantle) 92%, transparent);
 
-  --text-primary: #4c4f69;
-  --text-muted: #494d62;
+  --accent-shadow: 0 6px 20px color-mix(in srgb, var(--blue) 20%, transparent);
+  --accent-text: var(--base);
 
-  --border: rgba(76, 79, 105, 0.16);
+  --border: color-mix(in srgb, var(--color-text) 16%, transparent);
 
-  --accent-blue: #1e66f5;
-  --accent-purple: #7287fd;
-  --good-green: #40a02b;
-  --warn-yellow: #df8e1d;
-  --bad-red: #d20f39;
+  --bg-hover: color-mix(in srgb, var(--color-text) 8%, transparent);
+  --bg-hover-strong: color-mix(in srgb, var(--color-text) 14%, transparent);
+  --bg-accent-hover: color-mix(in srgb, var(--blue) 8%, transparent);
+  --ring-focus: color-mix(in srgb, var(--blue) 15%, transparent);
+  --logo-shadow: color-mix(in srgb, var(--blue) 25%, transparent);
 
-  --accent-text: #eff1f5;
-  --accent-shadow: 0 6px 20px rgba(30, 102, 245, 0.2);
-
-  --bg-hover: rgba(76, 79, 105, 0.08);
-  --bg-hover-strong: rgba(76, 79, 105, 0.14);
-  --bg-ghost: rgba(76, 79, 105, 0.05);
-  --bg-accent-hover: rgba(30, 102, 245, 0.08);
-  --ring-focus: rgba(30, 102, 245, 0.15);
-  --logo-shadow: rgba(30, 102, 245, 0.25);
-
-  --canvas-text: #4c4f69;
-  --canvas-text-muted: #6c6f85;
-  --canvas-grid: rgba(76, 79, 105, 0.10);
-  --canvas-axis: rgba(76, 79, 105, 0.22);
-  --canvas-label: rgba(76, 79, 105, 0.50);
-  --canvas-tick: rgba(76, 79, 105, 0.35);
-  --canvas-accent: #1e66f5;
-  --canvas-accent-fill: rgba(30, 102, 245, 0.08);
-  --canvas-accent-ghost: rgba(30, 102, 245, 0.03);
-  --canvas-accent-border: rgba(30, 102, 245, 0.40);
-  --canvas-ghost: rgba(76, 79, 105, 0.06);
   --canvas-highlight: #fe640b;
-  --canvas-fov: rgba(64, 160, 43, 0.7);
   --canvas-desk-fill: rgba(180, 140, 80, 0.08);
   --canvas-desk-stroke: rgba(180, 140, 80, 0.35);
-  --canvas-side: rgba(140, 140, 150, 0.10);
+  --canvas-side: rgba(140, 140, 150, 0.1);
   --canvas-side-border: rgba(140, 140, 150, 0.25);
-  --canvas-d65-fill: #4c4f69;
-  --canvas-d65-stroke: #eff1f5;
-  --canvas-d65-label: rgba(76, 79, 105, 0.6);
 
   --shadow-card: 0 12px 60px rgba(0, 0, 0, 0.08);
   --shadow-sticky: 0 8px 30px rgba(0, 0, 0, 0.1);
@@ -154,40 +121,16 @@
    --------------------------------------------------------------------- */
 body {
   background:
-    radial-gradient(circle at 20% 0%, rgba(140, 170, 238, 0.24), transparent 30%),
-    radial-gradient(circle at 80% 10%, rgba(186, 187, 241, 0.22), transparent 34%),
+    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--blue) 24%, transparent), transparent 30%),
+    radial-gradient(circle at 80% 10%, color-mix(in srgb, var(--lavender) 22%, transparent), transparent 34%),
     var(--bg-base);
   background-attachment: fixed;
 }
 
 [data-theme="light"] body {
   background:
-    radial-gradient(circle at 20% 0%, rgba(30, 102, 245, 0.12), transparent 30%),
-    radial-gradient(circle at 80% 10%, rgba(114, 135, 253, 0.10), transparent 34%),
+    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--blue) 12%, transparent), transparent 30%),
+    radial-gradient(circle at 80% 10%, color-mix(in srgb, var(--lavender) 10%, transparent), transparent 34%),
     var(--bg-base);
   background-attachment: fixed;
-}
-
-/* ---------------------------------------------------------------------
-   Bridge --ctp-* variables for @toolbox/nav compatibility.
-   monitor-choice uses its own --bg-base / --text-primary palette; the
-   shared NavBar (nav-bar.css) speaks Catppuccin --ctp-* tokens, so map
-   them here so the bar reuses the unified background/text colors.
-   --------------------------------------------------------------------- */
-:root {
-  --ctp-base: var(--bg-base);
-  --ctp-mantle: var(--bg-tooltip);
-  --ctp-crust: var(--bg-canvas);
-  --ctp-text: var(--text-primary);
-  --ctp-subtext-0: var(--text-muted);
-  --ctp-subtext-1: var(--text-primary);
-  --ctp-overlay-0: var(--text-muted);
-  --ctp-surface-0: var(--bg-hover-strong);
-  --ctp-surface-1: var(--bg-hover);
-  --ctp-blue: var(--accent-blue);
-}
-
-[data-theme="light"] {
-  --ctp-mantle: var(--bg-canvas);
-  --ctp-crust: var(--bg-tooltip);
 }

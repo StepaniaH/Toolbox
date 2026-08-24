@@ -1,3 +1,4 @@
+import '@toolbox/theme/styles.css'
 import '@toolbox/nav/nav-bar.css'
 import '@toolbox/theme/toggle.js'
 import { getLang, onChange, setLang } from '@toolbox/i18n/core'
@@ -11,8 +12,4 @@ window.ToolboxI18n = Object.freeze({ getLang, onChange, setLang })
 export function connectPlatform() {
   window.I18n.setLocale(getLang())
   onChange((lang) => window.I18n.setLocale(lang))
-
-  // The page theme manager also redraws active canvases. Keep the shared
-  // NavBar runtime as the public entry while delegating its toggle here.
-  window.ToolboxTheme.toggleTheme = window.ThemeManager.toggle
 }
