@@ -179,6 +179,18 @@ App Surface（工具自己拥有）
 - 日期、数字、货币和百分比使用当前语言的 `Intl` 格式化。
 - 页面 `<title>`、description 和 aria 文案也必须随语言切换。
 
+### 本地化工程红线
+
+完整规范见 `packages/i18n/README.md`；以下为强制底线，违反即门禁失败：
+
+- `I18nProvider` 必须同时接线 `zh` / `zh-Hant` / `en` 三语词表（类型强制，缺一无法编译）。
+- zh-Hant 词表只由 `scripts/gen-zh-hant.mjs` 生成，不手改；改简体后必须重新生成。
+- 运行时回退链为 zh-Hant → zh → key；任何语言都不得渲染原始 key。
+- 应用单测必须调用 `assertTranslationParity` 锁定三语键位齐平。
+- 禁止 `lang === "zh"` 式二元分支（zh-Hant 会被静默落错分支）；文案走 `t()`，
+  `Intl` locale 走 `intlLocale(lang)`。
+- `<html lang>` 由 `@toolbox/i18n` core 独占维护，应用不得改写。
+
 ## 八、响应式与内容宽度
 
 最低支持宽度为 375px，关键检查宽度为：

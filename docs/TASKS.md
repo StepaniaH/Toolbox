@@ -241,6 +241,20 @@
 - [x] 语言选择替换为自定义 listbox 下拉（方向键/Enter/Esc、点击外部关闭、当前语言打勾），
   不再回退原生控件；smoke 覆盖鼠标与键盘路径。
 
+### P2.13 · 本地化工程治理 `✅ 已完成`
+
+- [x] 根因：chrono-sphere 未把生成的 zh-Hant 词表接入 `I18nProvider`（繁体渲染原始 key）；
+  crypto-lab KnowledgeBase 以 `{zh,en}[lang]` 取正文（繁体整段空白）；多处 `lang === 'zh'`
+  二元分支使繁体静默落入英文/简体分支，chrono-sphere 还在 effect 中把 `<html lang>` 改回 en。
+- [x] i18n core：`createTranslator` 支持回退链；React provider 三语类型强制 + zh-Hant→zh
+  运行时回退；新增 `intlLocale` 与 `assertTranslationParity` 助手；core 单测 5 条。
+- [x] chrono-sphere 接线三语、meta 走词表、移除 html lang 改写与农历年后缀二元式；
+  crypto-lab 知识库内容全部迁入词表并重生成繁体；JwtPanel/FormTran 的 `Intl` locale 走
+  `intlLocale`。
+- [x] chrono-sphere / crypto-lab / rate-lens 增加三语键位齐平测试；chrono-sphere smoke 增加
+  繁体原始 key 泄漏守卫（zh-TW 断言 + 键名前缀禁令）。
+- [x] 规范落盘：packages/i18n/README.md 八条工程规范 + DESIGN_SYSTEM 语言契约红线。
+
 ## P3 — 性能与可维护性
 
 ### P3.1 · 合成层第一轮优化 `✅ 已完成`
