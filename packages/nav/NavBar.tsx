@@ -38,7 +38,9 @@ export type NavApp = {
 };
 
 /** Navigation projection of the canonical public app manifest. */
-export const NAV_APPS: NavApp[] = getStableApps().map((app) => ({
+export const NAV_APPS: NavApp[] = getStableApps()
+  .filter((app) => app.presentation?.card !== false)
+  .map((app) => ({
   id: app.navId,
   label: app.navLabel.zh,
   labelEn: app.navLabel.en,
