@@ -142,7 +142,7 @@
 
 - CSV/TSV export protects against spreadsheet formula injection by default; table size, row, column,
   cell, XML-entry, HEIC byte, canvas-side, and pixel budgets are enforced before expensive work.
-- Production-browser coverage exercises real CSV→XLSX→re-import and HEIC→PNG flows in addition to
+- Production-browser coverage exercises real CSV→XLSX conversion and HEIC decoding flows in addition to
   focused parser, crypto, privacy, contract, build, lint, and shell regressions.
 - Updated checkout, Node setup, and pnpm setup Actions to official Node 24-compatible releases pinned
   by immutable commit SHA; CI remains read-only and production deployment remains manual from `main`.

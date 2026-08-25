@@ -61,7 +61,7 @@
 - [x] 新增 Release 工作流：push `v*` tag 触发全仓门禁，通过后从 CHANGELOG 小节创建
   GitHub Release。
 - [x] CI push 触发面收敛到 `main`；生产部署保持从 `main` 手动触发。
-- [ ] 首个 tag 在生产服务器迁移完成后由维护者创建；在此之前不推送任何 tag。
+- [x] 首个 tag 已由维护者创建并推送（v0.4.0）；此后每次 tag 仍需逐次明确授权。
 
 ## P1 — 新工具积木与审核隔离
 

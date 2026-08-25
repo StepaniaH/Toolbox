@@ -25,7 +25,7 @@ A collection of privacy-first web tools. Core calculations run locally in your b
 - **Trilingual** — every stable tool ships Chinese (zh), Traditional Chinese (zh-Hant), and English (en) interfaces.
 - **Shared appearance** — Catppuccin, Gruvbox, and Solarized palettes in dark and light, switched from the Settings app; language and theme have no duplicate entry points.
 - **MIT licensed** — all tools are open source under the MIT license.
-- **Static deployment** — served as static files behind Caddy with path-based routing under one domain.
+- **Static deployment** — built to static files with path-based routing under one domain; the public site is served by Cloudflare Pages.
 
 ## Quick Start
 
@@ -42,13 +42,6 @@ pnpm test                               # test all tools
 ```
 
 See [`docs/INDEX.md`](./docs/INDEX.md) for the project overview, [`docs/PLAN.md`](./docs/PLAN.md) for the architecture direction, [`docs/RELEASE.md`](./docs/RELEASE.md) for the fixed release and rollback flow, [`docs/NEW_TOOL.md`](./docs/NEW_TOOL.md) for the new-tool playbook, and [`docs/AGENTS.md`](./docs/AGENTS.md) for development conventions.
-
-For a new tool, the maintainer only needs to describe the product normally. The agent must
-automatically use [`$develop-toolbox-tool`](./.agents/skills/develop-toolbox-tool/SKILL.md),
-infer the internal brief and safe defaults, and own platform integration, localized docs,
-privacy, and tests. All work lands as focused commits on the local `dev` branch; review
-against `main`, the merge, the push, and the release tag are separate maintainer-controlled
-steps described in [docs/RELEASE.md](./docs/RELEASE.md).
 
 ---
 
