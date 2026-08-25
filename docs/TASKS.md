@@ -220,6 +220,17 @@
   settings 词表扁平键导致整页渲染原始 key；gen-zh-hant 因评估 import 绑定而中断；
   assemble 路由回退页缺少 favicon/SW 注入。
 
+### P2.11 · 维护者反馈修复轮 `✅ 已完成`
+
+- [x] Settings 以 manifest `presentation.card = false` 退出首页卡片；homepage 与设置页消费同一契约，
+  manifest 契约测试锁定各应用的卡片标志。
+- [x] 设置页标题避让固定导航（页首 padding 计入 `--toolbox-nav-height`），browser smoke 断言标题
+  顶边不低于 56px。
+- [x] 语言选择收敛为下拉列表，选项保持语言自称；DESIGN_SYSTEM 与 AGENTS 设计偏好同步更新。
+- [x] 弱化提示改用 `--color-text-muted`（三族浅色实测 4.10–4.37:1，faint 仅 1.91–3.24:1）。
+- [x] 首页排序列表按已保存 order 渲染，↑↓ 即时换位并带 FLIP 滑动动画与高亮反馈，尊重
+  reduced motion；smoke 覆盖换位与还原。
+
 ## P3 — 性能与可维护性
 
 ### P3.1 · 合成层第一轮优化 `✅ 已完成`
