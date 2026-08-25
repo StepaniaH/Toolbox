@@ -1,13 +1,10 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { NavBar } from "@toolbox/nav";
 import { ToolboxFooter } from "@toolbox/nav/ToolboxFooter.tsx";
 import "@toolbox/nav/nav-bar.css";
 import { useTranslation } from "@toolbox/i18n/react";
 import { getLang, onChange, setLang, type Lang } from "@toolbox/i18n/core";
-import {
-  COVERED_LANGUAGES,
-  languageDisplayName,
-} from "@toolbox/i18n/registry";
+import { COVERED_LANGUAGES } from "@toolbox/i18n/registry";
 import {
   clearHomepagePrefs,
   readHomepagePrefs,
@@ -16,7 +13,9 @@ import {
 import { getStableApps, localizedText } from "@toolbox/app-manifest";
 import "./styles.css";
 
-const TOOLS = getStableApps().filter((app) => app.path !== "/");
+const TOOLS = getStableApps().filter(
+  (app) => app.path !== "/" && app.presentation?.card !== false,
+);
 const THEME_API = (window as unknown as {
   ToolboxTheme?: {
     getTheme?: () => "dark" | "light";
@@ -136,31 +135,24 @@ function AppearanceSection() {
           </div>
         </div>
       ) : null}
-      <div
-        className="settings-row settings-row-top"
-        role="group"
-        aria-label={t("appearance.language")}
-      >
+      <div className="settings-row" role="group" aria-label={t("appearance.language")}>
         <span className="settings-row-label">{t("appearance.language")}</span>
-        <ul className="language-list">
+        <select
+          className="language-select"
+          lang={lang === "zh" ? "zh-CN" : lang}
+          value={lang}
+          onChange={(event) => setLang(event.target.value as Lang)}
+        >
           {COVERED_LANGUAGES.map((entry) => (
-            <li key={entry.code}>
-              <button
-                type="button"
-                lang={entry.code === "zh" ? "zh-CN" : entry.code}
-                className={lang === entry.code ? "language-option is-active" : "language-option"}
-                aria-pressed={lang === entry.code}
-                onClick={() => setLang(entry.code as Lang)}
-              >
-                <span className="language-native">{entry.nativeName}</span>
-                <span className="language-display" aria-hidden="true">
-                  {languageDisplayName(entry.code, lang)}
-                </span>
-                {lang === entry.code ? <span className="language-check" aria-hidden="true">✓</span> : null}
-              </button>
-            </li>
+            <option
+              key={entry.code}
+              value={entry.code}
+              lang={entry.code === "zh" ? "zh-CN" : entry.code}
+            >
+              {entry.nativeName}
+            </option>
           ))}
-        </ul>
+        </select>
       </div>
     </Section>
   );
@@ -171,6 +163,10 @@ function HomepageSection() {
   const lang = useCurrentLang();
   const [prefs, setPrefs] = useState(() => readHomepagePrefs(TOOLS));
   const [saved, setSaved] = useState(false);
+  const [movedId, setMovedId] = useState<string | null>(null);
+  const listRef = useRef<HTMLUListElement | null>(null);
+  const prevTops = useRef<Map<string, number>>(new Map());
+  const pendingMove = useRef<string | null>(null);
 
   useEffect(() => {
     if (!saved) return;
@@ -178,14 +174,59 @@ function HomepageSection() {
     return () => window.clearTimeout(timer);
   }, [saved]);
 
+  useEffect(() => {
+    if (!movedId) return;
+    const timer = window.setTimeout(() => setMovedId(null), 500);
+    return () => window.clearTimeout(timer);
+  }, [movedId]);
+
   const persist = (next: typeof prefs) => {
     writeHomepagePrefs(next, TOOLS);
     setPrefs(next);
     setSaved(true);
   };
 
-  const visible = TOOLS.filter((tool) => !prefs.hiddenIds.includes(tool.id));
-  const hidden = TOOLS.filter((tool) => prefs.hiddenIds.includes(tool.id));
+  const hiddenSet = new Set(prefs.hiddenIds);
+  const rank = new Map(prefs.order.map((id, index) => [id, index]));
+  const visible = TOOLS.filter((tool) => !hiddenSet.has(tool.id)).sort((a, b) => {
+    const ra = rank.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+    const rb = rank.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+    return ra === rb ? 0 : ra - rb;
+  });
+  const hidden = TOOLS.filter((tool) => hiddenSet.has(tool.id));
+
+  const captureRowTops = () => {
+    const tops = new Map<string, number>();
+    listRef.current
+      ?.querySelectorAll<HTMLElement>("[data-tool-id]")
+      .forEach((el) => tops.set(el.dataset.toolId!, el.getBoundingClientRect().top));
+    prevTops.current = tops;
+  };
+
+  useLayoutEffect(() => {
+    const container = listRef.current;
+    if (!container || prevTops.current.size === 0) return;
+    const previousTops = prevTops.current;
+    prevTops.current = new Map();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    container.querySelectorAll<HTMLElement>("[data-tool-id]").forEach((el) => {
+      const id = el.dataset.toolId!;
+      const previousTop = previousTops.get(id);
+      if (previousTop === undefined) return;
+      const delta = previousTop - el.getBoundingClientRect().top;
+      if (Math.abs(delta) < 1) return;
+      el.style.transition = "none";
+      el.style.transform = `translateY(${delta}px)`;
+      requestAnimationFrame(() => {
+        el.style.transition = "transform 200ms ease";
+        el.style.transform = "";
+      });
+    });
+    if (pendingMove.current) {
+      setMovedId(pendingMove.current);
+      pendingMove.current = null;
+    }
+  });
 
   const toggleTool = (id: string) => {
     const hiddenIds = prefs.hiddenIds.includes(id)
@@ -195,21 +236,26 @@ function HomepageSection() {
   };
 
   const move = (id: string, delta: -1 | 1) => {
-    const order = [...prefs.order];
-    const current = order.indexOf(id) === -1 ? order.length : order.indexOf(id);
-    const target = current + delta;
-    if (target < 0 || target >= visible.length) return;
-    if (order.indexOf(id) === -1) order.push(id);
-    [order[current], order[target]] = [order[target], order[current]];
-    persist({ ...prefs, order });
+    const from = visible.findIndex((tool) => tool.id === id);
+    const to = from + delta;
+    if (from === -1 || to < 0 || to >= visible.length) return;
+    captureRowTops();
+    pendingMove.current = id;
+    const nextOrder = visible.map((tool) => tool.id);
+    [nextOrder[from], nextOrder[to]] = [nextOrder[to], nextOrder[from]];
+    persist({ ...prefs, order: nextOrder });
   };
 
   return (
     <Section title={t("homepage.title")} description={t("homepage.description")}>
       <p className="settings-hint">{t("homepage.hint")}</p>
-      <ul className="tool-list">
+      <ul className="tool-list" ref={listRef}>
         {visible.map((tool, index) => (
-          <li key={tool.id} className="tool-row">
+          <li
+            key={tool.id}
+            data-tool-id={tool.id}
+            className={movedId === tool.id ? "tool-row is-moved" : "tool-row"}
+          >
             <span className="tool-name">{toolName(tool.id, lang)}</span>
             <span className="tool-actions">
               <button type="button" aria-label={t("homepage.moveUp")} disabled={index === 0} onClick={() => move(tool.id, -1)}>↑</button>
@@ -219,7 +265,7 @@ function HomepageSection() {
           </li>
         ))}
         {hidden.map((tool) => (
-          <li key={tool.id} className="tool-row is-hidden">
+          <li key={tool.id} data-tool-id={tool.id} className="tool-row is-hidden">
             <span className="tool-name">{toolName(tool.id, lang)}</span>
             <span className="tool-actions">
               <button type="button" onClick={() => toggleTool(tool.id)}>{t("homepage.show")}</button>
