@@ -27,9 +27,12 @@
 
 ### P0.2 · dev → main 晋级清单 `🔄 进行中`
 
-- [ ] CI 全绿：privacy/contracts/build/test/lint/browser。
-- [ ] CHANGELOG、版本与受影响应用同步，并记录可回滚 commit。
-- [ ] `main` 只接受维护者明确晋级；合并不自动部署，生产仍需手动确认。
+- [x] CI 全绿：privacy/contracts/build/test/lint/browser。push 运行在 DST 扫描测试获得显式
+  超时后连续全绿；v0.4.0 合并后的 push 运行再次全绿。
+- [x] CHANGELOG、版本与受影响应用同步，并记录可回滚 commit。CHANGELOG 以 v0.4.0 小节转正，
+  根版本与 `TOOLBOX_RELEASE` 同步；回滚基点是各次合并前的 `dev` HEAD，流程见 RELEASE.md 第六节。
+- [x] `main` 只接受维护者明确晋级；合并不自动部署，生产仍需手动确认。本轮合并、push 与打 tag
+  均由维护者逐项授权。
 
 2026-08-25 晋级准备记录：
 
@@ -38,7 +41,7 @@
   browser smoke。push 后需在 GitHub Actions 复核同套件全绿，方可勾选第一项。
 - 受影响范围：全部八个应用、全部平台包（theme v2、nav、i18n、prefs、app-manifest）、
   assemble 与 release 脚本、CI 工作流与全部 docs。CHANGELOG 的 Unreleased 小节已补全本轮
-  用户可见变更；版本号保持 v0.3.1，版本提升留给打 tag 前的版本准备提交。
+  用户可见变更；版本提升在 v0.4.0 版本准备提交完成。
 - 回滚基点是合并前的 `dev` HEAD；晋级后如需回退，按 RELEASE.md 第六节以 revert commit 加
   新 patch tag 完成，不改写历史、不移动 tag。
 
@@ -219,6 +222,17 @@
 - [x] 修复 theme 族选择器被默认暗色块特异性压制导致 gruvbox/solarized 暗色不生效；
   settings 词表扁平键导致整页渲染原始 key；gen-zh-hant 因评估 import 绑定而中断；
   assemble 路由回退页缺少 favicon/SW 注入。
+
+### P2.11 · 维护者反馈修复轮 `✅ 已完成`
+
+- [x] Settings 以 manifest `presentation.card = false` 退出首页卡片；homepage 与设置页消费同一契约，
+  manifest 契约测试锁定各应用的卡片标志。
+- [x] 设置页标题避让固定导航（页首 padding 计入 `--toolbox-nav-height`），browser smoke 断言标题
+  顶边不低于 56px。
+- [x] 语言选择收敛为下拉列表，选项保持语言自称；DESIGN_SYSTEM 与 AGENTS 设计偏好同步更新。
+- [x] 弱化提示改用 `--color-text-muted`（三族浅色实测 4.10–4.37:1，faint 仅 1.91–3.24:1）。
+- [x] 首页排序列表按已保存 order 渲染，↑↓ 即时换位并带 FLIP 滑动动画与高亮反馈，尊重
+  reduced motion；smoke 覆盖换位与还原。
 
 ## P3 — 性能与可维护性
 

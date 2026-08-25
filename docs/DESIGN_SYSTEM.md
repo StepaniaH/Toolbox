@@ -106,8 +106,12 @@ App Surface（工具自己拥有）
 - NavBar 右侧只放一个指向 `/settings/` 的齿轮图标；任何页面不得再出现第二套语言或主题控件。
 - 明暗模式使用分段控件（深色 / 浅色）；配色风格使用带预览色块的选项卡，选项展示人类可读的
   名称（`Catppuccin`、`Gruvbox`、`Solarized`），不暴露内部 id。
-- 语言列表逐行展示该语言的自称与当前界面语言的辅助名称：`中文（简体）`+`Chinese`；
-  自称永不翻译，避免用户看不懂目标语言而无法切回。当前语言有明确选中标记。
+- 语言选择使用下拉列表，选项展示该语言的自称（`中文（简体）`、`繁體中文`、`English`）；
+  自称永不翻译，避免用户看不懂目标语言而无法切回。
+- Settings 是偏好入口而非独立工具：manifest 中 `presentation.card = false`，首页卡片
+  不展示它；导航菜单与齿轮入口保持不变。
+- 弱化说明文字使用 `--color-text-muted`（契约门禁 ≥4.0:1），不用 `--color-text-faint`；
+  faint 只用于刻意去重的条目（如已隐藏行）。
 - 所有偏好立即生效并写入共享 storage（`toolbox-lang` / `toolbox-theme` /
   `toolbox-theme-family`），刷新与其他页面读取同一份值。
 - 控件默认无独立底色或外框；hover 只做颜色反馈；键盘 `:focus-visible` 必须保留清晰的

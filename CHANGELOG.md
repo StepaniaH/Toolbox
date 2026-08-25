@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.4.0 (2026-08-25)
 
 ### Added
 
@@ -32,6 +32,9 @@
   settings entry, ChronoSphere follows the shared theme key with a one-time migration away from its
   private key, and RateLens and SaneUnits dropped their private theme hooks; contract checks reject
   reintroducing preference controls into navigation.
+- Moved the settings language picker into a dropdown whose options keep each language's self-name.
+- Excluded the Settings preference surface from homepage cards through an explicit
+  `presentation.card` flag in the app manifest.
 - Derived Homepage, RateLens, and Monitor Choice styling from the shared theme token layer,
   replaced Monitor Choice's local theme manager with the runtime adapter, and split SaneUnits'
   App.tsx into routing, URL-state, UI primitives, and per-page components.
@@ -44,6 +47,10 @@
   Gruvbox and Solarized dark modes now apply.
 - Fixed Settings rendering raw translation keys by restructuring its dictionaries to the nested
   shape the translator resolves, localized every label, and aligned its footer with the shell width.
+- Fixed the settings page title sliding beneath the fixed navigation bar.
+- Fixed barely-visible hint text in light themes by moving hints to the contrast-gated muted token.
+- Fixed homepage reordering ignoring the saved order; reorder actions now slide rows with a brief
+  highlight and respect reduced motion.
 - Fixed the zh-Hant generator failing on imported bindings by extracting zh subtrees while
   reproducing every other app's generated output byte-for-byte.
 - Fixed assembled route-fallback pages serving documents without favicon and service-worker

@@ -1,5 +1,5 @@
 export const APP_STATUSES = Object.freeze(['hidden', 'preview', 'stable'])
-export const TOOLBOX_RELEASE = 'v0.3.1'
+export const TOOLBOX_RELEASE = 'v0.4.0'
 
 export function defineApp(input) {
   const app = {
@@ -19,6 +19,7 @@ export function defineApp(input) {
   }
   if (app.presentation) {
     app.presentation = Object.freeze({
+      card: app.presentation.card !== false,
       title: app.presentation.title ? Object.freeze({ ...app.presentation.title }) : undefined,
       subtitle: Object.freeze({ ...app.presentation.subtitle }),
       description: Object.freeze({ ...app.presentation.description }),
@@ -219,6 +220,7 @@ export const TOOLBOX_APPS = Object.freeze([
       svg: '<circle cx="24" cy="24" r="6"/><path d="M24 8v5M24 35v5M8 24h5M35 24h5M13 13l3.5 3.5M31.5 31.5L35 35M35 13l-3.5 3.5M16.5 31.5L13 35"/>',
     },
     presentation: {
+      card: false,
       subtitle: { zh: '外观与首页偏好', zhHant: "外觀與首頁偏好", en: 'Appearance & homepage prefs' },
       description: {
         zh: '调整明暗主题、界面语言与首页工具的展示、数量和顺序，全部保存在本机。',

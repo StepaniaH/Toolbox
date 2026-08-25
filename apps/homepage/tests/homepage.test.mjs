@@ -33,7 +33,9 @@ test('homepage keeps its public root shell and secure source link', () => {
 
 test('homepage renders every stable tool from the manifest presentation contract', () => {
   const main = read('js/main.js')
-  const apps = getStableApps().filter((app) => app.path !== '/')
+  const apps = getStableApps().filter(
+    (app) => app.path !== '/' && app.presentation.card !== false,
+  )
   assert.ok(apps.length >= 1)
   for (const app of apps) {
     assert.ok(app.presentation, `${app.id} must carry its card presentation in the manifest`)
@@ -43,8 +45,14 @@ test('homepage renders every stable tool from the manifest presentation contract
     }
     assert.ok(app.presentation.badges.length > 0, `${app.id} needs card badges`)
   }
+  assert.equal(
+    getStableApps().find((app) => app.id === 'settings')?.presentation.card,
+    false,
+    'settings is a preference surface, not a homepage card',
+  )
   assert.match(main, /registerCardStrings/)
   assert.match(main, /presentation/)
+  assert.match(main, /card !== false/)
   assert.doesNotMatch(main, /CARD_PRESENTATION/)
 })
 

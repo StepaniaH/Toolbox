@@ -71,6 +71,10 @@ try {
 
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
 
+  // The fixed nav bar must never cover the page title.
+  const titleBox = await page.locator('h1').first().boundingBox()
+  assert.ok(titleBox && titleBox.y >= 56, 'settings title must clear the 56px fixed nav')
+
   // Translations must render as copy, never as raw dotted keys.
   const bodyText = await page.locator('body').textContent()
   for (const banned of ['brand.', 'appearance.', 'homepage.']) {
@@ -99,10 +103,20 @@ try {
   assert.equal(await page.getAttribute('html', 'data-theme-family'), 'solarized')
   assert.equal(await page.getAttribute('html', 'data-theme'), 'dark')
 
-  // Language options localize the whole page instantly and persist.
-  await page.locator('.language-option', { hasText: '简体中文' }).click()
+  // The language dropdown localizes the whole page instantly and persists.
+  await page.locator('.language-select').selectOption('zh')
   await page.waitForFunction(() => document.documentElement.lang === 'zh-CN')
   assert.equal(await page.locator('h1').first().textContent(), '设置')
+
+  // Reordering must visibly swap adjacent rows and persist the new order.
+  const visibleNames = page.locator('.tool-row:not(.is-hidden) .tool-name')
+  const namesBefore = await visibleNames.allTextContents()
+  await page.locator('button[aria-label="下移"]').first().click()
+  const namesAfter = await visibleNames.allTextContents()
+  assert.equal(namesAfter[0], namesBefore[1])
+  assert.equal(namesAfter[1], namesBefore[0])
+  await page.locator('button[aria-label="上移"]').nth(1).click()
+  assert.deepEqual(await visibleNames.allTextContents(), namesBefore)
 
   await page.reload({ waitUntil: 'networkidle' })
   assert.equal(await page.getAttribute('html', 'data-theme-family'), 'solarized')

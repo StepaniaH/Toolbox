@@ -27,6 +27,8 @@ export type AppIcon = Readonly<{
 }>
 
 export type CardPresentation = Readonly<{
+  /** Homepage cards default to visible; opt out with card: false. */
+  card: boolean
   title?: LocalizedText
   subtitle: LocalizedText
   description: LocalizedText

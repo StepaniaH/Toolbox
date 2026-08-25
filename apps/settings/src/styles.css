@@ -3,7 +3,7 @@
 .page {
   max-width: 720px;
   margin: 0 auto;
-  padding: 24px 16px 48px;
+  padding: calc(var(--toolbox-nav-height, 56px) + 24px) 16px 48px;
 }
 
 .settings-header {
@@ -109,6 +109,11 @@
   color: var(--color-text-faint);
 }
 
+.tool-row.is-moved {
+  background: var(--color-bg-muted);
+  border-radius: var(--radius-sm);
+}
+
 .tool-name {
   color: var(--color-text);
   font-size: 14px;
@@ -164,7 +169,7 @@
 
 .settings-hint {
   margin: 0;
-  color: var(--color-text-faint);
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 
@@ -247,52 +252,19 @@
   font-size: 12px;
 }
 
-.settings-row-top {
-  align-items: flex-start;
-}
-
-.language-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  min-width: 220px;
-}
-
-.language-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  border: none;
-  background: transparent;
-  padding: 8px 10px;
+.language-select {
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  cursor: pointer;
-  font: inherit;
-  text-align: left;
-}
-
-.language-option:hover {
-  background: var(--color-bg-muted);
-}
-
-.language-option.is-active {
-  background: var(--color-bg-muted);
-}
-
-.language-native {
+  background: var(--color-bg);
   color: var(--color-text);
+  font: inherit;
   font-size: 14px;
-  font-weight: 550;
+  cursor: pointer;
 }
 
-.language-display {
-  color: var(--color-text-faint);
-  font-size: 12px;
-  flex: 1;
-}
-
-.language-check {
-  color: var(--color-primary);
-  font-size: 13px;
+.language-select:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
 }

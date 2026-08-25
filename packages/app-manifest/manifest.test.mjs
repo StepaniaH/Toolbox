@@ -10,7 +10,7 @@ import {
 } from './manifest.js'
 
 test('manifest ids and paths are unique', () => {
-  assert.equal(TOOLBOX_RELEASE, 'v0.3.1')
+  assert.equal(TOOLBOX_RELEASE, 'v0.4.0')
   assert.equal(new Set(TOOLBOX_APPS.map((app) => app.id)).size, TOOLBOX_APPS.length)
   assert.equal(new Set(TOOLBOX_APPS.map((app) => app.path)).size, TOOLBOX_APPS.length)
 })
@@ -38,6 +38,17 @@ test('stable selector excludes preview and hidden entries', () => {
   assert.ok(APP_STATUSES.includes('preview'))
   assert.ok(APP_STATUSES.includes('hidden'))
   assert.ok(getStableApps().every((app) => app.status === 'stable'))
+})
+
+test('homepage card visibility is part of the presentation contract', () => {
+  for (const app of getStableApps()) {
+    if (app.path === '/') continue
+    assert.equal(
+      app.presentation.card,
+      app.id !== 'settings',
+      `${app.id} must declare the expected homepage card flag`,
+    )
+  }
 })
 
 test('manifest entries and nested public text are immutable', () => {

@@ -7,7 +7,9 @@ import { fileURLToPath } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
 import { chromium } from 'playwright'
 
-const toolCount = getStableApps().filter((app) => app.path !== '/').length
+const toolCount = getStableApps().filter(
+  (app) => app.path !== '/' && app.presentation.card !== false,
+).length
 const appRoot = fileURLToPath(new URL('../', import.meta.url))
 const viteCli = fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url))
 const previewUrl = 'http://127.0.0.1:19883/'
