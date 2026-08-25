@@ -9,7 +9,7 @@ import { applyHomepagePrefs, readHomepagePrefs } from "@toolbox/prefs";
 import { autoMountToolboxFooters } from "@toolbox/nav/toolbox-footer.js";
 
 const tools = getStableApps()
-  .filter((app) => app.path !== "/")
+  .filter((app) => app.path !== "/" && app.presentation?.card !== false)
   .map((app) => ({
     id: app.id,
     name: app.name,

@@ -40,6 +40,17 @@ test('stable selector excludes preview and hidden entries', () => {
   assert.ok(getStableApps().every((app) => app.status === 'stable'))
 })
 
+test('homepage card visibility is part of the presentation contract', () => {
+  for (const app of getStableApps()) {
+    if (app.path === '/') continue
+    assert.equal(
+      app.presentation.card,
+      app.id !== 'settings',
+      `${app.id} must declare the expected homepage card flag`,
+    )
+  }
+})
+
 test('manifest entries and nested public text are immutable', () => {
   const homepage = getAppById('homepage')
   assert.ok(homepage)
