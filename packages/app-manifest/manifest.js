@@ -1,5 +1,5 @@
 export const APP_STATUSES = Object.freeze(['hidden', 'preview', 'stable'])
-export const TOOLBOX_RELEASE = 'v0.3.1'
+export const TOOLBOX_RELEASE = 'v0.4.0'
 
 export function defineApp(input) {
   const app = {
