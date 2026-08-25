@@ -103,10 +103,19 @@ try {
   assert.equal(await page.getAttribute('html', 'data-theme-family'), 'solarized')
   assert.equal(await page.getAttribute('html', 'data-theme'), 'dark')
 
-  // The language dropdown localizes the whole page instantly and persists.
-  await page.locator('.language-select').selectOption('zh')
+  // The custom language dropdown localizes the whole page instantly and persists.
+  const languageTrigger = page.locator('.language-trigger')
+  await languageTrigger.click()
+  await page.locator('.language-menu-item', { hasText: '简体中文' }).click()
   await page.waitForFunction(() => document.documentElement.lang === 'zh-CN')
   assert.equal(await page.locator('h1').first().textContent(), '设置')
+  assert.equal(await languageTrigger.getAttribute('aria-expanded'), 'false')
+
+  // Keyboard support: open with ArrowDown, close with Escape.
+  await languageTrigger.click()
+  assert.equal(await languageTrigger.getAttribute('aria-expanded'), 'true')
+  await page.keyboard.press('Escape')
+  assert.equal(await languageTrigger.getAttribute('aria-expanded'), 'false')
 
   // Reordering must visibly swap adjacent rows and persist the new order.
   const visibleNames = page.locator('.tool-row:not(.is-hidden) .tool-name')
