@@ -37,8 +37,13 @@ const sharedZhHant = sharedZhHantJson as unknown as Translations;
 const sharedEn = sharedEnJson as unknown as Translations;
 
 export type I18nProviderProps = {
-  /** App-specific translations, overlaid on top of the shared maps. */
-  translations?: Partial<Record<Lang, Translations>>;
+  /**
+   * App-specific translations overlaid on the shared maps. When provided,
+   * every UI language must be present — partial records are the single most
+   * common source of raw keys leaking into one language, so the type refuses
+   * them at compile time.
+   */
+  translations?: Record<Lang, Translations>;
   children: ReactNode;
 };
 
@@ -76,16 +81,26 @@ export function I18nProvider({ translations, children }: I18nProviderProps) {
   useEffect(() => onChange(setLangState), []);
 
   const t = useMemo<TranslateFn>(() => {
-    const shared =
-      lang === "en"
-        ? sharedEn
-        : lang === "zh-Hant"
-          ? sharedZhHant
-          : sharedZh;
-    const extra = translations?.[lang];
-    return createTranslator(
-      isTranslations(extra) ? deepMerge(shared, extra) : shared,
-    );
+    const resolve = (forLang: Lang): Translations => {
+      const shared =
+        forLang === "en"
+          ? sharedEn
+          : forLang === "zh-Hant"
+            ? sharedZhHant
+            : sharedZh;
+      const extra = translations?.[forLang];
+      return isTranslations(extra) ? deepMerge(shared, extra) : shared;
+    };
+    // zh-Hant falls back to the zh map: a key missing from a generated or
+    // partial Traditional Chinese catalog must degrade to Simplified Chinese,
+    // never to a raw dotted key.
+    if (lang === "zh-Hant") {
+      return createTranslator(
+        resolve("zh-Hant"),
+        createTranslator(resolve("zh")),
+      );
+    }
+    return createTranslator(resolve(lang));
   }, [lang, translations]);
 
   const value = useMemo<TranslationContextValue>(

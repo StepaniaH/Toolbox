@@ -117,12 +117,75 @@ function interpolate(template: string, params?: TranslateParams): string {
 /**
  * Create a translator bound to one language's translation map.
  * Supports dotted nested keys (`t("nav.about")`) and `{{name}}` interpolation.
- * Missing keys fall back to the key itself so the UI never breaks.
+ * A missing key consults the optional fallback translator before returning the
+ * key itself, so partial locales degrade to a readable language instead of
+ * leaking raw keys into the UI.
  */
-export function createTranslator(translations: Translations): TranslateFn {
+export function createTranslator(
+  translations: Translations,
+  fallback?: TranslateFn,
+): TranslateFn {
   return (key, params) => {
     const value = getNested(translations, key);
     if (typeof value === "string") return interpolate(value, params);
+    if (fallback) return fallback(key, params);
     return key;
   };
+}
+
+/**
+ * BCP-47 locale for `Intl` APIs under the active UI language.
+ * Always use this instead of `lang === "zh" ? "zh-CN" : "en"` binary checks,
+ * which silently give Traditional Chinese users the wrong locale.
+ */
+export function intlLocale(lang: Lang): string {
+  return lang === "zh" ? "zh-CN" : lang === "zh-Hant" ? "zh-TW" : "en";
+}
+
+function translationKeys(
+  translations: Translations,
+  prefix = "",
+  out: string[] = [],
+): string[] {
+  for (const key of Object.keys(translations)) {
+    const path = prefix ? `${prefix}.${key}` : key;
+    const value = translations[key];
+    if (typeof value === "string") out.push(path);
+    else translationKeys(value, path, out);
+  }
+  return out;
+}
+
+/**
+ * Assert that every UI language carries the exact same set of translation
+ * keys. Call from an app's unit test with its full locale record; a drift
+ * fails the test naming the first missing key instead of leaking raw keys
+ * into a shipped locale.
+ */
+export function assertTranslationParity(
+  translations: Partial<Record<Lang, Translations>>,
+): void {
+  const langs = Object.keys(translations) as Lang[];
+  if (langs.length < 2) return;
+  const baselineLang = langs[0];
+  const baselineMap = baselineLang ? translations[baselineLang] : undefined;
+  if (!baselineLang || !baselineMap) return;
+  const baseline = translationKeys(baselineMap).sort();
+  for (const lang of langs.slice(1)) {
+    const map = translations[lang];
+    if (!map) continue;
+    const keys = translationKeys(map).sort();
+    const missing = baseline.find((key) => !keys.includes(key));
+    if (missing) {
+      throw new Error(
+        `translation parity: "${lang}" is missing key "${missing}" (baseline ${baselineLang})`,
+      );
+    }
+    const extra = keys.find((key) => !baseline.includes(key));
+    if (extra) {
+      throw new Error(
+        `translation parity: "${lang}" has unknown key "${extra}" (baseline ${baselineLang})`,
+      );
+    }
+  }
 }

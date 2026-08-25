@@ -4,6 +4,9 @@
   "description": "Framework-agnostic i18n core + React wrapper hook — shared across Toolbox apps",
   "main": "./core.ts",
   "types": "./core.ts",
+  "scripts": {
+    "test": "node --test core.test.mjs"
+  },
   "exports": {
     ".": "./core.ts",
     "./core": "./core.ts",
