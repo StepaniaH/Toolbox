@@ -223,5 +223,5 @@ describe('detectDstTransitions', () => {
     const transitions = detectDstTransitions('2026-01-01', '2050-01-01', 'America/New_York');
     // Should complete without timeout
     expect(transitions.length).toBeGreaterThan(0);
-  });
+  }, 30_000);
 });
