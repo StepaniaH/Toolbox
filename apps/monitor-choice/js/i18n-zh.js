@@ -150,10 +150,6 @@
   zh['footer.privacy'] = '所有数据在本地浏览器中计算处理，不上传任何信息，不使用第三方追踪。';
   zh['footer.hosting'] = '自托管静态站点';
 
-  /* ── Theme ── */
-  zh['theme.toggle'] = '切换明暗主题';
-  zh['theme.toLight'] = '切换到亮色主题';
-  zh['theme.toDark'] = '切换到暗色主题';
 
   /* ── Language ── */
   zh['lang.toggle'] = 'English';

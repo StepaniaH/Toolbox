@@ -9,3 +9,5 @@ deploy/.env
 .hermes/
 docs/ISSUES.md
 .git.old.bak/
+.tsbuildinfo/
+*.tsbuildinfo

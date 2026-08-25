@@ -1,0 +1,1144 @@
+{
+  "meta": {
+    "title": "FormTran · Toolbox",
+    "description": "在瀏覽器本地識別文件，並使用轉換、壓縮、編輯、編碼、解析和信息查看工具"
+  },
+  "brand": {
+    "title": "FormTran",
+    "subtitle": "從識別到處理，每一步都留在本機"
+  },
+  "tabs": {
+    "label": "FormTran 功能頁面",
+    "home": "文件首頁",
+    "image": "圖片格式轉換",
+    "gif": "GIF 合成",
+    "text": "文本與標記轉換",
+    "data": "表格數據",
+    "pdf": "PDF 工具",
+    "archive": "壓縮包",
+    "knowledge": "知識庫"
+  },
+  "privacy": {
+    "home": {
+      "title": "文件首頁隱私說明",
+      "detail": "文件首頁只在當前瀏覽器讀取分類所需的少量頭部字節，不上傳、不自動處理，也不保存文件、文件名或識別結果。"
+    },
+    "image": {
+      "title": "圖片格式轉換隱私說明",
+      "detail": "圖片、轉換結果和壓縮包只存在於當前瀏覽器內存，不會上傳；僅轉換偏好保存在本機，關閉頁面後不保留文件與文件名。"
+    },
+    "gif": {
+      "title": "GIF 合成隱私說明",
+      "detail": "源圖片、逐幀像素與生成的 GIF 只在當前瀏覽器內存中處理，不上傳服務器；離開頁面後不會保存素材與動畫。"
+    },
+    "text": {
+      "title": "文本與標記轉換隱私說明",
+      "detail": "打開的文本、解析結構、預覽和轉換結果僅在瀏覽器本地生成，不會發送到服務器或第三方。"
+    },
+    "data": {
+      "title": "表格數據隱私說明",
+      "detail": "CSV、TSV、XLSX 的讀取、預覽和導出只在瀏覽器內存中完成；不會上傳文件、文件名、工作表或單元格內容。"
+    },
+    "pdf": {
+      "title": "PDF 工具隱私說明",
+      "detail": "PDF 的解析、頁面複製、合併、拆分與旋轉只在瀏覽器內存中完成，不上傳文件、名稱或結果；關閉頁面後不保留。"
+    },
+    "archive": {
+      "title": "壓縮包工具隱私說明",
+      "detail": "ZIP 目錄讀取、校驗和解壓均在瀏覽器本地完成，不會把壓縮包、內部文件名或解壓內容發送到服務器。"
+    },
+    "knowledge": {
+      "title": "知識庫隱私說明",
+      "detail": "本頁內容隨網站靜態提供，不讀取你的文件、不記錄閱讀行為，也不會為格式說明發起外部請求。"
+    }
+  },
+  "home": {
+    "title": "把內容放進來，組成一次本地任務",
+    "intro": "文件和文件夾共用一個入口；本地識別、按類型分組，再由你決定單項、所選項或同類文件進入哪個工具。",
+    "addContent": "添加內容",
+    "chooseFiles": "添加文件",
+    "chooseFolder": "添加文件夾",
+    "pickerHint": "瀏覽器原生選擇器不能在同一次選擇中混選文件與文件夾；拖放區域可以統一接收兩者。",
+    "queue": "任務內容",
+    "fileCount": "{{count}} 個文件",
+    "clear": "清空任務",
+    "remove": "移除",
+    "identifying": "正在本地識別…",
+    "readError": "無法讀取文件頭部，源文件沒有被修改。",
+    "importResult": "已加入 {{accepted}} 個文件，另有 {{skipped}} 個因重複、為空或超過隊列上限而未加入。",
+    "base64Limit": "為避免頁面卡頓，Base64 目前只處理 10 MB 以內的文件。",
+    "howTitle": "統一接收，識別後再行動",
+    "howDetail": "支持混合文件和文件夾。首頁最多讀取每個文件 64 KiB 用於識別，不會僅憑擴展名承諾完整兼容。",
+    "queueHint": "選擇一個文件查看推薦工具",
+    "format": "識別格式",
+    "size": "文件大小",
+    "recognition": "識別依據",
+    "mismatch": "文件內容簽名與擴展名不一致。推薦基於內容簽名，處理前請確認文件來源。",
+    "recommended": "推薦工具",
+    "recommendedHint": "操作默認作用於當前文件；勾選文件或整組後，會作用於其中與當前文件同類且該工具支持的項目。",
+    "noAutoRun": "不會自動執行",
+    "openTool": "打開工具",
+    "generate": "生成",
+    "notOpen": "尚未開放",
+    "shownHere": "信息已顯示",
+    "plannedTools": "查看 {{count}} 個後續能力",
+    "base64Result": "Data URL / Base64 結果",
+    "copy": "複製",
+    "selectAll": "全選",
+    "clearSelection": "取消選擇",
+    "selectFile": "選擇",
+    "scopeSingle": "當前單項",
+    "scopeSelected": "將處理 {{count}} 個同類所選項",
+    "previewFile": "單項預覽",
+    "liveOverview": "實時總覽",
+    "overviewTitle": "本次任務的整體結構",
+    "files": "文件",
+    "types": "類型",
+    "selected": "處理範圍",
+    "totalSize": "總大小",
+    "distribution": "文件類型分佈",
+    "outputStageNote": "輸入與處理結果都只保留在當前頁面內存；專用工作臺生成的新文件會回到下方結果隊列，可繼續統一命名和導出。",
+    "localPreview": "本地單項預覽",
+    "previewUnavailable": "此格式不在首頁直接渲染；進入對應工具後仍可安全檢查或處理。",
+    "emptyText": "這是一個空文本文件。",
+    "presets": {
+      "title": "常用預設",
+      "detail": "預設只填寫起始參數，進入工作臺後仍可修改。",
+      "web": {
+        "title": "網頁照片",
+        "detail": "WebP · 74% 畫質"
+      },
+      "transparent": {
+        "title": "透明素材",
+        "detail": "PNG · 保留透明"
+      },
+      "privacy": {
+        "title": "隱私分享",
+        "detail": "強制重編碼並清除常見元數據"
+      }
+    },
+    "families": {
+      "image": "圖片",
+      "gif": "GIF 動圖",
+      "pdf": "PDF",
+      "text": "文本與標記",
+      "data": "結構化數據",
+      "archive": "壓縮包",
+      "unknown": "未知文件"
+    },
+    "familyFormats": {
+      "image": "JPG · PNG · WebP · AVIF · SVG · BMP · TIFF · HEIC/HEIF · ICO",
+      "gif": "GIF 與動畫專項",
+      "pdf": "頁面整理與提取",
+      "text": "TXT · Markdown · HTML · Org · RST · AsciiDoc",
+      "data": "CSV · TSV · XLSX；JSON/YAML/XML 僅識別",
+      "archive": "ZIP 內容與解壓安全",
+      "unknown": "仍可查看基礎文件信息"
+    },
+    "sources": {
+      "signature": "文件內容簽名",
+      "extension": "文件擴展名",
+      "mime": "瀏覽器 MIME",
+      "unknown": "無法確定"
+    },
+    "status": {
+      "available": "可用",
+      "limited": "有限支持",
+      "planned": "規劃中"
+    },
+    "tools": {
+      "convert": {
+        "title": "轉換格式",
+        "detail": "進入對應轉換工作臺，選擇輸出格式與批量設置。"
+      },
+      "compress": {
+        "title": "壓縮圖片",
+        "detail": "使用 WebP 與適中畫質預設，參數仍可檢查和調整。"
+      },
+      "resize": {
+        "title": "調整尺寸",
+        "detail": "按比例或最大寬高批量調整，不默認放大小圖。"
+      },
+      "info": {
+        "title": "查看文件信息",
+        "detail": "當前頁顯示名稱、大小、識別格式和識別依據。"
+      },
+      "metadata": {
+        "title": "清除圖片元數據",
+        "detail": "通過本地畫布重編碼移除常見 EXIF/GPS；色彩配置也可能丟失。"
+      },
+      "base64": {
+        "title": "圖片轉 Base64",
+        "detail": "在本地生成 Data URL；為控制內存，單文件限制 10 MB。"
+      },
+      "compose": {
+        "title": "多圖合成 GIF",
+        "detail": "把當前隊列中的靜態圖片帶入 GIF 幀工作臺。"
+      },
+      "rotate": {
+        "title": "旋轉與翻轉",
+        "detail": "在本地批量旋轉 0°/90°/180°/270°，並可按輸出方向水平或垂直翻轉。"
+      },
+      "crop": {
+        "title": "裁剪",
+        "detail": "可視裁剪、比例預設和批量邊界仍在實現計劃中。"
+      },
+      "stitch": {
+        "title": "圖片拼接",
+        "detail": "橫向、縱向和網格佈局需要獨立畫布與內存預算。"
+      },
+      "favicon": {
+        "title": "Favicon 生成器",
+        "detail": "規劃多尺寸 PNG/ICO 與站點資源清單。"
+      },
+      "watermark": {
+        "title": "批量水印",
+        "detail": "規劃位置、邊距、透明度與縮放預設。"
+      },
+      "firstFrame": {
+        "title": "提取首幀並轉換",
+        "detail": "當前圖片轉換路徑只使用瀏覽器解碼出的一個時間點，不保留動畫。"
+      },
+      "extract": {
+        "title": "GIF 拆幀",
+        "detail": "需要正確處理幀延遲、處置方式、局部幀與透明。"
+      },
+      "gifCompress": {
+        "title": "GIF 壓縮",
+        "detail": "將在畫質、調色板、重複幀和體積之間提供可解釋預設。"
+      },
+      "speed": {
+        "title": "GIF 調速",
+        "detail": "規劃按倍率或目標時長調整，並處理播放器最短幀延遲。"
+      },
+      "video": {
+        "title": "GIF 轉視頻",
+        "detail": "需評估 WebCodecs、音視頻容器和瀏覽器導出支持。"
+      },
+      "animated": {
+        "title": "GIF 轉動圖格式",
+        "detail": "動態 WebP/AVIF 編碼能力需按瀏覽器檢測並延遲加載。"
+      },
+      "preview": {
+        "title": "內容預覽",
+        "detail": "使用針對格式的安全視圖，不執行腳本或外部資源。"
+      },
+      "format": {
+        "title": "格式化",
+        "detail": "規劃 JSON/YAML/XML/CSV 的語法錯誤定位和格式預設。"
+      },
+      "diff": {
+        "title": "文本對比",
+        "detail": "規劃行級與字符級差異、忽略空白和大文本策略。"
+      },
+      "stats": {
+        "title": "數據統計",
+        "detail": "規劃字段、類型、缺失值和行列摘要。"
+      },
+      "encoding": {
+        "title": "編碼轉換",
+        "detail": "將明確區分字符集、Base64、URL 編碼、哈希和加密。"
+      },
+      "merge": {
+        "title": "合併 PDF",
+        "detail": "按任務隊列順序在本地複製頁面並生成一份新 PDF。"
+      },
+      "split": {
+        "title": "逐頁拆分 PDF",
+        "detail": "把最多 50 頁拆為獨立 PDF，並統一導出 ZIP。"
+      },
+      "deletePages": {
+        "title": "刪除頁面",
+        "detail": "輸入頁碼或範圍，生成不含這些頁面的新 PDF。"
+      },
+      "extractPages": {
+        "title": "提取頁面",
+        "detail": "按輸入順序選擇頁面，生成一份新的 PDF。"
+      },
+      "reorder": {
+        "title": "調整頁面順序",
+        "detail": "用完整頁碼順序重建 PDF，適合明確的小型文檔。"
+      },
+      "rotatePages": {
+        "title": "旋轉頁面",
+        "detail": "選擇頁碼並順時針旋轉 90°、180° 或 270°。"
+      },
+      "pdfImages": {
+        "title": "PDF 轉圖片",
+        "detail": "仍需按需渲染、分辨率控制、縮略圖與內存上限。"
+      },
+      "archiveList": {
+        "title": "查看壓縮包內容",
+        "detail": "開放前需防禦路徑穿越、壓縮炸彈與重複路徑。"
+      },
+      "extractAll": {
+        "title": "解壓全部文件",
+        "detail": "規劃展開體積預算、進度與取消。"
+      },
+      "extractSome": {
+        "title": "選擇性解壓",
+        "detail": "規劃安全文件樹和逐項導出。"
+      }
+    }
+  },
+  "session": {
+    "eyebrow": "來自總任務",
+    "title": "專用工作臺已接收所選內容",
+    "detail": "{{count}} 個項目已進入「{{workspace}}」；生成的結果會加入首頁隊列，可只處理這裡，也可返回繼續組合與導出。",
+    "stay": "只處理這裡",
+    "return": "返回總任務"
+  },
+  "outputs": {
+    "title": "任務結果",
+    "intro": "各工作臺生成的新文件會彙總到這裡；原文件不變，結果也不會寫入瀏覽器存儲。",
+    "files": "結果",
+    "families": "類型",
+    "totalSize": "總大小",
+    "emptyTitle": "還沒有處理結果",
+    "emptyDetail": "進入任一專用工作臺生成文件後，結果會自動回到這裡。",
+    "scope": "操作範圍",
+    "family": "結果類型",
+    "targetCount": "當前作用於 {{count}} 項",
+    "itemCount": "{{count}} 項",
+    "renameTemplate": "批量命名模板",
+    "applyRename": "應用命名",
+    "renameHint": "支持 {name}、{index}、{family}；保留原擴展名，重名會自動追加序號。",
+    "exportAs": "導出方式",
+    "export": "導出 {{count}} 項",
+    "exporting": "正在生成…",
+    "select": "選擇結果",
+    "from": "來源",
+    "downloadOne": "下載",
+    "remove": "移除",
+    "clear": "清空全部結果",
+    "renameOne": "單獨重命名",
+    "preview": "結果預覽",
+    "closePreview": "關閉結果預覽",
+    "unknownMime": "未知 MIME",
+    "previewUnavailable": "此結果僅顯示元信息；PDF、壓縮包、工作簿和其他活躍格式不會在首頁直接渲染。",
+    "memoryNote": "結果只存在當前頁面內存：最多 200 項、總計 1 GB；統一 ZIP 輸入最多 512 MB。",
+    "publishLimit": "有 {{count}} 個新結果因結果隊列數量或總容量上限未加入。",
+    "directLimit": "為避免瀏覽器攔截連續下載，直接導出一次最多 {{count}} 項；更多結果請使用 ZIP。",
+    "zipLimit": "所選結果超過 512 MB 的統一 ZIP 預算，請縮小範圍或分批導出。",
+    "exportError": "無法生成導出文件，結果仍保留在當前頁面。",
+    "scopes": {
+      "selected": "已勾選",
+      "family": "同類結果",
+      "all": "全部結果"
+    },
+    "exportModes": {
+      "direct": {
+        "title": "直接文件",
+        "detail": "單項或最多 10 項分別下載"
+      },
+      "zip": {
+        "title": "統一 ZIP",
+        "detail": "按結果類型建立目錄"
+      }
+    }
+  },
+  "upload": {
+    "title": "添加圖片",
+    "drop": "拖放圖片到這裡",
+    "hint": "或選擇單張、多張、整個文件夾；最多 500 個文件，總計 2 GB",
+    "files": "選擇圖片",
+    "folder": "選擇文件夾",
+    "accepted": "輸入：JPEG、PNG、WebP、GIF、BMP、AVIF、SVG、HEIC/HEIF",
+    "rejectedCount": "{{count}} 個文件未加入",
+    "rejectedHint": "懸浮、聚焦或點擊查看文件和原因",
+    "rejectedTitle": "未加入的文件",
+    "rejectedMore": "另有 {{count}} 個文件未顯示",
+    "dismiss": "關閉跳過文件明細",
+    "importSuccess": "已加入 {{count}} 個文件",
+    "importNoFiles": "本次沒有文件加入",
+    "importRejected": "另有 {{count}} 個文件未加入，可查看原因",
+    "importReady": "文件隊列已更新，可以繼續設置並轉換",
+    "reasons": {
+      "unsupported": "不支持的文件格式",
+      "empty": "空文件",
+      "too-large": "單文件超過 512 MB",
+      "duplicate": "隊列中已有相同文件",
+      "max-files": "超過 500 個文件上限",
+      "total-size": "超過 2 GB 總大小上限"
+    }
+  },
+  "settings": {
+    "title": "轉換設置",
+    "format": "輸出格式",
+    "quality": "畫質",
+    "qualityTip": "JPEG/WebP 的編碼質量。越高通常體積越大；PNG 是無損格式，不使用此項。",
+    "resize": "調整尺寸",
+    "original": "保持原尺寸",
+    "scale": "按百分比",
+    "fit": "限制最大寬高",
+    "percent": "縮放比例",
+    "maxWidth": "最大寬度",
+    "maxHeight": "最大高度",
+    "noUpscale": "不放大小圖",
+    "background": "JPEG 透明區域底色",
+    "transform": "旋轉與翻轉",
+    "transformTip": "變換在縮放後執行，並應用到整個隊列；水平/垂直方向以最終輸出為準。",
+    "rotation": "旋轉",
+    "flip": "翻轉",
+    "flipHorizontal": "水平",
+    "flipVertical": "垂直",
+    "backgroundTip": "JPEG 不支持透明。透明像素會先鋪上此顏色，避免默認變黑。",
+    "keepSmaller": "同格式且重編碼更大時保留原文件",
+    "keepSmallerTransform": "應用變換時始終重新編碼，不保留未變換的原文件",
+    "preserveFolders": "ZIP 中保留文件夾結構",
+    "reset": "恢復默認設置"
+  },
+  "rename": {
+    "title": "可視化批量命名",
+    "subtitle": "先定義規則，再用真實文件即時驗證",
+    "mode": "命名方式",
+    "templateMode": "模板",
+    "regexMode": "正則替換",
+    "template": "文件名模板",
+    "advancedTitle": "高級正則命名",
+    "advancedDetail": "僅在需要匹配、捕獲組或複雜替換時展開",
+    "tokens": "點擊變量插入光標位置",
+    "pattern": "1. 匹配原文件名",
+    "replacement": "2. 生成新文件名",
+    "replacementTip": "支持 $1 等捕獲組和下方變量。匹配只針對不含擴展名的文件名。",
+    "global": "替換全部匹配",
+    "ignoreCase": "忽略大小寫",
+    "start": "序號起點",
+    "padding": "序號位數",
+    "preview": "3. 用隊列文件驗證",
+    "invalid": "正則表達式無效，請檢查括號、轉義和量詞。",
+    "empty": "命名規則不能為空。",
+    "conflict": "加入文件後會顯示逐項預覽；重名自動追加 -2、-3。",
+    "presets": "常見規則，一鍵套用",
+    "matchSummary": "命中 {{matched}} / {{total}}",
+    "matched": "已命中",
+    "unmatched": "未命中，保留原名",
+    "steps": {
+      "match": "找出要改的部分",
+      "replace": "定義替換結果",
+      "check": "逐文件確認"
+    },
+    "token": {
+      "name": "原文件名",
+      "index": "補零序號",
+      "format": "輸出格式",
+      "width": "輸出寬度",
+      "height": "輸出高度"
+    },
+    "preset": {
+      "camera": {
+        "title": "整理相機命名",
+        "description": "移除 IMG / DSC / PXL 前綴並加入序號"
+      },
+      "separators": {
+        "title": "統一分隔符",
+        "description": "把空格和下劃線統一改為短橫線"
+      },
+      "copy": {
+        "title": "移除副本編號",
+        "description": "刪除文件名末尾的 (1)、(2)…"
+      }
+    }
+  },
+  "queue": {
+    "title": "文件隊列",
+    "count": "{{count}} 個文件",
+    "empty": "添加圖片後，這裡會顯示原圖、尺寸、狀態和輸出體積。",
+    "emptyCompact": "選擇圖片或文件夾後，文件會立即出現在這裡。",
+    "clear": "清空",
+    "remove": "移除",
+    "source": "原圖",
+    "output": "輸出",
+    "ready": "等待轉換",
+    "converting": "轉換中",
+    "done": "已完成",
+    "kept": "保留較小原文件",
+    "error": "轉換失敗",
+    "download": "下載",
+    "firstFrame": "動圖僅轉換第一幀",
+    "svgSafe": "SVG 會先移除腳本和外部引用",
+    "unknownSize": "轉換後顯示尺寸",
+    "readingSize": "正在本地讀取尺寸",
+    "sizeUnavailable": "預覽尺寸不可用",
+    "info": "查看圖片信息",
+    "dimensions": "像素尺寸",
+    "pixels": "像素總數",
+    "pixelValue": "{{count}} 像素",
+    "aspect": "寬高比",
+    "mime": "瀏覽器類型",
+    "mimeUnknown": "未提供",
+    "previewUnavailable": "此格式轉換前不直接預覽",
+    "progress": "已完成 {{done}} / {{total}}"
+  },
+  "preview": {
+    "title": "轉換結果預覽",
+    "subtitle": "先檢查結果，再下載；如需製作動畫，可切換到 GIF 合成 Tab",
+    "count": "{{count}} 個結果",
+    "open": "對比預覽",
+    "close": "關閉預覽",
+    "position": "第 {{current}} / {{total}} 張",
+    "before": "轉換前",
+    "after": "轉換後",
+    "beforeAlt": "轉換前圖片",
+    "afterAlt": "轉換後圖片",
+    "previous": "上一張",
+    "next": "下一張",
+    "hint": "可使用鍵盤 ← → 瀏覽，Esc 關閉。"
+  },
+  "actions": {
+    "convert": "開始轉換",
+    "stop": "完成當前項後停止",
+    "download": "下載",
+    "downloadAs": "輸出方式",
+    "downloadFiles": "文件（單張直接 / 多張逐個）",
+    "downloadZip": "ZIP 壓縮包",
+    "downloadFilesTitle": "直接文件",
+    "downloadFilesDetail": "單張直接下載，多張逐個下載",
+    "downloadZipTitle": "ZIP 壓縮包",
+    "downloadZipDetail": "把全部結果整理成一個文件",
+    "converting": "正在轉換…",
+    "nothing": "請先添加圖片",
+    "fixRename": "請先修正命名規則"
+  },
+  "errors": {
+    "decode-failed": "瀏覽器無法解碼此圖片，文件可能損壞或當前瀏覽器不支持。",
+    "image-too-large": "輸出尺寸超過瀏覽器安全上限（最長邊 16384 px 或 8000 萬像素）。",
+    "encode-unsupported": "當前瀏覽器不支持編碼為所選格式。",
+    "canvas-unavailable": "瀏覽器無法創建圖片畫布。",
+    "heic-file-limit": "HEIC/HEIF 單文件限制為 64 MB，以控制 WASM 解碼內存。",
+    "unknown": "轉換時發生未知錯誤。"
+  },
+  "gif": {
+    "title": "多圖合成 GIF",
+    "intro": "按隊列順序把靜態圖片統一畫布後編碼為 GIF89a；適合表情、步驟演示和輕量循環動畫。",
+    "step": "第 {{current}} / 3 步",
+    "frames": "幀隊列",
+    "framesHint": "至少 2 張、最多 100 張；可調整順序",
+    "add": "添加圖片",
+    "clear": "清空",
+    "empty": "添加多張圖片後，可在這裡編排動畫幀。",
+    "noAccepted": "沒有可加入的圖片，或已達到 100 幀上限。",
+    "frameDelay": "每幀 {{delay}} ms",
+    "moveEarlier": "向前移動",
+    "moveLater": "向後移動",
+    "remove": "移除",
+    "settings": "動畫設置",
+    "settingsHint": "所有圖片等比縮放並居中到統一畫布",
+    "width": "畫布寬度",
+    "height": "畫布高度",
+    "delay": "每幀停留時間",
+    "loop": "循環次數",
+    "loopHint": "0 表示無限循環",
+    "background": "留白底色",
+    "summaryFrames": "{{count}} 幀",
+    "limit": "請將畫布限制在 4096 × 4096 內，且總像素不超過 1 億。",
+    "generate": "生成 GIF",
+    "generating": "正在逐幀編碼…",
+    "resultReady": "已在本地生成",
+    "preview": "動畫預覽",
+    "resultMeta": "{{size}} · 約 {{duration}} 秒",
+    "download": "下載 GIF",
+    "previewAlt": "生成的 GIF 動畫",
+    "errors": {
+      "canvas-unavailable": "瀏覽器無法創建動畫畫布。",
+      "decode-failed": "有圖片無法解碼，請檢查文件是否損壞或更換瀏覽器。",
+      "gif-empty": "沒有可編碼的幀。",
+      "gif-frame-mismatch": "動畫幀尺寸不一致。",
+      "gif-size-limit": "GIF 畫布超過安全限制。",
+      "unknown": "生成 GIF 時發生未知錯誤。"
+    }
+  },
+  "text": {
+    "title": "Text & Markup Converter",
+    "intro": "在 TXT、Markdown、Org mode、reStructuredText、AsciiDoc 與 HTML 之間解析常用結構並轉換。",
+    "openFile": "打開文本文件",
+    "clear": "清空",
+    "source": "當前文件格式",
+    "target": "批量輸出格式",
+    "swap": "交換源格式與目標格式",
+    "input": "輸入",
+    "output": "轉換結果",
+    "characters": "字符",
+    "blocks": "結構塊",
+    "copy": "複製",
+    "copied": "已複製",
+    "download": "下載當前文件",
+    "downloadAll": "下載全部",
+    "addResult": "加入任務結果",
+    "addAllResults": "全部加入任務",
+    "added": "已生成 {{count}} 項；通過結果預算的項目會顯示在首頁任務結果。",
+    "fileQueue": "文本文件",
+    "fileCount": "{{count}} 個文件",
+    "fileEmpty": "打開多個文本文件，或直接在編輯器中開始輸入。",
+    "emptyTitle": "打開文件，或從空白文檔開始",
+    "emptyDetail": "這裡不會預先創建示例文檔。你可以批量打開現有文本，也可以明確新建一份空白文檔。",
+    "newBlank": "新建空白文檔",
+    "newDocument": "未命名文檔",
+    "remove": "移除",
+    "skipped": "{{count}} 個文件因超過 5 MB 或達到 100 個文件上限而未加入。",
+    "structure": "結構檢查",
+    "structureHint": "查看解析器實際識別出的內容類型",
+    "noStructure": "輸入內容還沒有可識別的結構。",
+    "preview": "結果預覽",
+    "previewHint": "HTML 使用受限 iframe；其它格式顯示原始文本",
+    "emptyPreview": "轉換結果會顯示在這裡。",
+    "roundtrip": "格式語法並非完全等價：轉換優先保留標題、段落、列表、引用、代碼塊、分隔線與鏈接；複雜插件語法和精細樣式可能被規範化。",
+    "formats": {
+      "markdown": "Markdown",
+      "org": "Org mode",
+      "rst": "reStructuredText",
+      "asciidoc": "AsciiDoc",
+      "html": "HTML",
+      "txt": "純文本"
+    },
+    "blockTypes": {
+      "heading": "標題",
+      "paragraph": "段落",
+      "list": "列表",
+      "code": "代碼塊",
+      "quote": "引用",
+      "rule": "分隔線"
+    }
+  },
+  "data": {
+    "title": "表格數據轉換",
+    "intro": "CSV/TSV 是分隔文本，XLSX 是電子表格容器；這裡按表格語義讀取和轉換，不把它們混作壓縮包。",
+    "open": "打開 CSV / XLSX",
+    "clear": "清空",
+    "reading": "正在本地讀取…",
+    "emptyTitle": "打開一份表格數據",
+    "emptyDetail": "支持 UTF-8 CSV、TSV 與常見 XLSX 工作表。JSON、YAML、XML 仍只在文件首頁識別，不會被錯誤套入表格解析。",
+    "loaded": "已讀取 {{rows}} 行 × {{columns}} 列",
+    "exported": "已生成 {{format}}；可單獨下載或返回首頁查看任務結果",
+    "summary": "{{rows}} 行 · {{columns}} 列 · {{cells}} 個單元格",
+    "sheet": "工作表",
+    "output": "輸出格式",
+    "headerRow": "JSON 使用第一行作為字段名",
+    "formulaProtection": "導出 CSV/TSV 時防止單元格被表格軟件當作公式執行",
+    "generate": "生成 {{format}}",
+    "download": "下載 {{format}}",
+    "result": "已生成結果",
+    "resultDetail": "{{size}} · 可單獨下載；通過結果預算的項目可在首頁統一命名或導出",
+    "downloadResult": "單獨下載",
+    "preview": "數據預覽",
+    "previewHint": "顯示前 {{rows}} 行、{{columns}} 列",
+    "previewLimited": "僅顯示預覽範圍，導出仍使用全部已讀取數據",
+    "csvBoundary": "CSV/TSV 按 UTF-8 與標準引號規則讀取；導出 XLSX 只保存單元格值，不附帶樣式或宏。",
+    "xlsxBoundary": "XLSX 雖以 ZIP 為容器，但這裡按工作簿解析。不會運行公式、宏或外部鏈接，公式單元格只讀取文件內緩存值；日期格式、樣式、圖表和合並單元格不會保留。",
+    "formulas": "檢測到 {{count}} 個公式，僅使用文件內緩存值。",
+    "outputs": {
+      "csv": "逗號分隔文本",
+      "tsv": "製表符分隔文本",
+      "json": "數組或對象記錄",
+      "xlsx": "無宏的單工作表文件"
+    },
+    "errors": {
+      "table-unsupported": "僅支持 CSV、TSV 與 XLSX。",
+      "table-empty": "表格文件為空。",
+      "table-file-limit": "CSV/TSV 限制為 16 MB，XLSX 限制為 32 MB。",
+      "table-invalid-text": "文本包含空字節，無法作為表格讀取。",
+      "table-invalid-csv": "CSV/TSV 引號沒有正確閉合。",
+      "table-row-limit": "表格超過 20,000 行安全上限。",
+      "table-column-limit": "表格超過 256 列安全上限。",
+      "table-cell-limit": "表格超過 250,000 個單元格安全上限。",
+      "table-cell-size": "某個單元格超過 32,767 個字符。",
+      "table-invalid-xlsx": "XLSX 結構不完整或無法安全讀取。",
+      "table-unsafe-xml": "XLSX 內含不安全的 XML 聲明。",
+      "table-xlsx-resource-limit": "XLSX 內部工作表或字符串表超過資源預算。",
+      "zip-invalid": "沒有識別到有效 XLSX ZIP 容器。",
+      "zip-entry-limit": "XLSX 內部條目過多。",
+      "zip-total-limit": "XLSX 展開體積超過安全預算。",
+      "zip-truncated": "XLSX 數據不完整。",
+      "zip-invalid-central": "XLSX 容器目錄損壞。",
+      "zip64-unsupported": "暫不支持 ZIP64 形式的 XLSX。",
+      "zip-multidisk": "不支持分卷容器。",
+      "unknown": "無法讀取或導出這份表格。"
+    }
+  },
+  "pdf": {
+    "title": "PDF 頁面工具",
+    "intro": "在本地完整解析頁面樹後，合併、逐頁拆分、提取、刪除、重排或旋轉頁面；源文件始終保持不變。",
+    "open": "添加 PDF",
+    "clear": "清空",
+    "emptyTitle": "添加一份或多份 PDF",
+    "emptyDetail": "單份可做頁面級操作，多份可按隊列順序合併。頁面不會渲染，也不會上傳。",
+    "reading": "正在解析…",
+    "ready": "頁面已解析",
+    "unavailable": "不可處理",
+    "working": "正在生成…",
+    "importResult": "已加入 {{accepted}} 份 PDF，{{skipped}} 份因重複、為空或超過 20 份上限而跳過。",
+    "steps": {
+      "queue": "1 · 文件隊列",
+      "details": "2 · 文件信息",
+      "pages": "3 · 頁面處理"
+    },
+    "queueTitle": "PDF 隊列",
+    "queueHint": "拖入順序也是合併順序，可用箭頭調整。",
+    "queueStats": "{{ready}} 份可用 · {{pages}} 頁 · {{size}}",
+    "mergeAction": "合併 {{count}} 份",
+    "documentMeta": "{{pages}} 頁 · {{size}}",
+    "moveEarlier": "向前移動",
+    "moveLater": "向後移動",
+    "version": "版本",
+    "pages": "準確頁數",
+    "pagesUnit": "頁",
+    "objects": "掃描到的對象",
+    "encrypted": "加密",
+    "linearized": "快速網頁查看",
+    "metadata": "可能含元數據",
+    "mediaBox": "首個頁面框",
+    "yes": "是",
+    "no": "否",
+    "operation": "頁面操作",
+    "operationIntro": "選擇一種頁面任務，再明確頁碼；下方會實時預覽結果順序。",
+    "pageSelection": "頁碼或範圍",
+    "pageOrder": "完整頁面順序",
+    "selectionExample": "例如 1-3, 6, 9-7",
+    "orderExample": "例如 3, 1, 2, 4",
+    "selectionHint": "可輸入 1 到 {{count}}；範圍支持正序或倒序，重複頁會被拒絕。",
+    "orderHint": "必須恰好包含 1 到 {{count}} 的每一頁一次。",
+    "quickSelect": "快捷選擇",
+    "presets": {
+      "all": "全部",
+      "odd": "奇數頁",
+      "even": "偶數頁",
+      "first": "首頁",
+      "last": "末頁",
+      "original": "原順序",
+      "reverse": "倒序"
+    },
+    "rotation": "順時針旋轉",
+    "splitHint": "逐頁拆分會生成 ZIP；為控制重複資源帶來的輸出膨脹，最多處理 {{count}} 頁。",
+    "planSummary": "已選 {{selected}} 頁 · 結果 {{output}} 頁",
+    "morePages": "另有 {{count}} 頁",
+    "run": "生成新文件",
+    "resultHomeHint": "生成後自動加入首頁任務結果",
+    "safetyTitle": "PDF 頁面複製與安全邊界",
+    "rewriteWarning": "FormTran 不執行 PDF 中的腳本或外部動作，但頁面複製可能保留批註、鏈接或其他頁面級交互；生成結果不是安全淨化文件。數字簽名、表單、目錄和文檔級附件也可能失效或不被複制，請保留源文件並複核輸出。",
+    "result": "本地結果",
+    "resultMerge": "已合併 {{count}} 份 · {{size}}",
+    "resultSplit": "已生成 {{count}} 個逐頁文件 · {{size}}",
+    "resultPages": "輸出 {{count}} 頁 · {{size}}",
+    "download": "下載結果",
+    "renderingTitle": "渲染與可視排序",
+    "renderingDetail": "頁面縮略圖、PDF 轉圖片和拖拽式排序需要獨立渲染器與更嚴格的像素內存預算，暫不冒充可用。",
+    "operations": {
+      "extract": {
+        "title": "提取所選頁面",
+        "detail": "按輸入順序生成一份新 PDF"
+      },
+      "remove": {
+        "title": "刪除所選頁面",
+        "detail": "保留其餘頁面並生成新 PDF"
+      },
+      "reorder": {
+        "title": "按完整順序重排",
+        "detail": "每頁必須且只能出現一次"
+      },
+      "rotate": {
+        "title": "旋轉所選頁面",
+        "detail": "其它頁面保持原方向"
+      },
+      "split": {
+        "title": "逐頁拆分為 ZIP",
+        "detail": "每頁生成一份獨立 PDF"
+      }
+    },
+    "errors": {
+      "pdf-empty": "PDF 為空。",
+      "pdf-inspection-limit": "單份 PDF 限制為 32 MB，以控制瀏覽器內存。",
+      "pdf-invalid": "PDF 結構無效、損壞或當前解析器無法處理。",
+      "pdf-encrypted": "暫不處理加密或帶密碼的 PDF。",
+      "pdf-no-pages": "操作後不能留下零頁 PDF。",
+      "pdf-page-limit": "PDF 隊列總頁數超過 500 頁上限。",
+      "pdf-file-count": "合併需要 2 到 20 份可解析 PDF。",
+      "pdf-total-limit": "合併輸入超過 128 MB 總預算。",
+      "pdf-page-selection": "頁碼格式無效、超出範圍或包含重複頁。",
+      "pdf-page-order": "重排必須包含全部頁面且每頁只出現一次。",
+      "pdf-split-limit": "逐頁拆分最多處理 50 頁。",
+      "pdf-split-output-limit": "逐頁輸出超過 256 MB 預算，操作已停止。",
+      "unknown": "無法處理這個 PDF。"
+    }
+  },
+  "archive": {
+    "title": "壓縮包工具",
+    "intro": "安全查看 ZIP 內容並選擇性解壓；路徑、加密、算法與異常膨脹會在導出前逐項攔截。",
+    "open": "打開 ZIP",
+    "clear": "清空",
+    "emptyTitle": "打開一個 ZIP 查看內容",
+    "emptyDetail": "目錄與文件只在本地讀取。當前先支持 ZIP，其他壓縮格式將按獨立能力檢測開放。",
+    "reading": "讀取中…",
+    "entryCount": "{{count}} 個條目",
+    "selectAll": "選擇全部安全文件",
+    "deselectAll": "取消全選",
+    "extract": "解壓 {{count}} 項到任務",
+    "added": "已處理 {{count}} 個校驗通過的解壓結果；通過結果預算的項目會顯示在首頁任務。",
+    "directory": "文件夾",
+    "stored": "未壓縮存儲",
+    "deflated": "Deflate",
+    "safe": "可導出",
+    "safetyNote": "解壓會再次校驗大小和 CRC；通過的結果逐項加入首頁，之後可單獨、同類或統一 ZIP 導出。",
+    "reasons": {
+      "path": "危險路徑",
+      "duplicate": "重名路徑",
+      "encrypted": "已加密",
+      "method": "不支持的算法",
+      "size": "展開後過大",
+      "ratio": "異常壓縮比"
+    },
+    "errors": {
+      "zip-file-limit": "ZIP 超過 512 MB 本地檢查上限。",
+      "zip-invalid": "未識別到有效 ZIP 目錄。",
+      "zip-multidisk": "暫不支持分卷 ZIP。",
+      "zip64-unsupported": "暫不支持 ZIP64。",
+      "zip-entry-limit": "壓縮包超過 5000 個條目上限。",
+      "zip-total-limit": "預計展開內容超過 1 GB 安全預算。",
+      "zip-truncated": "ZIP 數據不完整。",
+      "zip-invalid-central": "ZIP 中央目錄損壞。",
+      "zip-entry-blocked": "該條目因安全限制被攔截。",
+      "zip-invalid-local": "ZIP 本地條目損壞。",
+      "zip-deflate-unavailable": "當前瀏覽器不支持本地 Deflate 解壓。",
+      "zip-integrity": "解壓後的大小或 CRC 校驗失敗。",
+      "unknown": "無法讀取或解壓這個 ZIP。"
+    }
+  },
+  "knowledge": {
+    "pdfGuide": {
+      "title": "PDF 結構與操作邊界",
+      "intro": "PDF 是帶對象引用、頁面樹、字體和資源的文檔容器；查看信息、渲染與改寫是三種不同複雜度的能力。",
+      "structure": {
+        "title": "結構不是連續頁面圖片",
+        "body": "頁面通過對象、資源字典和交叉引用組織；簡單搜索只能給出提示，不能代替完整解析。"
+      },
+      "pages": {
+        "title": "準確頁數來自頁面樹",
+        "body": "首頁識別不解析整份文檔；進入 PDF 工作臺後才按需讀取完整頁面樹。對象流、損壞文件或加密仍可能導致解析器拒絕處理。"
+      },
+      "security": {
+        "title": "加密與腳本邊界",
+        "body": "PDF 可含加密、表單、附件、腳本和外部動作。FormTran 不執行這些內容，但頁面複製也不等於安全淨化。"
+      },
+      "metadata": {
+        "title": "元數據與隱私",
+        "body": "文檔信息、XMP、批註和附件可能暴露作者、軟件與修改記錄；生成新 PDF 不承諾移除全部隱私信息。"
+      }
+    },
+    "archiveGuide": {
+      "title": "壓縮包格式與安全邊界",
+      "intro": "壓縮包是文件容器，不是單一壓縮算法。列出內容、校驗和解壓都需要獨立的資源與路徑防護。",
+      "container": {
+        "title": "容器與算法分開",
+        "body": "ZIP 可讓不同條目使用 Store、Deflate 或其他算法；識別為 ZIP 不表示每個條目都能解壓。"
+      },
+      "paths": {
+        "title": "路徑穿越",
+        "body": "絕對路徑、盤符和 .. 可能把文件寫到目標目錄之外；本工具在導出前逐條攔截。"
+      },
+      "bombs": {
+        "title": "壓縮炸彈",
+        "body": "很小的壓縮包可能展開為巨大內容。應同時限制條目數、單項大小、總大小與異常壓縮比。"
+      },
+      "encryption": {
+        "title": "加密與完整性",
+        "body": "加密 ZIP 需要單獨的密碼與算法支持；解壓後仍應核對聲明大小和 CRC，避免靜默損壞。"
+      }
+    },
+    "pdfComparison": {
+      "title": "PDF 能力層級",
+      "headers": {
+        "reads": "讀取範圍",
+        "accuracy": "結論可靠性",
+        "available": "當前狀態"
+      },
+      "rows": {
+        "inspect": {
+          "name": "結構與頁數",
+          "reads": "字節提示 + 完整頁面樹",
+          "accuracy": "頁數準確；元數據仍是提示",
+          "available": "已開放"
+        },
+        "render": {
+          "name": "頁面渲染",
+          "reads": "完整頁面資源與字體",
+          "accuracy": "需要獨立渲染器與像素預算",
+          "available": "規劃中"
+        },
+        "edit": {
+          "name": "頁面改寫",
+          "reads": "解析並複製頁面對象",
+          "accuracy": "輸出必須人工複核",
+          "available": "有邊界開放"
+        }
+      }
+    },
+    "archiveComparison": {
+      "title": "壓縮包支持範圍",
+      "headers": {
+        "support": "讀取能力",
+        "safety": "主要邊界",
+        "available": "當前狀態"
+      },
+      "rows": {
+        "zip": {
+          "name": "ZIP",
+          "support": "Store / Deflate",
+          "safety": "路徑、體積、CRC",
+          "available": "已開放"
+        },
+        "zip64": {
+          "name": "ZIP64 / 分卷",
+          "support": "尚未解析",
+          "safety": "超大尺寸與多文件段",
+          "available": "暫不支持"
+        },
+        "other": {
+          "name": "7z / RAR / TAR",
+          "support": "需要獨立解析器",
+          "safety": "算法、鏈接與權限",
+          "available": "規劃中"
+        }
+      }
+    },
+    "title": "格式知識庫",
+    "intro": "從使用場景、壓縮方式、透明與動畫支持理解格式，而不是隻看擴展名。",
+    "introExpanded": "按圖片、動畫、文本標記、PDF 和壓縮包分類查閱；每類都說明當前能力、格式差異與安全邊界。",
+    "categoriesLabel": "知識庫分類",
+    "categories": {
+      "images": {
+        "title": "圖片格式",
+        "description": "壓縮、透明、色彩與兼容性"
+      },
+      "animation": {
+        "title": "動畫與 GIF",
+        "description": "幀、時序、調色板與體積"
+      },
+      "markup": {
+        "title": "文本與標記",
+        "description": "語義、方言與往返轉換"
+      },
+      "pdf": {
+        "title": "PDF",
+        "description": "結構、頁面、元數據與安全"
+      },
+      "archive": {
+        "title": "壓縮包",
+        "description": "算法、路徑、體積與完整性"
+      }
+    },
+    "chooseTitle": "先按用途選擇",
+    "libraryTitle": "逐格式說明",
+    "librarySubtitle": "這些結論描述常見瀏覽器和日常工作流；重要印刷與歸檔素材仍應單獨驗證。",
+    "bestFor": "適合",
+    "watchFor": "注意",
+    "tableTitle": "能力對照",
+    "boundariesTitle": "轉換邊界與常見問題",
+    "animation": "動圖為什麼只剩一幀？",
+    "animationDetail": "當前轉換路徑通過瀏覽器畫布重編碼，畫布只接收一個時間點的像素。保留 GIF、動態 WebP 或動態 AVIF 需要獨立讀取幀、時序、循環和處置方式，適合後續單獨實現。",
+    "metadataTitle": "EXIF、GPS 和相機信息會怎樣？",
+    "metadata": "Canvas 重編碼通常會移除 EXIF、GPS、相機信息和大多數色彩配置；這有利於隱私，但不適合需要保留攝影元數據的流程。",
+    "colorTitle": "HDR、CMYK、廣色域和高位深",
+    "color": "HDR、廣色域、CMYK 和 16-bit 圖像可能被瀏覽器轉換到普通屏幕色域或 8-bit。重要印刷素材應使用專業軟件複核。",
+    "browserTitle": "為什麼有些 AVIF 或 BMP 打不開？",
+    "browser": "輸入格式是否可解碼取決於瀏覽器版本。失敗時工具會保留原文件並逐項顯示錯誤，不會上傳到服務器。",
+    "choose": {
+      "photo": {
+        "title": "照片與網頁大圖",
+        "body": "優先 WebP；需要最廣軟件兼容時選 JPEG。"
+      },
+      "transparent": {
+        "title": "透明圖標與截圖",
+        "body": "優先 PNG；網頁體積敏感時比較 WebP。"
+      },
+      "vector": {
+        "title": "矢量圖形",
+        "body": "能保留 SVG 就不柵格化；分享前檢查腳本與外鏈。"
+      },
+      "animation": {
+        "title": "動畫素材",
+        "body": "圖片轉換會取首幀；需要新建動畫時請使用 GIF 合成 Tab。"
+      }
+    },
+    "formats": {
+      "jpeg": {
+        "type": "有損柵格",
+        "body": "通過捨棄人眼不敏感的細節壓縮照片，質量參數越低，塊狀與振鈴偽影越明顯。",
+        "best": "照片、社交分享、廣泛兼容",
+        "warning": "無透明；反覆保存持續損失細節"
+      },
+      "png": {
+        "type": "無損柵格",
+        "body": "精確保留像素並支持完整透明，邊緣與文字清楚，但複雜照片通常很大。",
+        "best": "截圖、UI、圖標、透明素材",
+        "warning": "照片體積大；不代表保留原始相機信息"
+      },
+      "webp": {
+        "type": "現代柵格",
+        "body": "同時提供有損、無損、透明和動畫能力，網頁圖片通常比 JPEG/PNG 更省空間。",
+        "best": "網頁、現代應用、透明照片",
+        "warning": "舊軟件和部分編輯流程兼容性較弱"
+      },
+      "gif": {
+        "type": "索引色動畫",
+        "body": "每幀最多 256 色，動畫支持廣泛，但照片色階和壓縮效率較差。",
+        "best": "簡單短動畫、兼容性優先",
+        "warning": "圖片轉換隻取首幀；GIF 合成可從靜態圖新建動畫"
+      },
+      "avif": {
+        "type": "高壓縮現代柵格",
+        "body": "基於 AV1 圖像編碼，照片壓縮效率和 HDR 能力優秀，但編解碼成本較高。",
+        "best": "現代網頁、極致體積、HDR 來源",
+        "warning": "瀏覽器可解碼不等於可直接編碼；舊軟件支持有限"
+      },
+      "svg": {
+        "type": "矢量文檔",
+        "body": "以 XML 描述路徑、文字和效果，任意縮放依然銳利，也可能包含腳本或外部資源。",
+        "best": "Logo、圖標、圖表、幾何插畫",
+        "warning": "轉換前需安全清理；複雜濾鏡與字體可能變化"
+      },
+      "bmp": {
+        "type": "傳統位圖",
+        "body": "結構簡單、常見版本幾乎不壓縮，適合作為舊系統交換格式而非網絡分發。",
+        "best": "舊軟件兼容、簡單像素交換",
+        "warning": "體積大；不同 BMP 變體支持不一致"
+      }
+    },
+    "table": {
+      "format": "格式",
+      "compression": "壓縮",
+      "transparency": "透明",
+      "animation": "動畫",
+      "compatibility": "兼容性"
+    },
+    "values": {
+      "lossy": "有損",
+      "lossless": "無損",
+      "both": "有損 / 無損",
+      "losslessLimited": "無損 / 256 色",
+      "limited": "有限",
+      "vector": "矢量",
+      "scripted": "可腳本化",
+      "high": "高",
+      "modern": "現代環境",
+      "mixed": "視內容而定"
+    },
+    "animationGuide": {
+      "title": "動畫格式基礎",
+      "intro": "動畫不只是多張圖片：時間、循環、幀處置和顏色策略都會改變結果。",
+      "frames": {
+        "title": "幀與順序",
+        "body": "每幀是時間軸上的一張畫面。合成前先確認自然排序、方向與重複幀，避免動畫跳動。"
+      },
+      "delay": {
+        "title": "時序與循環",
+        "body": "幀延遲過短可能被播放器鉗制；0 次循環通常表示無限循環，不同工具的表述可能相反。"
+      },
+      "palette": {
+        "title": "GIF 調色板",
+        "body": "GIF 每幀最多 256 色。漸變和照片會產生色帶；當前本地編碼器使用固定 3-3-2 調色板，以換取穩定、零依賴的編碼。"
+      },
+      "size": {
+        "title": "尺寸與體積",
+        "body": "像素數 × 幀數決定內存和編碼成本。先縮小畫布、裁掉靜止區域，通常比單純縮短延遲更有效。"
+      }
+    },
+    "markupGuide": {
+      "title": "文本標記格式基礎",
+      "intro": "不同標記語言共享文檔結構，但語法方言和擴展能力並不完全對等。",
+      "semantic": {
+        "title": "語義優先",
+        "body": "標題、段落、列表、引用和代碼塊是跨格式最穩定的共同結構；轉換器先保留語義，再生成目標語法。"
+      },
+      "roundtrip": {
+        "title": "往返不保證逐字一致",
+        "body": "Markdown 轉 Org 再轉回時，空行、標記選擇和列表符號可能規範化，但核心結構應保持。"
+      },
+      "html": {
+        "title": "HTML 安全邊界",
+        "body": "HTML 輸入會移除腳本、嵌入對象和危險元素；HTML 預覽在禁止腳本的受限 iframe 中顯示。"
+      },
+      "dialects": {
+        "title": "方言與擴展",
+        "body": "CommonMark、GitHub Markdown、Org Babel、Sphinx 和 AsciiDoc 宏各有擴展；當前轉換器覆蓋常用基礎子集。"
+      },
+      "encoding": {
+        "title": "編碼與換行",
+        "body": "瀏覽器按文本讀取文件並統一換行。二進制文件、未知傳統編碼和超大文檔不適合直接導入。"
+      },
+      "preview": {
+        "title": "預覽不等於最終渲染",
+        "body": "目標平臺的主題、插件和 CSS 會影響最終外觀；下載後仍應在實際發佈環境中複核。"
+      }
+    },
+    "comparisons": {
+      "format": "格式",
+      "animation": {
+        "title": "動畫格式對比",
+        "headers": {
+          "colors": "顏色與透明",
+          "support": "兼容與體積",
+          "best": "更適合"
+        },
+        "rows": {
+          "gif": {
+            "name": "GIF",
+            "colors": "256 色；單色透明",
+            "support": "兼容最高，照片體積偏大",
+            "best": "短循環、像素圖、簡單演示"
+          },
+          "webp": {
+            "name": "動態 WebP",
+            "colors": "全綵與 Alpha",
+            "support": "現代瀏覽器良好，通常更小",
+            "best": "網頁動畫與透明素材"
+          },
+          "avif": {
+            "name": "動態 AVIF",
+            "colors": "全綵、HDR 與 Alpha",
+            "support": "壓縮優秀，但工具鏈較少",
+            "best": "體積敏感的現代交付"
+          }
+        }
+      },
+      "markup": {
+        "title": "標記語言對比",
+        "headers": {
+          "readability": "源文可讀性",
+          "strength": "主要優勢",
+          "best": "更適合"
+        },
+        "rows": {
+          "markdown": {
+            "name": "Markdown",
+            "readability": "高",
+            "strength": "生態廣、學習成本低",
+            "best": "README、筆記、網頁內容"
+          },
+          "org": {
+            "name": "Org mode",
+            "readability": "高",
+            "strength": "任務、屬性與可執行筆記",
+            "best": "Emacs 知識與任務系統"
+          },
+          "rst": {
+            "name": "reStructuredText",
+            "readability": "中",
+            "strength": "引用和文檔結構嚴謹",
+            "best": "Sphinx / Python 文檔"
+          },
+          "asciidoc": {
+            "name": "AsciiDoc",
+            "readability": "中高",
+            "strength": "長文檔、包含與宏能力",
+            "best": "技術書籍與大型手冊"
+          },
+          "html": {
+            "name": "HTML",
+            "readability": "低",
+            "strength": "表達與渲染控制最完整",
+            "best": "網頁交付與最終渲染"
+          }
+        }
+      }
+    }
+  }
+}

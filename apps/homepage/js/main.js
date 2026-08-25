@@ -1,66 +1,29 @@
 /* ==========================================================================
-   main.js — Tool card data & rendering
+   main.js — Tool card rendering from the canonical manifest
    ========================================================================== */
 
 import "./platform.js";
-import { getLang, setLang, toggleLang } from "./i18n.js";
+import { getLang, setLang, toggleLang, registerCardStrings } from "./i18n.js";
 import { getStableApps } from "@toolbox/app-manifest";
+import { applyHomepagePrefs, readHomepagePrefs } from "@toolbox/prefs";
 import { autoMountToolboxFooters } from "@toolbox/nav/toolbox-footer.js";
-
-const CARD_PRESENTATION = {
-  "rate-lens": {
-    id: "ratelens",
-    titleKey: "card.ratelens.title",
-    subtitleKey: "card.ratelens.subtitle",
-    descKey: "card.ratelens.desc",
-    badges: ["React", "TypeScript", "Vite", "Tailwind"],
-  },
-  "chrono-sphere": {
-    id: "chrono",
-    titleKey: "card.chrono.title",
-    subtitleKey: "card.chrono.subtitle",
-    descKey: "card.chrono.desc",
-    badges: ["React", "TypeScript", "Vite"],
-  },
-  "monitor-choice": {
-    id: "monitor",
-    titleKey: "card.monitor.title",
-    subtitleKey: "card.monitor.subtitle",
-    descKey: "card.monitor.desc",
-    badges: ["Vanilla JS", "Canvas 2D"],
-  },
-  "sane-units": {
-    id: "sane",
-    titleKey: "card.sane.title",
-    subtitleKey: "card.sane.subtitle",
-    descKey: "card.sane.desc",
-    badges: ["React", "Vite"],
-  },
-  "image-converter": {
-    id: "formtran",
-    titleKey: "card.formtran.title",
-    subtitleKey: "card.formtran.subtitle",
-    descKey: "card.formtran.desc",
-    badges: ["React", "TypeScript", "Vite"],
-  },
-  "crypto-lab": {
-    id: "cryptolab",
-    titleKey: "card.cryptolab.title",
-    subtitleKey: "card.cryptolab.subtitle",
-    descKey: "card.cryptolab.desc",
-    badges: ["React", "TypeScript", "Web Crypto"],
-  },
-};
 
 const tools = getStableApps()
   .filter((app) => app.path !== "/")
-  .map((app) => {
-    const presentation = CARD_PRESENTATION[app.id];
-    if (!presentation) {
-      throw new Error(`Missing Homepage card presentation for ${app.id}`);
-    }
-    return { ...presentation, url: app.path, icon: app.icon };
-  });
+  .map((app) => ({
+    id: app.id,
+    name: app.name,
+    presentation: app.presentation,
+    url: app.path,
+    icon: app.icon,
+  }));
+
+registerCardStrings(tools);
+
+const visibleTools = applyHomepagePrefs(
+  tools,
+  readHomepagePrefs(tools.map((tool) => tool.id)),
+);
 
 /* ---- CTA arrow SVG ---- */
 const ARROW_SVG =
@@ -73,15 +36,21 @@ function renderCard(tool) {
   const article = document.createElement("article");
   article.className = "tool-card";
 
+  const title = tool.presentation?.title
+    ? '<h2 class="card-title" data-i18n="card.' + tool.id + '.title"></h2>'
+    : '<h2 class="card-title">' + tool.name + '</h2>';
+
   article.innerHTML =
     '<svg class="card-icon toolbox-app-icon" viewBox="' + tool.icon.viewBox + '" aria-hidden="true">' +
     tool.icon.svg +
     '</svg>' +
-    '<h2 class="card-title" data-i18n="' + tool.titleKey + '"></h2>' +
-    '<p class="card-subtitle" data-i18n="' + tool.subtitleKey + '"></p>' +
-    '<p class="card-desc" data-i18n="' + tool.descKey + '"></p>' +
+    title +
+    '<p class="card-subtitle" data-i18n="card.' + tool.id + '.subtitle"></p>' +
+    '<p class="card-desc" data-i18n="card.' + tool.id + '.desc"></p>' +
     '<div class="card-badges">' +
-    tool.badges.map(function (b) { return '<span class="card-badge">' + b + '</span>'; }).join("") +
+    (tool.presentation?.badges ?? [])
+      .map(function (b) { return '<span class="card-badge">' + b + '</span>'; })
+      .join("") +
     '</div>' +
     '<a class="card-cta" href="' + tool.url + '">' +
     '<span data-i18n="card.cta"></span>' + ARROW_SVG +
@@ -93,7 +62,7 @@ function renderCard(tool) {
 /* ---- Init ---- */
 document.addEventListener("DOMContentLoaded", function () {
   var grid = document.getElementById("tools-grid");
-  tools.forEach(function (tool) {
+  visibleTools.forEach(function (tool) {
     grid.appendChild(renderCard(tool));
   });
   autoMountToolboxFooters();

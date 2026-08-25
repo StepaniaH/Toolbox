@@ -9,18 +9,19 @@ entries from `@toolbox/app-manifest` over the same CSS:
 Both render the same layout:
 
 ```
-[ 🧰 Toolbox ][ ▾ ]                                             [ ◎ ][ ☾ ]
-|-- home link --| | tool menu |                       | language | theme |
+[ 🧰 Toolbox ][ ▾ ]                                             [ ⚙ ]
+|-- home link --| | tool menu |                          | settings |
 ```
 
 - **Left** — `🧰 Toolbox` links directly home. The adjacent caret opens the tool menu on
   touch/keyboard, while hovering the group opens it on desktop. The menu starts with a
   localized search field backed by manifest labels, descriptions, and keywords.
-- **Right** — a language icon that opens an extensible, current-selection menu plus a sun/moon theme action. Language choices always use native names (`中文（简体）`, `English`) instead of translating the target language into the current UI language.
+- **Right** — a gear linking to the Settings app. Language, theme mode and palette family
+  are changed there; the bar deliberately offers no second preference entry point.
 
 The Toolbox menu remains the only tool switcher at narrow widths, so mobile users do not see a duplicate hamburger directory.
 
-Language/theme actions intentionally have no background box on pointer hover; hover uses color only. Keyboard `focus-visible` uses a 2px blue outline. `pnpm check:contracts` enforces this behavior and verifies manifest consumption.
+Icon actions intentionally have no background box on pointer hover; hover uses color only. Keyboard `focus-visible` uses a 2px blue outline. `pnpm check:contracts` enforces this behavior and verifies manifest consumption.
 
 Tool headers wrap their manifest icon in `.toolbox-app-mark`: a canonical 40px
 square with a 12px radius, 15% accent surface, 24px icon and no border,
@@ -95,7 +96,6 @@ The active tool is auto-detected from `location.pathname`. To override, call
 | option | type | default | description |
 |--------|------|---------|-------------|
 | `currentApp` | `string` | auto-detect from path | Active tool id |
-| `onToggleTheme` | `() => void` | `window.ToolboxTheme.toggleTheme()` | Override the theme toggle |
 
 ### React apps (`rate-lens`, `chrono-sphere`, `sane-units`)
 
@@ -122,9 +122,6 @@ Props:
 |------|------|---------|-------------|
 | `currentApp` | `string` | — | id of the active tool (highlights its link) |
 | `apps` | `NavApp[]` | `NAV_APPS` | Override the tool list |
-| `onToggleTheme` | `() => void` | `window.ToolboxTheme.toggleTheme` | Override the theme toggle |
-| `lang` | `"zh" \| "en"` | `localStorage("toolbox-lang")` → `navigator.language` | Label language |
-| `rightSlot` | `ReactNode` | — | Extra nodes before the theme button |
 | `className` | `string` | — | Extra class on the root `<header>` |
 
 The component also exports `NAV_APPS` and the `NavApp` / `NavBarProps` types.
@@ -146,7 +143,7 @@ Responsive behavior:
 
 | viewport | behavior |
 |----------|----------|
-| `> 768px` | Brand tool dropdown + language menu + theme toggle. Menus open on hover, click or keyboard activation. |
+| `> 768px` | Brand tool dropdown + settings gear. Menus open on hover, click or keyboard activation. |
 | `≤ 768px` | The same controls remain; Toolbox is the single tap-to-open tool menu and no duplicate directory is rendered. |
 
 `prefers-reduced-motion` shortens all transitions to ~0ms.

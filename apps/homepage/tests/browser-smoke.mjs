@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict'
 import { assertDesktopSharedShell, assertMobileSharedShell, assertSharedPreferenceMatrix } from '@toolbox/nav/browser-contract.mjs'
+import { TOOLBOX_RELEASE, getStableApps } from '@toolbox/app-manifest'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
 import { chromium } from 'playwright'
 
+const toolCount = getStableApps().filter((app) => app.path !== '/').length
 const appRoot = fileURLToPath(new URL('../', import.meta.url))
 const viteCli = fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url))
 const previewUrl = 'http://127.0.0.1:19883/'
@@ -72,32 +74,26 @@ try {
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertDesktopSharedShell(page)
   const assertHomepageSurface = async () => {
-    assert.equal(await page.locator('.tool-card').count(), 6)
-    assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 6)
+    assert.equal(await page.locator('.tool-card').count(), toolCount)
+    assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), toolCount)
     assert.equal(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       true,
     )
   }
   await assertSharedPreferenceMatrix(page, assertHomepageSurface)
-  assert.equal(await page.locator('.tool-card').count(), 6)
-  assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), 6)
+  assert.equal(await page.locator('.tool-card').count(), toolCount)
+  assert.equal(await page.locator('.tool-card .toolbox-app-icon').count(), toolCount)
   assert.equal(await page.locator('.toolbox-footer').count(), 1)
-  assert.equal(await page.getByText('v0.3.1', { exact: true }).count(), 1)
+  assert.equal(await page.getByText(TOOLBOX_RELEASE, { exact: true }).count(), 1)
   assert.equal(await page.locator('.toolbox-nav-hamburger').count(), 0)
   assert.equal(await page.locator('.toolbox-nav-brand-link').getAttribute('href'), '/')
 
-  const languageButton = page.locator('.toolbox-nav-lang')
+  // Language and theme are switched from the Settings app; verify the
+  // homepage reacts to the persisted preferences.
   const titleBefore = await page.locator('.site-title').textContent()
-  await languageButton.focus()
-  await page.keyboard.press('Enter')
-  const languageMenu = page.locator('.toolbox-nav-language-menu')
-  await languageMenu.waitFor({ state: 'visible' })
-  assert.equal(
-    await languageMenu.locator('[role="menuitemradio"][aria-checked="true"]').count(),
-    1,
-  )
-  await languageMenu.locator('[data-lang="en"]').click()
+  await page.evaluate(() => window.localStorage.setItem('toolbox-lang', 'en'))
+  await page.reload({ waitUntil: 'networkidle' })
   await page.waitForFunction(() => document.documentElement.lang === 'en')
   assert.notEqual(await page.locator('.site-title').textContent(), titleBefore)
   assert.equal(await page.locator('.toolbox-footer-description').textContent(), 'Toolbox navigation hub')
@@ -114,10 +110,16 @@ try {
 
   const themeBefore = await page.locator('html').getAttribute('data-theme')
   const backgroundBefore = await page.evaluate(() => getComputedStyle(document.body).backgroundColor)
-  await page.locator('.toolbox-nav-theme').click()
+  await page.evaluate(
+    (theme) => window.localStorage.setItem('toolbox-theme', theme),
+    themeBefore === 'dark' ? 'light' : 'dark',
+  )
+  await page.reload({ waitUntil: 'networkidle' })
+  // The shared baseline transitions body colors over 0.3s; sample after the
+  // transition instead of at its first frame.
   await page.waitForFunction(
-    (previousTheme) => document.documentElement.getAttribute('data-theme') !== previousTheme,
-    themeBefore,
+    (previousBackground) => getComputedStyle(document.body).backgroundColor !== previousBackground,
+    backgroundBefore,
   )
   assert.notEqual(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), backgroundBefore)
 

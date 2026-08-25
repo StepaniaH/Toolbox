@@ -1,0 +1,333 @@
+/* @toolbox/theme — token layer.
+   Catppuccin Frappe (dark · default) + Latte (light): raw palette, convenience
+   aliases, semantic aliases and shared foundation tokens. No element styling
+   lives here; apps that cannot accept global element baselines import this
+   file instead of styles.css. `data-theme` is set on <html>; see toggle.js. */
+
+/* ──────────────────────────────────────────────────────────────
+   Catppuccin Frappe (Dark · default)
+   The `:root` selector makes Frappé the unconditional default; the
+   `:root[data-theme="dark"]` selector keeps the same values when an app
+   explicitly sets `data-theme="dark"`.
+   ────────────────────────────────────────────────────────────── */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* ── Raw Catppuccin palette (dark) ─────────────────────────── */
+  --ctp-rosewater: #f2d5cf;
+  --ctp-flamingo: #eebebe;
+  --ctp-pink: #f4b8e4;
+  --ctp-mauve: #ca9ee6;
+  --ctp-red: #e78284;
+  --ctp-maroon: #ea999c;
+  --ctp-peach: #ef9f76;
+  --ctp-yellow: #e5c890;
+  --ctp-green: #a6d189;
+  --ctp-teal: #81c8be;
+  --ctp-sky: #99d1db;
+  --ctp-sapphire: #85c1dc;
+  --ctp-blue: #8caaee;
+  --ctp-lavender: #babbf1;
+  --ctp-text: #c6d0f5;
+  --ctp-subtext-1: #b5bfe2;
+  --ctp-subtext-0: #a5adce;
+  --ctp-overlay-2: #838ba7;
+  --ctp-overlay-1: #949cbb;
+  --ctp-overlay-0: #737994;
+  --ctp-surface-2: #626880;
+  --ctp-surface-1: #51576d;
+  --ctp-surface-0: #414559;
+  --ctp-base: #303446;
+  --ctp-mantle: #292c3c;
+  --ctp-crust: #232634;
+
+  /* ── Convenience aliases (kept in sync with the reference app) ── */
+  --base: var(--ctp-base);
+  --mantle: var(--ctp-mantle);
+  --crust: var(--ctp-crust);
+  --surface-0: var(--ctp-surface-0);
+  --surface-1: var(--ctp-surface-1);
+  --surface-2: var(--ctp-surface-2);
+  --text: var(--ctp-text);
+  --subtext-1: var(--ctp-subtext-1);
+  --subtext-0: var(--ctp-subtext-0);
+  --overlay-0: var(--ctp-overlay-0);
+  --blue: var(--ctp-blue);
+  --mauve: var(--ctp-mauve);
+  --green: var(--ctp-green);
+  --red: var(--ctp-red);
+  --yellow: var(--ctp-yellow);
+  --peach: var(--ctp-peach);
+  --teal: var(--ctp-teal);
+  --lavender: var(--ctp-lavender);
+  --sapphire: var(--ctp-sapphire);
+  --border-subtle: rgba(198, 208, 245, 0.08);
+  --border-strong: rgba(198, 208, 245, 0.16);
+
+  /* ── Semantic aliases (framework-agnostic) ──────────────────── */
+  --color-bg: var(--ctp-base);
+  --color-bg-elevated: var(--ctp-surface-0);
+  --color-bg-muted: var(--ctp-surface-1);
+  --color-text: var(--ctp-text);
+  --color-text-muted: var(--ctp-subtext-0);
+  --color-text-faint: var(--ctp-overlay-0);
+  --color-border: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--ctp-blue);
+  --color-primary-fg: var(--ctp-crust);
+  --color-secondary: var(--ctp-surface-1);
+  --color-secondary-fg: var(--ctp-text);
+  --color-accent: var(--ctp-mauve);
+  --color-accent-fg: var(--ctp-crust);
+  --color-success: var(--ctp-green);
+  --color-warning: var(--ctp-yellow);
+  --color-danger: var(--ctp-red);
+  --color-danger-fg: var(--ctp-crust);
+  --color-info: var(--ctp-sapphire);
+  --color-ring: var(--ctp-blue);
+  --color-input: var(--ctp-surface-2);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Catppuccin Latte (Light)
+   ────────────────────────────────────────────────────────────── */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* ── Raw Catppuccin palette (light) ────────────────────────── */
+  --ctp-rosewater: #dc8a78;
+  --ctp-flamingo: #dd7878;
+  --ctp-pink: #ea76cb;
+  --ctp-mauve: #8839ef;
+  --ctp-red: #d20f39;
+  --ctp-maroon: #e64553;
+  --ctp-peach: #fe640b;
+  --ctp-yellow: #df8e1d;
+  --ctp-green: #40a02b;
+  --ctp-teal: #179299;
+  --ctp-sky: #04a5e5;
+  --ctp-sapphire: #209fb5;
+  --ctp-blue: #1e66f5;
+  --ctp-lavender: #7287fd;
+  --ctp-text: #4c4f69;
+  --ctp-subtext-1: #5c5f77;
+  --ctp-subtext-0: #6c6f85;
+  --ctp-overlay-2: #8c8fa1;
+  --ctp-overlay-1: #9ca0b0;
+  --ctp-overlay-0: #acb0be;
+  --ctp-surface-2: #acb0be;
+  --ctp-surface-1: #bcc0cc;
+  --ctp-surface-0: #ccd0da;
+  --ctp-base: #eff1f5;
+  --ctp-mantle: #e6e9ef;
+  --ctp-crust: #dce0e8;
+
+  /* ── Convenience aliases ─────────────────────────────────── */
+  --base: var(--ctp-base);
+  --mantle: var(--ctp-mantle);
+  --crust: var(--ctp-crust);
+  --surface-0: var(--ctp-surface-0);
+  --surface-1: var(--ctp-surface-1);
+  --surface-2: var(--ctp-surface-2);
+  --text: var(--ctp-text);
+  --subtext-1: var(--ctp-subtext-1);
+  --subtext-0: var(--ctp-subtext-0);
+  --overlay-0: var(--ctp-overlay-0);
+  --blue: var(--ctp-blue);
+  --mauve: var(--ctp-mauve);
+  --green: var(--ctp-green);
+  --red: var(--ctp-red);
+  --yellow: var(--ctp-yellow);
+  --peach: var(--ctp-peach);
+  --teal: var(--ctp-teal);
+  --lavender: var(--ctp-lavender);
+  --sapphire: var(--ctp-sapphire);
+  --border-subtle: rgba(76, 79, 105, 0.1);
+  --border-strong: rgba(76, 79, 105, 0.18);
+
+  /* ── Semantic aliases (light) ──────────────────────────────── */
+  --color-bg: var(--ctp-base);
+  --color-bg-elevated: var(--ctp-surface-0);
+  --color-bg-muted: var(--ctp-surface-1);
+  --color-text: var(--ctp-text);
+  --color-text-muted: var(--ctp-subtext-0);
+  --color-text-faint: var(--ctp-overlay-0);
+  --color-border: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--ctp-blue);
+  --color-primary-fg: #ffffff;
+  --color-secondary: var(--ctp-surface-1);
+  --color-secondary-fg: var(--ctp-text);
+  --color-accent: var(--ctp-mauve);
+  --color-accent-fg: #ffffff;
+  --color-success: var(--ctp-green);
+  --color-warning: var(--ctp-yellow);
+  --color-danger: var(--ctp-red);
+  --color-danger-fg: #ffffff;
+  --color-info: var(--ctp-sapphire);
+  --color-ring: var(--ctp-blue);
+  --color-input: var(--ctp-surface-2);
+
+  --primary-foreground: #ffffff;
+  --destructive-foreground: #ffffff;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Shared tokens (theme-independent)
+   ────────────────────────────────────────────────────────────── */
+:root {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --radius-pill: 9999px;
+
+  --font-sans: ui-rounded, "SF Pro Rounded", system-ui, "PingFang SC",
+    "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Theme families. Family blocks only redefine the raw --ctp-* layer
+   (plus the few literal borders/foregrounds); every semantic alias
+   and convenience name above resolves through var() and follows
+   automatically. catppuccin is the default and needs no block.
+   Family selectors are prefixed with :root so they match the (0,2,0)
+   specificity of ":root[data-theme=…]" default blocks; without the
+   prefix an explicit data-theme="dark" would always win.
+   ────────────────────────────────────────────────────────────── */
+
+/* ── Gruvbox ── */
+:root[data-theme-family="gruvbox"] {
+  color-scheme: dark;
+  --ctp-rosewater: #ebdbb2;
+  --ctp-flamingo: #d3869b;
+  --ctp-pink: #d3869b;
+  --ctp-mauve: #d3869b;
+  --ctp-red: #fb4934;
+  --ctp-maroon: #cc241d;
+  --ctp-peach: #fe8019;
+  --ctp-yellow: #fabd2f;
+  --ctp-green: #b8bb26;
+  --ctp-teal: #8ec07c;
+  --ctp-sky: #83a598;
+  --ctp-sapphire: #458588;
+  --ctp-blue: #83a598;
+  --ctp-lavender: #b16286;
+  --ctp-text: #ebdbb2;
+  --ctp-subtext-1: #d5c4a1;
+  --ctp-subtext-0: #bdae93;
+  --ctp-overlay-2: #a89984;
+  --ctp-overlay-1: #928374;
+  --ctp-overlay-0: #7c6f64;
+  --ctp-surface-2: #665c54;
+  --ctp-surface-1: #504945;
+  --ctp-surface-0: #3c3836;
+  --ctp-base: #282828;
+  --ctp-mantle: #1d2021;
+  --ctp-crust: #161819;
+  --border-subtle: rgba(235, 219, 178, 0.08);
+  --border-strong: rgba(235, 219, 178, 0.16);
+}
+
+:root[data-theme-family="gruvbox"][data-theme="light"] {
+  color-scheme: light;
+  --ctp-rosewater: #c39a6c;
+  --ctp-flamingo: #b16286;
+  --ctp-pink: #b16286;
+  --ctp-mauve: #8f3f71;
+  --ctp-red: #cc241d;
+  --ctp-maroon: #9d0006;
+  --ctp-peach: #d65d0e;
+  --ctp-yellow: #d79921;
+  --ctp-green: #98971a;
+  --ctp-teal: #689d6a;
+  --ctp-sky: #458588;
+  --ctp-sapphire: #076678;
+  --ctp-blue: #458588;
+  --ctp-lavender: #b16286;
+  --ctp-text: #3c3836;
+  --ctp-subtext-1: #665c54;
+  --ctp-subtext-0: #7c6f64;
+  --ctp-overlay-2: #bdae93;
+  --ctp-overlay-1: #a89984;
+  --ctp-overlay-0: #928374;
+  --ctp-surface-2: #d5c4a1;
+  --ctp-surface-1: #e2d5ae;
+  --ctp-surface-0: #ede3c2;
+  --ctp-base: #fbf1c7;
+  --ctp-mantle: #f2e5bc;
+  --ctp-crust: #d5c4a1;
+  --border-subtle: rgba(60, 56, 54, 0.1);
+  --border-strong: rgba(60, 56, 54, 0.18);
+  --primary-foreground: #ffffff;
+  --destructive-foreground: #ffffff;
+}
+
+/* ── Solarized ── */
+:root[data-theme-family="solarized"] {
+  color-scheme: dark;
+  --ctp-rosewater: #eee8d5;
+  --ctp-flamingo: #d33682;
+  --ctp-pink: #d33682;
+  --ctp-mauve: #d33682;
+  --ctp-red: #dc322f;
+  --ctp-maroon: #cb4b16;
+  --ctp-peach: #cb4b16;
+  --ctp-yellow: #b58900;
+  --ctp-green: #859900;
+  --ctp-teal: #2aa198;
+  --ctp-sky: #268bd2;
+  --ctp-sapphire: #268bd2;
+  --ctp-blue: #268bd2;
+  --ctp-lavender: #6c71c4;
+  --ctp-text: #93a1a1;
+  --ctp-subtext-1: #839496;
+  --ctp-subtext-0: #7b939c;
+  --ctp-overlay-2: #4a6570;
+  --ctp-overlay-1: #3f5866;
+  --ctp-overlay-0: #35505b;
+  --ctp-surface-2: #1c4f5c;
+  --ctp-surface-1: #0d3f4c;
+  --ctp-surface-0: #073642;
+  --ctp-base: #002b36;
+  --ctp-mantle: #01222c;
+  --ctp-crust: #011a21;
+  --border-subtle: rgba(147, 161, 161, 0.08);
+  --border-strong: rgba(147, 161, 161, 0.16);
+}
+
+:root[data-theme-family="solarized"][data-theme="light"] {
+  color-scheme: light;
+  --ctp-rosewater: #e3dcc9;
+  --ctp-flamingo: #d33682;
+  --ctp-pink: #d33682;
+  --ctp-mauve: #d33682;
+  --ctp-red: #dc322f;
+  --ctp-maroon: #cb4b16;
+  --ctp-peach: #cb4b16;
+  --ctp-yellow: #b58900;
+  --ctp-green: #859900;
+  --ctp-teal: #2aa198;
+  --ctp-sky: #268bd2;
+  --ctp-sapphire: #268bd2;
+  --ctp-blue: #268bd2;
+  --ctp-lavender: #6c71c4;
+  --ctp-text: #586e75;
+  --ctp-subtext-1: #5f767f;
+  --ctp-subtext-0: #647c83;
+  --ctp-overlay-2: #c0c9c4;
+  --ctp-overlay-1: #a9b7b1;
+  --ctp-overlay-0: #93a1a1;
+  --ctp-surface-2: #d6cfba;
+  --ctp-surface-1: #dfd6c1;
+  --ctp-surface-0: #eee8d5;
+  --ctp-base: #fdf6e3;
+  --ctp-mantle: #eee8d5;
+  --ctp-crust: #e4ddc9;
+  --border-subtle: rgba(101, 123, 131, 0.1);
+  --border-strong: rgba(101, 123, 131, 0.18);
+  --primary-foreground: #ffffff;
+  --destructive-foreground: #ffffff;
+}

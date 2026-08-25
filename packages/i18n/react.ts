@@ -29,9 +29,11 @@ import {
   type TranslateFn,
 } from "./core";
 import sharedZhJson from "./translations/zh.json";
+import sharedZhHantJson from "./translations/zh-Hant.json";
 import sharedEnJson from "./translations/en.json";
 
 const sharedZh = sharedZhJson as unknown as Translations;
+const sharedZhHant = sharedZhHantJson as unknown as Translations;
 const sharedEn = sharedEnJson as unknown as Translations;
 
 export type I18nProviderProps = {
@@ -74,7 +76,12 @@ export function I18nProvider({ translations, children }: I18nProviderProps) {
   useEffect(() => onChange(setLangState), []);
 
   const t = useMemo<TranslateFn>(() => {
-    const shared = lang === "en" ? sharedEn : sharedZh;
+    const shared =
+      lang === "en"
+        ? sharedEn
+        : lang === "zh-Hant"
+          ? sharedZhHant
+          : sharedZh;
     const extra = translations?.[lang];
     return createTranslator(
       isTranslations(extra) ? deepMerge(shared, extra) : shared,

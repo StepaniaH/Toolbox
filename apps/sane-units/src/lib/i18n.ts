@@ -1,20 +1,25 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from "react";
 import { getLang, onChange, setLang as setCoreLang, type Lang } from "@toolbox/i18n/core";
 
-export type LanguageCode = "zh-CN" | "en";
+export type LanguageCode = "zh-CN" | "zh-Hant" | "en";
 
 function coreToSaneUnits(lang: Lang): LanguageCode {
-  return lang === "en" ? "en" : "zh-CN";
+  if (lang === "en") return "en";
+  if (lang === "zh-Hant") return "zh-Hant";
+  return "zh-CN";
 }
 
 function saneUnitsToCore(lang: LanguageCode): Lang {
-  return lang === "en" ? "en" : "zh";
+  return lang === "en" ? "en" : lang === "zh-Hant" ? "zh-Hant" : "zh";
 }
 export type TranslationKey = string;
 export type Translation = string | number | Translation[] | { [key: string]: Translation };
 export type Translations = Record<LanguageCode, { [key: string]: Translation }>;
 
+import zhHantTranslations from "./translations.zh-hant.generated.json";
+
 const TRANSLATIONS = {
+  "zh-Hant": zhHantTranslations,
   "zh-CN": {
     nav: {
       home: "首页",
@@ -707,7 +712,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<LanguageCode>(() => coreToSaneUnits(getLang()));
 
   useEffect(() => {
-    document.documentElement.lang = lang;
+    document.documentElement.lang = lang === "zh-CN" ? "zh-CN" : lang === "zh-Hant" ? "zh-TW" : "en";
   }, [lang]);
 
   useEffect(() => {

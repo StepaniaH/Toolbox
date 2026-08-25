@@ -1,16 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
-import {
-  DEFAULT_THEME,
-  THEME_ATTRIBUTE,
-  THEME_CONTRACT_VERSION,
-  THEME_STORAGE_KEY,
-} from '@toolbox/theme/contract'
 import { useLocalStorage } from '@/hooks/use-local-storage'
-import {
-  THEME_STORAGE_KEY as HOOK_THEME_STORAGE_KEY,
-  useTheme,
-} from '@/hooks/use-theme'
 import {
   defaultRateFetcher,
   useExchangeRate,
@@ -56,43 +46,6 @@ describe('useLocalStorage', () => {
     expect(result.current[0]).toBe(5)
     act(() => result.current[1]((n) => n + 1))
     expect(result.current[0]).toBe(6)
-  })
-})
-
-describe('useTheme', () => {
-  beforeEach(() => {
-    localStorage.clear()
-    document.documentElement.removeAttribute('data-theme')
-  })
-
-  it('defaults to dark and toggles to light (Gate 6 theme switching)', () => {
-    const { result } = renderHook(() => useTheme())
-    expect(result.current.theme).toBe('dark')
-    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
-
-    act(() => result.current.toggle())
-    expect(result.current.theme).toBe('light')
-    expect(document.documentElement.getAttribute('data-theme')).toBe('light')
-    expect(localStorage.getItem('toolbox-theme')).toBe('light')
-
-    act(() => result.current.toggle())
-    expect(result.current.theme).toBe('dark')
-    expect(localStorage.getItem('toolbox-theme')).toBe('dark')
-  })
-
-  it('consumes the shared v1 theme contract', () => {
-    expect(THEME_CONTRACT_VERSION).toBe(1)
-    expect(HOOK_THEME_STORAGE_KEY).toBe(THEME_STORAGE_KEY)
-    expect(THEME_ATTRIBUTE).toBe('data-theme')
-    expect(DEFAULT_THEME).toBe('dark')
-  })
-
-  it('reads the legacy theme key when the shared key is absent', () => {
-    localStorage.setItem('ratelens-theme', 'light')
-    document.documentElement.setAttribute('data-theme', 'light')
-    const { result } = renderHook(() => useTheme())
-    expect(result.current.theme).toBe('light')
-    expect(localStorage.getItem('toolbox-theme')).toBe('light')
   })
 })
 

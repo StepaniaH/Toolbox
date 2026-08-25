@@ -141,10 +141,6 @@
   en['footer.privacy'] = 'All data is processed locally in your browser. Nothing is uploaded, no third-party tracking.';
   en['footer.hosting'] = 'Self-hosted static site';
 
-  /* ── Theme ── */
-  en['theme.toggle'] = 'Toggle theme';
-  en['theme.toLight'] = 'Switch to light theme';
-  en['theme.toDark'] = 'Switch to dark theme';
 
   /* ── Language ── */
   en['lang.toggle'] = '中文';

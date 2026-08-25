@@ -4,16 +4,21 @@ import test from 'node:test'
 import vm from 'node:vm'
 import {
   DEFAULT_THEME,
+  DEFAULT_THEME_FAMILY,
   FOUNDATION_TOKENS,
   isTheme,
+  isThemeFamily,
   SEMANTIC_COLOR_TOKENS,
   THEME_ATTRIBUTE,
   THEME_CONTRACT_VERSION,
+  THEME_FAMILIES,
+  THEME_FAMILY_ATTRIBUTE,
+  THEME_FAMILY_STORAGE_KEY,
   THEMES,
   THEME_STORAGE_KEY,
 } from './contract.mjs'
 
-const css = await readFile(new URL('./index.css', import.meta.url), 'utf8')
+const css = await readFile(new URL('./tokens.css', import.meta.url), 'utf8')
 const runtime = await readFile(new URL('./toggle.js', import.meta.url), 'utf8')
 
 function ruleBody(selector) {
@@ -71,8 +76,8 @@ function createHarness({ initialTheme, prefersLight = false, storedTheme, storag
   }
 }
 
-test('publishes an immutable v1 theme contract', () => {
-  assert.equal(THEME_CONTRACT_VERSION, 1)
+test('publishes an immutable v2 theme contract', () => {
+  assert.equal(THEME_CONTRACT_VERSION, 2)
   assert.equal(THEME_STORAGE_KEY, 'toolbox-theme')
   assert.equal(THEME_ATTRIBUTE, 'data-theme')
   assert.equal(DEFAULT_THEME, 'dark')
@@ -82,6 +87,13 @@ test('publishes an immutable v1 theme contract', () => {
   assert.equal(Object.isFrozen(FOUNDATION_TOKENS), true)
   assert.equal(isTheme('light'), true)
   assert.equal(isTheme('system'), false)
+  assert.equal(THEME_FAMILY_STORAGE_KEY, 'toolbox-theme-family')
+  assert.equal(THEME_FAMILY_ATTRIBUTE, 'data-theme-family')
+  assert.equal(DEFAULT_THEME_FAMILY, 'catppuccin')
+  assert.deepEqual([...THEME_FAMILIES], ['catppuccin', 'gruvbox', 'solarized'])
+  assert.equal(Object.isFrozen(THEME_FAMILIES), true)
+  assert.equal(isThemeFamily('gruvbox'), true)
+  assert.equal(isThemeFamily('dracula'), false)
 })
 
 test('defines every semantic token for dark and light themes', () => {
@@ -171,5 +183,151 @@ test('pre-paint script applies stored, system, and safe fallback themes', () => 
       window: harness.window,
     })
     assert.equal(harness.attributes.get(THEME_ATTRIBUTE), scenario.expected)
+    assert.equal(harness.attributes.get(THEME_FAMILY_ATTRIBUTE), DEFAULT_THEME_FAMILY)
+  }
+})
+
+test('pre-paint script resolves the stored palette family with a safe fallback', () => {
+  const harness = createHarness({ storedTheme: 'dark' })
+  harness.values.set(THEME_FAMILY_STORAGE_KEY, 'gruvbox')
+  vm.runInNewContext(harness.api.prePaintScript(), {
+    document: harness.document,
+    localStorage: harness.localStorage,
+    window: harness.window,
+  })
+  assert.equal(harness.attributes.get(THEME_FAMILY_ATTRIBUTE), 'gruvbox')
+
+  const broken = createHarness({})
+  broken.values.set(THEME_FAMILY_STORAGE_KEY, 'dracula')
+  vm.runInNewContext(broken.api.prePaintScript(), {
+    document: broken.document,
+    localStorage: broken.localStorage,
+    window: broken.window,
+  })
+  assert.equal(broken.attributes.get(THEME_FAMILY_ATTRIBUTE), DEFAULT_THEME_FAMILY)
+})
+
+test('setThemeFamily persists valid families and rejects unknown ones', () => {
+  const { api, attributes, values } = createHarness()
+  assert.equal(api.setThemeFamily('solarized'), 'solarized')
+  assert.equal(values.get(THEME_FAMILY_STORAGE_KEY), 'solarized')
+  assert.equal(attributes.get(THEME_FAMILY_ATTRIBUTE), 'solarized')
+  assert.equal(api.getThemeFamily(), 'solarized')
+  assert.throws(() => api.setThemeFamily('nord'), /unexpected family/)
+})
+
+test('runtime metadata matches the public contract', () => {
+  const { api } = createHarness()
+  assert.equal(api.CONTRACT_VERSION, THEME_CONTRACT_VERSION)
+  assert.equal(api.STORAGE_KEY, THEME_STORAGE_KEY)
+  assert.equal(api.ATTRIBUTE, THEME_ATTRIBUTE)
+  assert.equal(api.DEFAULT_THEME, DEFAULT_THEME)
+  assert.deepEqual([...api.THEMES], THEMES)
+  assert.equal(api.FAMILY_STORAGE_KEY, THEME_FAMILY_STORAGE_KEY)
+  assert.equal(api.FAMILY_ATTRIBUTE, THEME_FAMILY_ATTRIBUTE)
+  assert.equal(api.DEFAULT_THEME_FAMILY, DEFAULT_THEME_FAMILY)
+  assert.deepEqual([...api.THEME_FAMILIES], [...THEME_FAMILIES])
+})
+
+// ── Family palette coverage and contrast gates ───────────────
+
+function blockFor(selector) {
+  const start = css.indexOf(selector)
+  assert.notEqual(start, -1, `missing selector ${selector}`)
+  const open = css.indexOf('{', start)
+  const close = css.indexOf('}', open)
+  return css.slice(open + 1, close)
+}
+
+function hexMap(body) {
+  const map = new Map()
+  for (const match of body.matchAll(/(--[a-z0-9-]+)\s*:\s*(#[0-9a-fA-F]{3,8})/g)) {
+    map.set(match[1], match[2])
+  }
+  for (const match of body.matchAll(/(--[a-z0-9-]+)\s*:\s*var\((--[a-z0-9-]+)\)/g)) {
+    map.set(match[1], `var:${match[2]}`)
+  }
+  return map
+}
+
+function resolve(map, token, depth = 0) {
+  let value = map.get(token)
+  while (typeof value === 'string' && value.startsWith('var:') && depth < 4) {
+    value = map.get(value.slice(4))
+    depth += 1
+  }
+  return typeof value === 'string' && value.startsWith('#') ? value : null
+}
+
+function luminance(hex) {
+  const full = hex.length === 4 ? hex.replace(/[^#]/g, '').split('').map((c) => c + c).join('') : hex
+  const channel = (index) => {
+    const value = parseInt(full.slice(index, index + 2), 16) / 255
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5)
+}
+
+function contrastRatio(foreground, background) {
+  const a = luminance(foreground)
+  const b = luminance(background)
+  const [hi, lo] = a >= b ? [a, b] : [b, a]
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+const FAMILY_BLOCKS = [
+  ['catppuccin', 'dark', ':root,\n:root[data-theme="dark"]'],
+  ['catppuccin', 'light', ':root[data-theme="light"]'],
+  ['gruvbox', 'dark', ':root[data-theme-family="gruvbox"] \n'],
+  ['gruvbox', 'light', ':root[data-theme-family="gruvbox"][data-theme="light"]'],
+  ['solarized', 'dark', ':root[data-theme-family="solarized"] \n'],
+  ['solarized', 'light', ':root[data-theme-family="solarized"][data-theme="light"]'],
+]
+
+test('family selectors keep up with the :root[data-theme] specificity', () => {
+  for (const [family, mode, selector] of FAMILY_BLOCKS) {
+    if (family === 'catppuccin') continue
+    assert.ok(
+      selector.trim().startsWith(':root['),
+      `${family}/${mode} selector must be rooted on :root or ":root[data-theme=\\"dark\\"]" wins the cascade`,
+    )
+  }
+})
+
+test('every family and mode defines the complete raw palette', () => {
+  for (const [family, mode, selector] of FAMILY_BLOCKS) {
+    const map = hexMap(blockFor(selector.trim()))
+    void map
+    for (const token of ['--ctp-base', '--ctp-text', '--ctp-blue', '--ctp-red', '--ctp-green', '--ctp-surface-0']) {
+      assert.ok(resolve(map, token), `${family}/${mode} is missing ${token}`)
+    }
+  }
+})
+
+test('core text pairs meet WCAG contrast in every family and mode', () => {
+  const requirements = [
+    ['--color-text', '--color-bg', 4.5],
+    ['--color-text-muted', '--color-bg', 4.0],
+    ['--color-primary-fg', '--color-primary', 3.0],
+    ['--color-danger-fg', '--color-danger', 3.0],
+  ]
+  const defaultBlocks = {
+    dark: hexMap(blockFor(':root,\n:root[data-theme="dark"]')),
+    light: hexMap(blockFor(':root[data-theme="light"]')),
+  }
+  for (const [family, mode, selector] of FAMILY_BLOCKS) {
+    const base = family === 'catppuccin' ? defaultBlocks[mode] : defaultBlocks[mode]
+    const familyMap = family === 'catppuccin' ? new Map() : hexMap(blockFor(selector.trim()))
+    const map = new Map([...base, ...familyMap])
+    for (const [fgToken, bgToken, minimum] of requirements) {
+      const fg = resolve(map, fgToken)
+      const bg = resolve(map, bgToken)
+      assert.ok(fg && bg, `${family}/${mode} cannot resolve ${fgToken}/${bgToken}`)
+      const ratio = contrastRatio(fg, bg)
+      assert.ok(
+        ratio >= minimum,
+        `${family}/${mode} ${fgToken} on ${bgToken} is ${ratio.toFixed(2)} (< ${minimum})`,
+      )
+    }
   }
 })

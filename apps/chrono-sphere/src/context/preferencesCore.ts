@@ -2,32 +2,30 @@ import { createContext } from 'react';
 import {
   DEFAULT_THEME,
   isTheme,
+  THEME_ATTRIBUTE,
   THEME_STORAGE_KEY,
 } from '@toolbox/theme/contract';
-import type { ResolvedTheme, ThemeMode } from '../i18n';
+import type { ResolvedTheme } from '../i18n';
 
-export { THEME_STORAGE_KEY };
+export { THEME_ATTRIBUTE, THEME_STORAGE_KEY };
 
 export interface PreferencesContextValue {
-  themeMode: ThemeMode;
   resolvedTheme: ResolvedTheme;
-  toggleTheme: () => void;
-  setThemeMode: (mode: ThemeMode) => void;
 }
 
 export const PreferencesContext = createContext<PreferencesContextValue | null>(null);
 
+/** Pre-contract key kept as a one-time migration source. */
 export const LEGACY_THEME_STORAGE_KEY = 'chrono-sphere.theme';
 
-/**
- * Read persisted theme mode from localStorage. Falls back to 'system' when
- * window is unavailable (SSR) or the stored value is not a valid theme mode.
- */
-export function readStoredTheme(): ThemeMode {
-  if (typeof window === 'undefined') return 'system';
-  const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
-    ?? window.localStorage.getItem(LEGACY_THEME_STORAGE_KEY);
-  return isTheme(stored) || stored === 'system' ? stored : 'system';
+function readStorage(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    // localStorage may be unavailable (private mode / SSR); ignore.
+    return null;
+  }
 }
 
 /**
@@ -37,4 +35,22 @@ export function readStoredTheme(): ThemeMode {
 export function getSystemTheme(): ResolvedTheme {
   if (typeof window === 'undefined') return DEFAULT_THEME;
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+/**
+ * Read the active theme. The shared contract key written by the Settings
+ * app is authoritative; the legacy pre-contract key is honored once for
+ * existing visitors; otherwise the app follows the OS preference.
+ */
+export function readStoredTheme(): ResolvedTheme {
+  const shared = readStorage(THEME_STORAGE_KEY);
+  if (isTheme(shared)) return shared;
+  const legacy = readStorage(LEGACY_THEME_STORAGE_KEY);
+  if (isTheme(legacy)) return legacy;
+  return getSystemTheme();
+}
+
+/** True when the visitor has an explicit stored choice (shared or legacy). */
+export function hasExplicitThemeChoice(): boolean {
+  return isTheme(readStorage(THEME_STORAGE_KEY)) || isTheme(readStorage(LEGACY_THEME_STORAGE_KEY));
 }

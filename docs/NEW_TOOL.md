@@ -9,40 +9,32 @@
 这些属于 Agent 的职责。只有会改变核心正确性、敏感数据处理、外部付费/联网授权或产品
 方向的缺失决定，才应向用户提出一个简短问题。
 
-## 1. 分支模型：实现与集成严格分离
+## 1. 分支模型：本地单线开发
 
 ```text
-main                 已部署稳定线，只接受维护者批准的发布
-  ↑
-dev                  维护者审核与集成线，不直接开发新工具
-  ↑ review only
-newdev/<tool-id>      单个新工具的唯一实现分支，必须从 dev 创建
+main                 已发布稳定线，只接受维护者批准的发布合并与 tag
+  ↑ maintainer review & merge only
+dev                  唯一开发分支，仅存本机，不推送远端
 ```
 
 新工具开发的硬门槛：
 
 1. 在任何编辑前运行 `git status --short --branch` 与
    `git branch --show-current`。
-2. 只有工作区干净且当前为 `dev` 时，才可执行
-   `git switch -c newdev/<tool-id> dev`。
-3. 分支名中的 `<tool-id>` 必须与 `apps/<tool-id>`、package name 和路由一致，使用
-   kebab-case。
-4. 新工具的代码、测试、依赖、manifest 候选和交接文档全部只提交到该
-   `newdev/<tool-id>`。
-5. 开发 Agent 不得向 `dev` 或 `main` 提交、合并、rebase、改 tag 或部署，也不得
-   自动将工具状态提升为 `stable`。
-6. 候选分支默认只存在于本机；可以做聚焦的本地提交，但不得 push `newdev/*`，除非维护者
-   明确要求为该候选做远端备份。
-7. `dev` 上的审核与合并由维护者使用高能力模型单独完成。候选分支落后时，开发
-   Agent 只报告差异，不自行把 `dev` 合入候选分支，除非维护者明确要求。
-
-本仓库自身的架构、文档、共享包维护可以在维护者明确要求时发生于 `dev`；上述限制
-专门约束“新工具实现”，避免较弱模型污染集成线。
+2. 只有工作区干净时才切换或停留在 `dev`；全部实现以聚焦提交直接发生在本地
+   `dev`。
+3. 工具 id 必须与 `apps/<tool-id>`、package name 和路由一致，使用 kebab-case。
+4. 每个提交保持单一工具或单一平台变更的可回滚边界；不把多个工具的实现混入同一提交。
+5. 开发 Agent 不得向 `main` 提交、合并、rebase、打 tag 或部署，也不得自动将工具状态
+   提升为 `stable`。
+6. 合并 `main`、push `main`、创建 tag 是三个互相独立的维护者授权动作；开发工作默认
+   停在本地 `dev`。
 
 ## 2. Agent 从自然语言需求生成内部 Brief
 
-Agent 必须从用户的正常描述中推导工具 id、输入输出、假设、验收与边界，并在
-`apps/<tool-id>/NEW_TOOL_HANDOFF.md` 顶部自行维护：
+Agent 必须从用户的正常描述中推导工具 id、输入输出、假设、验收与边界，并把 Brief 记录在
+`apps/<tool-id>/README.md` 顶部（中文镜像放 `README.zh-CN.md`）。Brief 是该应用的长期
+产品契约，随应用一起维护：
 
 ```yaml
 id: kebab-case-id
@@ -58,12 +50,13 @@ non_goals: 本分支明确不做什么
 acceptance: 3-8 条可验证结果
 ```
 
-不得要求用户填写上面的 YAML。信息未明确时采用以下安全默认值，并把假设写入 handoff：
+不得要求用户填写上面的 YAML。信息未明确时采用以下安全默认值，并把假设写入 README 的
+Brief 小节：
 
 - 纯客户端、无外部业务请求、无账号/后端/遥测/广告/远端字体/Cookie。
 - 新工具 `hidden`，不改变部署，不触碰 `main`/`dev`。
 - 小工具使用 Vanilla TypeScript + Vite；复杂交互使用 React + TypeScript + Vite。
-- 首版同时提供 zh/en、共享主题/导航/页脚/icon、键盘与移动端支持。
+- 首版同时提供 zh / zh-Hant / en（zh-Hant 由 `scripts/gen-zh-hant.mjs` 生成）、共享主题/导航/页脚/icon、键盘与移动端支持。
 - 只实现最小完整主流程；未经要求的扩展放入 non-goals 或后续建议。
 - 只有确实改善体验时才保存本地状态；storage/query 损坏必须安全恢复。
 
@@ -73,7 +66,9 @@ Agent 应做可逆的合理判断，而不是连续询问技术偏好。只有�
 ## 3. 技术与目录契约
 
 默认使用 Vite 构建壳：简单表单/计算器优先 Vanilla TypeScript，复杂状态优先
-React + TypeScript，Canvas/WebGL 仍必须通过 Vite 独立构建。
+React + TypeScript，Canvas/WebGL 仍必须通过 Vite 独立构建。推荐用生成器创建骨架：
+`node scripts/new-app.mjs <tool-id> --variant vanilla|react`，再替换其中的占位文案、
+icon 与关键词。
 
 ```text
 apps/<tool-id>/
@@ -83,9 +78,8 @@ apps/<tool-id>/
 ├── index.html
 ├── package.json
 ├── vite.config.*
-├── README.md                     # 面向用户的英文长期文档
-├── README.zh-CN.md               # 面向用户的中文长期文档
-└── NEW_TOOL_HANDOFF.md           # 候选分支临时交接文档，合并时删除
+├── README.md                     # 英文长期文档，顶部含 Brief
+└── README.zh-CN.md               # 中文长期文档，顶部含 Brief 摘要
 ```
 
 必须满足：
@@ -118,17 +112,17 @@ apps/<tool-id>/
 | `@toolbox/theme` | pre-paint、light/dark 状态、语义 token、系统字体 | 复制 Catppuccin 色号、远端字体、自建全局主题键 |
 | `@toolbox/nav` | 唯一顶部 NavBar、当前 app、统一页脚、canonical app icon | 工具内部再放语言/主题按钮、复制导航 CSS/JS |
 | `@toolbox/i18n` | `zh`/`en` 状态、订阅或 React Provider、HTML `lang` 同步 | 只翻译可见正文、拼接依赖语序的半句话 |
-| `@toolbox/app-manifest` | id、route、名称、描述、icon、双语关键词、公开状态 | 在首页或 Nav 中手写另一份工具列表 |
+| `@toolbox/app-manifest` | id、route、名称、描述、icon、三语关键词、公开状态 | 在首页或 Nav 中手写另一份工具列表 |
 
 精确 API 以各包 README 和类型声明为准。共享包 API 不能为了单个新工具随意破坏；确需
-扩展时，先写契约测试和兼容方案，并在交接文档中单列影响范围。
+扩展时，先写契约测试和兼容方案，并在应用 README 的 Brief 中单列影响范围。
 
 应用通常通过 `@toolbox/nav` 间接消费 manifest；只有直接 import manifest 的应用才把它列为
 自身 dependency。无论是否直接依赖，都必须在 `packages/app-manifest/manifest.js` 注册条目。
 
 ### Manifest 注册
 
-候选分支必须注册 canonical icon、`navLabel`、`description` 与本地化 `keywords`。关键词
+新工具必须注册 canonical icon、`navLabel`、`description` 与本地化 `keywords`。关键词
 是用户会用来描述目标、输入、输出或同义概念的短词，不堆砌营销词；中文与英文分别维护，
 搜索当前语言时只使用相应语言内容。新条目省略 status 或显式使用 `hidden`：
 
@@ -157,35 +151,21 @@ defineApp({
 - 全局控件 hover 只允许优雅的颜色/图标反馈，不画背景选中框；keyboard
   `:focus-visible` 必须清楚。
 - 工具业务导航与全局 NavBar 分层；业务页面不能覆盖 `.toolbox-*` 共享类名。
-- 首次提交即验证 light/dark、zh/en、375/390px mobile、1440px desktop、键盘导航与
+- 首次提交即验证 light/dark、zh/zh-Hant/en、375/390px mobile、1440px desktop、键盘导航与
   `prefers-reduced-motion`。
 - 页面 title、meta description、label、placeholder、aria label、错误、空状态和降级提示
   必须同时提供中英文。
 
-## 6. 文档标准与合并清理
+## 6. 文档标准
 
 ### 长期保留
 
-- `README.md` 与 `README.zh-CN.md`：用途、输入输出、公式/假设、隐私与联网行为、离线
-  fallback、开发/测试命令、已知限制。
+- `README.md` 与 `README.zh-CN.md`：顶部 Brief（问题、输入输出、假设、隐私、non-goals、
+  验收），以及用途、公式/假设、隐私与联网行为、离线 fallback、开发/测试命令、已知限制。
 - 复杂且长期有效的算法或数据来源说明可放 `apps/<tool-id>/docs/`；不保存过程日志、聊天
   摘要、逐步计划或已完成 TODO。
-- 用户可见变化由集成模型在合并后写入根 `CHANGELOG.md`，候选开发 Agent不预先声明发布。
-
-### 临时交接文件
-
-`NEW_TOOL_HANDOFF.md` 必须包含：
-
-1. Brief 与验收勾选结果。
-2. 相对 `dev` 的文件/依赖/平台变更摘要。
-3. 外部请求、storage、URL 参数和数据流审计。
-4. 实际运行过的命令与结果，不写“应当通过”。
-5. 未完成项、已知风险、视觉检查矩阵。
-6. 给集成模型的操作：哪些内容迁入 README/CHANGELOG/TASKS、哪些临时 fixture 删除。
-
-集成模型完成审核并把必要信息迁入长期文档后，必须删除
-`apps/<tool-id>/NEW_TOOL_HANDOFF.md`。不得把一次性实现计划、截图、调试日志或失败输出
-留在合并后的 `dev`。
+- 用户可见变化在版本准备阶段写入根 `CHANGELOG.md`；开发 Agent 不预先声明发布。
+- 不把一次性实现计划、截图、调试日志或失败输出提交进仓库。
 
 ## 7. 隐私与网络红线
 
@@ -210,9 +190,9 @@ defineApp({
 
 - 核心纯函数：正常、边界、非法值、单位、舍入和异常。
 - 一条主要渲染/交互流程，以及损坏 query/storage 的安全恢复。
-- zh/en key 完整性与 `<html lang>` 同步。
+- zh / zh-Hant / en key 完整性（`scripts/check-i18n-parity` 或等价测试）与 `<html lang>` 同步。
 - 主题 token、全局/私有 storage key、唯一 NavBar/页脚契约。
-- 375/390px 与 1440px production browser smoke；覆盖 light/dark、zh/en、keyboard focus、
+- 375/390px 与 1440px production browser smoke；覆盖 light/dark、三语、keyboard focus、
   横向溢出、console/page errors 和失败资源。
 - Canvas/WebGL：计算数据测试、可见渲染 smoke、resize/cleanup，以及可理解的文本替代。
 - 外部请求：注入 fetcher/adapter，覆盖成功、超时、全部来源失败和 fallback，不访问真实网络。
@@ -236,12 +216,15 @@ pnpm --filter=@toolbox/<tool-id> lint
 pnpm --filter=@toolbox/<tool-id> test:browser
 ```
 
-注意：这是开发优化，不是合并豁免。候选完成、修改共享包或准备交接时仍要运行全仓门禁。
-Vite dev server 只按访问路径转换所需模块；production preview 前只构建目标 app 即可。
+注意：这是开发优化，不是合并豁免。门禁按变更面分级——只改单个应用时，默认跑该应用的
+`build`/`test`/`lint`/`test:browser` 加根级 `check:privacy`/`check:contracts`/
+`check:release`；触及共享包、多个应用或准备发布审核时，才要求全仓 `pnpm build && pnpm
+test && pnpm lint && pnpm test:browser`。Vite dev server 只按访问路径转换所需模块；
+production preview 前只构建目标 app 即可。
 
-## 10. 完成与交接门禁
+## 10. 完成门禁
 
-候选分支交接前依次运行：
+工具实现完成后依次运行：
 
 ```bash
 pnpm --filter=@toolbox/<tool-id> build
@@ -250,43 +233,41 @@ pnpm --filter=@toolbox/<tool-id> lint
 pnpm --filter=@toolbox/<tool-id> test:browser
 pnpm check:privacy
 pnpm check:contracts
+pnpm check:release
 pnpm build
 pnpm test
 pnpm lint
 pnpm test:browser
-git diff --check dev...HEAD
 ```
 
-交接时必须确认：
+完成时必须确认：
 
-- [ ] 分支为 `newdev/<tool-id>` 且基点来自 `dev`；`main`/`dev` 未被开发 Agent 修改。
-- [ ] manifest 仍为 `hidden`，关键词、icon、双语描述完整。
+- [ ] 工作在本地 `dev` 上以聚焦提交存在；`main` 未被改动。
+- [ ] manifest 仍为 `hidden`，关键词、icon、三语描述完整。
 - [ ] 只修改目标 app、必要 manifest/平台契约和对应测试，没有跨 app import。
-- [ ] light/dark × zh/en × mobile/desktop 与键盘检查通过。
+- [ ] light/dark × 三语 × mobile/desktop 与键盘检查通过。
 - [ ] 隐私、联网、storage、query、fallback 与 README 一致。
-- [ ] 单工具与全仓门禁的真实结果已写入 `NEW_TOOL_HANDOFF.md`。
+- [ ] README 双语文档完整，Brief 为最新产品契约。
 - [ ] 没有 dist、日志、截图、临时 fixture、app lockfile 或真实环境数据待提交。
-- [ ] 开发 Agent没有合并、提升 `stable`、改 CHANGELOG 发布版本或部署。
-- [ ] 候选已形成可审核的本地提交，且默认没有 push `newdev/*`。
+- [ ] 开发 Agent 没有合并 `main`、提升 `stable`、改 CHANGELOG 发布版本或部署。
+- [ ] 没有执行 push 或打 tag。
 
-## 11. `dev` 集成模型检查清单
+## 11. 发布前审核清单
 
-集成模型只在维护者明确要求后执行，重点不是“测试为绿”而是验证候选没有扩大故障半径。
-“审核”“合并到 dev”“推送 dev”是三个独立授权：
+审核只在维护者明确要求后执行，重点不是“测试为绿”而是验证变更没有扩大故障半径。
+“审核”“合并到 main”“push main”“打 tag”是四个独立授权：
 
-1. 比较 `dev...newdev/<tool-id>`，逐项核对 handoff、依赖、网络与共享包差异。
+1. 比较 `main...dev`，逐项核对 README Brief、依赖、网络与共享包差异。
 2. 独立复算核心用例，执行单工具和全仓门禁，检查生产 base/output 与部署隔离。
-3. 只有收到明确的合并授权，才切换到干净的本地 `dev` 并执行可审查的本地合并。
-4. 在合并结果中删除 `NEW_TOOL_HANDOFF.md`、临时 fixture、调试产物和已迁移的一次性说明。
-5. 将持久信息留在双语 README/必要算法文档；将真实用户变化写入 CHANGELOG；更新当前
-   TASKS，避免复制实现过程。
-6. 只有产品/视觉/隐私/质量均通过且维护者同意公开时才将 `hidden` 改为 `preview` 或
-   `stable`。合并 `dev` 不等于合并 `main`，更不等于部署。
-7. 合并后重新运行完整门禁。只有维护者明确要求 push 时才推送合并后的 `dev`；默认不推送
-   候选分支，也不把它作为中间远端分支。
+3. 只有收到明确的合并授权，才切换到干净的本地 `main` 并以 merge commit 合并。
+4. 将真实用户变化写入 CHANGELOG（版本准备提交）；更新当前 TASKS，避免复制实现过程。
+5. 只有产品/视觉/隐私/质量均通过且维护者同意公开时才将 `hidden` 改为 `preview` 或
+   `stable`。合并 `main` 不等于部署，tag 才是发布记录。
+6. 合并后重新运行完整门禁。只有维护者明确要求时才 push `main`；只有维护者要求该次
+   发布时才创建并推送 `vX.Y.Z` tag。
 
 ## 12. 何时扩展共享包
 
 只有同一语义能力已在至少三个工具出现、API 在真实使用中稳定、没有工具业务状态、并已有
-light/dark、zh/en、keyboard、mobile 契约测试时，才考虑进入共享 UI 层。否则保留在工具
+light/dark、三语、keyboard、mobile 契约测试时，才考虑进入共享 UI 层。否则保留在工具
 内部；适度重复比过早耦合安全。

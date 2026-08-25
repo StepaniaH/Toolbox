@@ -1,0 +1,363 @@
+{
+  "nav": {
+    "home": "首頁",
+    "storage": "存儲",
+    "network": "網絡",
+    "video": "視頻",
+    "power": "電費",
+    "about": "關於"
+  },
+  "brand": {
+    "name": "SaneUnits",
+    "subtitle": "不糊弄人的單位換算與現實估算工具",
+    "subtitleShort": "單位解釋與現實估算"
+  },
+  "home": {
+    "heroTitle": "SaneUnits",
+    "heroLead": "一個不糊弄人的單位換算與現實估算工具。它不只告訴你結果，還會把單位、公式和現實損耗擺在一起。",
+    "metricPureFrontend": "純前端",
+    "metricPureFrontendValue": "0 後端",
+    "metricShareable": "可分享",
+    "metricShareableValue": "URL 狀態",
+    "metricMobile": "移動端",
+    "metricMobileValue": "可直接用",
+    "cards": [
+      {
+        "meta": "存儲容量語義換算",
+        "title": "硬盤容量為什麼變少了？",
+        "description": "TB / TiB、GB / GiB 的差別，一次說清。",
+        "path": "/storage"
+      },
+      {
+        "meta": "網絡帶寬與傳輸時間",
+        "title": "寬帶速度到底等於多少下載速度？",
+        "description": "Mbps 與 MB/s、實際吞吐和傳輸時間。",
+        "path": "/network"
+      },
+      {
+        "meta": "現實估算",
+        "title": "下載 / 傳輸一個文件需要多久？",
+        "description": "把文件大小、帶寬和現實折扣放進一個公式。",
+        "path": "/network"
+      },
+      {
+        "meta": "電費與 7x24 成本",
+        "title": "設備 24 小時運行一年多少電費？",
+        "description": "W、kWh、日耗電與年成本的對應關係。",
+        "path": "/power"
+      },
+      {
+        "meta": "網絡相關估算",
+        "title": "視頻碼率、文件大小、時長換算",
+        "description": "監控、點播和大文件傳輸都能用上。",
+        "path": "/video"
+      },
+      {
+        "meta": "擴展路線",
+        "title": "顯示器 / 手機屏幕 PPI 計算",
+        "description": "後續版本可擴展到顯示和打印場景。",
+        "path": "/storage"
+      },
+      {
+        "meta": "存儲容量",
+        "title": "4TB 硬盤實際可用空間是多少？",
+        "description": "廠商標 4TB，系統顯示 3.63TB，差的去哪了？",
+        "path": "/storage"
+      },
+      {
+        "meta": "監控存儲",
+        "title": "4K 監控攝像頭一天佔多少硬盤？",
+        "description": "按碼率算存儲需求，別等硬盤滿了才發現。",
+        "path": "/video"
+      },
+      {
+        "meta": "設備電費",
+        "title": "軟路由 / NAS 一年電費多少？",
+        "description": "7×24 運行的設備，一年下來電費可能比你想的多。",
+        "path": "/power"
+      }
+    ]
+  },
+  "storage": {
+    "title": "存儲容量語義換算",
+    "description": "把廠商標稱容量、系統顯示和二進制單位放進同一個語境裡。",
+    "panelInput": {
+      "title": "輸入",
+      "subtitle": "數值、單位和使用場景"
+    },
+    "panelAnswer": {
+      "title": "直接答案",
+      "subtitle": "先給結論，再給解釋"
+    },
+    "panelUnitExplain": {
+      "title": "單位解釋",
+      "subtitle": "先講口徑，再講數字"
+    },
+    "panelFormula": {
+      "title": "計算公式",
+      "subtitle": "可直接複核"
+    },
+    "panelReality": {
+      "title": "現實修正",
+      "subtitle": "最容易被忽略的地方"
+    },
+    "panelShare": {
+      "title": "分享鏈接",
+      "subtitle": "直接複製當前狀態"
+    },
+    "panelExamples": {
+      "title": "形象舉例",
+      "subtitle": "幫你感受實際量級"
+    },
+    "fieldValue": "數值",
+    "fieldUnit": "單位",
+    "fieldScenario": "使用場景",
+    "fieldPresets": "常用預設",
+    "resultLabel": "結果",
+    "resultBinaryDisplay": "操作系統常見二進制顯示：約",
+    "resultDifference": "差異：",
+    "statExactBytes": "精確 bytes",
+    "statBinaryDisplay": "二進制顯示",
+    "statUnitDiff": "單位差異",
+    "formulaLine1": "bytes = 數值 × 所選單位的換算係數",
+    "formulaLine2": "二進制顯示 = bytes ÷ 1024^n",
+    "realityTitle": "常見誤區",
+    "hintValue": "輸入要換算的容量數值",
+    "hintUnit": "選擇十進制或二進制單位，TB/GB 是十進制，TiB/GiB 是二進制",
+    "hintScenario": "選擇使用場景，不同場景默認使用不同的單位口徑",
+    "scenarios": {
+      "drive": "廠商標稱容量通常按十進制算，系統裡更常見的是二進制顯示。",
+      "os": "系統界面顯示經常會切到 TiB / GiB 口徑，看起來會更小一些。",
+      "memory": "內存容量大多按二進制口徑理解，和磁盤標稱不是同一套。",
+      "file": "文件大小最好和存儲單位區分開，不然很容易把 MB 和 MiB 混掉。"
+    },
+    "examples": {
+      "movie": "約 {0} 部 8GB 高清電影",
+      "photo": "約 {0} 張 4MB 照片",
+      "song": "約 {0} 首 10MB 無損歌曲"
+    }
+  },
+  "network": {
+    "title": "網絡帶寬與傳輸時間",
+    "description": "把帶寬、文件大小和現實吞吐放在一起，別再把 Mbps 當成 MB/s。",
+    "panelInput": {
+      "title": "輸入",
+      "subtitle": "帶寬、文件和現實折扣"
+    },
+    "panelAnswer": {
+      "title": "直接答案",
+      "subtitle": "帶寬、速度和時間"
+    },
+    "panelUnitExplain": {
+      "title": "單位解釋",
+      "subtitle": "別把 bit 和 byte 混了"
+    },
+    "panelFormula": {
+      "title": "計算公式",
+      "subtitle": "可複核的那種"
+    },
+    "panelReality": {
+      "title": "現實修正",
+      "subtitle": "實際通常會慢一點"
+    },
+    "panelShare": {
+      "title": "分享鏈接",
+      "subtitle": "直接複製當前狀態"
+    },
+    "panelExamples": {
+      "title": "形象舉例",
+      "subtitle": "幫你感受實際量級"
+    },
+    "fieldBandwidth": "帶寬",
+    "fieldFileSize": "文件大小",
+    "fieldScenario": "場景",
+    "fieldEfficiency": "現實折扣 %",
+    "fieldPresets": "常用預設",
+    "resultLabel": "結果",
+    "resultTheoryTime": "理論傳輸時間：",
+    "resultEffectiveTime": "有效吞吐估算：",
+    "statTheoryMBs": "理論 MB/s",
+    "statTheoryMiBs": "理論 MiB/s",
+    "statEffectiveTime": "有效時間",
+    "formulaLine1": "速度（MB/s） = 帶寬（Mbps） ÷ 8",
+    "formulaLine2": "時間 = 文件大小 × 8 ÷ 帶寬 ÷ 有效吞吐",
+    "realityTitle": "常見影響因素",
+    "noteUnitExplain": "Mbps 是 megabit per second，MB/s 是 megabyte per second。1 byte = 8 bits。",
+    "hintBandwidth": "帶寬指每秒傳輸的比特數（bit/s），不是字節數。1000Mbps ≈ 125MB/s",
+    "hintEfficiency": "現實中的傳輸速度受協議開銷、網絡擁塞、服務端限速等影響，通常達不到理論值",
+    "scenarios": {
+      "wired-lan": "有線局域網通常接近理論值，但仍會受磁盤和協議開銷影響。",
+      "wifi": "Wi‑Fi 受信號、干擾和路由器性能影響更明顯。",
+      "public": "公網下載常受服務端限速、鏈路擁塞和地區差異影響。",
+      "vps": "VPS 和良好公網通常比家庭寬帶更穩定，但並不等於滿速。",
+      "vpn": "VPN / Tailscale / WireGuard 會多一層封裝和加密開銷。",
+      "crossborder": "跨境和晚高峰更容易被鏈路擁塞、丟包和繞路拖慢。",
+      "custom": "自定義折扣適合你已經知道環境表現的情況。"
+    },
+    "examples": {
+      "movie": "一部 8GB 高清電影 → {0}",
+      "episode": "一集 1GB 1080p 劇集 → {0}",
+      "song": "一首 30MB 無損音樂 → {0}"
+    }
+  },
+  "video": {
+    "title": "視頻碼率與文件大小",
+    "description": "碼率、時長、文件大小——知道兩個就能算第三個，音頻和封裝開銷也不忘。",
+    "panelInput": {
+      "title": "輸入",
+      "subtitle": "選擇求解目標，填入已知量"
+    },
+    "panelAnswer": {
+      "title": "直接答案",
+      "subtitle": "當前模式："
+    },
+    "panelUnitExplain": {
+      "title": "單位解釋",
+      "subtitle": "bit 和 byte 的口徑差異"
+    },
+    "panelFormula": {
+      "title": "計算公式",
+      "subtitle": "可直接複核"
+    },
+    "panelReality": {
+      "title": "現實修正",
+      "subtitle": "估算不是真值"
+    },
+    "panelShare": {
+      "title": "分享鏈接",
+      "subtitle": "直接複製當前狀態"
+    },
+    "panelExamples": {
+      "title": "形象舉例",
+      "subtitle": "幫你感受實際量級"
+    },
+    "fieldTarget": "求解目標",
+    "fieldVideoBitrate": "視頻碼率",
+    "fieldDuration": "時長",
+    "fieldFileSize": "文件大小",
+    "fieldAudioBitrate": "音頻碼率",
+    "fieldOverhead": "封裝開銷 %",
+    "fieldPresets": "常用預設",
+    "solvingLabel": "（求解中）",
+    "resultLabel": "結果",
+    "statVideoBitrate": "視頻碼率",
+    "statDuration": "時長",
+    "statFileSize": "文件大小",
+    "realityTitle": "常見影響因素",
+    "hintBitrate": "視頻碼率決定畫質和文件大小，單位用 bit/s（如 Mbps）。8Mbps 是常見 1080p 碼率",
+    "hintOverhead": "容器封裝會額外佔用空間，MP4/MKV 通常 1-3%，可通過 ffprobe 查看實際文件開銷",
+    "hintDuration": "視頻的播放時長",
+    "examples": {
+      "movie": "約 {0} 部 2 小時 1080p 電影",
+      "episode": "約 {0} 集 45 分鐘劇集",
+      "min4k": "約 {0} 分鐘 4K 視頻（按此碼率）",
+      "hourSize": "按此碼率，1 小時視頻約 {0}"
+    }
+  },
+  "power": {
+    "title": "電費與 7x24 運行成本",
+    "description": "把功率換成電量，再把電量換成你能感受到的成本。",
+    "panelInput": {
+      "title": "輸入",
+      "subtitle": "功率、運行時長和電價"
+    },
+    "panelAnswer": {
+      "title": "直接答案",
+      "subtitle": "日、月、年都給你算好"
+    },
+    "panelUnitExplain": {
+      "title": "單位解釋",
+      "subtitle": "把功率和電量拆開"
+    },
+    "panelFormula": {
+      "title": "計算公式",
+      "subtitle": "三步就夠了"
+    },
+    "panelReality": {
+      "title": "現實修正",
+      "subtitle": "別隻看功率銘牌"
+    },
+    "panelShare": {
+      "title": "分享鏈接",
+      "subtitle": "直接複製當前狀態"
+    },
+    "panelExamples": {
+      "title": "形象舉例",
+      "subtitle": "幫你感受實際量級"
+    },
+    "fieldWatt": "功率",
+    "fieldHoursPerDay": "每天運行小時數",
+    "fieldDaysPerYear": "每年運行天數",
+    "fieldPrice": "電價",
+    "fieldPresets": "常用預設",
+    "resultLabel": "結果",
+    "resultDaily": "每日耗電：",
+    "resultAnnual": "每年電費：",
+    "statDaily": "每日耗電",
+    "statMonthly": "每月耗電",
+    "statAnnual": "每年耗電",
+    "unitExplainTitle": "口徑",
+    "unitExplainText": "W 是功率，kWh 是電量。設備越長時間開著，電量和成本就越高。",
+    "noteMonthly": "月度按 30 天粗算，更適合日常估算。",
+    "formulaLine1": "每日耗電 = W ÷ 1000 × 每天小時數",
+    "formulaLine2": "每年耗電 = 每日耗電 × 每年天數",
+    "formulaLine3": "電費 = kWh × 電價",
+    "realityTitle": "常見誤區",
+    "hintWatt": "W 是功率（瓦特），不是電量（kWh）。銘牌功率通常低於實際功耗",
+    "hintPrice": "電價單位是 元/kWh（度）。中國居民電價約 0.5-0.6 元/kWh",
+    "examples": {
+      "kwh": "約 {0} 度電",
+      "ac": "夠一臺 2000W 空調運行約 {0} 小時",
+      "led": "夠一臺 10W LED 燈亮約 {0} 天"
+    }
+  },
+  "about": {
+    "title": "關於 SaneUnits",
+    "description": "它不是普通單位換算器，而是一個單位語義解釋器和現實估算器。",
+    "panelWhat": {
+      "title": "SaneUnits 是什麼",
+      "subtitle": "不只是單位換算器"
+    },
+    "whatP1": "SaneUnits 是一個單位解釋和現實估算工具。它不只告訴你換算結果，更會解釋背後的單位差異、計算公式和現實損耗。",
+    "whatP2": "為什麼硬盤標著 4TB，插上電腦就變成 3.64TB？因為 TB 和 TiB 用的是不同的進制。1000Mbps 寬帶為什麼下載只有 100MB/s 左右？因為 Mbps 和 MB/s 相差 8 倍，還有協議開銷和網絡擁塞。",
+    "whatP3": "我們默認把邊界條件和常見誤區擺出來，不把理論值包裝成現實值。",
+    "panelHow": {
+      "title": "怎麼用",
+      "subtitle": "簡單直接"
+    },
+    "howP1": "選擇一個計算器，填入你關心的數值，答案和解釋就會出來。你可以通過鏈接分享當前狀態給朋友，不需要註冊賬號。",
+    "howP2": "所有計算都在瀏覽器本地完成，狀態通過 URL 參數和瀏覽器存儲保存。手機、電腦都能直接用。",
+    "panelPrivacy": {
+      "title": "隱私",
+      "subtitle": "你的數據留在你手裡"
+    },
+    "privacyP1": "所有計算都在你的瀏覽器本地完成。",
+    "privacyP2": "狀態通過 URL query 分享，偏好通過 localStorage 保存。",
+    "privacyP3": "沒有賬號、沒有數據庫、沒有上傳。"
+  },
+  "common": {
+    "copy": "複製鏈接",
+    "copied": "已複製",
+    "copyFailed": "複製失敗",
+    "share": "分享鏈接"
+  },
+  "sidebar": {
+    "note": "默認解釋邊界條件，不把理論值包裝成現實值。",
+    "tbNote": "TB ≠ TiB",
+    "mbpsNote": "Mbps ≠ MB/s",
+    "wattNote": "W ≠ kWh"
+  },
+  "pageTitles": {
+    "/": "SaneUnits",
+    "/storage": "SaneUnits · 存儲容量語義換算",
+    "/network": "SaneUnits · 網絡帶寬與傳輸時間",
+    "/video": "SaneUnits · 視頻碼率與文件大小",
+    "/power": "SaneUnits · 電費與運行成本",
+    "/about": "SaneUnits · 關於"
+  },
+  "footer": {
+    "selfHosted": "自託管靜態站點",
+    "mitLicense": "MIT 許可證",
+    "github": "GitHub"
+  }
+}

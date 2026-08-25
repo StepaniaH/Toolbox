@@ -20,6 +20,50 @@ function fail(category, file, message) {
 }
 
 const rootPackage = JSON.parse(read('package.json'))
+{
+  const i18nPackage = JSON.parse(read('packages/i18n/package.json'))
+  const declaredLang = i18nPackage.contractVersion
+  const constantLang = Number(
+    /LANG_REGISTRY_VERSION\s*=\s*(\d+)/.exec(read('packages/i18n/registry.ts'))?.[1],
+  )
+  if (!Number.isInteger(constantLang) || declaredLang !== constantLang) {
+    fail(
+      'platform-version-contract',
+      'packages/i18n/package.json',
+      `contractVersion ${declaredLang} must equal LANG_REGISTRY_VERSION ${constantLang}`,
+    )
+  }
+}
+
+{
+  const prefsPackage = JSON.parse(read('packages/prefs/package.json'))
+  const declaredPrefs = prefsPackage.contractVersion
+  const constantPrefs = Number(
+    /PREFS_CONTRACT_VERSION\s*=\s*(\d+)/.exec(read('packages/prefs/prefs.mjs'))?.[1],
+  )
+  if (!Number.isInteger(constantPrefs) || declaredPrefs !== constantPrefs) {
+    fail(
+      'platform-version-contract',
+      'packages/prefs/package.json',
+      `contractVersion ${declaredPrefs} must equal PREFS_CONTRACT_VERSION ${constantPrefs}`,
+    )
+  }
+}
+
+{
+  const themePackage = JSON.parse(read('packages/theme/package.json'))
+  const declared = themePackage.contractVersion
+  const constant = Number(
+    /THEME_CONTRACT_VERSION\s*=\s*(\d+)/.exec(read('packages/theme/contract.mjs'))?.[1],
+  )
+  if (!Number.isInteger(constant) || declared !== constant) {
+    fail(
+      'platform-version-contract',
+      'packages/theme/package.json',
+      `contractVersion ${declared} must equal THEME_CONTRACT_VERSION ${constant}`,
+    )
+  }
+}
 if (TOOLBOX_RELEASE !== `v${rootPackage.version}`) {
   fail(
     'release-version-contract',
@@ -262,16 +306,6 @@ if (
   fail('nav-focus-contract', 'packages/nav/nav-bar.css', 'focus-visible lacks the 2px blue outline')
 }
 
-for (const selector of [
-  '.toolbox-nav-language-menu',
-  '.toolbox-nav-language-option',
-  '.toolbox-nav-theme-sun',
-  '.toolbox-nav-theme-moon',
-]) {
-  if (!navCss.includes(selector)) {
-    fail('nav-control-contract', 'packages/nav/nav-bar.css', `missing ${selector}`)
-  }
-}
 for (const [file, content] of [
   ['packages/nav/NavBar.tsx', navReact],
   ['packages/nav/nav-bar.js', navVanilla],
@@ -280,21 +314,28 @@ for (const [file, content] of [
     'toolbox-nav-brand-link',
     'toolbox-nav-menu-btn',
     'toolbox-nav-search-input',
-    'toolbox-nav-language-menu',
-    'menuitemradio',
-    'data-lang',
-    'toolbox-nav-theme-sun',
-    'toolbox-nav-theme-moon',
+    'toolbox-nav-settings',
   ]) {
     if (!content.includes(requirement)) {
       fail('nav-control-contract', file, `missing ${requirement}`)
     }
   }
+  for (const banned of [
+    'toolbox-nav-language',
+    'toolbox-nav-theme-sun',
+    'toolbox-nav-theme-moon',
+    'toggleTheme',
+  ]) {
+    if (content.includes(banned)) {
+      fail(
+        'nav-control-contract',
+        file,
+        `must not embed a second "${banned}" preference control; Settings is the single entry point`,
+      )
+    }
+  }
   if (content.includes('toolbox-nav-hamburger') || content.includes('toolbox-nav-mobile')) {
     fail('nav-mobile-contract', file, 'duplicates the Toolbox tool switcher on mobile')
-  }
-  if (content.includes('🌓') || content.includes('is-animating')) {
-    fail('nav-theme-contract', file, 'uses the legacy rotating emoji theme control')
   }
 }
 if (!navReact.includes('href="/"') || !navVanilla.includes('link("/", "toolbox-nav-brand-link")')) {
@@ -320,6 +361,7 @@ const allowedManifestFields = new Set([
   'description',
   'keywords',
   'icon',
+  'presentation',
   'status',
 ])
 for (const app of TOOLBOX_APPS) {
@@ -349,6 +391,19 @@ for (const app of TOOLBOX_APPS) {
   if (app.status === 'stable' && app.path !== '/') {
     if (!staticAssembler.includes('getStableApps()')) {
       fail('stable-deploy-contract', 'scripts/assemble-static-site.mjs', `missing stable app assembly for ${app.id}`)
+    }
+    const presentation = app.presentation
+    const localized =
+      presentation?.subtitle?.zh &&
+      presentation.subtitle.en &&
+      presentation.description?.zh &&
+      presentation.description.en
+    if (!localized || !Array.isArray(presentation.badges) || presentation.badges.length === 0) {
+      fail(
+        'app-manifest-contract',
+        'packages/app-manifest/manifest.js',
+        `${app.id} is missing bilingual card presentation and badges`,
+      )
     }
   }
 }
@@ -381,6 +436,51 @@ for (const consumer of [
   for (const app of TOOLBOX_APPS) {
     if (app.path !== '/' && content.includes(app.path)) {
       fail('app-manifest-consumer', consumer, `duplicates route ${app.path}`)
+    }
+  }
+}
+
+// ── React/Vanilla platform pair equivalence (ADR-11) ─────────
+// Both implementations of a shared surface must expose the same consumption
+// points; a change on one side without the mirrored change fails here.
+for (const [file, requirements] of [
+  ['packages/nav/ToolboxFooter.tsx', ['getAppById', 'TOOLBOX_RELEASE', 'noopener noreferrer', '@toolbox/app-manifest']],
+  ['packages/nav/toolbox-footer.js', ['getAppById', 'TOOLBOX_RELEASE', 'noopener noreferrer', '@toolbox/app-manifest']],
+  ['packages/i18n/react.ts', ['translations/zh.json', 'translations/en.json', 'onChange']],
+  ['packages/i18n/core.ts', ['export function getLang', 'export function setLang', 'export function onChange']],
+  ['packages/nav/NavBar.tsx', ['toolbox-nav-settings', 'getAppById("settings")']],
+  ['packages/nav/nav-bar.js', ['toolbox-nav-settings', 'getAppById("settings")']],
+]) {
+  const content = read(file)
+  for (const requirement of requirements) {
+    if (!content.includes(requirement)) {
+      fail('platform-pair-contract', file, `missing ${requirement}`)
+    }
+  }
+}
+
+// ── Preference key hygiene ────────────────────────────────────
+// Storage reads/writes and *KEY constants inside platform packages may only
+// reference the shared preference keys by their exact contract values;
+// anything else indicates drift from @toolbox/theme. CSS class prefixes and
+// event-name constants are out of scope.
+const PREFERENCE_KEY_PATTERN = /^toolbox-(theme|lang)$/
+for (const file of [
+  'packages/nav/NavBar.tsx',
+  'packages/nav/nav-bar.js',
+  'packages/nav/ToolboxFooter.tsx',
+  'packages/nav/toolbox-footer.js',
+  'packages/i18n/core.ts',
+  'packages/i18n/react.ts',
+]) {
+  const content = read(file)
+  const references = [
+    ...content.matchAll(/(?:getItem|setItem)\(\s*["'](toolbox-[a-z0-9-]+)["']/g),
+    ...content.matchAll(/\b[A-Z0-9_]*_KEY\s*=\s*["'](toolbox-[a-z0-9-]+)["']/g),
+  ]
+  for (const match of references) {
+    if (!PREFERENCE_KEY_PATTERN.test(match[1])) {
+      fail('preference-key-contract', file, `unknown shared key ${match[1]}`)
     }
   }
 }
@@ -585,7 +685,7 @@ for (const file of packageFiles) {
 }
 
 // ── localStorage namespace contract ──────────────────────
-const globalStorageKeys = new Set(['toolbox-theme', 'toolbox-lang'])
+const globalStorageKeys = new Set(['toolbox-theme', 'toolbox-lang', 'toolbox-theme-family'])
 const legacyStorageKeys = {
   'chrono-sphere': new Set(['chrono-sphere.theme']),
   'monitor-choice': new Set(['monitor-choice-prefs-v1']),

@@ -4,7 +4,6 @@ import { NavBar } from '@toolbox/nav';
 import { AppIcon } from '@toolbox/nav/AppIcon.tsx';
 import { ToolboxFooter } from '@toolbox/nav/ToolboxFooter.tsx';
 import { useTranslation } from '@toolbox/i18n/react';
-import { usePreferences } from './context/usePreferences';
 import '@toolbox/nav/nav-bar.css';
 import './App.css';
 
@@ -29,7 +28,6 @@ function CalculatorFallback() {
 
 function App() {
   const { lang, t } = useTranslation();
-  const { toggleTheme } = usePreferences();
   const [activeTab, setActiveTab] = useState<'offset' | 'interval' | 'lunar'>('offset');
 
   useEffect(() => {
@@ -55,7 +53,7 @@ function App() {
 
   return (
     <>
-      <NavBar currentApp="chrono-sphere" onToggleTheme={toggleTheme} />
+      <NavBar currentApp="chrono-sphere" />
       <div className="app-container">
       <header className="app-header">
         <div className="app-header-row">

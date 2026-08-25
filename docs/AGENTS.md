@@ -13,17 +13,17 @@ git status --short --branch
 git branch --show-current
 ```
 
-- `main` 是已部署的稳定分支，**绝不在 main 编辑或提交**。
-- `dev` 是维护者控制的审核与集成分支；仓库维护仅在明确要求时发生于 `dev`。
-- 新工具必须从干净的 `dev` 创建 `newdev/<tool-id>`，全部实现只发生在该分支；开发 Agent
-  不得直接改 `dev`、自行合并或提升 stable 状态。
+- `main` 是已发布的稳定分支，**绝不在 main 编辑或提交**；只有维护者明确要求该次发布
+  操作时，才允许合并、推送或打 tag。
+- `dev` 是唯一开发分支，只存在于本机，不推送远端。全部实现工作以聚焦提交落在 `dev` 上。
+- 远端只有 `origin/main`。发布通过在 `main` 上创建 `vX.Y.Z` tag 记录；tag 的创建、移动、
+  删除与任何分支推送都需要维护者对该操作的明确授权。合并 `main`、push `main`、打 tag
+  是三个互相独立的授权。
 - 维护者只需用自然语言描述工具需求；Agent 必须自动调用 `$develop-toolbox-tool`、推导内部
   Brief 与安全默认值，不得要求维护者填写模板或复述主题、语言、测试等仓库规范。
-- `newdev/*` 默认只保留在本机，可以有本地提交但不得 push。只有维护者明确要求审核并
-  合并后，集成模型才把候选合入 `dev`；也只有明确要求时才 push `dev`。
-- 如果当前在 `main`，只有工作区干净时才能切换 `dev`；存在用户改动时先停止并说明。
+- 当前不在 `dev` 时，只有工作区干净才可切换；存在不属于当前任务的改动时先停止并说明。
 - 不覆盖、不清理、不 stash 不属于当前任务的改动。
-- 不自动合并 `main`、改 tag、force push 或部署；这些动作需要维护者明确授权。
+- 不 force push、不移 tag、不部署；这些动作需要维护者明确授权。
 
 ## 二、仓库边界
 
@@ -66,7 +66,7 @@ deploy/      公开脚本与占位符模板
 ### 质量
 
 1. 逻辑修改必须有测试；修 bug 先补复现测试。
-2. 视觉修改必须验证 light/dark、zh/en、mobile/desktop 和 keyboard focus。
+2. 视觉修改必须验证 light/dark、zh/zh-Hant/en、mobile/desktop 和 keyboard focus。
 3. 共享包、部署或跨应用修改提交前必须通过 `pnpm build && pnpm test && pnpm lint`。
 4. 所有 manifest 应用均已进入根质量命令；Canvas、响应式或视觉修改仍必须增加对应浏览器 smoke，不能只依赖单元测试。
 5. lint warning 会使门禁失败；不得用宽松退出码或 ignore 长期掩盖缺口。
@@ -76,14 +76,16 @@ deploy/      公开脚本与占位符模板
 这些是维护者明确给出的持久约束，所有后续视觉任务必须遵循：
 
 - 全站主题、明暗、语言、设计风格和设计语言保持统一、稳定且优秀。
-- 语言与主题只应由共享全局导航提供，不在工具内部重复一套。
-- 右上角语言与主题按钮在鼠标 hover 时**不出现背景块、边框或选中框**；可以用颜色或图标反馈。
+- 语言与明暗主题由设置页（`apps/settings`）统一提供；导航栏与工具内部不得再重复语言
+  或主题入口。设置页写入的 `toolbox-lang` / `toolbox-theme` / `toolbox-theme-family`
+  是全站唯一偏好事实源。
+- 图标类导航控件（品牌、齿轮）在鼠标 hover 时**不出现背景块、边框或选中框**；可以用
+  颜色或图标反馈。
 - 左侧 `Toolbox` 品牌本体点击返回首页，hover 同样只做颜色反馈；相邻箭头负责触屏/键盘展开工具菜单。
 - 工具菜单顶部提供本地搜索，搜索当前语言的 manifest 名称、描述与关键词；关键词必须按语言分别维护。
 - 键盘 `:focus-visible` 仍必须有清晰 focus ring，不能因为移除 hover 框而牺牲无障碍。
 - 共享 NavBar 的品牌、桌面入口和控件文字应比现有基线略大；移动端只保留左侧 Toolbox 工具菜单，不再额外提供重复的右侧工具目录。
-- 语言入口使用独立语言图标和可扩展下拉菜单，当前语言有明确选中状态；新增语言不应改写按钮结构。
-- 主题入口使用与当前状态一致的太阳/月亮图标，不使用会旋转并复位的 `🌓` emoji 动画。
+- 设置页语言列表始终使用该语言的自称（`中文（简体）`、`English`），不随当前界面语言翻译。
 - 工具大标题以 RateLens 的字号、字重和密度作为统一参考；首页卡片与工具标题使用同一应用图标。
 - 工具页脚右侧内容与交互统一管理，左侧允许一行应用专属简介。
 - SaneUnits 当前与其他工具的壳层差异较大；后续要统一顶部对齐、内容宽度、标题和卡片层级，明显降低业务页卡片光晕，同时保留适合其多计算器结构的业务导航。
@@ -117,6 +119,8 @@ pnpm --filter=@toolbox/<app> lint
 # 跨应用 / 共享 / 发布门禁
 pnpm check:privacy
 pnpm check:contracts
+pnpm check:release
+pnpm check:licenses
 pnpm build
 pnpm test
 pnpm lint
@@ -175,8 +179,8 @@ chore: ...
 ## 七、新工具准入
 
 不存在可直接假设可用的 `apps/_template`；以 [NEW_TOOL.md](./NEW_TOOL.md) 为事实源，并由
-仓库内 `$develop-toolbox-tool` skill 执行。模板或生成器只有在自己能持续 build/test 后
-才可成为准入路径。
+仓库内 `$develop-toolbox-tool` skill 执行。生成器 `scripts/new-app.mjs` 已通过自测与真实
+脚手架演练，是新工具的推荐起点。
 
 核心准入条件：
 

@@ -8,6 +8,9 @@ and release visibility.
 - Only `stable` entries appear in the Homepage and global navigation.
 - `keywords.zh` and `keywords.en` contain localized user vocabulary used by the global
   tool search. Keep concepts in their own language and avoid marketing keyword stuffing.
+- Stable tools carry a `presentation` object (`subtitle`, `description`, `badges`, optional
+  localized `title`) used by the Homepage cards. It holds short catalog copy only; page
+  content stays inside each app.
 - `TOOLBOX_RELEASE` is the shared user-facing release label; the contract checker keeps it aligned with the root package version.
 - The manifest contains public product metadata only; deployment and environment
   details do not belong here.

@@ -1,85 +1,42 @@
 /**
- * theme.js — Catppuccin theme manager.
- * Detects system preference, stores user choice, toggles instantly.
- * Attaches to window.ThemeManager = { init(), toggle(), getStoredTheme(), getCanvasBg(), getCanvasColor(), onChange() }.
+ * theme.js — thin adapter over the @toolbox/theme runtime.
  *
- * Shares the @toolbox/theme storage key ("toolbox-theme") and value space
- * ("dark" / "light") with toggle.js so both runtimes stay in sync.
- * Must load EARLY (first script in <body>) to avoid FOUC.
+ * The shared runtime owns storage ("toolbox-theme"), the data-theme
+ * attribute and persistence; the Settings app is the only place users
+ * change them. This module keeps only what the app adds on top:
+ * system-follow until the first explicit choice and canvas redraw
+ * notifications. Canvas readers resolve --bg-canvas / --canvas-* custom
+ * properties from css/theme.css.
  */
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'toolbox-theme';
+  var api = window.ToolboxTheme;
   var listeners = [];
 
-  /** Detect system color scheme preference. */
-  function getSystemTheme() {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+  function currentTheme() {
+    var attr = document.documentElement.getAttribute('data-theme');
+    return attr === 'light' || attr === 'dark' ? attr : api.getTheme();
   }
 
-  /** Apply theme to <html> element. */
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.style.colorScheme = theme;
   }
 
-  /** Read persisted theme from localStorage. */
-  function getStoredTheme() {
-    try {
-      return localStorage.getItem(STORAGE_KEY);
-    } catch {
-      return null;
-    }
-  }
-
-  /** Persist theme to localStorage. */
-  function setStoredTheme(theme) {
-    try {
-      localStorage.setItem(STORAGE_KEY, theme);
-    } catch {
-      /* Ignore quota / privacy errors. */
-    }
-  }
-
-  /** Toggle between dark ↔ light, persist, and notify listeners. */
-  function toggle() {
-    var current = document.documentElement.getAttribute('data-theme');
-    var next = current === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-    setStoredTheme(next);
-    updateButton(next);
-    notifyListeners(next);
-  }
-
-  /** Update toggle button emoji based on current theme. */
-  function updateButton(theme) {
-    var btn = document.getElementById('themeToggle');
-    if (btn) {
-      btn.textContent = theme === 'dark' ? '☀️' : '🌙';
-      btn.title = theme === 'dark' ? '切换到亮色主题' : '切换到暗色主题';
-    }
-  }
-
-  /** Call all registered change listeners with the new theme name. */
   function notifyListeners(theme) {
     listeners.forEach(function (fn) {
       try { fn(theme); } catch {}
     });
   }
 
-  /** Register a callback that fires on every theme change. Returns unsubscribe function. */
-  function onChange(fn) {
-    listeners.push(fn);
-    return function () {
-      var idx = listeners.indexOf(fn);
-      if (idx !== -1) listeners.splice(idx, 1);
-    };
+  function getStoredTheme() {
+    try {
+      return localStorage.getItem(api.STORAGE_KEY);
+    } catch {
+      return null;
+    }
   }
 
-  /** Return current theme's canvas background color. */
   function getCanvasBg() {
     try {
       return getComputedStyle(document.documentElement)
@@ -90,58 +47,46 @@
     }
   }
 
-  /** Read a named CSS custom property for canvas drawing. */
   function getCanvasColor(name) {
     try {
-      var val = getComputedStyle(document.documentElement)
+      return getComputedStyle(document.documentElement)
         .getPropertyValue('--canvas-' + name)
         .trim();
-      return val || '';
     } catch {
       return '';
     }
   }
 
-  /** Initialise theme on page load. */
+  function onChange(fn) {
+    listeners.push(fn);
+    return function () {
+      var idx = listeners.indexOf(fn);
+      if (idx !== -1) listeners.splice(idx, 1);
+    };
+  }
+
+  /** Apply the resolved theme without persisting, and follow OS changes
+      while the user has not made an explicit choice. */
   function init() {
-    var theme = getStoredTheme() || getSystemTheme();
-    applyTheme(theme);
-    updateButton(theme);
+    applyTheme(currentTheme());
+    notifyListeners(currentTheme());
 
-    // Wire toggle button
-    var btn = document.getElementById('themeToggle');
-    if (btn) {
-      btn.addEventListener('click', toggle);
-    }
-
-    // Listen for OS-level theme changes (only matters when no user override)
     window
       .matchMedia('(prefers-color-scheme: dark)')
       .addEventListener('change', function (e) {
         if (!getStoredTheme()) {
-          var newTheme = e.matches ? 'dark' : 'light';
-          applyTheme(newTheme);
-          updateButton(newTheme);
-          notifyListeners(newTheme);
+          var next = e.matches ? 'dark' : 'light';
+          applyTheme(next);
+          notifyListeners(next);
         }
       });
   }
 
   window.ThemeManager = {
     init: init,
-    toggle: toggle,
     getStoredTheme: getStoredTheme,
     getCanvasBg: getCanvasBg,
     getCanvasColor: getCanvasColor,
     onChange: onChange
   };
-
-  // Classic-script compatibility; the Vite entry owns ordered startup.
-  if (!window.__MONITOR_CHOICE_MANUAL_BOOT__) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-  }
 })();

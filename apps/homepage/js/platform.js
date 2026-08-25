@@ -1,3 +1,4 @@
+import '@toolbox/theme/styles.css'
 import '@toolbox/nav/nav-bar.css'
 import '@toolbox/theme/toggle.js'
 import { getLang, onChange, setLang } from '@toolbox/i18n/core'

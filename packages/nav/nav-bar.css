@@ -4,8 +4,8 @@
    and convenience variables (--font-sans, --radius-*, etc.) resolve.
 
    Layout:
-     [ 🧰 Toolbox ▾ ]                                        [ ◎ ][ ☾ ]
-     |-- single tool switcher --|                    | language | theme |
+     [ 🧰 Toolbox ▾ ]                                        [ ⚙ ]
+     |-- single tool switcher --|                      | settings |
 
    All rules are scoped under `.toolbox-nav` so this file is safe to import
    into any app without leaking styles. Apps should reserve top spacing via
@@ -296,7 +296,7 @@
 }
 
 /* ──────────────────────────────────────────────────────────────
-   Right · language menu + theme toggle
+   Right · settings entry (language and theme live in Settings)
    ────────────────────────────────────────────────────────────── */
 .toolbox-nav-actions {
   display: flex;
@@ -331,9 +331,7 @@
   outline-offset: 2px;
 }
 
-.toolbox-nav-icon-btn > svg,
-.toolbox-nav-theme-icon > svg,
-.toolbox-nav-language-check > svg {
+.toolbox-nav-icon-btn > svg {
   width: 19px;
   height: 19px;
   fill: none;
@@ -341,120 +339,6 @@
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.toolbox-nav-theme {
-  position: relative;
-}
-
-.toolbox-nav-theme-icon {
-  position: absolute;
-  inset: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transform: scale(0.78);
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
-
-.toolbox-nav-theme-moon {
-  opacity: 1;
-  transform: scale(1);
-}
-
-html[data-theme="light"] .toolbox-nav-theme-sun {
-  opacity: 1;
-  transform: scale(1);
-}
-
-html[data-theme="light"] .toolbox-nav-theme-moon {
-  opacity: 0;
-  transform: scale(0.78);
-}
-
-html[data-theme="dark"] .toolbox-nav-theme-sun {
-  opacity: 0;
-  transform: scale(0.78);
-}
-
-/* Language icon + scalable menu. */
-.toolbox-nav-language {
-  position: relative;
-}
-
-.toolbox-nav-lang {
-  color: var(--ctp-subtext-1);
-}
-
-.toolbox-nav-lang:hover {
-  color: var(--ctp-blue);
-}
-
-.toolbox-nav-language-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  width: max-content;
-  min-width: 190px;
-  background: var(--ctp-mantle);
-  border: 1px solid var(--ctp-surface-1);
-  border-radius: var(--radius-md);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
-  padding: 6px;
-  display: grid;
-  gap: 2px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-6px);
-  transition: opacity 0.18s ease, transform 0.18s ease,
-    visibility 0.18s linear;
-}
-
-.toolbox-nav-language:hover .toolbox-nav-language-menu,
-.toolbox-nav-language.is-open .toolbox-nav-language-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.toolbox-nav-language-option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  padding: 9px 10px !important;
-  border-radius: var(--radius-sm);
-  color: var(--ctp-subtext-1);
-  text-align: left;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.toolbox-nav-language-option:hover,
-.toolbox-nav-language-option:focus-visible {
-  background: var(--ctp-surface-0);
-  color: var(--ctp-text);
-  outline: none;
-}
-
-.toolbox-nav-language-option.is-active {
-  color: var(--ctp-blue);
-  background: color-mix(in srgb, var(--ctp-blue) 12%, transparent);
-  font-weight: 600;
-}
-
-.toolbox-nav-language-check {
-  display: inline-flex;
-  width: 16px;
-  height: 16px;
-  flex: 0 0 16px;
-}
-
-.toolbox-nav-language-check > svg {
-  width: 16px;
-  height: 16px;
-  stroke-width: 2.2;
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -475,18 +359,6 @@ html[data-theme="dark"] .toolbox-nav-theme-sun {
       transform: translateY(-6px);
     }
     .toolbox-nav-dropdown.is-open .toolbox-nav-dropdown-menu {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    .toolbox-nav-language:hover .toolbox-nav-language-menu {
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-6px);
-    }
-
-    .toolbox-nav-language.is-open .toolbox-nav-language-menu {
       opacity: 1;
       visibility: visible;
       transform: translateY(0);

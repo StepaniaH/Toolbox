@@ -1,96 +1,52 @@
 /* ==========================================================================
-   Catppuccin Theme
-   Dark: Frappé   | Light: Latte
+   Layout aliases derived from @toolbox/theme tokens.
+   Palette, typography and the NavBar --ctp-* set come from the shared
+   stylesheet; this file only maps the local names the app was written
+   against. Raw Catppuccin values must not appear here.
    ========================================================================== */
 
 :root {
-  /* ---- Typography ---- */
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-display: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: var(--font-sans);
 
-  /* ---- Catppuccin Frappé (Dark) ---- */
-  --bg-page: #303446;
-  --bg-primary: #303446;
-  --bg-secondary: #292c3c;
-  --surface-panel: rgba(41, 44, 60, 0.72);
-  --surface-raised: rgba(198, 208, 245, 0.04);
-  --surface-muted: rgba(198, 208, 245, 0.06);
-  --surface-popover: rgba(35, 38, 52, 0.98);
-  --surface-highlight: rgba(140, 170, 238, 0.12);
-  --surface-line: rgba(198, 208, 245, 0.10);
-  --input-bg: rgba(35, 38, 52, 0.50);
-  --input-bg-focus: rgba(35, 38, 52, 0.72);
+  --bg-page: var(--color-bg);
+  --bg-primary: var(--color-bg);
+  --bg-secondary: var(--mantle);
+  --surface-panel: color-mix(in srgb, var(--mantle) 72%, transparent);
+  --surface-raised: color-mix(in srgb, var(--color-text) 4%, transparent);
+  --surface-muted: color-mix(in srgb, var(--color-text) 6%, transparent);
+  --surface-popover: color-mix(in srgb, var(--crust) 98%, transparent);
+  --surface-highlight: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  --surface-line: color-mix(in srgb, var(--color-text) 10%, transparent);
+  --input-bg: color-mix(in srgb, var(--crust) 50%, transparent);
+  --input-bg-focus: color-mix(in srgb, var(--crust) 72%, transparent);
 
-  --accent-primary: #8caaee;
-  --accent-primary-hover: #85c1dc;
-  --accent-secondary: #ca9ee6;
+  --accent-primary: var(--blue);
+  --accent-primary-hover: var(--sapphire);
+  --accent-secondary: var(--mauve);
 
-  --color-success: #a6d189;
-  --color-warning: #ef9f76;
-  --color-error: #e78284;
-  --color-info: #99d1db;
+  --color-error: var(--color-danger);
+  --border-accent: color-mix(in srgb, var(--blue) 28%, transparent);
 
-  --text-primary: #c6d0f5;
-  --text-secondary: #a5adce;
-  --text-muted: #737994;
-
-  --border-subtle: rgba(198, 208, 245, 0.08);
-  --border-strong: rgba(198, 208, 245, 0.14);
-  --border-accent: rgba(140, 170, 238, 0.28);
+  --text-primary: var(--text);
+  --text-secondary: var(--subtext-0);
+  --text-muted: var(--overlay-0);
 
   --glass-bg: var(--surface-panel);
   --glass-border: var(--border-subtle);
-  --glass-border-focus: rgba(140, 170, 238, 0.45);
+  --glass-border-focus: color-mix(in srgb, var(--blue) 45%, transparent);
   --glass-shadow: 0 18px 50px rgba(0, 0, 0, 0.38);
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
   --radius-lg: 20px;
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ---- Catppuccin Latte (Light) ---- */
 :root[data-theme="light"] {
-  --bg-page: #eff1f5;
-  --bg-primary: #eff1f5;
-  --bg-secondary: #e6e9ef;
-  --surface-panel: rgba(230, 233, 239, 0.88);
-  --surface-raised: rgba(76, 79, 105, 0.04);
-  --surface-muted: rgba(76, 79, 105, 0.06);
-  --surface-popover: rgba(230, 233, 239, 0.98);
-  --surface-highlight: rgba(30, 102, 245, 0.09);
-  --surface-line: rgba(76, 79, 105, 0.10);
-  --input-bg: rgba(220, 224, 232, 0.64);
-  --input-bg-focus: #e6e9ef;
-
-  --accent-primary: #1e66f5;
-  --accent-primary-hover: #209fb5;
-  --accent-secondary: #8839ef;
-
-  --color-success: #40a02b;
-  --color-warning: #fe640b;
-  --color-error: #d20f39;
-  --color-info: #04a5e5;
-
-  --text-primary: #4c4f69;
-  --text-secondary: #6c6f85;
-  --text-muted: #9ca0b0;
-
-  --border-subtle: rgba(76, 79, 105, 0.10);
-  --border-strong: rgba(76, 79, 105, 0.18);
-  --border-accent: rgba(30, 102, 245, 0.22);
-
-  --glass-bg: var(--surface-panel);
-  --glass-border: var(--border-subtle);
-  --glass-border-focus: rgba(30, 102, 245, 0.45);
-  --glass-shadow: 0 18px 50px rgba(76, 79, 105, 0.10);
-}
-
-/* Bridge --ctp-* variables for @toolbox/nav compatibility */
-:root {
-  --ctp-base: var(--bg-page);
-  --ctp-mantle: var(--bg-secondary);
-  --ctp-text: var(--text-primary);
-  --ctp-blue: var(--accent-primary);
+  --surface-panel: color-mix(in srgb, var(--mantle) 88%, transparent);
+  --surface-popover: color-mix(in srgb, var(--mantle) 98%, transparent);
+  --surface-highlight: color-mix(in srgb, var(--color-primary) 9%, transparent);
+  --input-bg: color-mix(in srgb, var(--crust) 64%, transparent);
+  --input-bg-focus: var(--mantle);
+  --border-accent: color-mix(in srgb, var(--blue) 22%, transparent);
+  --glass-shadow: 0 18px 50px rgba(76, 79, 105, 0.1);
 }

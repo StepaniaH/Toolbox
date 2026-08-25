@@ -1,14 +1,10 @@
 # Toolbox
 
-> What others skip, these tools count.
-
 A collection of privacy-first web tools. Core calculations run locally in your browser — no first-party backend, no tracking, and no cookies.
 
 > Privacy note: form inputs are not uploaded. RateLens automatically requests only the current USD/CNY rate from the disclosed public services; if both fail, it asks for manual input instead of substituting a hardcoded rate.
 
 **Live**: [toolbox.stepaniah.me](https://toolbox.stepaniah.me) · **Source**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox)
-
----
 
 ## Tools
 
@@ -21,18 +17,15 @@ A collection of privacy-first web tools. Core calculations run locally in your b
 | SaneUnits | `/sane-units/` | Unit conversion & estimation | React + TS + Vite |
 | FormTran | `/image-converter/` | Local file, image, table, PDF, and ZIP workspace | React + TS + Vite |
 | CryptoLab | `/crypto-lab/` | Local cryptography, JWT inspection, and public-key QR sharing | React + TS + Vite |
-
----
+| Settings | `/settings/` | Language, theme mode, palette family, and homepage personalization | React + TS + Vite |
 
 ## Design Principles
 
 - **Privacy-first** — core calculations stay client-side; no first-party backend, tracking, or cookies. External data access must be visible, optional, and have a local fallback.
-- **Bilingual** — every tool ships both Chinese (zh) and English (en) interfaces.
-- **Catppuccin theme** — Frappé (dark) + Latte (light); adoption of the shared theme contract is in progress.
+- **Trilingual** — every stable tool ships Chinese (zh), Traditional Chinese (zh-Hant), and English (en) interfaces.
+- **Shared appearance** — Catppuccin, Gruvbox, and Solarized palettes in dark and light, switched from the Settings app; language and theme have no duplicate entry points.
 - **MIT licensed** — all tools are open source under the MIT license.
 - **Static deployment** — served as static files behind Caddy with path-based routing under one domain.
-
----
 
 ## Quick Start
 
@@ -52,10 +45,10 @@ See [`docs/INDEX.md`](./docs/INDEX.md) for the project overview, [`docs/PLAN.md`
 
 For a new tool, the maintainer only needs to describe the product normally. The agent must
 automatically use [`$develop-toolbox-tool`](./.agents/skills/develop-toolbox-tool/SKILL.md),
-create a local `newdev/<tool-id>` from `dev`, and own the brief, platform integration,
-localized docs, privacy, and tests. Candidate branches are not pushed by default; an
-explicitly authorized integration review merges locally into `dev`, then pushes only `dev`
-when requested.
+infer the internal brief and safe defaults, and own platform integration, localized docs,
+privacy, and tests. All work lands as focused commits on the local `dev` branch; review
+against `main`, the merge, the push, and the release tag are separate maintainer-controlled
+steps described in [docs/RELEASE.md](./docs/RELEASE.md).
 
 ---
 

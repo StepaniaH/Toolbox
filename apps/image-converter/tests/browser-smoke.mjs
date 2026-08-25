@@ -351,8 +351,7 @@ try {
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertMobileSharedShell(page)
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true)
-  assert.equal(await page.locator('.toolbox-nav-theme').count(), 1)
-  assert.equal(await page.locator('.toolbox-nav-lang').count(), 1)
+  assert.equal(await page.locator('.toolbox-nav-settings').count(), 1)
   assert.deepEqual(failures, [])
   console.log('[browser-smoke] FormTran production build passed')
 } finally {

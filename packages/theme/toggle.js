@@ -14,7 +14,11 @@
   "use strict";
 
   var STORAGE_KEY = "toolbox-theme";
-  var CONTRACT_VERSION = 1;
+  var FAMILY_STORAGE_KEY = "toolbox-theme-family";
+  var FAMILY_ATTRIBUTE = "data-theme-family";
+  var DEFAULT_FAMILY = "catppuccin";
+  var FAMILIES = ["catppuccin", "gruvbox", "solarized"];
+  var CONTRACT_VERSION = 2;
   var ROOT = "documentElement";
   var ATTRIBUTE = "data-theme";
   var DARK = "dark";
@@ -73,9 +77,39 @@
     return setTheme(current === DARK ? LIGHT : DARK);
   }
 
-  // Inline snippet for an app's <head> — applies the stored theme before
-  // first paint to prevent a flash. Returns the JS as a string so it can be
-  // injected into a server-rendered HTML template.
+  function isValidFamily(value) {
+    return FAMILIES.indexOf(value) !== -1;
+  }
+
+  function getThemeFamily() {
+    try {
+      var stored = global.localStorage
+        ? global.localStorage.getItem(FAMILY_STORAGE_KEY)
+        : null;
+      if (isValidFamily(stored)) return stored;
+    } catch {
+      // localStorage may be unavailable; ignore.
+    }
+    return DEFAULT_FAMILY;
+  }
+
+  function setThemeFamily(family) {
+    if (!isValidFamily(family)) {
+      throw new Error("setThemeFamily: unexpected family " + family);
+    }
+    try {
+      if (global.localStorage) global.localStorage.setItem(FAMILY_STORAGE_KEY, family);
+    } catch {
+      /* ignore persistence failures */
+    }
+    var el = root();
+    if (el) el.setAttribute(FAMILY_ATTRIBUTE, family);
+    return family;
+  }
+
+  // Inline snippet for an app's <head> — applies the stored theme and
+  // palette family before first paint to prevent a flash. Returns the JS as
+  // a string so it can be injected into a server-rendered HTML template.
   function prePaintScript() {
     return [
       "(function(){try{",
@@ -84,7 +118,10 @@
       "t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';",
       "}",
       "document.documentElement.setAttribute('" + ATTRIBUTE + "',t);",
-      "}catch(e){document.documentElement.setAttribute('" + ATTRIBUTE + "','dark');}",
+      "var fk=" + JSON.stringify(FAMILY_STORAGE_KEY) + ",f=localStorage.getItem(fk);",
+      "if(f!=='gruvbox'&&f!=='solarized'){f='" + DEFAULT_FAMILY + "';}",
+      "document.documentElement.setAttribute('" + FAMILY_ATTRIBUTE + "',f);",
+      "}catch(e){document.documentElement.setAttribute('" + ATTRIBUTE + "','dark');document.documentElement.setAttribute('" + FAMILY_ATTRIBUTE + "','" + DEFAULT_FAMILY + "');}",
       "})();"
     ].join("");
   }
@@ -95,9 +132,15 @@
     ATTRIBUTE: ATTRIBUTE,
     DEFAULT_THEME: DARK,
     THEMES: THEMES,
+    FAMILY_STORAGE_KEY: FAMILY_STORAGE_KEY,
+    FAMILY_ATTRIBUTE: FAMILY_ATTRIBUTE,
+    DEFAULT_THEME_FAMILY: DEFAULT_FAMILY,
+    THEME_FAMILIES: Object.freeze(FAMILIES.slice()),
     getTheme: getTheme,
     setTheme: setTheme,
     toggleTheme: toggleTheme,
+    getThemeFamily: getThemeFamily,
+    setThemeFamily: setThemeFamily,
     prePaintScript: prePaintScript
   };
 

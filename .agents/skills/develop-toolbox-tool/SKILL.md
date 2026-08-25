@@ -1,6 +1,6 @@
 ---
 name: develop-toolbox-tool
-description: Turn an ordinary natural-language product request into a complete isolated Toolbox application, or review and integrate an existing newdev/* candidate. Use automatically whenever the user asks to create, add, continue, or review a new tool under apps/, even if the user does not mention this skill, a branch name, a framework, a brief, tests, documentation, privacy, theme, navigation, or i18n.
+description: Turn an ordinary natural-language product request into a complete isolated Toolbox application on the local development branch, or review and integrate pending work under apps/. Use automatically whenever the user asks to create, add, continue, or review a new tool under apps/, even if the user does not mention this skill, a branch name, a framework, a brief, tests, documentation, privacy, theme, navigation, or i18n.
 ---
 
 # Develop a Toolbox Tool
@@ -21,14 +21,14 @@ Before changing files, read these files completely:
 6. `../../../packages/i18n/README.md`
 7. `../../../packages/app-manifest/README.md`
 
-When continuing or reviewing a candidate, also read its localized READMEs and
-`NEW_TOOL_HANDOFF.md`.
+When continuing or reviewing existing tool work, also read its localized READMEs.
 
 ## 2. Convert the request into an internal brief
 
 Infer a coherent first version from the user's normal description. Derive a concise
 kebab-case tool id, inputs, outputs, assumptions, non-goals, privacy model, fallback, and
-3–8 verifiable acceptance criteria. Record these in `NEW_TOOL_HANDOFF.md`; do not ask the
+3–8 verifiable acceptance criteria. Record these in the Brief section at the top of
+`apps/<tool-id>/README.md` (with a Chinese summary in `README.zh-CN.md`); do not ask the
 user to provide the schema or restate information already implied by the request.
 
 Use these defaults unless the user says otherwise:
@@ -51,15 +51,14 @@ access always requires explicit maintainer approval.
 
 Run `git status --short --branch` and `git branch --show-current` before edits.
 
-- For a new implementation, require a clean local `dev`, derive the tool id, then create
-  `newdev/<tool-id>` from the local `dev` HEAD.
-- For continued implementation, require exactly the matching `newdev/<tool-id>` branch.
-- Never implement a new tool on `dev` or `main`.
+- All implementation work happens on the local `dev` branch; require a clean working
+  tree and switch to `dev` when coming from another branch.
+- Never implement anything directly on `main`.
 - Preserve unrelated work; never stash, reset, clean, rebase, force-push, or deploy.
-- Stop if the required branch transition would overwrite uncommitted work.
-
-Candidate branches are local by default. Do not push `newdev/<tool-id>` or create a remote
-branch unless the maintainer explicitly requests remote backup for that candidate.
+- Stop if a required branch transition would overwrite uncommitted work.
+- `dev` is never pushed. Merging into `main`, pushing `main`, and creating release tags
+  are separate maintainer authorizations described in `docs/RELEASE.md`; do none of them
+  in development mode.
 
 ## 4. Build the smallest isolated tool
 
@@ -79,39 +78,45 @@ From the first screen:
 Do not import another app or generalize a shared component before three stable consumers
 demonstrate the same semantics.
 
-## 5. Own documentation and handoff
+Prefer the repository generator (`scripts/new-app.mjs`) to scaffold the skeleton once it
+is available; keep its output aligned with `docs/NEW_TOOL.md` rather than hand-copying an
+existing app.
 
-Create `README.md`, `README.zh-CN.md`, and temporary `NEW_TOOL_HANDOFF.md` as specified in
-`docs/NEW_TOOL.md`. Keep the handoff factual: inferred brief, assumptions, decisions,
-changed files, network/storage/query behavior, actual test results, known limits, visual
-matrix, and integration cleanup.
+## 5. Own documentation
 
-Do not make the maintainer maintain these documents. Do not edit the root changelog,
-promote the app, merge branches, or prepare a repository release in development mode.
+Create `README.md` and `README.zh-CN.md` as specified in `docs/NEW_TOOL.md`, carrying the
+Brief permanently at the top. Keep them factual: inferred assumptions, decisions,
+network/storage/query behavior, known limits, and the visual matrix. Do not make the
+maintainer maintain these documents. Do not edit the root changelog version sections,
+promote the app, merge branches, push, tag, or prepare a repository release in
+development mode.
 
 ## 6. Validate and stop locally
 
-During development, prefer the candidate app's `dev`, `build`, `test`, `lint`, and
-`test:browser`. Before handoff, run privacy/contracts and the full workspace gates listed
-in `docs/NEW_TOOL.md`.
+During development, prefer the target app's `dev`, `build`, `test`, `lint`, and
+`test:browser`. Before completion, run privacy/contracts/release checks and the full
+workspace gates listed in `docs/NEW_TOOL.md`.
 
-Fix failures instead of weakening tests, lint, privacy, or contract checks. Once the
-candidate and handoff are complete, create focused local commits on `newdev/<tool-id>` so
-the integration reviewer receives a clean branch. Then stop and report the local branch,
-commits, checks, assumptions, and remaining risks. Do not push by default.
+Fix failures instead of weakening tests, lint, privacy, or contract checks. Once complete,
+create focused local commits on `dev` so each commit is a reviewable rollback boundary.
+Then stop and report the commits, checks, assumptions, and remaining risks. Do not push
+and do not tag.
 
 ## 7. Integrate only on explicit request
 
-Treat “review”, “merge into dev”, and “push dev” as separate permissions.
+Treat “review”, “merge into main”, “push main”, and “tag a release” as separate
+permissions.
 
-When explicitly asked to review, compare local `dev...newdev/<tool-id>`, independently
-verify product correctness, privacy, visual behavior, dependencies, and all quality gates.
-Report blockers without merging.
+When explicitly asked to review, compare local `main...dev`, independently verify product
+correctness, privacy, visual behavior, dependencies, and all quality gates. Report
+blockers without merging.
 
-When explicitly asked to merge, require clean `dev`, perform a reviewable local merge,
-move durable information into READMEs/CHANGELOG/TASKS, delete `NEW_TOOL_HANDOFF.md` and
-temporary fixtures, decide manifest promotion only from verified evidence and maintainer
-intent, then rerun full gates. Never touch `main` or deploy.
+When explicitly asked to merge, require clean branches, merge `dev` into local `main`
+with a merge commit, move durable information into READMEs/CHANGELOG/TASKS, decide
+manifest promotion only from verified evidence and maintainer intent, then rerun full
+gates. Never deploy.
 
-Push only the merged `dev` branch, and only when the maintainer explicitly asks for that
-push. Do not push the candidate branch as an intermediate step.
+Push `main` only when the maintainer explicitly asks for that push. Create and push a
+`vX.Y.Z` tag only when the maintainer explicitly asks for that exact release, after the
+version-preparation commit keeps package version, `TOOLBOX_RELEASE`, and CHANGELOG in
+sync (enforced by `pnpm check:release`).

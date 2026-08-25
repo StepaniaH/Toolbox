@@ -3,15 +3,17 @@
 Read [docs/AGENTS.md](./docs/AGENTS.md) before editing this repository. Its branch,
 privacy, architecture, design, testing, and release rules are mandatory.
 
-## Branch protection
+## Branches and releases
 
-- `main` is the deployed stable branch. Never edit, commit, merge, rebase, or deploy it
+- `main` is the published stable branch. Never edit, commit, merge, rebase, or deploy it
   unless the maintainer explicitly asks for that exact release operation.
-- `dev` is the maintainer-controlled integration branch. Repository maintenance may be
-  performed there when explicitly requested, but new-tool implementation must not be.
-- Every new tool starts from a clean `dev` and is implemented only on
-  `newdev/<tool-id>`. In development mode, do not commit new-tool work to `dev` or merge
-  it. An integration agent may merge locally only after the maintainer explicitly asks.
+- `dev` is the only development branch and exists only on this machine; it is never
+  pushed. All implementation work lands on it as focused commits.
+- The only remote branch is `origin/main`. Releases are recorded by tagging `main` with
+  `vX.Y.Z`; tags are created only after a maintainer-reviewed merge from `dev` and only
+  when the maintainer explicitly asks for that release.
+- Merging into `main`, pushing `main`, and creating a tag are three separate
+  authorizations. Never perform one because another was granted.
 - Preserve unrelated user changes. Never hide them with stash, reset, checkout, or clean.
 
 ## New tools
@@ -24,6 +26,7 @@ is the canonical product and platform contract.
 
 The maintainer only needs to describe the desired tool in ordinary product language. The
 agent must invoke the skill itself, infer the internal brief and safe defaults, and avoid
-asking the maintainer to repeat repository rules or fill out a template. New-tool branches
-stay local by default; do not push them. A reviewed candidate is merged locally into `dev`,
-and only `dev` is pushed when the maintainer explicitly asks.
+asking the maintainer to repeat repository rules or fill out a template. Tool work is
+committed to local `dev`; review against `main`, the merge itself, the push, and the
+release tag are separate maintainer-controlled steps described in
+[docs/RELEASE.md](./docs/RELEASE.md).

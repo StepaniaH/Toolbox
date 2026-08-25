@@ -13,7 +13,7 @@
   var currentLocale = 'zh';
 
   /** Two-locale translation maps. Populated by i18n-zh.js and i18n-en.js. */
-  var t9n = { zh: {}, en: {} };
+  var t9n = { zh: {}, zhHant: {}, en: {} };
 
   /* ------------------------------------------------------------------ */
   /* Core API                                                            */
@@ -58,7 +58,7 @@
    * @param {string} locale - 'zh' or 'en'.
    */
   function setLocale(locale) {
-    if (locale !== 'zh' && locale !== 'en') return;
+    if (locale !== 'zh' && locale !== 'zhHant' && locale !== 'en') return;
     if (locale === currentLocale) return;
 
     currentLocale = locale;
@@ -96,7 +96,7 @@
    * Called on locale change and on init.
    */
   function refreshDOM() {
-    document.documentElement.lang = currentLocale === 'zh' ? 'zh-CN' : 'en';
+    document.documentElement.lang = currentLocale === 'en' ? 'en' : currentLocale === 'zhHant' ? 'zh-TW' : 'zh-CN';
 
     // data-i18n → textContent (or placeholder for inputs)
     var elements = document.querySelectorAll('[data-i18n]');
@@ -173,7 +173,7 @@
 
   function init() {
     var stored = getStored();
-    if (stored === 'en' || stored === 'zh') {
+    if (stored === 'en' || stored === 'zhHant' || stored === 'zh') {
       currentLocale = stored;
     }
     refreshDOM();
@@ -183,7 +183,7 @@
     // (nav-bar.js applyLang fallback fires this when window.ToolboxI18n is absent).
     window.addEventListener('toolbox-lang-change', function (event) {
       var lang = event && event.detail && event.detail.lang;
-      if (lang === 'zh' || lang === 'en') {
+      if (lang === 'zh' || lang === 'zhHant' || lang === 'en') {
         setLocale(lang);
       }
     });

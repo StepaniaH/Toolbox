@@ -754,3 +754,44 @@ export function storagePrefixLabel(prefixIndex: number): string {
 export function storageBinaryPrefixLabel(prefixIndex: number): string {
   return STORAGE_BINARY_PREFIXES[prefixIndex] ?? "";
 }
+
+// Shared network scenario presets (view-layer defaults kept beside the
+// other option tables).
+export const NETWORK_PRESETS = [
+  {
+    label: "1TiB / 1000Mbps",
+    bandwidthValue: 1000,
+    bandwidthUnit: "Mbps",
+    sizeValue: 1,
+    sizeUnit: "TiB",
+    scenario: "wired-lan",
+    efficiency: 85,
+  },
+  {
+    label: "100GB / 1000Mbps",
+    bandwidthValue: 1000,
+    bandwidthUnit: "Mbps",
+    sizeValue: 100,
+    sizeUnit: "GB",
+    scenario: "wired-lan",
+    efficiency: 90,
+  },
+  {
+    label: "1TB / 2.5Gbps",
+    bandwidthValue: 2.5,
+    bandwidthUnit: "Gbps",
+    sizeValue: 1,
+    sizeUnit: "TB",
+    scenario: "wired-lan",
+    efficiency: 95,
+  },
+  {
+    label: "100GB / VPN",
+    bandwidthValue: 500,
+    bandwidthUnit: "Mbps",
+    sizeValue: 100,
+    sizeUnit: "GB",
+    scenario: "vpn",
+    efficiency: 70,
+  },
+];

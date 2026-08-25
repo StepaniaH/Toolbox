@@ -17,8 +17,6 @@ declare module '@toolbox/nav' {
   export interface NavBarProps {
     currentApp?: string
     apps?: NavApp[]
-    onToggleTheme?: () => void
-    rightSlot?: import('react').ReactNode
   }
   
   export const NavBar: FC<NavBarProps>

@@ -2,10 +2,9 @@
 //
 // Mounts the shared Toolbox nav into a host element with id "toolbox-nav"
 // (or any element passed to mount()). Renders two slots:
-//   left  → 🧰 Toolbox dropdown (hover on desktop, tap on touch);
-//           the active tool is highlighted with `.is-active` + `.active`
-//   right → language menu + theme toggle (theme delegates to
-//           @toolbox/theme's window.ToolboxTheme)
+//   left  → 🧰 Toolbox dropdown (hover on desktop, tap on touch) with local
+//           tool search; the active tool is highlighted with `.is-active`
+//   right → settings gear (language and theme live in the Settings app)
 //
 // Pair with `@toolbox/nav/nav-bar.css` and `@toolbox/theme` (index.css +
 // toggle.js). The current app is auto-detected from `location.pathname`
@@ -13,7 +12,7 @@
 //
 // Tool identity, routes and public labels come from @toolbox/app-manifest.
 
-import { getStableApps } from "@toolbox/app-manifest";
+import { getAppById, getStableApps } from "@toolbox/app-manifest";
 
 (function (global) {
   "use strict";
@@ -34,18 +33,15 @@ import { getStableApps } from "@toolbox/app-manifest";
   var LANG_KEY = "toolbox-lang";
   var LANG_EVENT = "toolbox-lang-change";
   var ZH = "zh";
+  var ZH_HANT = "zh-Hant";
   var EN = "en";
-  var LANGUAGES = [
-    { code: ZH, label: "中文（简体）", lang: "zh-CN" },
-    { code: EN, label: "English", lang: "en" }
-  ];
 
   function isZh() {
     try {
       var saved = global.localStorage
         ? global.localStorage.getItem(LANG_KEY)
         : null;
-      if (saved === ZH || saved === EN) return saved === ZH;
+      if (saved === ZH || saved === ZH_HANT || saved === EN) return saved !== EN;
     } catch {
       /* ignore */
     }
@@ -62,46 +58,28 @@ import { getStableApps } from "@toolbox/app-manifest";
   function currentLang() {
     if (global.ToolboxI18n && typeof global.ToolboxI18n.getLang === "function") {
       var lang = global.ToolboxI18n.getLang();
-      if (lang === ZH || lang === EN) return lang;
+      if (lang === ZH || lang === ZH_HANT || lang === EN) return lang;
     }
     return isZh() ? ZH : EN;
   }
 
-  // Switch the active language. When @toolbox/i18n is present, delegate to its
-  // setLang (it persists + broadcasts via its own onChange). Otherwise apply a
-  // temporary local fallback: write localStorage and dispatch a custom
-  // "toolbox-lang-change" event so other scripts can react.
-  function applyLang(lang) {
-    if (lang !== ZH && lang !== EN) return;
-    if (
-      global.ToolboxI18n &&
-      typeof global.ToolboxI18n.setLang === "function"
-    ) {
-      global.ToolboxI18n.setLang(lang);
-      return;
-    }
-    try {
-      if (global.localStorage) global.localStorage.setItem(LANG_KEY, lang);
-    } catch {
-      /* ignore persistence failures */
-    }
-    if (typeof global.CustomEvent === "function" && global.dispatchEvent) {
-      global.dispatchEvent(
-        new global.CustomEvent(LANG_EVENT, { detail: { lang: lang } })
-      );
-    }
+  function pickLang(zh, zhHant, en) {
+    var lang = currentLang();
+    if (lang === EN) return en;
+    if (lang === ZH_HANT && zhHant !== undefined && zhHant !== null) return zhHant;
+    return zh;
   }
 
   function labelOf(tool) {
-    return currentLang() === ZH ? tool.label : tool.labelEn;
+    return pickLang(tool.label, undefined, tool.labelEn);
   }
 
   function descOf(tool) {
-    return currentLang() === ZH ? tool.desc : tool.descEn;
+    return pickLang(tool.desc, undefined, tool.descEn);
   }
 
   function searchTextOf(tool) {
-    var terms = currentLang() === ZH ? tool.keywords : tool.keywordsEn;
+    var terms = pickLang(tool.keywords, undefined, tool.keywordsEn);
     return [labelOf(tool), descOf(tool)].concat(terms).join(" ")
       .normalize("NFKC")
       .toLocaleLowerCase();
@@ -146,47 +124,6 @@ import { getStableApps } from "@toolbox/app-manifest";
     var a = el("a", cls, text);
     a.setAttribute("href", href);
     return a;
-  }
-
-  function svgIcon(paths) {
-    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 24 24");
-    svg.setAttribute("aria-hidden", "true");
-    for (var i = 0; i < paths.length; i++) {
-      var definition = paths[i];
-      var node = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        definition[0]
-      );
-      var attrs = definition[1];
-      for (var key in attrs) node.setAttribute(key, attrs[key]);
-      svg.appendChild(node);
-    }
-    return svg;
-  }
-
-  function globeIcon() {
-    return svgIcon([
-      ["circle", { cx: "12", cy: "12", r: "9" }],
-      ["path", { d: "M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" }]
-    ]);
-  }
-
-  function sunIcon() {
-    return svgIcon([
-      ["circle", { cx: "12", cy: "12", r: "4" }],
-      ["path", { d: "M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" }]
-    ]);
-  }
-
-  function moonIcon() {
-    return svgIcon([
-      ["path", { d: "M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z" }]
-    ]);
-  }
-
-  function checkIcon() {
-    return svgIcon([["path", { d: "m5 12 4 4L19 6" }]]);
   }
 
   // Build the full nav DOM tree. `current` is the active tool id.
@@ -241,44 +178,25 @@ import { getStableApps } from "@toolbox/app-manifest";
     dropdown.appendChild(menu);
     inner.appendChild(dropdown);
 
-    // ---- Right: actions ----
+    // ---- Right: settings ----
     var actions = el("div", "toolbox-nav-actions");
 
-    var language = el("div", "toolbox-nav-language");
-    var langBtn = el("button", "toolbox-nav-icon-btn toolbox-nav-lang");
-    langBtn.type = "button";
-    langBtn.setAttribute("aria-haspopup", "menu");
-    langBtn.setAttribute("aria-expanded", "false");
-    langBtn.appendChild(globeIcon());
-    language.appendChild(langBtn);
-
-    var languageMenu = el("div", "toolbox-nav-language-menu");
-    languageMenu.setAttribute("role", "menu");
-    var languageOptions = [];
-    for (var j = 0; j < LANGUAGES.length; j++) {
-      var languageDefinition = LANGUAGES[j];
-      var option = el("button", "toolbox-nav-language-option");
-      option.type = "button";
-      option.setAttribute("role", "menuitemradio");
-      option.setAttribute("data-lang", languageDefinition.code);
-      option.setAttribute("lang", languageDefinition.lang);
-      option.appendChild(el("span", "toolbox-nav-language-label"));
-      option.appendChild(el("span", "toolbox-nav-language-check"));
-      languageMenu.appendChild(option);
-      languageOptions.push(option);
+    var settingsApp = getAppById("settings");
+    if (settingsApp && settingsApp.status === "stable") {
+      var settingsLink = el("a", "toolbox-nav-icon-btn toolbox-nav-settings");
+      settingsLink.href = settingsApp.path;
+      settingsLink.setAttribute(
+        "aria-label",
+        currentLang() === EN ? "Settings" : "设置"
+      );
+      settingsLink.setAttribute("title", settingsLink.getAttribute("aria-label"));
+      settingsLink.innerHTML =
+        '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<circle cx="12" cy="12" r="3"></circle>' +
+        '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>' +
+        "</svg>";
+      actions.appendChild(settingsLink);
     }
-    language.appendChild(languageMenu);
-    actions.appendChild(language);
-
-    var themeBtn = el("button", "toolbox-nav-icon-btn toolbox-nav-theme");
-    themeBtn.type = "button";
-    var sun = el("span", "toolbox-nav-theme-icon toolbox-nav-theme-sun");
-    sun.appendChild(sunIcon());
-    var moon = el("span", "toolbox-nav-theme-icon toolbox-nav-theme-moon");
-    moon.appendChild(moonIcon());
-    themeBtn.appendChild(sun);
-    themeBtn.appendChild(moon);
-    actions.appendChild(themeBtn);
 
     inner.appendChild(actions);
     nav.appendChild(inner);
@@ -290,45 +208,13 @@ import { getStableApps } from "@toolbox/app-manifest";
       menuBtn: menuBtn,
       searchInput: searchInput,
       toolItems: toolItems,
-      noResults: noResults,
-      language: language,
-      langBtn: langBtn,
-      languageOptions: languageOptions,
-      themeBtn: themeBtn,
+      noResults: noResults
     };
   }
 
-  function closeAll(refs) {
-    refs.dropdown.classList.remove("is-open");
-    refs.menuBtn.setAttribute("aria-expanded", "false");
-    refs.language.classList.remove("is-open");
-    refs.langBtn.setAttribute("aria-expanded", "false");
-  }
-
-  function renderLanguageMenu(refs) {
-    var current = currentLang();
-    var title = current === ZH ? "选择语言" : "Choose language";
-    refs.langBtn.setAttribute("aria-label", title);
-    refs.langBtn.setAttribute("title", title);
-    for (var i = 0; i < refs.languageOptions.length; i++) {
-      var option = refs.languageOptions[i];
-      var definition = LANGUAGES[i];
-      var selected = definition.code === current;
-      option.classList.toggle("is-active", selected);
-      option.setAttribute("aria-checked", selected ? "true" : "false");
-      option.querySelector(".toolbox-nav-language-label").textContent =
-        definition.label;
-      var check = option.querySelector(".toolbox-nav-language-check");
-      check.replaceChildren();
-      if (selected) check.appendChild(checkIcon());
-    }
-    var themeTitle = current === ZH ? "切换明暗主题" : "Toggle theme";
-    refs.themeBtn.setAttribute("aria-label", themeTitle);
-    refs.themeBtn.setAttribute("title", themeTitle);
-  }
-
   function renderToolLabels(refs) {
-    var menuTitle = currentLang() === ZH ? "打开工具菜单" : "Open tool menu";
+    var english = currentLang() === EN;
+    var menuTitle = english ? "Open tool menu" : "打开工具菜单";
     refs.menuBtn.setAttribute("aria-label", menuTitle);
     refs.menuBtn.setAttribute("title", menuTitle);
     for (var i = 0; i < TOOLS.length; i++) {
@@ -339,15 +225,16 @@ import { getStableApps } from "@toolbox/app-manifest";
         desktop.querySelector(".toolbox-nav-item-desc").textContent = descOf(tool);
       }
     }
+    var english = currentLang() === EN;
     refs.searchInput.setAttribute(
       "placeholder",
-      currentLang() === ZH ? "搜索工具或用途…" : "Search tools or tasks…"
+      english ? "Search tools or tasks…" : "搜索工具或用途…"
     );
     refs.searchInput.setAttribute(
       "aria-label",
-      currentLang() === ZH ? "搜索工具" : "Search tools"
+      english ? "Search tools" : "搜索工具"
     );
-    refs.noResults.textContent = currentLang() === ZH ? "没有匹配的工具" : "No matching tools";
+    refs.noResults.textContent = english ? "No matching tools" : "没有匹配的工具";
     applyToolFilter(refs);
   }
 
@@ -362,22 +249,9 @@ import { getStableApps } from "@toolbox/app-manifest";
     refs.noResults.hidden = visible !== 0;
   }
 
-  function renderLanguage(refs) {
-    renderLanguageMenu(refs);
-    renderToolLabels(refs);
-  }
-
   // Wire up interactions for a built tree.
-  function wire(refs, options) {
-    renderLanguage(refs);
-
-    var onToggleTheme = options && typeof options.onToggleTheme === "function"
-      ? options.onToggleTheme
-      : function () {
-          if (global.ToolboxTheme && typeof global.ToolboxTheme.toggleTheme === "function") {
-            global.ToolboxTheme.toggleTheme();
-          }
-        };
+  function wire(refs) {
+    renderToolLabels(refs);
 
     // The brand itself always returns home. The adjacent caret opens the tool
     // switcher for touch/keyboard; CSS still provides hover reveal on desktop.
@@ -385,8 +259,6 @@ import { getStableApps } from "@toolbox/app-manifest";
       e.preventDefault();
       e.stopPropagation();
       var willOpen = !refs.dropdown.classList.contains("is-open");
-      refs.language.classList.remove("is-open");
-      refs.langBtn.setAttribute("aria-expanded", "false");
       refs.dropdown.classList.toggle("is-open", willOpen);
       refs.menuBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
       if (willOpen && e.detail === 0) refs.searchInput.focus();
@@ -396,7 +268,7 @@ import { getStableApps } from "@toolbox/app-manifest";
       applyToolFilter(refs);
     });
 
-    // Close dropdown when a menu item is chosen (touch) or on outside click.
+    // Close dropdown when a menu item is chosen (touch).
     refs.dropdown.addEventListener("click", function (e) {
       if (e.target.closest(".toolbox-nav-dropdown-item")) {
         refs.dropdown.classList.remove("is-open");
@@ -404,35 +276,10 @@ import { getStableApps } from "@toolbox/app-manifest";
       }
     });
 
-    // Language icon opens a scalable list instead of toggling a hard-coded pair.
-    refs.langBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      var willOpen = !refs.language.classList.contains("is-open");
-      refs.dropdown.classList.remove("is-open");
-      refs.menuBtn.setAttribute("aria-expanded", "false");
-      refs.language.classList.toggle("is-open", willOpen);
-      refs.langBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
-    });
-
-    refs.language.addEventListener("click", function (e) {
-      var option = e.target.closest(".toolbox-nav-language-option");
-      if (!option) return;
-      applyLang(option.getAttribute("data-lang"));
-      refs.language.classList.remove("is-open");
-      refs.langBtn.setAttribute("aria-expanded", "false");
-      renderLanguage(refs);
-    });
-
-    // Theme toggle — the CSS swaps the sun/moon state without emoji rotation.
-    refs.themeBtn.addEventListener("click", function () {
-      onToggleTheme();
-    });
-
-    // Refresh the button when the language changes elsewhere (another script
-    // calling setLang, or our own fallback custom event).
+    // Refresh the labels when the language changes elsewhere (the Settings
+    // app calling setLang, or our fallback custom event).
     var onLangChange = function () {
-      renderLanguage(refs);
+      renderToolLabels(refs);
     };
     if (
       global.ToolboxI18n &&
@@ -445,7 +292,7 @@ import { getStableApps } from "@toolbox/app-manifest";
       global.addEventListener(LANG_EVENT, onLangChange);
     }
 
-    // Close everything on outside click / Escape.
+    // Close on outside click / Escape.
     document.addEventListener("click", function (e) {
       if (!refs.root.contains(e.target)) closeAll(refs);
     });
@@ -454,9 +301,13 @@ import { getStableApps } from "@toolbox/app-manifest";
     });
   }
 
+  function closeAll(refs) {
+    refs.dropdown.classList.remove("is-open");
+    refs.menuBtn.setAttribute("aria-expanded", "false");
+  }
+
   // Mount the nav into `host` (an element or selector). Options:
-  //   currentApp    — override auto-detected active tool id
-  //   onToggleTheme — override the default theme-toggle handler
+  //   currentApp — override auto-detected active tool id
   function mount(host, options) {
     var node =
       typeof host === "string"
@@ -470,7 +321,7 @@ import { getStableApps } from "@toolbox/app-manifest";
         ? options.currentApp
         : detectCurrent();
     var refs = build(current);
-    wire(refs, options || {});
+    wire(refs);
     node.appendChild(refs.root);
     return refs;
   }

@@ -7,6 +7,7 @@ import {
 } from '@toolbox/theme/contract';
 import {
   readStoredTheme,
+  hasExplicitThemeChoice,
   getSystemTheme,
   THEME_STORAGE_KEY,
   LEGACY_THEME_STORAGE_KEY,
@@ -60,34 +61,31 @@ describe('PreferencesContext', () => {
   });
 });
 
-describe('readStoredTheme — 主题偏好存储/读取 (dark/light/system)', () => {
-  it('returns "light" when "light" is persisted', () => {
-    stubWindow({ [THEME_STORAGE_KEY]: 'light' });
-    expect(readStoredTheme()).toBe('light');
-  });
-
-  it('returns "dark" when "dark" is persisted', () => {
-    stubWindow({ [THEME_STORAGE_KEY]: 'dark' });
+describe('readStoredTheme — 共享键优先，遗留键一次性迁移', () => {
+  it('reads the explicit choice from the shared Settings key first', () => {
+    stubWindow({
+      [THEME_STORAGE_KEY]: 'dark',
+      [LEGACY_THEME_STORAGE_KEY]: 'light',
+    });
     expect(readStoredTheme()).toBe('dark');
+    expect(hasExplicitThemeChoice()).toBe(true);
   });
 
-  it('returns "system" when "system" is persisted', () => {
-    stubWindow({ [THEME_STORAGE_KEY]: 'system' });
-    expect(readStoredTheme()).toBe('system');
-  });
-
-  it('returns "system" default when nothing is persisted', () => {
-    stubWindow({});
-    expect(readStoredTheme()).toBe('system');
-  });
-
-  it('returns "system" default in SSR (window undefined)', () => {
-    expect(readStoredTheme()).toBe('system');
-  });
-
-  it('falls back to the legacy app theme key during migration', () => {
+  it('honors the legacy key only while the shared key is unset', () => {
     stubWindow({ [LEGACY_THEME_STORAGE_KEY]: 'light' });
     expect(readStoredTheme()).toBe('light');
+    expect(hasExplicitThemeChoice()).toBe(true);
+  });
+
+  it('follows the OS preference when nothing is persisted', () => {
+    stubWindow({}, true);
+    expect(readStoredTheme()).toBe('dark');
+    expect(hasExplicitThemeChoice()).toBe(false);
+  });
+
+  it('falls back to the system preference in SSR (window undefined)', () => {
+    expect(readStoredTheme()).toBe(DEFAULT_THEME);
+    expect(hasExplicitThemeChoice()).toBe(false);
   });
 });
 
@@ -98,9 +96,10 @@ describe('readStoredTheme — 无效存储值回退逻辑', () => {
     ['uppercase "Dark"', 'Dark'],
     ['theme with whitespace', ' dark '],
     ['numeric string "0"', '0'],
-  ])('falls back to "system" for %s', (_label, stored) => {
-    stubWindow({ [THEME_STORAGE_KEY]: stored });
-    expect(readStoredTheme()).toBe('system');
+  ])('ignores %s and follows the OS preference', (_label, stored) => {
+    stubWindow({ [THEME_STORAGE_KEY]: stored }, true);
+    expect(readStoredTheme()).toBe('dark');
+    expect(hasExplicitThemeChoice()).toBe(false);
   });
 });
 
@@ -121,10 +120,9 @@ describe('getSystemTheme — 系统主题解析', () => {
 });
 
 describe('storage key stability', () => {
-  it('consumes the shared v1 theme contract without changing legacy fallback', () => {
-    expect(THEME_CONTRACT_VERSION).toBe(1);
+  it('consumes the shared v2 theme contract without changing legacy fallback', () => {
+    expect(THEME_CONTRACT_VERSION).toBe(2);
     expect(THEME_STORAGE_KEY).toBe(CONTRACT_THEME_STORAGE_KEY);
-    expect(DEFAULT_THEME).toBe('dark');
     expect(THEME_ATTRIBUTE).toBe('data-theme');
     expect(LEGACY_THEME_STORAGE_KEY).toBe('chrono-sphere.theme');
   });

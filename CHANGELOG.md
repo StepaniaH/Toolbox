@@ -2,6 +2,59 @@
 
 ## Unreleased
 
+### Added
+
+- Added a Settings app at `/settings/` as the single entry point for interface language,
+  light/dark mode, palette family, and Homepage personalization (tool visibility, order, and row
+  limit), and promoted it to the stable navigation, Homepage catalog, and deployment list.
+- Added theme contract v2: `data-theme-family` switches between Catppuccin, Gruvbox, and Solarized
+  dual-mode palettes while the `data-theme` contract stays unchanged, with WCAG contrast gates
+  locking core text pairs in every family and mode.
+- Added a data-driven language registry with a two-line picker whose secondary display names come
+  from `Intl.DisplayNames`, and full Traditional Chinese coverage generated at build time across
+  every app, the shared catalogs, and manifest keywords.
+- Added `@toolbox/prefs` to define and defensively normalize the shared Homepage preference
+  document, guarded by a contract version against storage drift.
+- Added a themed bilingual root 404 page and per-app favicons to the assembled static site, plus an
+  offline fallback page and a root service worker that serves hashed assets cache-first and
+  navigations network-first.
+- Added a deterministic screenshot baseline for stable apps (light/dark × zh/zh-Hant/en ×
+  desktop/mobile) under `docs/screenshots` for human review ahead of pixel-diff gating.
+- Added an asset-size performance baseline in `docs/PERFORMANCE.md` generated from build artifacts
+  and reported by CI without hard thresholds.
+- Added a license allowlist gate with a CI production-dependency audit, an app generator
+  (`scripts/new-app.mjs`) for Vanilla and React tool skeletons, and card presentation copy as part
+  of the app-manifest contract.
+
+### Changed
+
+- Consolidated preference controls into Settings: both navigation implementations expose only the
+  settings entry, ChronoSphere follows the shared theme key with a one-time migration away from its
+  private key, and RateLens and SaneUnits dropped their private theme hooks; contract checks reject
+  reintroducing preference controls into navigation.
+- Derived Homepage, RateLens, and Monitor Choice styling from the shared theme token layer,
+  replaced Monitor Choice's local theme manager with the runtime adapter, and split SaneUnits'
+  App.tsx into routing, URL-state, UI primitives, and per-page components.
+- Moved development onto a single local `dev` branch with tag-driven releases, keeping merge, push,
+  tag, and deploy as separate maintainer authorizations.
+
+### Fixed
+
+- Fixed dark palette families losing the CSS specificity cascade against the default dark block, so
+  Gruvbox and Solarized dark modes now apply.
+- Fixed Settings rendering raw translation keys by restructuring its dictionaries to the nested
+  shape the translator resolves, localized every label, and aligned its footer with the shell width.
+- Fixed the zh-Hant generator failing on imported bindings by extracting zh subtrees while
+  reproducing every other app's generated output byte-for-byte.
+- Fixed assembled route-fallback pages serving documents without favicon and service-worker
+  injection, and replaced SaneUnits' leftover scaffold document title.
+
+### Security and quality
+
+- Verified eight production builds, about 1,150 tests including theme-contract pins inside app
+  suites, eight production browser suites, zero-warning lint, and privacy, contract, release, and
+  license checks on the promotion candidate.
+
 ## v0.3.1 (2026-07-15)
 
 ### Added

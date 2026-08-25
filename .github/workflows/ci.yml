@@ -8,7 +8,7 @@ env:
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -48,8 +48,11 @@ jobs:
       - run: pnpm check:privacy
       - run: pnpm check:contracts
       - run: pnpm install --frozen-lockfile
+      - run: pnpm check:licenses
+      - run: pnpm check:audit
       - run: pnpm --filter=@toolbox/monitor-choice exec playwright install --with-deps chromium
       - run: pnpm build
+      - run: node scripts/measure-perf.mjs
       - run: pnpm test
       - run: pnpm test:browser
       - run: pnpm lint

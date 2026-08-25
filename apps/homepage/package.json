@@ -16,6 +16,7 @@
     "@toolbox/app-manifest": "workspace:*",
     "@toolbox/i18n": "workspace:*",
     "@toolbox/nav": "workspace:*",
+    "@toolbox/prefs": "workspace:*",
     "@toolbox/theme": "workspace:*"
   },
   "devDependencies": {

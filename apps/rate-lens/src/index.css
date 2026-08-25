@@ -1,14 +1,9 @@
 @import "tailwindcss";
 
-/* @toolbox/nav — bridge the bar's --ctp-* variables to the existing
-   Catppuccin palette so nav-bar.css resolves without importing the
-   full @toolbox/theme stylesheet (which would clobber Tailwind base). */
-:root {
-  --ctp-base: var(--base);
-  --ctp-mantle: var(--mantle);
-  --ctp-text: var(--text);
-  --ctp-blue: var(--blue);
-}
+/* Palette and convenience aliases (--base, --surface-*, --text, --blue, ...)
+   come from @toolbox/theme/tokens.css, imported in main.tsx ahead of this
+   file; nav-bar.css resolves its --ctp-* set from the same source. No raw
+   Catppuccin values may appear in this stylesheet. */
 
 /* Dark is the default theme. `data-theme` is always set on <html>
    (an inline script in index.html applies the stored choice pre-paint). */
@@ -18,32 +13,10 @@
 /* ──────────────────────────────────────────────────────────────
    Catppuccin Frappe (Dark · default) — raw palette
    ────────────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   shadcn semantic tokens → shared theme aliases (dark · default)
+   ────────────────────────────────────────────────────────────── */
 :root {
-  color-scheme: dark;
-
-  --base: #303446;
-  --mantle: #292c3c;
-  --crust: #232634;
-  --surface-0: #414559;
-  --surface-1: #51576d;
-  --surface-2: #626880;
-  --text: #c6d0f5;
-  --subtext-1: #b5bfe2;
-  --subtext-0: #a5adce;
-  --overlay-0: #737994;
-  --blue: #8caaee;
-  --mauve: #ca9ee6;
-  --green: #a6d189;
-  --red: #e78284;
-  --yellow: #e5c890;
-  --peach: #ef9f76;
-  --teal: #81c8be;
-  --lavender: #babbf1;
-  --sapphire: #85c1dc;
-  --border-subtle: rgba(198, 208, 245, 0.08);
-  --border-strong: rgba(198, 208, 245, 0.16);
-
-  /* shadcn semantic tokens → Catppuccin (dark) */
   --background: var(--base);
   --foreground: var(--text);
   --card: var(--surface-0);
@@ -68,51 +41,11 @@
 /* ──────────────────────────────────────────────────────────────
    Catppuccin Latte (Light)
    ────────────────────────────────────────────────────────────── */
+/* Light flips every alias above via tokens.css; only the two shadcn
+   foregrounds that hard-code white need an explicit override. */
 [data-theme="light"] {
-  color-scheme: light;
-
-  --base: #eff1f5;
-  --mantle: #e6e9ef;
-  --crust: #dce0e8;
-  --surface-0: #ccd0da;
-  --surface-1: #bcc0cc;
-  --surface-2: #acb0be;
-  --text: #4c4f69;
-  --subtext-1: #5c5f77;
-  --subtext-0: #6c6f85;
-  --overlay-0: #9ca0b0;
-  --blue: #1e66f5;
-  --mauve: #8839ef;
-  --green: #40a02b;
-  --red: #d20f39;
-  --yellow: #df8e1d;
-  --peach: #fe640b;
-  --teal: #179299;
-  --lavender: #7287fd;
-  --sapphire: #209fb5;
-  --border-subtle: rgba(76, 79, 105, 0.1);
-  --border-strong: rgba(76, 79, 105, 0.18);
-
-  /* shadcn semantic tokens → Catppuccin (light) */
-  --background: var(--base);
-  --foreground: var(--text);
-  --card: var(--surface-0);
-  --card-foreground: var(--text);
-  --popover: var(--surface-1);
-  --popover-foreground: var(--text);
-  --primary: var(--blue);
   --primary-foreground: #ffffff;
-  --secondary: var(--surface-1);
-  --secondary-foreground: var(--text);
-  --muted: var(--surface-1);
-  --muted-foreground: var(--subtext-0);
-  --accent: var(--surface-2);
-  --accent-foreground: var(--text);
-  --destructive: var(--red);
   --destructive-foreground: #ffffff;
-  --border: var(--border-subtle);
-  --input: var(--surface-2);
-  --ring: var(--blue);
 }
 
 /* ──────────────────────────────────────────────────────────────

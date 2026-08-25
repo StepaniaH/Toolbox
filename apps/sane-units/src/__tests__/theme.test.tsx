@@ -1,45 +1,20 @@
 // @vitest-environment jsdom
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { beforeEach, describe, expect, it } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import {
   THEME_ATTRIBUTE,
   THEME_CONTRACT_VERSION,
-  THEME_STORAGE_KEY as CONTRACT_THEME_STORAGE_KEY,
-} from "@toolbox/theme/contract";
-import {
-  LEGACY_THEME_STORAGE_KEY,
   THEME_STORAGE_KEY,
-  useTheme,
-} from "../lib/theme";
+} from "@toolbox/theme/contract";
 
 const mainSource = readFileSync(resolve("src/main.tsx"), "utf8");
 const styleSource = readFileSync(resolve("src/styles.css"), "utf8");
 
 describe("SaneUnits shared theme storage", () => {
-  beforeEach(() => {
-    localStorage.clear();
-    document.documentElement.removeAttribute("data-theme");
-  });
-
-  it("migrates the legacy theme preference to the shared key", async () => {
-    localStorage.setItem(LEGACY_THEME_STORAGE_KEY, "light");
-    const { result } = renderHook(() => useTheme());
-    expect(result.current.theme).toBe("light");
-    await waitFor(() => expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("light"));
-  });
-
-  it("prefers the shared theme key over the legacy value", () => {
-    localStorage.setItem(THEME_STORAGE_KEY, "dark");
-    localStorage.setItem(LEGACY_THEME_STORAGE_KEY, "light");
-    const { result } = renderHook(() => useTheme());
-    expect(result.current.theme).toBe("dark");
-  });
-
   it("consumes the shared v1 theme contract", () => {
-    expect(THEME_CONTRACT_VERSION).toBe(1);
-    expect(THEME_STORAGE_KEY).toBe(CONTRACT_THEME_STORAGE_KEY);
+    expect(THEME_CONTRACT_VERSION).toBe(2);
+    expect(THEME_STORAGE_KEY).toBe("toolbox-theme");
     expect(THEME_ATTRIBUTE).toBe("data-theme");
   });
 

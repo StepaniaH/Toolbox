@@ -52,3 +52,16 @@ test('manifest entries and nested public text are immutable', () => {
   assert.ok(Object.isFrozen(homepage.icon))
   assert.match(homepage.icon.svg, /<path/)
 })
+
+test('stable tools carry an immutable bilingual card presentation', () => {
+  for (const app of getStableApps()) {
+    if (app.path === '/') continue
+    const presentation = app.presentation
+    assert.ok(presentation, `${app.id} needs card presentation`)
+    assert.ok(Object.isFrozen(presentation))
+    assert.ok(presentation.subtitle.zh.length > 0 && presentation.subtitle.en.length > 0)
+    assert.ok(presentation.description.zh.length > 0 && presentation.description.en.length > 0)
+    assert.ok(Object.isFrozen(presentation.badges))
+    assert.ok(presentation.badges.length > 0)
+  }
+})
