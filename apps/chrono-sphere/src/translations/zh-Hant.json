@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "ChronoSphere - 高精度日期計算與時區夏令時審計服務",
+    "description": "ChronoSphere 是一款支持時區感知與夏令時變更審計的日期計算工具，支持日期偏移、日期區間、農曆轉換，且全部計算在瀏覽器本地完成。"
+  },
   "app": {
     "subtitle": "時區與夏令時審計感知的高精度日期計算器，支持跨國家/地區時區計算、DST 變更審計與中國農曆計算。",
     "title": "ChronoSphere"

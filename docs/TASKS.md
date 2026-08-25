@@ -45,10 +45,19 @@
 - 回滚基点是合并前的 `dev` HEAD；晋级后如需回退，按 RELEASE.md 第六节以 revert commit 加
   新 patch tag 完成，不改写历史、不移动 tag。
 
+2026-08-26 晋级准备记录（v0.5.0，本地化工程治理轮）：
+
+- 范围：i18n core 三语契约与回退链、chrono-sphere / crypto-lab / rate-lens / image-converter
+  修复与齐平测试、规范文档、发布前文档防腐（隐私标识清理与过期事实刷新）。
+- 本地 `dev` 全量门禁通过：`check:privacy` / `check:contracts` / `check:licenses` /
+  `build` / `test` / `lint` 零警告 / 八应用 production browser smoke；版本准备提交后复跑
+  `check:release` 确认三处版本一致为 `v0.5.0`。
+- 回滚基点是合并前的 `dev` HEAD；流程同 RELEASE.md 第六节。
+
 ### P0.3 · 双目标静态生产发布 `✅ 已完成`
 
 - [x] 将完整门禁后的多应用 `dist/` 组装为单一、可审计的静态站点 artifact。
-- [x] 保留 9929 VPS 的 Tailscale、SSH、rsync 与现有 Secrets，并增加 Cloudflare Pages Direct Upload。
+- [x] 保留既有 VPS 的 Tailscale、SSH、rsync 与现有 Secrets，并增加 Cloudflare Pages Direct Upload。
 - [x] 两个目标只允许从 `main` 手动选择发布，使用 `production` environment 和独立并发保护。
 - [x] 文档只公开正式站点域名；VPS 目标、端口、路径和 Cloudflare 凭据继续使用占位符或 Secrets。
 
@@ -61,7 +70,7 @@
 - [x] 新增 Release 工作流：push `v*` tag 触发全仓门禁，通过后从 CHANGELOG 小节创建
   GitHub Release。
 - [x] CI push 触发面收敛到 `main`；生产部署保持从 `main` 手动触发。
-- [ ] 首个 tag 在生产服务器迁移完成后由维护者创建；在此之前不推送任何 tag。
+- [x] 首个 tag 已由维护者创建并推送（v0.4.0）；此后每次 tag 仍需逐次明确授权。
 
 ## P1 — 新工具积木与审核隔离
 
@@ -240,6 +249,20 @@
   Vanilla 两套导航实现同步。
 - [x] 语言选择替换为自定义 listbox 下拉（方向键/Enter/Esc、点击外部关闭、当前语言打勾），
   不再回退原生控件；smoke 覆盖鼠标与键盘路径。
+
+### P2.13 · 本地化工程治理 `✅ 已完成`
+
+- [x] 根因：chrono-sphere 未把生成的 zh-Hant 词表接入 `I18nProvider`（繁体渲染原始 key）；
+  crypto-lab KnowledgeBase 以 `{zh,en}[lang]` 取正文（繁体整段空白）；多处 `lang === 'zh'`
+  二元分支使繁体静默落入英文/简体分支，chrono-sphere 还在 effect 中把 `<html lang>` 改回 en。
+- [x] i18n core：`createTranslator` 支持回退链；React provider 三语类型强制 + zh-Hant→zh
+  运行时回退；新增 `intlLocale` 与 `assertTranslationParity` 助手；core 单测 5 条。
+- [x] chrono-sphere 接线三语、meta 走词表、移除 html lang 改写与农历年后缀二元式；
+  crypto-lab 知识库内容全部迁入词表并重生成繁体；JwtPanel/FormTran 的 `Intl` locale 走
+  `intlLocale`。
+- [x] chrono-sphere / crypto-lab / rate-lens 增加三语键位齐平测试；chrono-sphere smoke 增加
+  繁体原始 key 泄漏守卫（zh-TW 断言 + 键名前缀禁令）。
+- [x] 规范落盘：packages/i18n/README.md 八条工程规范 + DESIGN_SYSTEM 语言契约红线。
 
 ## P3 — 性能与可维护性
 

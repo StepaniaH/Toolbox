@@ -1,6 +1,6 @@
 # Toolbox Design System
 
-> 状态：Draft v0.3.1 · 规范性文档
+> 状态：规范性文档（随发布演进）
 >
 > 本文定义所有 Toolbox 工具必须共享的视觉与交互基础。工具可以保留自己的信息架构和个性，但不能另造全局主题、语言或导航行为。
 
@@ -179,6 +179,18 @@ App Surface（工具自己拥有）
 - 日期、数字、货币和百分比使用当前语言的 `Intl` 格式化。
 - 页面 `<title>`、description 和 aria 文案也必须随语言切换。
 
+### 本地化工程红线
+
+完整规范见 `packages/i18n/README.md`；以下为强制底线，违反即门禁失败：
+
+- `I18nProvider` 必须同时接线 `zh` / `zh-Hant` / `en` 三语词表（类型强制，缺一无法编译）。
+- zh-Hant 词表只由 `scripts/gen-zh-hant.mjs` 生成，不手改；改简体后必须重新生成。
+- 运行时回退链为 zh-Hant → zh → key；任何语言都不得渲染原始 key。
+- 应用单测必须调用 `assertTranslationParity` 锁定三语键位齐平。
+- 禁止 `lang === "zh"` 式二元分支（zh-Hant 会被静默落错分支）；文案走 `t()`，
+  `Intl` locale 走 `intlLocale(lang)`。
+- `<html lang>` 由 `@toolbox/i18n` core 独占维护，应用不得改写。
+
 ## 八、响应式与内容宽度
 
 最低支持宽度为 375px，关键检查宽度为：
@@ -224,17 +236,17 @@ App Surface（工具自己拥有）
 
 | 区域 | 差距 | 目标 |
 |------|------|------|
-| Theme | 七个工具已消费 runtime 契约；页面仍未消费完整共享语义 CSS token | 逐个应用迁移到语义 token，并有视觉回归 |
+| Theme | 八个工具已消费 runtime 契约；页面仍未消费完整共享语义 CSS token | 逐个应用迁移到语义 token，并有视觉回归 |
 | Homepage / Monitor | 已使用构建期 nav/theme runtime；页面 token 仍各自维护 | 在不改变视觉的前提下逐步改用共享语义 token |
 | SaneUnits | 已移除永久左右分栏，采用应用标题、单一横向业务导航、居中内容和共享页脚的纵向骨架；业务页 card glow 已收敛 | 保持多计算器导航特色并防止重新引入独立桌面/移动壳 |
 | Shared shell | 已采用 1280px 居中轴、首页品牌链接、带本地关键词搜索的唯一工具菜单、右侧设置齿轮入口 | 后续工具/语言只扩展 manifest 或菜单数据，不另造控件 |
-| Identity / footer | manifest 图标、共享 40px 标题标志容器、RateLens 标题层级和统一页脚骨架已覆盖七个应用 | 新工具必须从首版消费同一事实源 |
-| Visual QA | 七应用在 1440/390px 遍历中/英 × 暗/亮四组合，并保持代表业务页可见、无溢出；尚无审核截图基线 | 固定动态数据后生成 smoke 截图并做人工/自动审查 |
+| Identity / footer | manifest 图标、共享 40px 标题标志容器、RateLens 标题层级和统一页脚骨架已覆盖八个应用 | 新工具必须从首版消费同一事实源 |
+| Visual QA | 八应用在 1440/390px 遍历三语 × 暗/亮组合并保持代表业务页可见、无溢出；96 张截图基线已生成 | 维护者审核基线后引入像素 diff 阈值与配色族维度 |
 
 ## 十二、发布前设计检查
 
 - [ ] light / dark 下无不可读或层级消失。
-- [ ] zh / en 下无截断、空白 key 或布局溢出。
+- [ ] zh / zh-Hant / en 下无截断、空白 key 或布局溢出。
 - [ ] 375 / 768 / 1024 / 1440px 下关键流程可用。
 - [ ] 语言与主题只在设置页出现一次；NavBar 不再提供偏好控件。
 - [ ] 右上角控件 hover 无选中框，focus-visible 有焦点环。

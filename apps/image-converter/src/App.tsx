@@ -3,6 +3,7 @@ import {
   type ChangeEvent, type DragEvent, type KeyboardEvent, type ReactNode,
 } from "react";
 import { I18nProvider, useTranslation } from "@toolbox/i18n/react";
+import { intlLocale } from "@toolbox/i18n/core";
 import { NavBar } from "@toolbox/nav";
 import { AppIcon } from "@toolbox/nav/AppIcon.tsx";
 import { ToolboxFooter } from "@toolbox/nav/ToolboxFooter.tsx";
@@ -538,7 +539,7 @@ function FileRow({ item, onDimensions, onDimensionsUnavailable, onRemove, onPrev
   const canPreviewSource = !["svg", "heic", "heif"].includes(extension);
   const statusLabel = item.status === "error" ? t("queue.error") : t(`queue.${item.status}`);
   const dimensions = item.width && item.height ? `${item.width} × ${item.height}` : null;
-  const pixels = item.width && item.height ? new Intl.NumberFormat(lang === "zh" ? "zh-CN" : "en").format(item.width * item.height) : null;
+  const pixels = item.width && item.height ? new Intl.NumberFormat(intlLocale(lang)).format(item.width * item.height) : null;
   const aspect = item.width && item.height ? simplifyRatio(item.width, item.height) : null;
   return <article className={`file-row status-${item.status}`}>
     <div className="thumbnail">{canPreviewSource ? <img src={item.sourceUrl} alt="" onLoad={(event) => onDimensions(event.currentTarget.naturalWidth, event.currentTarget.naturalHeight)} onError={onDimensionsUnavailable} /> : <span>{extension.toUpperCase()}</span>}</div>

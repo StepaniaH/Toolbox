@@ -1,11 +1,25 @@
 # Changelog
 
-## Unreleased
+## v0.5.0 (2026-08-26)
 
 ### Changed
 
 - Removed Settings from the navigation tool menu; the gear remains its single entry point.
 - Replaced the native language dropdown with a themed listbox that supports keyboard navigation.
+- Made `I18nProvider` require all three locale catalogs at compile time, added a zh-Hant → zh
+  runtime fallback so partial locales never render raw keys, and introduced `intlLocale()` plus an
+  `assertTranslationParity()` test helper with per-app parity tests.
+
+### Fixed
+
+- Fixed Traditional Chinese rendering raw interface keys in ChronoSphere by wiring its generated
+  catalog into the provider.
+- Fixed ChronoSphere's page title, meta description, and `<html lang>` ignoring Traditional
+  Chinese, and the lunar year selector dropping its suffix.
+- Fixed CryptoLab's knowledge base rendering empty bodies in Traditional Chinese by moving the
+  content into the translation catalogs and regenerating them.
+- Replaced binary `lang === "zh"` locale branches in CryptoLab and FormTran `Intl` formatting with
+  the shared locale helper.
 
 ## v0.4.0 (2026-08-25)
 
@@ -128,7 +142,7 @@
 
 - CSV/TSV export protects against spreadsheet formula injection by default; table size, row, column,
   cell, XML-entry, HEIC byte, canvas-side, and pixel budgets are enforced before expensive work.
-- Production-browser coverage exercises real CSV→XLSX→re-import and HEIC→PNG flows in addition to
+- Production-browser coverage exercises real CSV→XLSX conversion and HEIC decoding flows in addition to
   focused parser, crypto, privacy, contract, build, lint, and shell regressions.
 - Updated checkout, Node setup, and pnpm setup Actions to official Node 24-compatible releases pinned
   by immutable commit SHA; CI remains read-only and production deployment remains manual from `main`.
@@ -338,4 +352,4 @@
 - 共享包：`@toolbox/theme`（主题）、`@toolbox/nav`（导航栏）、`@toolbox/i18n`（国际化）
 - Vitest 测试框架，全量 910+ 测试通过
 - GitHub Actions CI/CD：push → build → test → deploy
-- Caddy 静态文件部署：`tools.s-ark.xyz`
+- Caddy 静态文件部署：统一域名下的路径路由

@@ -64,22 +64,21 @@ vX.Y.Z tag（版本准备提交保证三处版本一致）
 
 已经成立的基础：
 
-- 七个工具独立构建，根 build/test/lint/browser 自动发现 workspace。
+- 八个工具独立构建，根 build/test/lint/browser 自动发现 workspace。
 - theme/nav/i18n/manifest 已同时覆盖 React 与 Vanilla 工具。
 - 共享导航、双语关键词搜索、canonical icon、页脚和偏好状态已有生产浏览器门禁。
 - privacy/contracts 能检查应用隔离、base/output、受控依赖、storage、网络 allowlist 和脚本面。
 - `main`、本地 `dev` 与手动生产部署的权限边界已经明确；远端只保留 `origin/main`，
   发布由 `vX.Y.Z` tag 记录。
 - 新工具 skill 已能从自然语言需求生成内部 Brief，并默认停在本地 `dev`。
+- 生成器 `scripts/new-app.mjs` 已通过自测与真实脚手架演练，是新工具的正式入口；
+  Homepage 卡片文案也已收敛进 manifest 展示契约。
 
 仍未完全成立的“积木化”：
 
-- 没有经过实战验证的 Vanilla/React 生成器或模板。
-- Homepage 虽从 manifest 读取 stable apps，仍需手工维护 `CARD_PRESENTATION`，新增稳定工具还
-  不是“只加 app 目录和一条 manifest”。
 - 共享层提供壳和契约，但尚不是成熟的基础表单/结果组件库；目前也不应为预测未来过早抽象。
 - 各 app 仍有语义 token 映射、i18n adapter 和局部类型声明差异。
-- browser smoke 很强，但还没有人工审核过的固定截图基线和性能趋势预算。
+- 截图与体积基线已生成，但像素 diff 阈值、配色族维度和交互延迟测量仍待真实证据。
 
 ## 四、长期路线图
 
@@ -93,7 +92,6 @@ vX.Y.Z tag（版本准备提交保证三处版本一致）
   React TypeScript 两个最小变体。
 - 生成器负责 package/base、hidden manifest 注册、双语 README（含 Brief）、测试骨架与
   browser smoke，并具备 dry-run、冲突保护和自测；分支操作仍由维护者流程控制。
-- 将 Homepage 卡片展示字段收敛进 manifest 展示契约，消除最后一份工具目录映射。
 - 开发全部发生在本地 `dev`；不为“像团队协作”而引入无意义远端分支。
 
 ### 方向 B：稳定而克制的平台能力
@@ -218,9 +216,9 @@ Homepage 个性化偏好存入共享命名空间（`toolbox-homepage-prefs`，JS
 
 | 视野 | 当前重点 | 进入条件 |
 |---|---|---|
-| Now | 设置中心（方向 G 阶段 1）；主题族机制与首批双模式族；语言注册表与 zh-Hant 试点 | 方向 G 三阶段按依赖顺序推进 |
-| Next | 截图回归基线（多主题前置条件）；平台版本策略；统一错误/离线体验；依赖安全 | Now 的契约稳定且重复成本出现 |
-| Later | 导航菜单排序；更强工具分类与发现；PWA 离线；性能预算 | 工具数量或重复场景提供真实证据 |
+| Now | FormTran 剩余文件族扩展；截图基线补配色族维度并经人工审核后引入像素 diff；核对 ChronoSphere/RateLens 体积与缓存行为 | 各项以 TASKS 的验收为准 |
+| Next | 平台版本策略；统一错误/离线体验；RateLens 公开数据来源与更新时间 | Now 的契约稳定且重复成本出现 |
+| Later | 导航菜单排序；更强工具分类与发现；PWA 离线；交互延迟与缓存基线 | 工具数量或重复场景提供真实证据 |
 | Explore | 单模式主题族、更多语言、收藏/最近使用、本地搜索 | 不牺牲隐私、性能和维护成本 |
 
 “Later/Explore”不是承诺。新的脑洞可以先进入 PLAN 的方向或候选池，只有确认价值、边界和

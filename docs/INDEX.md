@@ -1,6 +1,6 @@
 # Toolbox — 项目全景
 
-> 最后核对：2026-08-25 · 当前生产稳定版本：`v0.4.0` · 当前开发线版本：`v0.4.0`
+> 最后核对：2026-08-26 · 当前生产稳定版本：`v0.5.0` · 当前开发线版本：`v0.5.0`
 >
 > `main` 是已发布的稳定线，远端只保留它；本地 `dev` 是唯一开发分支，不推送。
 > 发布由 `main` 上的 `vX.Y.Z` tag 记录。
@@ -89,7 +89,7 @@ Toolbox/
 
 ## 五、质量基线
 
-2026-08-25 在本地 `dev` 完成基线验证（privacy / contracts / release / licenses /
+2026-08-26 在本地 `dev` 完成基线验证（privacy / contracts / release / licenses /
 build / test / lint / 八应用 browser smoke 全部通过；性能体积基线见
 [PERFORMANCE.md](./PERFORMANCE.md)，截图基线见 [screenshots/INDEX.md](./screenshots/INDEX.md)）：
 

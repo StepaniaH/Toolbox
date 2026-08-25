@@ -5,11 +5,11 @@ import '@toolbox/theme/styles.css'
 import './index.css'
 import App from './App.tsx'
 import { PreferencesProvider } from './context/PreferencesContext.tsx'
-import { zhTranslations, enTranslations } from './i18n'
+import { zhTranslations, zhHantTranslations, enTranslations } from './i18n'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <I18nProvider translations={{ zh: zhTranslations, en: enTranslations }}>
+    <I18nProvider translations={{ zh: zhTranslations, 'zh-Hant': zhHantTranslations, en: enTranslations }}>
       <PreferencesProvider>
         <App />
       </PreferencesProvider>

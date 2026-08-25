@@ -111,7 +111,7 @@ apps/<tool-id>/
 |---|---|---|
 | `@toolbox/theme` | pre-paint、light/dark 状态、语义 token、系统字体 | 复制 Catppuccin 色号、远端字体、自建全局主题键 |
 | `@toolbox/nav` | 唯一顶部 NavBar、当前 app、统一页脚、canonical app icon | 工具内部再放语言/主题按钮、复制导航 CSS/JS |
-| `@toolbox/i18n` | `zh`/`en` 状态、订阅或 React Provider、HTML `lang` 同步 | 只翻译可见正文、拼接依赖语序的半句话 |
+| `@toolbox/i18n` | `zh`/`zh-Hant`/`en` 三语状态（类型强制齐备）、订阅或 React Provider、HTML `lang` 同步 | 只翻译可见正文、拼接依赖语序的半句话、二元语言分支 |
 | `@toolbox/app-manifest` | id、route、名称、描述、icon、三语关键词、公开状态 | 在首页或 Nav 中手写另一份工具列表 |
 
 精确 API 以各包 README 和类型声明为准。共享包 API 不能为了单个新工具随意破坏；确需
@@ -154,7 +154,7 @@ defineApp({
 - 首次提交即验证 light/dark、zh/zh-Hant/en、375/390px mobile、1440px desktop、键盘导航与
   `prefers-reduced-motion`。
 - 页面 title、meta description、label、placeholder、aria label、错误、空状态和降级提示
-  必须同时提供中英文。
+  必须同时提供三种语言。
 
 ## 6. 文档标准
 
