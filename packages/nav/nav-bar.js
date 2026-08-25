@@ -17,7 +17,11 @@ import { getAppById, getStableApps } from "@toolbox/app-manifest";
 (function (global) {
   "use strict";
 
-  var TOOLS = getStableApps().map(function (app) {
+  var TOOLS = getStableApps()
+    .filter(function (app) {
+      return app.presentation?.card !== false;
+    })
+    .map(function (app) {
     return {
       id: app.navId,
       label: app.navLabel.zh,

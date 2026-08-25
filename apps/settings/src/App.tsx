@@ -64,6 +64,115 @@ function toolName(id: string, lang: Lang): string {
     : app.name ?? id;
 }
 
+function LanguageSelect({ value, onChange, label }: { value: Lang; onChange: (lang: Lang) => void; label: string }) {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const menuRef = useRef<HTMLUListElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    setActiveIndex(Math.max(0, COVERED_LANGUAGES.findIndex((entry) => entry.code === value)));
+    menuRef.current?.focus();
+  }, [open, value]);
+
+  useEffect(() => {
+    menuRef.current
+      ?.querySelectorAll<HTMLElement>("[role='option']")
+      [activeIndex]?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex, open]);
+
+  const choose = (code: string) => {
+    onChange(code as Lang);
+    setOpen(false);
+    triggerRef.current?.focus();
+  };
+
+  const onTriggerKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setOpen(true);
+    }
+  };
+
+  const onMenuKeyDown = (event: React.KeyboardEvent<HTMLUListElement>) => {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveIndex((index) => Math.min(index + 1, COVERED_LANGUAGES.length - 1));
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveIndex((index) => Math.max(index - 1, 0));
+    } else if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      choose(COVERED_LANGUAGES[activeIndex].code);
+    } else if (event.key === "Tab") {
+      setOpen(false);
+    }
+  };
+
+  const current = COVERED_LANGUAGES.find((entry) => entry.code === value) ?? COVERED_LANGUAGES[0];
+
+  return (
+    <div className={open ? "language-select is-open" : "language-select"} ref={rootRef}>
+      <button
+        type="button"
+        ref={triggerRef}
+        className="language-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={label}
+        onClick={() => setOpen((state) => !state)}
+        onKeyDown={onTriggerKeyDown}
+      >
+        <span lang={value === "zh" ? "zh-CN" : value}>{current.nativeName}</span>
+        <svg className="language-caret" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open ? (
+        <ul className="language-menu" role="listbox" aria-label={label} tabIndex={-1} ref={menuRef} onKeyDown={onMenuKeyDown}>
+          {COVERED_LANGUAGES.map((entry, index) => (
+            <li
+              key={entry.code}
+              role="option"
+              aria-selected={entry.code === value}
+              lang={entry.code === "zh" ? "zh-CN" : entry.code}
+              className={index === activeIndex ? "language-menu-item is-active" : "language-menu-item"}
+              onPointerEnter={() => setActiveIndex(index)}
+              onClick={() => choose(entry.code)}
+            >
+              <span>{entry.nativeName}</span>
+              {entry.code === value ? (
+                <span className="language-check" aria-hidden="true">✓</span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 function AppearanceSection() {
   const { t } = useTranslation();
   const lang = useCurrentLang();
@@ -137,22 +246,7 @@ function AppearanceSection() {
       ) : null}
       <div className="settings-row" role="group" aria-label={t("appearance.language")}>
         <span className="settings-row-label">{t("appearance.language")}</span>
-        <select
-          className="language-select"
-          lang={lang === "zh" ? "zh-CN" : lang}
-          value={lang}
-          onChange={(event) => setLang(event.target.value as Lang)}
-        >
-          {COVERED_LANGUAGES.map((entry) => (
-            <option
-              key={entry.code}
-              value={entry.code}
-              lang={entry.code === "zh" ? "zh-CN" : entry.code}
-            >
-              {entry.nativeName}
-            </option>
-          ))}
-        </select>
+        <LanguageSelect value={lang} onChange={setLang} label={t("appearance.language")} />
       </div>
     </Section>
   );

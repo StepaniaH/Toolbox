@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Removed Settings from the navigation tool menu; the gear remains its single entry point.
+- Replaced the native language dropdown with a themed listbox that supports keyboard navigation.
+
 ## v0.4.0 (2026-08-25)
 
 ### Added
