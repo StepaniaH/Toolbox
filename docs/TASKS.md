@@ -25,11 +25,22 @@
 - [x] CI 执行 `check:audit`（生产依赖、high 起报）；仅向 registry 提交依赖名与版本。
 - [x] 保持 Actions 固定 SHA、Node 24 兼容运行时、只读权限、Turborepo telemetry opt-out 和显式生产部署。
 
-### P0.2 · dev → main 晋级清单 `⏳ 待开始`
+### P0.2 · dev → main 晋级清单 `🔄 进行中`
 
 - [ ] CI 全绿：privacy/contracts/build/test/lint/browser。
 - [ ] CHANGELOG、版本与受影响应用同步，并记录可回滚 commit。
 - [ ] `main` 只接受维护者明确晋级；合并不自动部署，生产仍需手动确认。
+
+2026-08-25 晋级准备记录：
+
+- 本地 `dev` 全量门禁复核通过：`check:privacy` / `check:contracts` / `check:release` /
+  `check:licenses` / `build` / `test`（约 1,150 条）/ `lint` 零警告 / 八应用 production
+  browser smoke。push 后需在 GitHub Actions 复核同套件全绿，方可勾选第一项。
+- 受影响范围：全部八个应用、全部平台包（theme v2、nav、i18n、prefs、app-manifest）、
+  assemble 与 release 脚本、CI 工作流与全部 docs。CHANGELOG 的 Unreleased 小节已补全本轮
+  用户可见变更；版本号保持 v0.3.1，版本提升留给打 tag 前的版本准备提交。
+- 回滚基点是合并前的 `dev` HEAD；晋级后如需回退，按 RELEASE.md 第六节以 revert commit 加
+  新 patch tag 完成，不改写历史、不移动 tag。
 
 ### P0.3 · 双目标静态生产发布 `✅ 已完成`
 
