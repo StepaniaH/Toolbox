@@ -1,7 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { translate, zhTranslations, enTranslations } from './i18n';
+import { assertTranslationParity } from '@toolbox/i18n/core';
+import { translate, zhTranslations, zhHantTranslations, enTranslations } from './i18n';
 
 describe('chrono-sphere i18n — @toolbox/i18n core integration', () => {
+  it('keeps zh, zh-Hant and en key sets identical', () => {
+    assertTranslationParity({
+      zh: zhTranslations,
+      'zh-Hant': zhHantTranslations,
+      en: enTranslations,
+    });
+  });
+
+  it('exposes meta title/description for every locale', () => {
+    expect(translate('zh', 'meta.title')).toContain('ChronoSphere');
+    expect(translate('zh-Hant', 'meta.title')).toContain('ChronoSphere');
+    expect(translate('en', 'meta.description')).toContain('local-first');
+  });
+
   it('returns the app title for both locales', () => {
     expect(translate('zh', 'app.title')).toBe('ChronoSphere');
     expect(translate('en', 'app.title')).toBe('ChronoSphere');

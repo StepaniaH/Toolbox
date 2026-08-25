@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "ChronoSphere - Precision date, timezone, and DST calculator",
+    "description": "ChronoSphere is a local-first date calculator with timezone and DST auditing, supporting offsets, intervals, and lunar calendar conversion."
+  },
   "app": {
     "subtitle": "A precision date calculator with timezone and DST awareness, built for cross-region calculations and Chinese lunar calendar workflows.",
     "title": "ChronoSphere"

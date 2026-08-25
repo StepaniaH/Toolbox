@@ -130,6 +130,19 @@ try {
   await assertIntervalSurface()
   assert.match((await absoluteTime.textContent()).trim(), /^-?\d+ days \d+ hours$/)
 
+  // zh-Hant must render translated copy — never raw dotted keys — and keep
+  // the document language the shared core assigned (zh-TW).
+  await page.evaluate(() => window.localStorage.setItem('toolbox-lang', 'zh-Hant'))
+  await page.reload({ waitUntil: 'networkidle' })
+  await page.waitForFunction(() => document.documentElement.lang === 'zh-TW')
+  const hantBody = await page.locator('body').textContent()
+  for (const banned of ['tabs.', 'app.', 'dst.', 'interval.', 'lunar.', 'timezone.']) {
+    assert.ok(!hantBody.includes(banned), `raw key prefix leaked into zh-Hant UI: ${banned}`)
+  }
+  await page.evaluate(() => window.localStorage.setItem('toolbox-lang', 'zh'))
+  await page.reload({ waitUntil: 'networkidle' })
+  await assertIntervalSurface()
+
   const themeBefore = await page.locator('html').getAttribute('data-theme')
   await page.evaluate(
     (theme) => window.localStorage.setItem('toolbox-theme', theme),

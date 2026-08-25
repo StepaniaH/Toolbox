@@ -31,25 +31,14 @@ function App() {
   const [activeTab, setActiveTab] = useState<'offset' | 'interval' | 'lunar'>('offset');
 
   useEffect(() => {
-    document.title =
-      lang === 'zh'
-        ? 'ChronoSphere - 高精度日期计算与时区夏令时审计服务'
-        : 'ChronoSphere - Precision date, timezone, and DST calculator';
-
-    const description =
-      lang === 'zh'
-        ? 'ChronoSphere 是一款支持时区感知与夏令时变更审计的日期计算工具，支持日期偏移、日期区间、农历转换，且全部计算在浏览器本地完成。'
-        : 'ChronoSphere is a local-first date calculator with timezone and DST auditing, supporting offsets, intervals, and lunar calendar conversion.';
+    document.title = t('meta.title');
 
     const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     if (meta) {
-      meta.content = description;
+      meta.content = t('meta.description');
     }
-
-    if (typeof document !== 'undefined') {
-      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-    }
-  }, [lang]);
+    // <html lang> is owned by the shared i18n core; do not overwrite it here.
+  }, [lang, t]);
 
   return (
     <>

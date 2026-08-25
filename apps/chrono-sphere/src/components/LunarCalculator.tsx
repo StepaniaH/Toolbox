@@ -185,7 +185,7 @@ export const LunarCalculator: React.FC = () => {
                 onChange={e => setYear(parseInt(e.target.value, 10))}
               >
                 {years.map(y => (
-                  <option key={y} value={y}>{lang === 'zh' ? `${y}年` : y}</option>
+                  <option key={y} value={y}>{lang === 'en' ? y : `${y}年`}</option>
                 ))}
               </select>
             </div>
