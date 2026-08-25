@@ -45,6 +45,15 @@
 - 回滚基点是合并前的 `dev` HEAD；晋级后如需回退，按 RELEASE.md 第六节以 revert commit 加
   新 patch tag 完成，不改写历史、不移动 tag。
 
+2026-08-26 晋级准备记录（v0.5.0，本地化工程治理轮）：
+
+- 范围：i18n core 三语契约与回退链、chrono-sphere / crypto-lab / rate-lens / image-converter
+  修复与齐平测试、规范文档、发布前文档防腐（隐私标识清理与过期事实刷新）。
+- 本地 `dev` 全量门禁通过：`check:privacy` / `check:contracts` / `check:licenses` /
+  `build` / `test` / `lint` 零警告 / 八应用 production browser smoke；版本准备提交后复跑
+  `check:release` 确认三处版本一致为 `v0.5.0`。
+- 回滚基点是合并前的 `dev` HEAD；流程同 RELEASE.md 第六节。
+
 ### P0.3 · 双目标静态生产发布 `✅ 已完成`
 
 - [x] 将完整门禁后的多应用 `dist/` 组装为单一、可审计的静态站点 artifact。
