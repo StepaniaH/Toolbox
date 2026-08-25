@@ -51,6 +51,8 @@
 
 ### Security and quality
 
+- Raised transitive postcss and nanoid above their published path-traversal and generator-loop
+  advisories through a workspace-level security floor, keeping the audit gate clean.
 - Verified eight production builds, about 1,150 tests including theme-contract pins inside app
   suites, eight production browser suites, zero-warning lint, and privacy, contract, release, and
   license checks on the promotion candidate.
