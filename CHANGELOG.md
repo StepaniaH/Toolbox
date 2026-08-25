@@ -352,4 +352,4 @@
 - 共享包：`@toolbox/theme`（主题）、`@toolbox/nav`（导航栏）、`@toolbox/i18n`（国际化）
 - Vitest 测试框架，全量 910+ 测试通过
 - GitHub Actions CI/CD：push → build → test → deploy
-- Caddy 静态文件部署：`tools.s-ark.xyz`
+- Caddy 静态文件部署：统一域名下的路径路由
