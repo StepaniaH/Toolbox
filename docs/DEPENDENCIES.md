@@ -14,6 +14,12 @@
 
 pnpm 官方将 catalog 定义为 workspace 内可复用的版本常量，并会在 `pnpm pack` / `pnpm publish` 时替换为普通版本范围，详见 [pnpm Catalogs](https://pnpm.io/catalogs)。
 
+传递依赖的安全下限使用 `pnpm-workspace.yaml` 的 `overrides`（当前仅 `postcss ^8.5.18`，覆盖
+GHSA-r28c-9q8g-f849 及 nanoid 生成器循环两则通告）。overrides 是全仓解析约束：只允许为安全
+修复或强制 catalog 而设，必须随附通告编号与审计结果。workspace 级 overrides 需要 pnpm ≥10 的
+语义；本机执行 install 应使用根 `package.json` 的 `packageManager` 所钉版本（如
+`npx pnpm@11.10.0 install --no-frozen-lockfile`），旧版 pnpm 会静默忽略该配置。
+
 ## 二、当前依赖线
 
 | 依赖线 | 应用 | Vite | React plugin | TypeScript | React / React DOM | Vitest |

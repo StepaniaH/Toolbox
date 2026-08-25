@@ -20,3 +20,4 @@ allowBuilds:
   esbuild: true
 overrides:
   vitest: "catalog:"
+  postcss: "^8.5.18"
