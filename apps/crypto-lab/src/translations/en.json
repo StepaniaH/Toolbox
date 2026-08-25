@@ -256,5 +256,146 @@
     "chacha20": "A stream cipher that can outperform AES without hardware acceleration. This panel implements raw ChaCha20 without Poly1305 authentication.",
     "rsaKeySize": "1024-bit deprecated; 2048-bit minimum; 4096-bit offers more margin but is slower. Use separate key pairs for RSA-OAEP encryption and RSA-PSS signing.",
     "jwt": "JWT = Header.Payload.Signature. Payload is Base64Url-encoded, not encrypted — anyone can read it. Signature guarantees integrity, not confidentiality."
+  },
+  "kbContent": {
+    "columns": {
+      "algorithm": "Algorithm",
+      "output": "Output",
+      "security": "Security",
+      "notes": "Notes",
+      "type": "Type",
+      "recommendation": "Recommendation",
+      "encoding": "Encoding",
+      "alphabet": "Alphabet",
+      "trait": "Trait"
+    },
+    "encoding": {
+      "encodingTerm": "Encoding",
+      "encodingBody": " is not encryption — it simply represents the same data in a different form and is losslessly reversible by anyone. Base64, Hex and URL encoding fall into this category; they have no key and provide no security.",
+      "hashingTerm": "Hashing",
+      "hashingBody": " is one-way: it maps arbitrary data to a fixed-length digest that cannot be reversed. It is used for integrity checks and signature verification, not confidentiality.",
+      "encryptionTerm": "Encryption",
+      "encryptionBody": " uses a key to transform plaintext into ciphertext; only someone with the correct key can restore it. Encryption is either symmetric (same key) or asymmetric (public/private key pair)."
+    },
+    "hash": {
+      "intro": "A hash algorithm maps arbitrary data to a fixed-length digest. A good hash is collision-resistant (hard to find two inputs with the same output) and exhibits the avalanche effect (tiny input change → drastic output change).",
+      "rows": {
+        "md5": {
+          "output": "128-bit",
+          "security": "Broken",
+          "notes": "Legacy checksums only; never for security"
+        },
+        "sha1": {
+          "output": "160-bit",
+          "security": "Broken",
+          "notes": "Legacy compat; avoid for new projects"
+        },
+        "sha256": {
+          "output": "256-bit",
+          "security": "Secure",
+          "notes": "TLS certs, blockchain, mainstream"
+        },
+        "sha512": {
+          "output": "512-bit",
+          "security": "Secure",
+          "notes": "Better on 64-bit platforms"
+        },
+        "sha3_256": {
+          "output": "256-bit",
+          "security": "Secure",
+          "notes": "Keccak sponge, length-extension resistant"
+        },
+        "sha3_512": {
+          "output": "512-bit",
+          "security": "Secure",
+          "notes": "NIST 2015; structurally distinct from SHA-2"
+        }
+      }
+    },
+    "hmac": {
+      "hmacTerm": "HMAC",
+      "hmacBodyA": " (Hash-based Message Authentication Code) uses a key plus a hash function to produce a keyed digest. It verifies both ",
+      "integrityTerm": "integrity",
+      "hmacBodyB": " and ",
+      "authenticityTerm": "authenticity",
+      "hmacBodyC": ": only someone with the key can produce a valid HMAC, so an attacker cannot tamper with data and forge a matching signature.",
+      "pairingsA": "Common pairings: ",
+      "pairingsB": " for API signatures, ",
+      "pairingsC": " for higher security. JWT's HS256/HS512 are HMAC-SHA256/SHA512 respectively."
+    },
+    "symmetric": {
+      "introA": "Symmetric encryption uses the ",
+      "sameKeyTerm": "same key",
+      "introB": " for encryption and decryption. AES is a NIST standard; GCM mode provides both encryption and authentication (AEAD), while CBC only encrypts. ChaCha20 is a stream cipher ideal for environments without hardware AES acceleration.",
+      "rows": {
+        "aesGcm": {
+          "type": "AEAD",
+          "recommendation": "Recommended",
+          "notes": "Built-in auth tag detects tampering; used in TLS 1.3"
+        },
+        "aesCbc": {
+          "type": "Legacy block",
+          "recommendation": "Compatibility",
+          "notes": "No built-in auth; pair with HMAC; legacy systems"
+        },
+        "chacha20": {
+          "type": "Stream cipher",
+          "recommendation": "Needs authentication",
+          "notes": "This tool exposes the raw stream cipher; use ChaCha20-Poly1305 in new protocols"
+        }
+      }
+    },
+    "rsa": {
+      "rsaTerm": "RSA",
+      "rsaBody": " is asymmetric: the public key encrypts/verifies, the private key decrypts/signs. Longer keys are more secure but slower to generate and operate.",
+      "oaepTerm": "RSA-OAEP",
+      "oaepBody": " is for encryption/decryption with randomized padding (same plaintext → different ciphertext each time). ",
+      "pssTerm": "RSA-PSS",
+      "pssBody": " is for signing with randomization. The algorithms differ, so ",
+      "pairWarnTerm": "the same key pair cannot be used for both",
+      "pairWarnBody": ".",
+      "keyLengths": "1024-bit is deprecated for new systems; 2048-bit is the current minimum; 4096-bit provides extra margin at lower performance."
+    },
+    "jwt": {
+      "jwtTerm": "JWT",
+      "jwtBodyA": " (JSON Web Token) has three parts: ",
+      "jwtBodyB": ", joined by dots. The Header declares the algorithm and type, the Payload carries claims, and the Signature covers the first two parts.",
+      "noteTerm": "Important",
+      "noteBodyA": ": the Payload is Base64Url-encoded, not encrypted — anyone can decode and read it. The signature guarantees ",
+      "integrityTerm": "integrity",
+      "noteBodyB": ", not confidentiality. For confidentiality, encrypt at an outer layer.",
+      "hs256Body": " uses HMAC-SHA256 with a shared secret; ",
+      "hs512BodyA": " uses HMAC-SHA512. Always verify the ",
+      "hs512BodyB": " field in the Header to prevent algorithm-confusion attacks."
+    },
+    "base": {
+      "rows": {
+        "base64": {
+          "alphabet": "",
+          "trait": "Most common",
+          "notes": "+/ need encoding in URLs; use Base64URL"
+        },
+        "base64url": {
+          "alphabet": "",
+          "trait": "URL-safe",
+          "notes": "No padding; ideal for URLs/filenames"
+        },
+        "base32": {
+          "alphabet": "",
+          "trait": "Case-insensitive friendly",
+          "notes": "Lower density than Base64; good for manual entry"
+        },
+        "base58": {
+          "alphabet": "No ambiguous chars",
+          "trait": "Blockchain standard",
+          "notes": "Drops 0/O/l/I to avoid visual confusion"
+        },
+        "hex": {
+          "alphabet": "",
+          "trait": "Most readable",
+          "notes": "2 chars per byte; doubles size but human-legible"
+        }
+      }
+    }
   }
 }

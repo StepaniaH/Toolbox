@@ -7,7 +7,7 @@ import zh from '../translations/zh.json'
 
 function renderApp() {
   return render(
-    <I18nProvider translations={{ zh, en: zh }}>
+    <I18nProvider translations={{ zh, 'zh-Hant': zh, en: zh }}>
       <App />
     </I18nProvider>,
   )

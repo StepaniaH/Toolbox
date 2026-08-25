@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from '@toolbox/i18n/react'
+import { intlLocale } from '@toolbox/i18n/core'
 import { ActionBar } from './ActionBar'
 import { Tooltip } from './Tooltip'
 import {
@@ -92,7 +93,7 @@ export function JwtPanel() {
   }, [input, secret, t])
 
   function formatNumericDate(value: number): string {
-    return new Intl.DateTimeFormat(lang === 'zh' ? 'zh-CN' : 'en', {
+    return new Intl.DateTimeFormat(intlLocale(lang), {
       dateStyle: 'medium',
       timeStyle: 'medium',
     }).format(new Date(value * 1000))

@@ -256,5 +256,146 @@
     "chacha20": "流密码，纯软件实现可在无硬件加速时快于 AES。此面板仅实现裸 ChaCha20，未包含 Poly1305 认证。",
     "rsaKeySize": "1024 位已不推荐；2048 位是最低安全基线；4096 位更高余量但更慢。RSA-OAEP 用于加解密，RSA-PSS 用于签名，两种用途应使用不同密钥对。",
     "jwt": "JWT = Header.Payload.Signature，Payload 是 Base64Url 编码而非加密，任何人可读。签名只保证完整性，不保证保密。"
+  },
+  "kbContent": {
+    "columns": {
+      "algorithm": "算法",
+      "output": "输出",
+      "security": "安全性",
+      "notes": "备注",
+      "type": "类型",
+      "recommendation": "推荐度",
+      "encoding": "编码",
+      "alphabet": "字符集",
+      "trait": "特点"
+    },
+    "encoding": {
+      "encodingTerm": "编码（Encoding）",
+      "encodingBody": "不是加密，它只是用另一种形式表示同一数据，任何人都可以无损还原。Base64、Hex、URL 编码都属于此类，它们没有密钥，也不提供安全性。",
+      "hashingTerm": "哈希（Hashing）",
+      "hashingBody": "是单向的：将任意数据映射为固定长度的摘要，不可逆。它用于校验完整性或签名验证，而非保密。",
+      "encryptionTerm": "加密（Encryption）",
+      "encryptionBody": "用密钥将明文变为密文，只有拥有对应密钥的人才能还原。加密分为对称（同一密钥加解密）和非对称（公钥/私钥对）两类。"
+    },
+    "hash": {
+      "intro": "哈希算法将任意数据映射为固定长度摘要。好的哈希应具备抗碰撞（难找到两个不同输入产生相同输出）和雪崩效应（输入微小变化导致输出剧烈变化）。",
+      "rows": {
+        "md5": {
+          "output": "128 bit",
+          "security": "已被攻破",
+          "notes": "仅用于校验/调试，不应用于安全场景"
+        },
+        "sha1": {
+          "output": "160 bit",
+          "security": "已被攻破",
+          "notes": "遗留系统兼容，新项目应避免"
+        },
+        "sha256": {
+          "output": "256 bit",
+          "security": "安全",
+          "notes": "TLS 证书、区块链等主流场景"
+        },
+        "sha512": {
+          "output": "512 bit",
+          "security": "安全",
+          "notes": "64 位平台性能更优"
+        },
+        "sha3_256": {
+          "output": "256 bit",
+          "security": "安全",
+          "notes": "Keccak 海绵结构，抗长度扩展"
+        },
+        "sha3_512": {
+          "output": "512 bit",
+          "security": "安全",
+          "notes": "NIST 2015 标准化，与 SHA-2 结构不同"
+        }
+      }
+    },
+    "hmac": {
+      "hmacTerm": "HMAC",
+      "hmacBodyA": "（Hash-based Message Authentication Code）用密钥和哈希函数生成带密钥的摘要。它能同时验证数据的",
+      "integrityTerm": "完整性",
+      "hmacBodyB": "和",
+      "authenticityTerm": "身份认证",
+      "hmacBodyC": "：只有知道密钥的人才能生成正确的 HMAC，攻击者即使篡改数据也无法伪造匹配的签名。",
+      "pairingsA": "常见组合：",
+      "pairingsB": " 用于 API 签名、",
+      "pairingsC": " 用于更高安全级别。JWT 的 HS256/HS512 就是 HMAC-SHA256/SHA512。"
+    },
+    "symmetric": {
+      "introA": "对称加密使用",
+      "sameKeyTerm": "同一密钥",
+      "introB": "加密和解密。AES 是 NIST 标准，GCM 模式同时提供加密和认证（AEAD），CBC 仅加密。ChaCha20 是流密码，适合无硬件加速的场景。",
+      "rows": {
+        "aesGcm": {
+          "type": "认证加密",
+          "recommendation": "推荐",
+          "notes": "自带认证标签，可检测篡改；TLS 1.3 使用"
+        },
+        "aesCbc": {
+          "type": "经典分组",
+          "recommendation": "兼容",
+          "notes": "无内置认证，需配合 HMAC；旧系统兼容"
+        },
+        "chacha20": {
+          "type": "流密码",
+          "recommendation": "需另加认证",
+          "notes": "本工具为裸流密码；新协议应使用 ChaCha20-Poly1305"
+        }
+      }
+    },
+    "rsa": {
+      "rsaTerm": "RSA",
+      "rsaBody": "是非对称加密：公钥加密/验签，私钥解密/签名。密钥越长越安全，但生成和运算越慢。",
+      "oaepTerm": "RSA-OAEP",
+      "oaepBody": "用于加解密，引入随机填充使同一明文每次密文不同。",
+      "pssTerm": "RSA-PSS",
+      "pssBody": "用于签名，同样引入随机化。两者算法不同，",
+      "pairWarnTerm": "不能共用同一密钥对",
+      "pairWarnBody": "。",
+      "keyLengths": "1024 位已不推荐用于新系统；2048 位是当前最低安全基线；4096 位提供更高余量但性能更低。"
+    },
+    "jwt": {
+      "jwtTerm": "JWT",
+      "jwtBodyA": "（JSON Web Token）由三部分组成：",
+      "jwtBodyB": "，用点号连接。Header 声明算法和类型，Payload 携带声明（claims），Signature 是对前两部分的签名。",
+      "noteTerm": "注意",
+      "noteBodyA": "：JWT 的 Payload 是 Base64Url 编码而非加密，任何人都能解码读取。签名只保证",
+      "integrityTerm": "未被篡改",
+      "noteBodyB": "，不保证保密。如果需要保密，应在外层加密。",
+      "hs256Body": "使用 HMAC-SHA256 + 共享密钥；",
+      "hs512BodyA": "使用 HMAC-SHA512。验证签名时必须检查 Header 中的 ",
+      "hs512BodyB": " 字段，避免算法混淆攻击。"
+    },
+    "base": {
+      "rows": {
+        "base64": {
+          "alphabet": "",
+          "trait": "最通用",
+          "notes": "URL 中 +/ 需编码，用 Base64URL 替代"
+        },
+        "base64url": {
+          "alphabet": "",
+          "trait": "URL 安全",
+          "notes": "去掉填充，适合 URL/文件名"
+        },
+        "base32": {
+          "alphabet": "",
+          "trait": "不区分大小写友好",
+          "notes": "编码率低于 Base64，适合手抄/二维码"
+        },
+        "base58": {
+          "alphabet": "去除易混字符",
+          "trait": "区块链常用",
+          "notes": "去 0/O/l/I，避免视觉混淆"
+        },
+        "hex": {
+          "alphabet": "",
+          "trait": "最可读",
+          "notes": "每字节 2 字符，体积翻倍但人类可辨"
+        }
+      }
+    }
   }
 }
