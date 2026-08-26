@@ -115,8 +115,11 @@
 - [x] 共享选择器、浅色层级与页面结构使用边界、列表和表格，持续降低同层级 Card 密度。
 - [x] 专用工作台生成结果进入共享输出队列，支持处理结果回收、单项/勾选/同类/全局重命名与单独/统一/ZIP 导出，并有 200 项 / 1 GB 结果预算。
 - [x] 首页「清空任务」统一重置输入、结果与已流转工作台；PDF 收敛为队列/信息/页面处理三级流程，并在执行前提供页码预设和结果顺序预览。
-- [ ] 分阶段实现裁剪/拼接等图片编辑、GIF 专项、PDF 可视渲染/转图片、JSON/YAML/XML 数据和其他压缩格式；每阶段独立测试、
-  文档和本地提交，重型解析器需先通过依赖、内存与安全评估。
+- [x] 图片编辑第一阶段（2026-08-26）：独立图片编辑 Tab 开放批量裁剪（比例预设+锚点对齐、
+  四边百分比内缩）与拼接（横向/纵向/网格，间距与对齐），几何逻辑纯函数化并配单测；
+  结果进入共享输出队列；smoke 覆盖真实裁剪流程。逐图可视裁剪仍留后续阶段。
+- [ ] 后续阶段：GIF 专项（拆帧/压缩/调速）、PDF 可视渲染/转图片、JSON/YAML/XML 数据和
+  其他压缩格式；每阶段独立测试、文档和本地提交，重型解析器需先通过依赖、内存与安全评估。
 
 ### P1.6 · CryptoLab 本地密码学工具 `✅ 已完成`
 
@@ -283,10 +286,13 @@
 - [x] chrono-sphere 的 Luxon locale 全部走 `intlLocale`（此前繁体固定拿 zh-CN 格式），
   农历年后缀入词表；rate-lens 模型限时价 note 迁入词表、删除 calc 层死文案
   `formatDiscount`/`discountText`。
-- [ ] 跟进（独立任务）：sane-units `lib/units.ts` 约 40 处内联双语句子与选项 label
-  （storage/network/video/power 场景）迁移到词表——生产环境繁体界面已确认暴露简体标签；
-  同轮处理 `Intl.NumberFormat("zh-CN")` 与无 locale 的 `toLocaleString`。
-- [ ] 跟进（独立任务）：chrono-sphere `utils/timezone.ts` 城市/国家二元数据模型扩展为三语。
+- [x] 跟进（2026-08-26 完成）：sane-units `lib/units.ts` 约 40 处内联双语句子与选项 label
+  （storage/network/video/power 场景）已迁移到词表，繁体由生成器覆盖；calc 层改为纯数值
+  产出并删除全部二元语言分支；`Intl.NumberFormat` 与无 locale 的 `toLocaleString` 统一走
+  `intlLocale(getLang())`；smoke 增加繁体简体回退与原始 key 泄漏守卫。
+- [x] 跟进（2026-08-26 完成）：chrono-sphere `utils/timezone.ts` 城市/国家数据迁入三语词表
+  `timezone.cities.<zone>.{country,city}`（zh-Hant 生成），zone 数据表只留 value+group；
+  searchText 覆盖简繁英三路；测试锁定三语齐平、值集一致与传统中文渲染。
 
 ## P3 — 性能与可维护性
 
