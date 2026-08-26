@@ -131,6 +131,15 @@
       "memory": "內存容量大多按二進制口徑理解，和磁盤標稱不是同一套。",
       "file": "文件大小最好和存儲單位區分開，不然很容易把 MB 和 MiB 混掉。"
     },
+    "scenarioLabels": {
+      "drive": "硬盤 / SSD 廠商標稱",
+      "os": "操作系統顯示",
+      "memory": "內存容量",
+      "file": "文件大小"
+    },
+    "explainBinary": "你選的是二進制單位 {0}，操作系統和一些工具通常用它來顯示容量。",
+    "explainDecimal": "你選的是十進制單位 {0}，廠商標稱容量通常按這套規則。",
+    "realityNote": "TB / GB 這類單位按十進制計量，TiB / GiB 這類單位按二進制計量；看起來少掉的容量，通常只是單位規則不同。",
     "examples": {
       "movie": "約 {0} 部 8GB 高清電影",
       "photo": "約 {0} 張 4MB 照片",
@@ -194,6 +203,17 @@
       "crossborder": "跨境和晚高峰更容易被鏈路擁塞、丟包和繞路拖慢。",
       "custom": "自定義折扣適合你已經知道環境表現的情況。"
     },
+    "scenarioLabels": {
+      "wired-lan": "有線局域網",
+      "wifi": "Wi‑Fi",
+      "public": "公網下載",
+      "vps": "VPS / 良好公網",
+      "vpn": "VPN / Tailscale",
+      "crossborder": "跨境 / 晚高峰",
+      "custom": "自定義"
+    },
+    "realityNote": "{0} 通常不是理論 100%：協議開銷、磁盤速度、Wi‑Fi、VPN、服務端限速和鏈路擁塞都會拉低實際速度。",
+    "effectiveLine": "按 {0}% 有效吞吐估算：{1}",
     "examples": {
       "movie": "一部 8GB 高清電影 → {0}",
       "episode": "一集 1GB 1080p 劇集 → {0}",
@@ -252,7 +272,45 @@
       "episode": "約 {0} 集 45 分鐘劇集",
       "min4k": "約 {0} 分鐘 4K 視頻（按此碼率）",
       "hourSize": "按此碼率，1 小時視頻約 {0}"
-    }
+    },
+    "targetLabels": {
+      "size": "求文件大小",
+      "duration": "求時長",
+      "bitrate": "求碼率"
+    },
+    "modeLabels": {
+      "size": "文件大小",
+      "duration": "時長",
+      "bitrate": "碼率"
+    },
+    "durationUnitLabels": {
+      "s": "秒",
+      "min": "分鐘",
+      "h": "小時"
+    },
+    "presetLabels": {
+      "surveillance24h": "監控 / 24h"
+    },
+    "unitExplanation": "Mbps / Kbps 是 bit 口徑，MB / GB 是 byte 口徑；音頻碼率和封裝開銷也會消耗最終空間。",
+    "warningClamped": "當前文件大小和時長不足以覆蓋音頻與封裝開銷，視頻碼率已鉗到 0。",
+    "formulas": {
+      "size": "文件大小 = (視頻碼率 + 音頻碼率) × 時長 × (1 + 封裝開銷) ÷ 8",
+      "duration": "時長 = 文件大小 × 8 ÷ [(視頻碼率 + 音頻碼率) × (1 + 封裝開銷)]",
+      "bitrate": "視頻碼率 = 文件大小 × 8 ÷ [時長 × (1 + 封裝開銷)] - 音頻碼率"
+    },
+    "realities": {
+      "size": "實際文件大小還會受編碼效率、關鍵幀、字幕、章節、元數據和封裝格式影響。",
+      "duration": "實際可錄時長會受編碼效率、畫質目標和設備峰值碼率限制。",
+      "bitrate": "實際視頻碼率會因編碼器、場景複雜度和目標畫質而波動，結果是工程估算，不是像素級真值。"
+    },
+    "summaries": {
+      "size": "視頻 {0} + 音頻 {1}，封裝開銷 {2}%",
+      "duration": "視頻 {0} + 音頻 {1}，封裝開銷 {2}%",
+      "bitrate": "文件 {0}，時長 {1}，音頻 {2}，封裝開銷 {3}%"
+    },
+    "secondaryTotal": "總碼率：{0}，含封裝後按 {1} 計",
+    "secondaryRequired": "總需求碼率：{0}（含音頻前）",
+    "secondaryNeedDuration": "請先填寫有效的時長，才能反推碼率。"
   },
   "power": {
     "title": "電費與 7x24 運行成本",
@@ -309,7 +367,20 @@
       "kwh": "約 {0} 度電",
       "ac": "夠一臺 2000W 空調運行約 {0} 小時",
       "led": "夠一臺 10W LED 燈亮約 {0} 天"
-    }
+    },
+    "currencyOptions": {
+      "CNY": "CNY / 元",
+      "USD": "USD / 美元",
+      "EUR": "EUR / 歐元"
+    },
+    "currencyShort": {
+      "CNY": "元",
+      "USD": "美元",
+      "EUR": "歐元"
+    },
+    "unitDays": "天",
+    "directAnswer": "{0}W × {1}h × {2} {3}",
+    "realityNote": "W 是功率，kWh 是電量。電費按 kWh 計，不是按 W 計；月度這裡按 30 天粗算。"
   },
   "about": {
     "title": "關於 SaneUnits",
@@ -339,7 +410,11 @@
     "copy": "複製鏈接",
     "copied": "已複製",
     "copyFailed": "複製失敗",
-    "share": "分享鏈接"
+    "share": "分享鏈接",
+    "durationApprox": "約",
+    "durationHr": "小時",
+    "durationMin": "分鐘",
+    "durationSec": "秒"
   },
   "sidebar": {
     "note": "默認解釋邊界條件，不把理論值包裝成現實值。",

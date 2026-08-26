@@ -3,7 +3,6 @@ import {
   POWER_CURRENCY_OPTIONS,
   POWER_PRESETS,
   calculatePower,
-  formatCurrencyAmount,
   formatNumber,
 } from "../lib/units";
 import {
@@ -30,7 +29,7 @@ import {
 import { useTranslation } from "../lib/i18n";
 
 export function PowerPage() {
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
   const [state, setState] = useSyncedState(STATE_STORAGE_KEYS.power, LEGACY_STATE_STORAGE_KEYS.power, POWER_DEFAULTS, "/power", decodePowerState, encodePowerState);
   const result = useMemo(
     () =>
@@ -39,10 +38,16 @@ export function PowerPage() {
         hoursPerDay: state.hoursPerDay,
         daysPerYear: state.daysPerYear,
         price: state.price,
-        locale: lang,
       }),
-    [state.watt, state.hoursPerDay, state.daysPerYear, state.price, lang],
+    [state.watt, state.hoursPerDay, state.daysPerYear, state.price],
   );
+  const currencyLabel = String(t(`power.currencyShort.${state.currency}`) ?? state.currency);
+  const annualCostLine = `${formatNumber(result.annualCost, 2)} ${currencyLabel}`;
+  const directAnswer = String(t("power.directAnswer"))
+    .replace("{0}", formatNumber(state.watt, 6))
+    .replace("{1}", formatNumber(state.hoursPerDay, 6))
+    .replace("{2}", formatNumber(state.daysPerYear, 6))
+    .replace("{3}", t("power.unitDays"));
   const shareUrl = buildShareUrl("/power", {
     watt: state.watt,
     hours: state.hoursPerDay,
@@ -103,7 +108,10 @@ export function PowerPage() {
               <SelectInput
                 value={state.currency}
                 onChange={(value) => setState((current) => ({ ...current, currency: value, preset: "custom" }))}
-                options={POWER_CURRENCY_OPTIONS}
+                options={POWER_CURRENCY_OPTIONS.map((currency) => ({
+                  value: currency.value,
+                  label: String(t(`power.currencyOptions.${currency.value}`)),
+                }))}
               />
             </div>
           </FieldRow>
@@ -133,9 +141,9 @@ export function PowerPage() {
         <Panel title={t("power.panelAnswer.title")} subtitle={t("power.panelAnswer.subtitle")} className="span-2">
           <div className="result-card">
             <div className="result-badge">{t("power.resultLabel")}</div>
-            <div className="result-line">{result.directAnswer}</div>
+            <div className="result-line">{directAnswer}</div>
             <div className="result-subline">{t("power.resultDaily")}{formatNumber(result.dailyKWh, 2)} kWh</div>
-            <div className="result-subline">{t("power.resultAnnual")}{formatCurrencyAmount(result.annualCost, state.currency, lang)}</div>
+            <div className="result-subline">{t("power.resultAnnual")}{annualCostLine}</div>
           </div>
 
           <div className="stat-row">
@@ -164,7 +172,7 @@ export function PowerPage() {
           <InfoBox
             tone="red"
             title={t("power.realityTitle")}
-            text={result.realityNote}
+            text={t("power.realityNote")}
           />
         </Panel>
 

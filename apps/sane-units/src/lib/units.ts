@@ -1,3 +1,5 @@
+import { getLang, intlLocale } from "@toolbox/i18n/core";
+
 type StorageUnitValue =
   | "B" | "KB" | "KiB" | "MB" | "MiB" | "GB" | "GiB" | "TB" | "TiB" | "PB" | "PiB";
 
@@ -7,7 +9,6 @@ type VideoBitrateUnit = "Kbps" | "Mbps" | "Gbps" | "KB/s" | "MB/s" | "MiB/s";
 type VideoDurationUnit = "s" | "min" | "h";
 type VideoSizeUnit = "MB" | "MiB" | "GB" | "GiB" | "TB" | "TiB";
 type CurrencyValue = "CNY" | "USD" | "EUR";
-type LocaleCode = "zh-CN" | "en";
 type VideoMode = "size" | "duration" | "bitrate";
 
 interface SelectOption<V extends string = string> {
@@ -21,12 +22,6 @@ interface StoragePreset {
   unit: StorageUnitValue;
 }
 
-interface NetworkScenario {
-  value: string;
-  label: string;
-  efficiency: number;
-}
-
 interface PowerPreset {
   label: string;
   watt: number;
@@ -34,6 +29,7 @@ interface PowerPreset {
 
 interface VideoPreset {
   label: string;
+  labelKey?: string;
   mode: VideoMode;
   bitrateValue?: number;
   bitrateUnit?: VideoBitrateUnit;
@@ -90,11 +86,11 @@ export const STORAGE_PRESETS: StoragePreset[] = [
   { label: "22TB", value: 22, unit: "TB" },
 ];
 
-export const STORAGE_SCENARIOS: SelectOption[] = [
-  { value: "drive", label: "硬盘 / SSD 厂商标称" },
-  { value: "os", label: "操作系统显示" },
-  { value: "memory", label: "内存容量" },
-  { value: "file", label: "文件大小" },
+export const STORAGE_SCENARIOS: { value: string }[] = [
+  { value: "drive" },
+  { value: "os" },
+  { value: "memory" },
+  { value: "file" },
 ];
 
 export const NETWORK_UNIT_OPTIONS: SelectOption<NetworkBandwidthUnit>[] = [
@@ -116,20 +112,20 @@ export const NETWORK_SIZE_OPTIONS: SelectOption<NetworkSizeUnit>[] = [
   { value: "TiB", label: "TiB" },
 ];
 
-export const NETWORK_SCENARIOS: NetworkScenario[] = [
-  { value: "wired-lan", label: "有线局域网", efficiency: 95 },
-  { value: "wifi", label: "Wi‑Fi", efficiency: 90 },
-  { value: "public", label: "公网下载", efficiency: 80 },
-  { value: "vps", label: "VPS / 良好公网", efficiency: 80 },
-  { value: "vpn", label: "VPN / Tailscale", efficiency: 70 },
-  { value: "crossborder", label: "跨境 / 晚高峰", efficiency: 50 },
-  { value: "custom", label: "自定义", efficiency: 85 },
+export const NETWORK_SCENARIOS: { value: string; efficiency: number }[] = [
+  { value: "wired-lan", efficiency: 95 },
+  { value: "wifi", efficiency: 90 },
+  { value: "public", efficiency: 80 },
+  { value: "vps", efficiency: 80 },
+  { value: "vpn", efficiency: 70 },
+  { value: "crossborder", efficiency: 50 },
+  { value: "custom", efficiency: 85 },
 ];
 
-export const POWER_CURRENCY_OPTIONS: SelectOption<CurrencyValue>[] = [
-  { value: "CNY", label: "CNY / 元" },
-  { value: "USD", label: "USD / 美元" },
-  { value: "EUR", label: "EUR / 欧元" },
+export const POWER_CURRENCY_OPTIONS: { value: CurrencyValue }[] = [
+  { value: "CNY" },
+  { value: "USD" },
+  { value: "EUR" },
 ];
 
 export const POWER_PRESETS: PowerPreset[] = [
@@ -139,10 +135,10 @@ export const POWER_PRESETS: PowerPreset[] = [
   { label: "300W", watt: 300 },
 ];
 
-export const VIDEO_TARGET_OPTIONS: SelectOption<VideoMode>[] = [
-  { value: "size", label: "求文件大小" },
-  { value: "duration", label: "求时长" },
-  { value: "bitrate", label: "求码率" },
+export const VIDEO_TARGET_OPTIONS: { value: VideoMode }[] = [
+  { value: "size" },
+  { value: "duration" },
+  { value: "bitrate" },
 ];
 
 export const VIDEO_BITRATE_OPTIONS: SelectOption<VideoBitrateUnit>[] = [
@@ -154,10 +150,10 @@ export const VIDEO_BITRATE_OPTIONS: SelectOption<VideoBitrateUnit>[] = [
   { value: "MiB/s", label: "MiB/s" },
 ];
 
-export const VIDEO_DURATION_OPTIONS: SelectOption<VideoDurationUnit>[] = [
-  { value: "s", label: "秒" },
-  { value: "min", label: "分钟" },
-  { value: "h", label: "小时" },
+export const VIDEO_DURATION_OPTIONS: { value: VideoDurationUnit }[] = [
+  { value: "s" },
+  { value: "min" },
+  { value: "h" },
 ];
 
 export const VIDEO_SIZE_OPTIONS: SelectOption<VideoSizeUnit>[] = [
@@ -204,7 +200,8 @@ export const VIDEO_PRESETS: VideoPreset[] = [
     overheadPercent: 1,
   },
   {
-    label: "监控 / 24h",
+    label: "surveillance-24h",
+    labelKey: "video.presetLabels.surveillance24h",
     mode: "size",
     bitrateValue: 8,
     bitrateUnit: "Mbps",
@@ -225,9 +222,13 @@ export function storageMultiplier(unit: string): number {
   return spec.value.includes("i") ? spec.binaryMultiplier : spec.decimalMultiplier;
 }
 
+function currentNumberLocale(): string {
+  return intlLocale(getLang());
+}
+
 export function formatNumber(value: number, digits: number = 2): string {
   const safeValue = Number.isFinite(value) ? value : 0;
-  return new Intl.NumberFormat("zh-CN", {
+  return new Intl.NumberFormat(currentNumberLocale(), {
     maximumFractionDigits: digits,
   }).format(safeValue);
 }
@@ -237,7 +238,7 @@ export function formatInteger(value: number): string {
 }
 
 export function formatBytes(bytes: number): string {
-  return new Intl.NumberFormat("zh-CN", {
+  return new Intl.NumberFormat(currentNumberLocale(), {
     maximumFractionDigits: 0,
   }).format(Math.round(bytes));
 }
@@ -284,31 +285,25 @@ export function formatDecimalSize(bytes: number, digits: number = 2): string {
   return `${formatNumber(bytes / chosen.multiplier, digits)} ${chosen.suffix}`;
 }
 
-export function formatCurrencyAmount(value: number, currency: string, locale: LocaleCode = "zh-CN"): string {
-  const labelMap = locale === "en"
-    ? { CNY: "CNY", USD: "USD", EUR: "EUR" }
-    : { CNY: "元", USD: "美元", EUR: "欧元" };
-  return `${formatNumber(value, 2)} ${labelMap[currency] ?? currency}`;
+export interface DurationWords {
+  approx: string;
+  hr: string;
+  min: string;
+  sec: string;
 }
 
-export function formatDuration(seconds: number, locale: LocaleCode = "zh-CN"): string {
+export function formatDuration(seconds: number, words: DurationWords): string {
   const total = Math.max(0, Math.round(seconds));
   const hours = Math.floor(total / 3600);
   const minutes = Math.floor((total % 3600) / 60);
   const secs = total % 60;
 
-  const en = locale === "en";
-  const hLabel = en ? "hr" : "小时";
-  const mLabel = en ? "min" : "分钟";
-  const sLabel = en ? "sec" : "秒";
-  const approx = en ? "~" : "约";
-
   const parts = [];
-  if (hours > 0) parts.push(`${hours} ${hLabel}`);
-  if (hours > 0 || minutes > 0) parts.push(`${minutes} ${mLabel}`);
-  if (hours === 0 && minutes === 0) parts.push(`${secs} ${sLabel}`);
+  if (hours > 0) parts.push(`${hours} ${words.hr}`);
+  if (hours > 0 || minutes > 0) parts.push(`${minutes} ${words.min}`);
+  if (hours === 0 && minutes === 0) parts.push(`${secs} ${words.sec}`);
 
-  return `${approx} ${parts.join(" ")}`;
+  return `${words.approx} ${parts.join(" ")}`;
 }
 
 export function formatPercent(value: number): string {
@@ -326,49 +321,26 @@ export function storageBinaryBytesFor(value: number, unit: string): number {
 
 export interface StorageResult {
   exactBytes: number;
-  directAnswer: string;
-  binaryDisplay: string;
   decimalBytes: number;
   binaryEquivalentBytes: number;
   differencePercent: number;
-  decimalDisplay: string;
-  unitExplanation: string;
-  realityNote: string;
-  scenarioLabel: string;
 }
 
-export function calculateStorage(value: number, unit: string, locale: LocaleCode = "zh-CN"): StorageResult {
+export function calculateStorage(value: number, unit: string): StorageResult {
   const safeValue = Number.isFinite(value) ? value : 0;
   const spec = getStorageSpec(unit);
   const exactBytes = safeValue * storageMultiplier(unit);
-  const binaryDisplay = formatCompactSize(exactBytes, 2);
   const decimalBytes = safeValue * spec.decimalMultiplier;
   const binaryEquivalentBytes = safeValue * spec.binaryMultiplier;
   const differencePercent = decimalBytes === 0
     ? 0
     : Math.abs((binaryEquivalentBytes - decimalBytes) / decimalBytes) * 100;
 
-  const en = locale === "en";
-
   return {
     exactBytes,
-    directAnswer: `${formatNumber(safeValue, 6)} ${spec.value} = ${formatBytes(exactBytes)} bytes`,
-    binaryDisplay,
     decimalBytes,
     binaryEquivalentBytes,
     differencePercent,
-    decimalDisplay: `${formatNumber(safeValue, 6)} ${spec.value}`,
-    unitExplanation: spec.value.includes("i")
-      ? (en
-        ? `You selected the binary unit ${spec.value}, which operating systems and tools commonly use to display capacity.`
-        : `你选的是二进制单位 ${spec.value}，操作系统和一些工具通常用它来显示容量。`)
-      : (en
-        ? `You selected the decimal unit ${spec.value}, which manufacturers typically use for advertised capacity.`
-        : `你选的是十进制单位 ${spec.value}，厂商标称容量通常按这套规则。`),
-    realityNote: en
-      ? "TB/GB are decimal units; TiB/GiB are binary units. The \"missing\" capacity is usually just a difference in numbering systems."
-      : "TB / GB 这类单位按十进制计量，TiB / GiB 这类单位按二进制计量；看起来少掉的容量，通常只是单位规则不同。",
-    scenarioLabel: STORAGE_SCENARIOS.find((item) => item.value === "drive")?.label ?? "硬盘 / SSD 厂商标称",
   };
 }
 
@@ -382,7 +354,7 @@ function bandwidthMultiplier(unit: string): number {
     "MiB/s": 1024 ** 2 * 8,
     "GB/s": 1000 ** 3 * 8,
   };
-  return map[unit] ?? map.Mbps;
+  return map[unit as NetworkBandwidthUnit] ?? map.Mbps;
 }
 
 function sizeMultiplier(unit: string): number {
@@ -395,7 +367,7 @@ function durationMultiplier(unit: string): number {
     min: 60,
     h: 3600,
   };
-  return map[unit] ?? map.s;
+  return map[unit as VideoDurationUnit] ?? map.s;
 }
 
 export function formatBitrate(bps: number): string {
@@ -404,10 +376,6 @@ export function formatBitrate(bps: number): string {
   if (abs >= 1000 ** 2) return `${formatNumber(bps / 1000 ** 2, 2)} Mbps`;
   if (abs >= 1000) return `${formatNumber(bps / 1000, 2)} Kbps`;
   return `${formatNumber(bps, 0)} bps`;
-}
-
-function formatSizeUnits(bytes: number): string {
-  return `${formatDecimalSize(bytes, 2)} / ${formatCompactSize(bytes, 2)}`;
 }
 
 export function bitrateToBps(value: number, unit: string): number {
@@ -420,7 +388,7 @@ export function bitrateToBps(value: number, unit: string): number {
     "MB/s": 1000 ** 2 * 8,
     "MiB/s": 1024 ** 2 * 8,
   };
-  return safeValue * (map[unit] ?? map.Mbps);
+  return safeValue * (map[unit as VideoBitrateUnit] ?? map.Mbps);
 }
 
 export function durationToSeconds(value: number, unit: string): number {
@@ -444,14 +412,10 @@ export interface VideoInput {
   audioBitrateValue: number;
   audioBitrateUnit: string;
   overheadPercent: number;
-  locale?: LocaleCode;
 }
 
 export interface VideoResult {
   mode: VideoMode;
-  modeLabel: string;
-  solvedValue: number;
-  solvedLabel: string;
   displayVideoBps: number;
   displayDurationSeconds: number;
   displaySizeBytes: number;
@@ -462,13 +426,7 @@ export interface VideoResult {
   solvedSizeBytes: number;
   solvedDurationSeconds: number;
   solvedBitrateBps: number;
-  summary: string;
-  directAnswer: string;
-  secondaryLine: string;
-  formula: string;
-  unitExplanation: string;
-  realityNote: string;
-  warning: string;
+  clampedToZero: boolean;
   overheadFactor: number;
 }
 
@@ -483,7 +441,6 @@ export function calculateVideo({
   audioBitrateValue,
   audioBitrateUnit,
   overheadPercent,
-  locale = "zh-CN",
 }: VideoInput): VideoResult {
   const safeMode: VideoMode = VIDEO_TARGET_OPTIONS.some((item) => item.value === mode) ? mode : "size";
   const safeBitrateValue = Number.isFinite(bitrateValue) ? bitrateValue : 0;
@@ -503,7 +460,7 @@ export function calculateVideo({
   let solvedBitrateBps = videoBps;
   let solvedDurationSeconds = durationSeconds;
   let solvedSizeBytes = sizeBytes;
-  let warning = "";
+  let clampedToZero = false;
 
   if (safeMode === "size") {
     solvedSizeBytes = (totalBitrateWithOverhead * durationSeconds) / 8;
@@ -512,68 +469,13 @@ export function calculateVideo({
   } else if (safeMode === "bitrate") {
     solvedBitrateBps = durationSeconds > 0 ? sizeBytes * 8 / (durationSeconds * overheadFactor) - audioBps : 0;
     if (solvedBitrateBps < 0) {
-      warning = locale === "en"
-        ? "File size and duration are too small to cover audio and container overhead — video bitrate clamped to 0."
-        : "当前文件大小和时长不足以覆盖音频与封装开销，视频码率已钳到 0。";
+      clampedToZero = true;
       solvedBitrateBps = 0;
     }
   }
 
-  const en = locale === "en";
-
-  const modeLabelMap: Record<VideoMode, string> = {
-    size: en ? "File Size" : "文件大小",
-    duration: en ? "Duration" : "时长",
-    bitrate: en ? "Bitrate" : "码率",
-  };
-
-  const solvedLabelMap: Record<VideoMode, string> = {
-    size: formatSizeUnits(solvedSizeBytes),
-    duration: formatDuration(solvedDurationSeconds, locale),
-    bitrate: formatBitrate(solvedBitrateBps),
-  };
-
-  const formulaMap: Record<VideoMode, string> = {
-    size: "文件大小 = (视频码率 + 音频码率) × 时长 × (1 + 封装开销) ÷ 8",
-    duration: "时长 = 文件大小 × 8 ÷ [(视频码率 + 音频码率) × (1 + 封装开销)]",
-    bitrate: "视频码率 = 文件大小 × 8 ÷ [时长 × (1 + 封装开销)] - 音频码率",
-  };
-
-  const formulaMapEn: Record<VideoMode, string> = {
-    size: "File Size = (Video Bitrate + Audio Bitrate) × Duration × (1 + Overhead) ÷ 8",
-    duration: "Duration = File Size × 8 ÷ [(Video Bitrate + Audio Bitrate) × (1 + Overhead)]",
-    bitrate: "Video Bitrate = File Size × 8 ÷ [Duration × (1 + Overhead)] − Audio Bitrate",
-  };
-
-  const realityMap: Record<VideoMode, string> = {
-    size: en
-      ? "Actual file size is also affected by encoding efficiency, keyframes, subtitles, chapters, metadata, and container format."
-      : "实际文件大小还会受编码效率、关键帧、字幕、章节、元数据和封装格式影响。",
-    duration: en
-      ? "Actual recordable duration is limited by encoding efficiency, quality targets, and device peak bitrate."
-      : "实际可录时长会受编码效率、画质目标和设备峰值码率限制。",
-    bitrate: en
-      ? "Actual video bitrate varies with encoder, scene complexity, and target quality — result is an engineering estimate, not pixel-accurate truth."
-      : "实际视频码率会因编码器、场景复杂度和目标画质而波动，结果是工程估算，不是像素级真值。",
-  };
-
-  const solvedSummaryMap: Record<VideoMode, string> = {
-    size: en
-      ? `Video ${formatBitrate(videoBps)} + Audio ${formatBitrate(audioBps)}, overhead ${formatNumber(safeOverhead, 2)}%`
-      : `视频 ${formatBitrate(videoBps)} + 音频 ${formatBitrate(audioBps)}，封装开销 ${formatNumber(safeOverhead, 2)}%`,
-    duration: en
-      ? `Video ${formatBitrate(videoBps)} + Audio ${formatBitrate(audioBps)}, overhead ${formatNumber(safeOverhead, 2)}%`
-      : `视频 ${formatBitrate(videoBps)} + 音频 ${formatBitrate(audioBps)}，封装开销 ${formatNumber(safeOverhead, 2)}%`,
-    bitrate: en
-      ? `File ${formatSizeUnits(sizeBytes)}, Duration ${formatDuration(durationSeconds, locale)}, Audio ${formatBitrate(audioBps)}, overhead ${formatNumber(safeOverhead, 2)}%`
-      : `文件 ${formatSizeUnits(sizeBytes)}，时长 ${formatDuration(durationSeconds, locale)}，音频 ${formatBitrate(audioBps)}，封装开销 ${formatNumber(safeOverhead, 2)}%`,
-  };
-
   return {
     mode: safeMode,
-    modeLabel: modeLabelMap[safeMode],
-    solvedValue: safeMode === "size" ? solvedSizeBytes : safeMode === "duration" ? solvedDurationSeconds : solvedBitrateBps,
-    solvedLabel: solvedLabelMap[safeMode],
     displayVideoBps: safeMode === "bitrate" ? solvedBitrateBps : videoBps,
     displayDurationSeconds: safeMode === "duration" ? solvedDurationSeconds : durationSeconds,
     displaySizeBytes: safeMode === "size" ? solvedSizeBytes : sizeBytes,
@@ -584,35 +486,7 @@ export function calculateVideo({
     solvedSizeBytes,
     solvedDurationSeconds,
     solvedBitrateBps,
-    summary: solvedSummaryMap[safeMode],
-    directAnswer:
-      safeMode === "size"
-        ? `${en ? "~" : "约"} ${formatSizeUnits(solvedSizeBytes)}`
-        : safeMode === "duration"
-          ? formatDuration(solvedDurationSeconds, locale)
-          : `${en ? "~" : "约"} ${formatBitrate(solvedBitrateBps)}`,
-    secondaryLine:
-      safeMode === "size"
-        ? (en
-          ? `Total bitrate: ${formatBitrate(totalBps)}, with overhead: ${formatBitrate(totalBitrateWithOverhead)}`
-          : `总码率：${formatBitrate(totalBps)}，含封装后按 ${formatBitrate(totalBitrateWithOverhead)} 计`)
-        : safeMode === "duration"
-          ? (en
-            ? `Total bitrate: ${formatBitrate(totalBps)}, with overhead: ${formatBitrate(totalBitrateWithOverhead)}`
-            : `总码率：${formatBitrate(totalBps)}，含封装后按 ${formatBitrate(totalBitrateWithOverhead)} 计`)
-          : durationSeconds > 0
-            ? (en
-              ? `Required total bitrate: ${formatBitrate(sizeBytes * 8 / (durationSeconds * overheadFactor))} (before audio)`
-              : `总需求码率：${formatBitrate(sizeBytes * 8 / (durationSeconds * overheadFactor))}（含音频前）`)
-            : (en
-              ? "Please fill in a valid duration to calculate bitrate."
-              : "请先填写有效的时长，才能反推码率。"),
-    formula: en ? formulaMapEn[safeMode] : formulaMap[safeMode],
-    unitExplanation: en
-      ? "Mbps/Kbps are bit-based; MB/GB are byte-based. Audio bitrate and container overhead also consume final space."
-      : "Mbps / Kbps 是 bit 口径，MB / GB 是 byte 口径；音频码率和封装开销也会消耗最终空间。",
-    realityNote: realityMap[safeMode],
-    warning,
+    clampedToZero,
     overheadFactor,
   };
 }
@@ -623,8 +497,6 @@ export interface NetworkInput {
   sizeValue: number;
   sizeUnit: string;
   efficiency: number;
-  scenario: string;
-  locale?: LocaleCode;
 }
 
 export interface NetworkResult {
@@ -635,11 +507,6 @@ export interface NetworkResult {
   sizeBytes: number;
   theoreticalSeconds: number;
   effectiveSeconds: number;
-  theoryLine: string;
-  theoreticalTimeLine: string;
-  effectiveTimeLine: string;
-  realityNote: string;
-  scenarioLabel: string;
   efficiency: number;
 }
 
@@ -649,8 +516,6 @@ export function calculateNetwork({
   sizeValue,
   sizeUnit,
   efficiency,
-  scenario,
-  locale = "zh-CN",
 }: NetworkInput): NetworkResult {
   const safeBandwidthValue = Number.isFinite(bandwidthValue) ? bandwidthValue : 0;
   const safeSizeValue = Number.isFinite(sizeValue) ? sizeValue : 0;
@@ -662,9 +527,6 @@ export function calculateNetwork({
   const sizeBytes = safeSizeValue * sizeMultiplier(sizeUnit);
   const theoreticalSeconds = bps > 0 ? (sizeBytes * 8) / bps : 0;
   const effectiveSeconds = safeEfficiency > 0 ? theoreticalSeconds / (safeEfficiency / 100) : 0;
-  const scenarioMeta = NETWORK_SCENARIOS.find((item) => item.value === scenario) ?? NETWORK_SCENARIOS[2];
-
-  const en = locale === "en";
 
   return {
     bandwidthBps: bps,
@@ -674,13 +536,6 @@ export function calculateNetwork({
     sizeBytes,
     theoreticalSeconds,
     effectiveSeconds,
-    theoryLine: `${formatNumber(safeBandwidthValue, 6)} ${bandwidthUnit} = ${formatNumber(theoreticalMBps, 2)} MB/s ≈ ${formatNumber(theoreticalMiBps, 2)} MiB/s`,
-    theoreticalTimeLine: formatDuration(theoreticalSeconds, locale),
-    effectiveTimeLine: formatDuration(effectiveSeconds, locale),
-    realityNote: en
-      ? `${scenarioMeta.label} is typically not 100% theoretical: protocol overhead, disk speed, Wi‑Fi, VPN, server-side limits, and link congestion all reduce actual speed.`
-      : `${scenarioMeta.label} 通常不是理论 100%：协议开销、磁盘速度、Wi‑Fi、VPN、服务端限速和链路拥塞都会拉低实际速度。`,
-    scenarioLabel: scenarioMeta.label,
     efficiency: safeEfficiency,
   };
 }
@@ -690,7 +545,6 @@ export interface PowerInput {
   hoursPerDay: number;
   daysPerYear: number;
   price: number;
-  locale?: LocaleCode;
 }
 
 export interface PowerResult {
@@ -700,12 +554,9 @@ export interface PowerResult {
   dailyCost: number;
   monthlyCost: number;
   annualCost: number;
-  formula: string;
-  directAnswer: string;
-  realityNote: string;
 }
 
-export function calculatePower({ watt, hoursPerDay, daysPerYear, price, locale = "zh-CN" }: PowerInput): PowerResult {
+export function calculatePower({ watt, hoursPerDay, daysPerYear, price }: PowerInput): PowerResult {
   const safeWatt = Number.isFinite(watt) ? watt : 0;
   const safeHours = Number.isFinite(hoursPerDay) ? hoursPerDay : 0;
   const safeDays = Number.isFinite(daysPerYear) ? daysPerYear : 0;
@@ -718,9 +569,6 @@ export function calculatePower({ watt, hoursPerDay, daysPerYear, price, locale =
   const monthlyCost = monthlyKWh * safePrice;
   const annualCost = annualKWh * safePrice;
 
-  const en = locale === "en";
-  const daysLabel = en ? "days" : "天";
-
   return {
     dailyKWh,
     monthlyKWh,
@@ -728,13 +576,6 @@ export function calculatePower({ watt, hoursPerDay, daysPerYear, price, locale =
     dailyCost,
     monthlyCost,
     annualCost,
-    formula: en
-      ? "kWh = W ÷ 1000 × hours per day × days"
-      : "kWh = W ÷ 1000 × 每天小时数 × 天数",
-    directAnswer: `${formatNumber(safeWatt, 6)}W × ${formatNumber(safeHours, 6)}h × ${formatNumber(safeDays, 6)} ${daysLabel}`,
-    realityNote: en
-      ? "W is power, kWh is energy. Electricity is billed per kWh, not per W. Monthly estimates use 30 days."
-      : "W 是功率，kWh 是电量。电费按 kWh 计，不是按 W 计；月度这里按 30 天粗算。",
   };
 }
 

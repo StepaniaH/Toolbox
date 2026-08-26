@@ -29,10 +29,10 @@ import {
   SelectInput,
   ShareLink,
 } from "../components/ui";
-import { useTranslation } from "../lib/i18n";
+import { useTranslation, durationWords } from "../lib/i18n";
 
 export function NetworkPage() {
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
   const [state, setState] = useSyncedState(STATE_STORAGE_KEYS.network, LEGACY_STATE_STORAGE_KEYS.network, NETWORK_DEFAULTS, "/network", decodeNetworkState, encodeNetworkState);
   const result = useMemo(
     () =>
@@ -42,11 +42,18 @@ export function NetworkPage() {
         sizeValue: state.sizeValue,
         sizeUnit: state.sizeUnit,
         efficiency: state.efficiency,
-        scenario: state.scenario,
-        locale: lang,
       }),
-    [state.bandwidthValue, state.bandwidthUnit, state.sizeValue, state.sizeUnit, state.efficiency, state.scenario, lang],
+    [state.bandwidthValue, state.bandwidthUnit, state.sizeValue, state.sizeUnit, state.efficiency],
   );
+  const dur = durationWords(t);
+  const theoryLine = `${formatNumber(state.bandwidthValue, 6)} ${state.bandwidthUnit} = ${formatNumber(result.theoreticalMBps, 2)} MB/s ≈ ${formatNumber(result.theoreticalMiBps, 2)} MiB/s`;
+  const theoreticalTimeLine = formatDuration(result.theoreticalSeconds, dur);
+  const effectiveTimeLine = formatDuration(result.effectiveSeconds, dur);
+  const effectiveLineText = String(t("network.effectiveLine"))
+    .replace("{0}", formatPercent(result.efficiency))
+    .replace("{1}", effectiveTimeLine);
+  const scenarioLabel = String(t(`network.scenarioLabels.${state.scenario}`) ?? t("network.scenarioLabels.public"));
+  const realityNote = String(t("network.realityNote")).replace("{0}", scenarioLabel);
   const scenarioCopy = t(`network.scenarios.${state.scenario}`) ?? t("network.scenarios.public");
   const shareUrl = buildShareUrl("/network", {
     bandwidthValue: state.bandwidthValue,
@@ -113,7 +120,7 @@ export function NetworkPage() {
                     }))
                   }
                 >
-                  {scenario.label}
+                  {t(`network.scenarioLabels.${scenario.value}`)}
                 </ToggleChip>
               ))}
             </div>
@@ -162,15 +169,15 @@ export function NetworkPage() {
         <Panel title={t("network.panelAnswer.title")} subtitle={t("network.panelAnswer.subtitle")} className="span-2">
           <div className="result-card">
             <div className="result-badge">{t("network.resultLabel")}</div>
-            <div className="result-line">{result.theoryLine}</div>
-            <div className="result-subline">{t("network.resultTheoryTime")}{result.theoreticalTimeLine}</div>
-            <div className="result-subline">{lang === "en" ? "At " : "按 "}{formatPercent(result.efficiency)}{lang === "en" ? " effective throughput: " : " 有效吞吐估算："}{result.effectiveTimeLine}</div>
+            <div className="result-line">{theoryLine}</div>
+            <div className="result-subline">{t("network.resultTheoryTime")}{theoreticalTimeLine}</div>
+            <div className="result-subline">{effectiveLineText}</div>
           </div>
 
           <div className="stat-row">
             <StatBlock label={t("network.statTheoryMBs")} value={`${formatNumber(result.theoreticalMBps, 2)} MB/s`} />
             <StatBlock label={t("network.statTheoryMiBs")} value={`${formatNumber(result.theoreticalMiBps, 2)} MiB/s`} />
-            <StatBlock label={t("network.statEffectiveTime")} value={result.effectiveTimeLine} />
+            <StatBlock label={t("network.statEffectiveTime")} value={effectiveTimeLine} />
           </div>
         </Panel>
 
@@ -190,7 +197,7 @@ export function NetworkPage() {
           <InfoBox
             tone="red"
             title={t("network.realityTitle")}
-            text={result.realityNote}
+            text={realityNote}
           />
         </Panel>
 
@@ -205,7 +212,7 @@ export function NetworkPage() {
               if (secs < 1) return null;
               return (
                 <div className="example-item" key={key}>
-                  <span>{t(`network.examples.${key}`).replace("{0}", formatDuration(secs, lang))}</span>
+                  <span>{t(`network.examples.${key}`).replace("{0}", formatDuration(secs, dur))}</span>
                 </div>
               );
             })}

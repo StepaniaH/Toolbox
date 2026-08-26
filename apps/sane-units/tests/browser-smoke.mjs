@@ -137,6 +137,30 @@ try {
   await page.reload({ waitUntil: 'networkidle' })
   assert.notEqual(await page.locator('html').getAttribute('lang'), languageBefore)
 
+  // zh-Hant regression guard: option labels and result copy must render in
+  // Traditional Chinese — never simplified fallbacks or raw catalog keys.
+  await page.evaluate((lang) => window.localStorage.setItem('toolbox-lang', lang), 'zh-Hant')
+  await page.goto(`${previewUrl}video/`, { waitUntil: 'networkidle' })
+  assert.equal(await page.locator('html').getAttribute('lang'), 'zh-TW')
+  const zhHantBodyText = await page.locator('body').innerText()
+  for (const forbidden of [
+    '求码率',
+    '监控 / 24h',
+    '视频码率与文件大小',
+    'targetLabels.',
+    'modeLabels.',
+    'durationUnitLabels.',
+    'presetLabels.',
+    'scenarioLabels.',
+    'formulas.',
+    'realities.',
+    'summaries.',
+  ]) {
+    assert.ok(!zhHantBodyText.includes(forbidden), `unexpected simplified/raw text in zh-Hant UI: ${forbidden}`)
+  }
+  assert.ok(zhHantBodyText.includes('求碼率'))
+  assert.ok(zhHantBodyText.includes('監控 / 24h'))
+
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(previewUrl, { waitUntil: 'networkidle' })
   await assertMobileSharedShell(page)
