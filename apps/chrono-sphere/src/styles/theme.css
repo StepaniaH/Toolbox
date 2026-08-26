@@ -11,10 +11,11 @@
   --bg-page: var(--color-bg);
   --bg-primary: var(--color-bg);
   --bg-secondary: var(--mantle);
-  --surface-panel: color-mix(in srgb, var(--mantle) 72%, transparent);
+  /* Opaque panels keep scroll/repaint off the compositor (P3.1 precedent). */
+  --surface-panel: var(--mantle);
   --surface-raised: color-mix(in srgb, var(--color-text) 4%, transparent);
   --surface-muted: color-mix(in srgb, var(--color-text) 6%, transparent);
-  --surface-popover: color-mix(in srgb, var(--crust) 98%, transparent);
+  --surface-popover: var(--crust);
   --surface-highlight: color-mix(in srgb, var(--color-primary) 12%, transparent);
   --surface-line: color-mix(in srgb, var(--color-text) 10%, transparent);
   --input-bg: color-mix(in srgb, var(--crust) 50%, transparent);
@@ -42,8 +43,8 @@
 }
 
 :root[data-theme="light"] {
-  --surface-panel: color-mix(in srgb, var(--mantle) 88%, transparent);
-  --surface-popover: color-mix(in srgb, var(--mantle) 98%, transparent);
+  --surface-panel: var(--mantle);
+  --surface-popover: var(--mantle);
   --surface-highlight: color-mix(in srgb, var(--color-primary) 9%, transparent);
   --input-bg: color-mix(in srgb, var(--crust) 64%, transparent);
   --input-bg-focus: var(--mantle);
