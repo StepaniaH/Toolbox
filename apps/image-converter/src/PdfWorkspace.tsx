@@ -3,6 +3,7 @@ import { useTranslation } from "@toolbox/i18n/react";
 import { FilePicker } from "./FilePicker";
 import { triggerDownload } from "./lib/download";
 import type { OutputDraft } from "./lib/output-registry";
+import { cancelActivePdfJobs } from "./lib/pdf-client";
 import {
   PDF_MAX_FILES, PDF_MAX_SPLIT_PAGES, buildPdfPagePlan, buildPdfPagePreset,
   inspectPdfDocument, mergePdfFiles, rewritePdf, splitPdfPages,
@@ -25,6 +26,7 @@ export function PdfWorkspace({ hidden, incoming, onOutput }: { hidden?: boolean;
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [result, setResult] = useState<PdfResult | null>(null);
   const sourcesRef = useRef(sources);
   sourcesRef.current = sources;
@@ -98,21 +100,21 @@ export function PdfWorkspace({ hidden, incoming, onOutput }: { hidden?: boolean;
 
   const runMerge = async () => {
     if (readySources.length < 2) return;
-    setBusy(true); setError(null); setResult(null);
+    setBusy(true); setError(null); setResult(null); setProgress(null);
     try {
-      const blob = await mergePdfFiles(readySources.map((source) => source.file));
+      const blob = await mergePdfFiles(readySources.map((source) => source.file), (done, total) => setProgress({ done, total }));
       commitResult({ blob, name: `formtran-merged-${dateStamp()}.pdf`, summary: t("pdf.resultMerge", { count: readySources.length, size: formatBytes(blob.size) }) });
     } catch (reason) { setError(errorKey(reason)); }
-    finally { setBusy(false); }
+    finally { setBusy(false); setProgress(null); }
   };
 
   const runOperation = async () => {
     if (!selected?.details || selected.error || !pagePlan || pagePlan.error) return;
-    setBusy(true); setError(null); setResult(null);
+    setBusy(true); setError(null); setResult(null); setProgress(null);
     try {
       const stem = safeStem(selected.file.name);
       if (operation === "split") {
-        const pages = await splitPdfPages(selected.file);
+        const pages = await splitPdfPages(selected.file, (done, total) => setProgress({ done, total }));
         const width = String(pages.length).length;
         const blob = await createZip(pages.map((page, index) => ({ name: `${stem}-page-${String(index + 1).padStart(width, "0")}.pdf`, blob: page })));
         commitResult({ blob, name: `${stem}-split.zip`, summary: t("pdf.resultSplit", { count: pages.length, size: formatBytes(blob.size) }) }, selected.file.name);
@@ -128,8 +130,10 @@ export function PdfWorkspace({ hidden, incoming, onOutput }: { hidden?: boolean;
       const suffix = operation === "extract" ? "extracted" : operation === "remove" ? "trimmed" : operation === "reorder" ? "reordered" : `rotated-${rotation}`;
       commitResult({ blob, name: `${stem}-${suffix}.pdf`, summary: t("pdf.resultPages", { count: pageIndices.length, size: formatBytes(blob.size) }) }, selected.file.name);
     } catch (reason) { setError(errorKey(reason)); }
-    finally { setBusy(false); }
+    finally { setBusy(false); setProgress(null); }
   };
+
+  const cancelRun = () => cancelActivePdfJobs();
 
   const operationOptions = (["extract", "remove", "reorder", "rotate", "split"] as const).map((value) => ({
     value, label: t(`pdf.operations.${value}.title`), description: t(`pdf.operations.${value}.detail`),
@@ -152,6 +156,11 @@ export function PdfWorkspace({ hidden, incoming, onOutput }: { hidden?: boolean;
           <div className="pdf-row-actions"><button type="button" disabled={index === 0} onClick={() => move(index, -1)} aria-label={`${t("pdf.moveEarlier")} ${source.file.name}`}>↑</button><button type="button" disabled={index === sources.length - 1} onClick={() => move(index, 1)} aria-label={`${t("pdf.moveLater")} ${source.file.name}`}>↓</button><button type="button" onClick={() => remove(source.id)} aria-label={`${t("home.remove")} ${source.file.name}`}>×</button></div>
         </div>)}</div>
       </section>
+
+      {busy && <div className="pdf-run-status" role="status">
+        <span>{progress ? t("pdf.progress", { done: progress.done, total: progress.total }) : t("pdf.working")}</span>
+        <button className="button secondary compact" type="button" onClick={cancelRun}>{t("pdf.cancel")}</button>
+      </div>}
 
       {selected && <section className="pdf-document-workbench">
         <header className="pdf-selected-header"><div><span className="eyebrow">{t("pdf.steps.details")}</span><strong>{selected.file.name}</strong><small>{formatBytes(selected.file.size)}</small></div><span className={`capability ${selected.details ? "available" : selected.error ? "planned" : "limited"}`}>{selected.details ? t("pdf.ready") : selected.error ? t("pdf.unavailable") : t("pdf.reading")}</span></header>

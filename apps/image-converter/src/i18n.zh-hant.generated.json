@@ -780,6 +780,8 @@
     "ready": "頁面已解析",
     "unavailable": "不可處理",
     "working": "正在生成…",
+    "progress": "正在本地處理：{{done}} / {{total}}",
+    "cancel": "取消",
     "importResult": "已加入 {{accepted}} 份 PDF，{{skipped}} 份因重複、為空或超過 20 份上限而跳過。",
     "steps": {
       "queue": "1 · 文件隊列",
@@ -871,6 +873,7 @@
       "pdf-page-order": "重排必須包含全部頁面且每頁只出現一次。",
       "pdf-split-limit": "逐頁拆分最多處理 50 頁。",
       "pdf-split-output-limit": "逐頁輸出超過 256 MB 預算，操作已停止。",
+      "pdf-cancelled": "已取消，源文件保持不變。",
       "unknown": "無法處理這個 PDF。"
     }
   },
