@@ -13,7 +13,10 @@ const MAX_PDF_INSPECTION_BYTES = 32 * 1024 * 1024;
 export async function inspectPdf(file: Blob): Promise<PdfInspection> {
   if (!file.size) throw new Error("pdf-empty");
   if (file.size > MAX_PDF_INSPECTION_BYTES) throw new Error("pdf-inspection-limit");
-  const bytes = new Uint8Array(await readBlob(file));
+  return inspectPdfBytes(new Uint8Array(await readBlob(file)));
+}
+
+export async function inspectPdfBytes(bytes: Uint8Array): Promise<PdfInspection> {
   const text = new TextDecoder("latin1").decode(bytes);
   const version = text.slice(0, 1024).match(/%PDF-(\d\.\d)/)?.[1];
   if (!version) throw new Error("pdf-invalid");

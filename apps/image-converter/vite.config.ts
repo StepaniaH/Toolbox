@@ -5,6 +5,7 @@ export default defineConfig({
   base: process.env.NODE_ENV === "production" ? "/image-converter/" : "/",
   plugins: [react()],
   optimizeDeps: { include: ["react", "react-dom/client"] },
+  worker: { format: "es" },
   build: {
     outDir: "dist",
     rollupOptions: {

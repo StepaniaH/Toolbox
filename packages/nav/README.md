@@ -39,6 +39,7 @@ surface across all eight applications.
 | `sane-units` | SaneUnits | `/sane-units/` | Unit conversion & estimation |
 | `image-converter` | FormTran | `/image-converter/` | Local file identification and processing |
 | `crypto-lab` | CryptoLab | `/crypto-lab/` | Local cryptography and public-key QR sharing |
+| `settings` | 设置 / Settings | `/settings/` | Language, appearance, and homepage preferences (gear-only entry; excluded from the tool menu) |
 
 This table is generated in code from `@toolbox/app-manifest`. Add a single
 manifest entry with localized keywords (default `hidden`); do not edit `TOOLS` or
@@ -129,9 +130,9 @@ The component also exports `NAV_APPS` and the `NavApp` / `NavBarProps` types.
 ## Styling
 
 All rules are scoped under `.toolbox-nav` so this package is safe to import
-into any app. Colors reference the `--ctp-*` variables defined by
-`@toolbox/theme`, so the bar follows the Catppuccin Frappé (dark) / Latte
-(light) palettes automatically when `<html data-theme="…">` flips.
+into any app. Colors reference the theme tokens defined by
+`@toolbox/theme`, so the bar follows the active palette family and light/dark
+mode automatically when `<html data-theme="…">` / `data-theme-family` flip.
 
 CSS custom properties exposed for the host page:
 

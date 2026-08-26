@@ -126,6 +126,11 @@
   依赖评估按需加载，预算 64 MB / 120 帧 / 单边 4096 px / 总量 1 亿像素。
 - [x] PDF 可视渲染依赖与内存评估已记录于 apps/image-converter/docs/FILE_WORKBENCH.md；
   实施排在 PDF 改写 worker 化之后。
+- [x] PDF 解析/改写 worker 化（2026-08-26）：pdf-lib 的解析、合并、拆分、提取、删除、重排
+  与旋转全部移入专用 Web Worker，主线程只收发 Blob 与消息，pdf-lib 只存在于 worker 图；
+  合并/逐页拆分提供逐项进度，取消立即终止后台任务且不影响源文件。引擎级单测覆盖
+  进度序列、预算拦截与截断/伪造头等恶意输入归一化；client 单测覆盖 worker 生命周期、
+  进度转发、取消与无 Worker 失败语义。
 - [ ] 后续阶段：PDF 可视渲染/转图片实施和其他压缩格式；每阶段独立测试、文档和本地提交，
   重型解析器需先通过依赖、内存与安全评估。
 
@@ -352,7 +357,11 @@ SaneUnits 拆分：App.tsx（约 1,400 行）已确认只含视图编排——�
 - [ ] 用 Changesets 或等价机制定义 compatible/breaking、迁移期与受影响 app 清单。
 - [ ] 禁止 stable 应用在运行时加载未经该应用验证的“最新共享 UI”。
 
-### P4.2 · 统一错误与离线体验 `⏳ 待开始`
+### P4.2 · 统一错误与离线体验 `✅ 已完成`
 
-- [ ] 统一 favicon、404、顶层错误页和离线提示。
-- [ ] PWA/Service Worker 仅在路由和缓存失效策略明确后评估，不能以缓存旧工具换取表面速度。
+- [x] assemble 生成根级双语 404 页与 offline 页（内联主题、无外部资源），并为每个应用与
+  根输出统一 favicon（`scripts/assemble-static-site.mjs`）。
+- [x] 根级 `sw.js` 采用「哈希资产 cache-first、导航 network-first、离线回退页」策略，
+  只拦截同源 GET；缓存名绑定 `TOOLBOX_RELEASE`，activate 清理旧缓存；注册脚本由
+  assemble 注入，应用代码不感知。
+- [x] 后续仅在真实缓存失效证据出现时再评估策略变更；不为表面速度扩大缓存面。

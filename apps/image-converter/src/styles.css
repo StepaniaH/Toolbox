@@ -560,6 +560,8 @@ legend, .field-label { display: flex; align-items: center; gap: 6px; margin-bott
 .pdf-page-plan.is-error { color: var(--color-danger); }.pdf-page-plan.is-error p { margin: 0; font-size: .75rem; }
 .pdf-operation-action { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .pdf-operation-action small { color: var(--color-text-muted); font-size: .68rem; line-height: 1.45; }
+.pdf-run-status { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 12px; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--color-primary) 6%, transparent); }
+.pdf-run-status > span { color: var(--color-text-secondary); font-size: .72rem; font-weight: 650; }
 .pdf-safety-note, .pdf-future-tools { border-bottom: 1px solid var(--color-border); }
 .pdf-safety-note summary, .pdf-future-tools summary { cursor: pointer; color: var(--color-text-secondary); font-size: .74rem; font-weight: 750; }
 .pdf-safety-note summary { padding: 13px 4px; }

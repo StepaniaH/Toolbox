@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.6.0 (2026-08-26)
+
+### Added
+
+- FormTran's PDF tools now run parsing and page rewriting on a background Web
+  Worker, keeping the page responsive. Merges and per-page splits report
+  per-item progress, and any running job can be cancelled without touching
+  source files.
+
+### Changed
+
+- FormTran loads pdf-lib only inside its worker when the first PDF job runs.
+  The main-thread bundle keeps its size (the worker glue adds ~1.3k gzip), and
+  the home startup path is unchanged.
+
 ## v0.5.1 (2026-08-26)
 
 ### Added
