@@ -6,6 +6,7 @@ import { getLunarDetails, convertLunarToSolar, calculateOffset, getZoneShortLabe
 import type { LunarResult } from '../utils/dateUtils';
 import { DateTime } from 'luxon';
 import { useTranslation } from '@toolbox/i18n/react';
+import { intlLocale } from '@toolbox/i18n/core';
 
 // Traditional Chinese Month Names
 const LUNAR_MONTHS = [
@@ -185,7 +186,7 @@ export const LunarCalculator: React.FC = () => {
                 onChange={e => setYear(parseInt(e.target.value, 10))}
               >
                 {years.map(y => (
-                  <option key={y} value={y}>{lang === 'en' ? y : `${y}年`}</option>
+                  <option key={y} value={y}>{`${y}${t('lunar.yearSuffix')}`}</option>
                 ))}
               </select>
             </div>
@@ -302,7 +303,7 @@ export const LunarCalculator: React.FC = () => {
                 <div className="big-date-display">{targetSolarDate}</div>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '6px' }}>
                   <span className="meta-pill">
-                    {targetSolarDate ? DateTime.fromISO(targetSolarDate).setLocale(lang === 'en' ? 'en-US' : 'zh-CN').toFormat('ccc') : ''}
+                    {targetSolarDate ? DateTime.fromISO(targetSolarDate).setLocale(intlLocale(lang)).toFormat('ccc') : ''}
                   </span>
                   <span className="meta-pill">{getZoneShortLabel(zone, lang)}</span>
                 </div>

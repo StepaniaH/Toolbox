@@ -125,7 +125,8 @@
     "lunarLabel": "农历",
     "zodiacLabel": "属",
     "jieQiLabel": "节气",
-    "festivalLabel": "节日"
+    "festivalLabel": "节日",
+    "yearSuffix": "年"
   },
   "visualizer": {
     "title": "区间结构与关键节点",

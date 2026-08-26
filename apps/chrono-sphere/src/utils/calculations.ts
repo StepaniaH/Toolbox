@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import { intlLocale } from '@toolbox/i18n/core';
 import { translate, type Locale } from '../i18n';
 import { formatUtcOffset } from './timezone';
 
@@ -37,7 +38,7 @@ function getErrorMessage(error: unknown): string | undefined {
 function getDateResult(dt: DateTime, locale: Locale): DateResult {
   return {
     dateStr: dt.toFormat('yyyy-MM-dd'),
-    weekday: dt.setLocale(locale === 'en' ? 'en-US' : 'zh-CN').toFormat('cccc'),
+    weekday: dt.setLocale(intlLocale(locale)).toFormat('cccc'),
     isDst: dt.isInDST,
     offsetName: dt.offsetNameShort || formatUtcOffset(dt.offset),
     offsetHours: dt.offset / 60,

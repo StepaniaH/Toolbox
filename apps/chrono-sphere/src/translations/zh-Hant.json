@@ -125,7 +125,8 @@
     "lunarLabel": "農曆",
     "zodiacLabel": "屬",
     "jieQiLabel": "節氣",
-    "festivalLabel": "節日"
+    "festivalLabel": "節日",
+    "yearSuffix": "年"
   },
   "visualizer": {
     "title": "區間結構與關鍵節點",
