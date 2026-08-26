@@ -12,12 +12,24 @@
   var STORAGE_KEY = 'toolbox-lang';
   var currentLocale = 'zh';
 
-  /** Two-locale translation maps. Populated by i18n-zh.js and i18n-en.js. */
+  /** Translation maps. Populated by i18n-zh.js, i18n-zh-hant.js and i18n-en.js. */
   var t9n = { zh: {}, zhHant: {}, en: {} };
 
   /* ------------------------------------------------------------------ */
   /* Core API                                                            */
   /* ------------------------------------------------------------------ */
+
+  /** Canonical locale ids follow the shared i18n core ('zh' | 'zh-Hant' | 'en');
+   *  'zhHant' is accepted as a legacy alias of the generated map key. */
+  function normalizeLocale(locale) {
+    if (locale === 'zhHant') return 'zh-Hant';
+    if (locale === 'zh' || locale === 'zh-Hant' || locale === 'en') return locale;
+    return null;
+  }
+
+  function catalogKey(locale) {
+    return locale === 'zh-Hant' ? 'zhHant' : locale;
+  }
 
   /**
    * Look up a translation key in the current locale.
@@ -30,7 +42,7 @@
    * @returns {string} Translated string.
    */
   function t(key, params) {
-    var map = t9n[currentLocale];
+    var map = t9n[catalogKey(currentLocale)];
     var val = map[key];
 
     // Fallback to zh if current locale is missing this key
@@ -55,33 +67,28 @@
 
   /**
    * Switch locale and refresh all i18n-bound DOM elements.
-   * @param {string} locale - 'zh' or 'en'.
+   * The shared language state owns persistence — this module never writes it.
+   * @param {string} locale - 'zh' | 'zh-Hant' | 'en' ('zhHant' accepted as legacy alias).
    */
   function setLocale(locale) {
-    if (locale !== 'zh' && locale !== 'zhHant' && locale !== 'en') return;
-    if (locale === currentLocale) return;
+    var normalized = normalizeLocale(locale);
+    if (!normalized || normalized === currentLocale) return;
 
-    currentLocale = locale;
-
-    try {
-      localStorage.setItem(STORAGE_KEY, locale);
-    } catch {
-      /* Ignore quota / privacy errors. */
-    }
+    currentLocale = normalized;
 
     refreshDOM();
     notifyListeners();
   }
 
-  /** @returns {string} Current locale ('zh' or 'en'). */
+  /** @returns {string} Current locale ('zh' | 'zh-Hant' | 'en'). */
   function getLocale() {
     return currentLocale;
   }
 
-  /** Read persisted locale from localStorage. */
+  /* Read persisted locale from storage; accepts the legacy internal spelling. */
   function getStored() {
     try {
-      return localStorage.getItem(STORAGE_KEY);
+      return normalizeLocale(localStorage.getItem(STORAGE_KEY));
     } catch {
       return null;
     }
@@ -96,7 +103,7 @@
    * Called on locale change and on init.
    */
   function refreshDOM() {
-    document.documentElement.lang = currentLocale === 'en' ? 'en' : currentLocale === 'zhHant' ? 'zh-TW' : 'zh-CN';
+    // <html lang> is owned by the shared i18n core.
 
     // data-i18n → textContent (or placeholder for inputs)
     var elements = document.querySelectorAll('[data-i18n]');
@@ -173,7 +180,7 @@
 
   function init() {
     var stored = getStored();
-    if (stored === 'en' || stored === 'zhHant' || stored === 'zh') {
+    if (stored) {
       currentLocale = stored;
     }
     refreshDOM();
@@ -183,9 +190,7 @@
     // (nav-bar.js applyLang fallback fires this when window.ToolboxI18n is absent).
     window.addEventListener('toolbox-lang-change', function (event) {
       var lang = event && event.detail && event.detail.lang;
-      if (lang === 'zh' || lang === 'zhHant' || lang === 'en') {
-        setLocale(lang);
-      }
+      setLocale(lang);
     });
   }
 

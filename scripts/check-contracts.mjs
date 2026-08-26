@@ -838,6 +838,26 @@ for (const file of Object.keys(externalOrigins)) {
   }
 }
 
+// ── zh-Hant drift guard ──
+// Generated Traditional Chinese sources must match the committed files.
+// After editing any simplified-Chinese source, run `pnpm gen:zh-hant`.
+{
+  const { generateZhHant } = await import('./gen-zh-hant.mjs')
+  for (const [absolutePath, expected] of generateZhHant()) {
+    const relative = absolutePath.slice(root.length)
+    let actual
+    try {
+      actual = readFileSync(absolutePath, 'utf8')
+    } catch {
+      fail('zh-hant-drift', relative, 'generated file is missing (run pnpm gen:zh-hant)')
+      continue
+    }
+    if (actual !== expected) {
+      fail('zh-hant-drift', relative, 'committed content differs from the generator output (run pnpm gen:zh-hant)')
+    }
+  }
+}
+
 if (failures.length > 0) {
   console.error('[contracts] Contract violations:')
   for (const failure of failures.sort()) console.error(`[contracts] ${failure}`)

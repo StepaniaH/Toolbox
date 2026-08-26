@@ -12,4 +12,18 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Split the framework into its own cacheable chunk (P3.2): app logic
+        // can change without invalidating the react/react-dom bytes.
+        manualChunks(id) {
+          if (!id.includes('node_modules') || id.includes('@toolbox')) return
+          if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) {
+            return 'react-vendor'
+          }
+        },
+      },
+    },
+  },
 })

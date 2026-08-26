@@ -67,6 +67,7 @@ try {
 
   const homeTab = page.getByRole('tab', { name: /File home|文件首页/ })
   const workspaceTab = page.getByRole('tab', { name: /Image conversion|图片格式转换/ })
+  const editTab = page.getByRole('tab', { name: /Image editor|图片编辑/ })
   const gifTab = page.getByRole('tab', { name: /GIF composer|GIF 合成/ })
   const textTab = page.getByRole('tab', { name: /Text & markup|文本与标记转换/ })
   const dataTab = page.getByRole('tab', { name: /Table data|表格数据/ })
@@ -77,7 +78,7 @@ try {
   assert.equal(await page.locator('.unified-picker > summary').isVisible(), true)
   assert.equal(await page.locator('.unified-picker input[type=file]').count(), 2)
   const pickerHeights = []
-  for (const tab of [workspaceTab, gifTab, textTab, dataTab, pdfTab, archiveTab]) {
+  for (const tab of [workspaceTab, editTab, gifTab, textTab, dataTab, pdfTab, archiveTab]) {
     await tab.click()
     const picker = page.locator('main [role=tabpanel]:not([hidden]) .file-picker').first()
     assert.equal(await picker.isVisible(), true)
@@ -133,6 +134,13 @@ try {
   assert.equal(await page.locator('.data-preview td').filter({ hasText: 'Alice' }).count(), 1)
   assert.match(await page.locator('.boundary-note').textContent(), /cached (?:file )?values|缓存值/)
 
+  // Structured formats: JSON tabulates through the same workspace.
+  await page.locator('.data-page input[type=file]').setInputFiles({
+    name: 'records.json', mimeType: 'application/json', buffer: Buffer.from('[{"name":"Alice","amount":42},{"name":"Bob","amount":7}]'),
+  })
+  await page.waitForFunction(() => document.querySelectorAll('.data-preview tbody tr').length === 3)
+  assert.match(await page.locator('.boundary-note').textContent(), /JSON\/YAML\/XML/)
+
   const firstPdf = await PDFDocument.create()
   firstPdf.addPage([300, 400])
   firstPdf.addPage([500, 600])
@@ -177,6 +185,21 @@ try {
   await page.waitForFunction(() => document.querySelector('.file-row')?.textContent.includes('2 × 2'))
   await page.locator('.image-info summary').click()
   assert.match(await page.locator('.image-info').textContent(), /4 px|4 pixels|4 像素/)
+
+  // Image editor: batch-crop the queued PNG through the dedicated tab and
+  // confirm the result lands in the shared output queue.
+  await homeTab.click()
+  const cropTool = page.locator('.tool-row').filter({ hasText: /Crop|裁剪/ })
+  assert.match(await cropTool.textContent(), /Available|可用/)
+  await cropTool.getByRole('button', { name: /Open tool|打开工具/ }).click()
+  assert.equal(await editTab.getAttribute('aria-selected'), 'true')
+  await page.locator('.edit-page .edit-source-list article').waitFor()
+  await page.locator('.edit-page').getByRole('button', { name: /Generate results|生成结果/ }).click()
+  await page.locator('.edit-page .home-notice').waitFor()
+  assert.match(await page.locator('.edit-page .home-notice').textContent(), /Generated 1 result|已生成 1 个结果/)
+  await homeTab.click()
+  assert.match(await page.locator('.output-desk').textContent(), /sample-crop\.png/)
+  await workspaceTab.click()
   assert.match(await page.locator('.tab-privacy').textContent(), /Image conversion privacy|图片格式转换隐私说明/)
   const uploadBox = await page.locator('.drop-zone').boundingBox()
   const queueBox = await page.locator('.queue-panel').boundingBox()
@@ -336,6 +359,23 @@ try {
   assert.equal(bottomPixel[3], 255)
   assert.equal(Math.max(...bottomPixel.slice(0, 3)) > 150 && Math.min(...bottomPixel.slice(0, 3)) < 80, true)
   assert.equal(await page.getByRole('button', { name: /Download GIF|下载 GIF/ }).isVisible(), true)
+
+  // GIF source tools: feed the generated animation back in and extract frames.
+  const generatedGif = await page.locator('.gif-result img').evaluate(async (image) => {
+    const response = await fetch(image.src)
+    return new Uint8Array(await response.arrayBuffer())
+  })
+  await page.locator('.gif-tools input[type=file]').setInputFiles({
+    name: 'formtran-animation.gif', mimeType: 'image/gif', buffer: Buffer.from(generatedGif),
+  })
+  await page.waitForFunction(() => /frames|帧/.test(document.querySelector('.gif-tools-info')?.textContent ?? ''))
+  await page.getByRole('button', { name: /Extract frames|拆帧导出/ }).click()
+  await page.waitForFunction(() => document.querySelector('.output-desk')?.textContent.includes('formtran-animation-frame-01.png'))
+  await homeTab.click()
+  assert.match(await page.locator('.output-desk').textContent(), /frame-01\.png/)
+  assert.match(await page.locator('.output-desk').textContent(), /frame-02\.png/)
+  await gifTab.click()
+
   await page.locator('.gif-page').getByRole('button', { name: /^Clear$|^清空$/ }).click()
   assert.equal(await page.locator('.frame-strip article').count(), 0)
   assert.equal(await page.locator('.gif-result').count(), 0)

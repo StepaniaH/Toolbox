@@ -40,6 +40,132 @@
       "europeAfrica": "歐洲與非洲",
       "oceania": "大洋洲",
       "utc": "協調世界時"
+    },
+    "cities": {
+      "Asia/Shanghai": {
+        "country": "中國",
+        "city": "北京 / 上海（北京時間）"
+      },
+      "Asia/Hong_Kong": {
+        "country": "中國香港",
+        "city": "香港"
+      },
+      "Asia/Taipei": {
+        "country": "中國臺灣",
+        "city": "臺北"
+      },
+      "Asia/Macau": {
+        "country": "中國澳門",
+        "city": "澳門"
+      },
+      "Asia/Urumqi": {
+        "country": "中國",
+        "city": "烏魯木齊（新疆時間）"
+      },
+      "Asia/Tokyo": {
+        "country": "日本",
+        "city": "東京"
+      },
+      "Asia/Seoul": {
+        "country": "韓國",
+        "city": "首爾"
+      },
+      "Asia/Singapore": {
+        "country": "新加坡",
+        "city": "新加坡"
+      },
+      "Asia/Kolkata": {
+        "country": "印度",
+        "city": "加爾各答"
+      },
+      "Asia/Dubai": {
+        "country": "阿聯酋",
+        "city": "迪拜"
+      },
+      "America/New_York": {
+        "country": "美國",
+        "city": "紐約（東部時間）"
+      },
+      "America/Chicago": {
+        "country": "美國",
+        "city": "芝加哥（中部時間）"
+      },
+      "America/Denver": {
+        "country": "美國",
+        "city": "丹佛（山地時間）"
+      },
+      "America/Los_Angeles": {
+        "country": "美國",
+        "city": "洛杉磯（太平洋時間）"
+      },
+      "America/Anchorage": {
+        "country": "美國",
+        "city": "安克雷奇（阿拉斯加時間）"
+      },
+      "Pacific/Honolulu": {
+        "country": "美國",
+        "city": "檀香山 / 火奴魯魯（夏威夷時間）"
+      },
+      "America/Toronto": {
+        "country": "加拿大",
+        "city": "多倫多（東部時間）"
+      },
+      "America/Vancouver": {
+        "country": "加拿大",
+        "city": "溫哥華（太平洋時間）"
+      },
+      "America/Sao_Paulo": {
+        "country": "巴西",
+        "city": "聖保羅"
+      },
+      "Europe/London": {
+        "country": "英國",
+        "city": "倫敦（格林威治 / 夏令時）"
+      },
+      "Europe/Paris": {
+        "country": "法國",
+        "city": "巴黎（中歐時間）"
+      },
+      "Europe/Berlin": {
+        "country": "德國",
+        "city": "柏林（中歐時間）"
+      },
+      "Europe/Rome": {
+        "country": "意大利",
+        "city": "羅馬（中歐時間）"
+      },
+      "Europe/Moscow": {
+        "country": "俄羅斯",
+        "city": "莫斯科"
+      },
+      "Africa/Johannesburg": {
+        "country": "南非",
+        "city": "約翰內斯堡"
+      },
+      "Africa/Cairo": {
+        "country": "埃及",
+        "city": "開羅"
+      },
+      "Australia/Sydney": {
+        "country": "澳大利亞",
+        "city": "悉尼（東部時間）"
+      },
+      "Australia/Adelaide": {
+        "country": "澳大利亞",
+        "city": "阿德萊德（中部時間）"
+      },
+      "Australia/Perth": {
+        "country": "澳大利亞",
+        "city": "珀斯（西部時間）"
+      },
+      "Pacific/Auckland": {
+        "country": "新西蘭",
+        "city": "奧克蘭"
+      },
+      "UTC": {
+        "country": "協調世界時",
+        "city": "全球（UTC）"
+      }
     }
   },
   "offset": {
@@ -125,7 +251,8 @@
     "lunarLabel": "農曆",
     "zodiacLabel": "屬",
     "jieQiLabel": "節氣",
-    "festivalLabel": "節日"
+    "festivalLabel": "節日",
+    "yearSuffix": "年"
   },
   "visualizer": {
     "title": "區間結構與關鍵節點",

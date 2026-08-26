@@ -1,6 +1,6 @@
 # Toolbox — 当前任务与进度
 
-> 最后更新：2026-08-25
+> 最后更新：2026-08-26
 >
 > 这里只保留当前与下一阶段工作。已发布结果见 [CHANGELOG.md](../CHANGELOG.md)，架构理由见
 > [PLAN.md](./PLAN.md)。不保存过程日志、聊天摘要、真实服务器或个人环境信息。
@@ -25,7 +25,7 @@
 - [x] CI 执行 `check:audit`（生产依赖、high 起报）；仅向 registry 提交依赖名与版本。
 - [x] 保持 Actions 固定 SHA、Node 24 兼容运行时、只读权限、Turborepo telemetry opt-out 和显式生产部署。
 
-### P0.2 · dev → main 晋级清单 `🔄 进行中`
+### P0.2 · dev → main 晋级清单 `✅ 已完成`
 
 - [x] CI 全绿：privacy/contracts/build/test/lint/browser。push 运行在 DST 扫描测试获得显式
   超时后连续全绿；v0.4.0 合并后的 push 运行再次全绿。
@@ -61,7 +61,7 @@
 - [x] 两个目标只允许从 `main` 手动选择发布，使用 `production` environment 和独立并发保护。
 - [x] 文档只公开正式站点域名；VPS 目标、端口、路径和 Cloudflare 凭据继续使用占位符或 Secrets。
 
-### P0.4 · 分支模型切换与 tag 发布流水线 `🔄 进行中`
+### P0.4 · 分支模型切换与 tag 发布流水线 `✅ 已完成`
 
 - [x] 删除远端 `dev`，远端只保留 `origin/main`；本地 `dev` 成为唯一开发分支。
 - [x] AGENTS / NEW_TOOL / RELEASE / skill 同步单线开发与 tag 发布模型。
@@ -115,8 +115,19 @@
 - [x] 共享选择器、浅色层级与页面结构使用边界、列表和表格，持续降低同层级 Card 密度。
 - [x] 专用工作台生成结果进入共享输出队列，支持处理结果回收、单项/勾选/同类/全局重命名与单独/统一/ZIP 导出，并有 200 项 / 1 GB 结果预算。
 - [x] 首页「清空任务」统一重置输入、结果与已流转工作台；PDF 收敛为队列/信息/页面处理三级流程，并在执行前提供页码预设和结果顺序预览。
-- [ ] 分阶段实现裁剪/拼接等图片编辑、GIF 专项、PDF 可视渲染/转图片、JSON/YAML/XML 数据和其他压缩格式；每阶段独立测试、
-  文档和本地提交，重型解析器需先通过依赖、内存与安全评估。
+- [x] 图片编辑第一阶段（2026-08-26）：独立图片编辑 Tab 开放批量裁剪（比例预设+锚点对齐、
+  四边百分比内缩）与拼接（横向/纵向/网格，间距与对齐），几何逻辑纯函数化并配单测；
+  结果进入共享输出队列；smoke 覆盖真实裁剪流程。逐图可视裁剪仍留后续阶段。
+- [x] 数据格式扩展阶段（2026-08-26，分支 newdev/next-round）：表格工作台按结构语义读取
+  JSON/YAML/XML（对象数组成记录行、XML 属性 @ 列、DOCTYPE/ENTITY 拒绝），任意来源可导出
+  CSV/TSV/JSON/YAML/XML/XLSX；`yaml` 2.9.0 经依赖评估按需加载（DEPENDENCIES 已记录）。
+- [x] GIF 专项第一阶段（2026-08-26，分支 newdev/next-round）：GIF 源文件工具开放拆帧 PNG、
+  0.25×–4× 调速重编码与有界有损压缩（25%–75% 宽度 + 可选抽帧）；解码经 `gifuct-js` 2.1.2
+  依赖评估按需加载，预算 64 MB / 120 帧 / 单边 4096 px / 总量 1 亿像素。
+- [x] PDF 可视渲染依赖与内存评估已记录于 apps/image-converter/docs/FILE_WORKBENCH.md；
+  实施排在 PDF 改写 worker 化之后。
+- [ ] 后续阶段：PDF 可视渲染/转图片实施和其他压缩格式；每阶段独立测试、文档和本地提交，
+  重型解析器需先通过依赖、内存与安全评估。
 
 ### P1.6 · CryptoLab 本地密码学工具 `✅ 已完成`
 
@@ -175,15 +186,20 @@
 - [x] NEW_TOOL 明确分级门禁：单应用任务默认只跑该应用 build/test/lint/browser +
   privacy/contracts/release；共享包、跨应用或发布改动才要求全仓 browser。
 - [x] INDEX 的测试数量改为不易腐朽的表述（记录基线日期与命令，不再声称实时数字）。
+- [x] 2026-08-26 开源卫生轮：补根 `LICENSE`、`SECURITY.md`、`CONTRIBUTING.md`，README 加
+  CI badge 与截图基线链接，清理 FUNDING 模板注释；修正 v0.4.0 平台迁移遗留的约 8 处
+  过期 README 陈述（rate-lens hooks/主题/测试计数、sane-units 双语声明、theme v1 引言、
+  nav 七应用计数、chrono-sphere 独立仓库来源与部署章节）。
 
 ### P2.4 · 视觉回归基线 `🔄 进行中`
 
 - [x] 七应用 production smoke 覆盖 1440/390px、zh/en、light/dark、代表业务页、共享壳与溢出。
 - [x] `pnpm shots` 以固定时钟、阻断跨域、reduced motion 捕获 8 页 × 2 主题 × 2 语言 ×
   2 视口共 64 张基线，存于 docs/screenshots 供人工审核。
+- [x] 主题族与 zh-Hant 纳入截图矩阵：zh-Hant 维度已随基线更新；主题族维度由
+  capture-screens 的 `--families` 参数按需捕获（2026-08-26），非默认族文件带 `-<family>`
+  名段，默认运行仍只产 catppuccin 基线、不改既有命名。
 - [ ] 维护者审核基线后决定像素 diff 阈值与执行时机。
-- [x] 主题族与 zh-Hant 纳入截图矩阵（zh-Hant 维度已随基线更新；主题族维度待
-  capture-screens 增加 family 参数）。
 
 ### P2.7 · Settings 设置应用 `✅ 已完成`
 
@@ -264,6 +280,29 @@
   繁体原始 key 泄漏守卫（zh-TW 断言 + 键名前缀禁令）。
 - [x] 规范落盘：packages/i18n/README.md 八条工程规范 + DESIGN_SYSTEM 语言契约红线。
 
+### P2.14 · 本地化门禁补全与残留修复 `✅ 已完成`
+
+2026-08-26 审计驱动的补齐轮：
+
+- [x] `gen-zh-hant.mjs` 重构为可导入模块并接入 `check:contracts` 漂移守卫：提交内容与
+  生成器输出不一致即失败；新增根脚本 `pnpm gen:zh-hant`。
+- [x] homepage 注册 manifest zhHant 卡片文案（此前繁体用户看到简体卡片），删除死代码
+  `toggleLang`/`langToggle` 与重复 html lang 写入，新增三语齐平测试。
+- [x] monitor-choice 修复共享语言码不识别（内部只认 `zhHant`，设置页切繁体无效）；
+  不再重复写共享 storage 键；新增齐平与语言码归一测试。
+- [x] sane-units / image-converter 补 `assertTranslationParity` 门禁（词表本身三语齐平）；
+  sane-units 移除 app 层 html lang 副作用。
+- [x] chrono-sphere 的 Luxon locale 全部走 `intlLocale`（此前繁体固定拿 zh-CN 格式），
+  农历年后缀入词表；rate-lens 模型限时价 note 迁入词表、删除 calc 层死文案
+  `formatDiscount`/`discountText`。
+- [x] 跟进（2026-08-26 完成）：sane-units `lib/units.ts` 约 40 处内联双语句子与选项 label
+  （storage/network/video/power 场景）已迁移到词表，繁体由生成器覆盖；calc 层改为纯数值
+  产出并删除全部二元语言分支；`Intl.NumberFormat` 与无 locale 的 `toLocaleString` 统一走
+  `intlLocale(getLang())`；smoke 增加繁体简体回退与原始 key 泄漏守卫。
+- [x] 跟进（2026-08-26 完成）：chrono-sphere `utils/timezone.ts` 城市/国家数据迁入三语词表
+  `timezone.cities.<zone>.{country,city}`（zh-Hant 生成），zone 数据表只留 value+group；
+  searchText 覆盖简繁英三路；测试锁定三语齐平、值集一致与传统中文渲染。
+
 ## P3 — 性能与可维护性
 
 ### P3.1 · 合成层第一轮优化 `✅ 已完成`
@@ -276,9 +315,16 @@
 
 - [x] `measure-perf` 从构建产物生成 raw/gzip 体积表与最大 chunk，写入
   docs/PERFORMANCE.md 基线；CI 在 build 后输出报告（仅报告，不做硬阈值）。
-- [ ] 优先核对 ChronoSphere timezone lazy chunk（122.8k gzip）与 RateLens 首包
-  （113.6k gzip）的真实加载/缓存，再决定拆包策略。
+- [x] 2026-08-26 拆包轮：RateLens 拆出 `react-vendor`；chrono-sphere 拆出
+  react/luxon/lunar-calendar——TimezoneSelect chunk 从 ~123k 降到 4.6k gzip，农历表
+  仅农历页加载；基线与决策记录见 docs/PERFORMANCE.md。
+- [x] 合成层第二轮：chrono-sphere 玻璃卡片/时区下拉移除 backdrop blur 并改不透明表面
+  （含样式守卫测试）；sane-units 卡片网格降光晕（AGENTS 设计偏好的落地）。
 - [ ] 交互延迟与缓存行为的可解释基线。
+- [x] FormTran 与 SaneUnits 入口拆包评估（2026-08-26）：先补真实加载路径测量——两应用的
+  重型解析器（pdf-lib、HEIC WASM）本就是按需动态导入，入口里唯一的大静态依赖是 react 全家；
+  按 rate-lens 模式拆出 `react-vendor` 后，首屏应用码分别降到 ~99k / ~29k gzip，
+  框架字节获得跨版本缓存身份。基线与决策见 docs/PERFORMANCE.md。
 
 ### P3.3 · 结构性维护 `🔄 进行中`
 
@@ -293,8 +339,11 @@ SaneUnits 拆分：App.tsx（约 1,400 行）已确认只含视图编排——�
   decode/encode 对拆入 `pages/*.tsx`，App.tsx 收敛为壳层与路由映射（约 90 行）。
 - [x] 迁移为纯代码搬移：不改文案（含 NetworkPage 既有双语三元分支）、不改存储键与路由
   名；deep-link 刷新由 browser smoke 守护。
-- [ ] Monitor Choice 继续减少 inline style，建立更清晰的渲染 lifecycle/cleanup 边界。
-- [ ] RateLens 为模型价格记录公开来源与更新时间，不为更新引入追踪或隐式代理。
+- [x] RateLens 为模型价格记录公开来源与更新时间（2026-08-26）：`PRICING_SOURCES` 固定
+  官方定价页链接与人工核对年月，价格表底部展示本地化来源行；运行时仍零请求、零代理。
+- [x] Monitor Choice inline style 清零（2026-08-26）：tab-panel-guide 与 index.html 的
+  19 处内联样式全部迁入语义类，截图基线复拍验证 12 张逐字节一致；init()/destroy() 与
+  cleanups 约定补写进 ARCHITECTURE.md。
 
 ## P4 — 平台版本与体验补全
 

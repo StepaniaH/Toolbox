@@ -10,6 +10,7 @@ import {
   formatCompactSize,
   formatDecimalSize,
   formatDuration,
+  formatNumber,
 } from "../lib/units";
 import {
   useSyncedState,
@@ -32,10 +33,10 @@ import {
   ShareLink,
   formatExampleCount,
 } from "../components/ui";
-import { useTranslation } from "../lib/i18n";
+import { useTranslation, durationWords } from "../lib/i18n";
 
 export function VideoPage() {
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
   const [state, setState] = useSyncedState(STATE_STORAGE_KEYS.video, LEGACY_STATE_STORAGE_KEYS.video, VIDEO_DEFAULTS, "/video", decodeVideoState, encodeVideoState);
   const result = useMemo(
     () =>
@@ -50,7 +51,6 @@ export function VideoPage() {
         audioBitrateValue: state.audioBitrateValue,
         audioBitrateUnit: state.audioBitrateUnit,
         overheadPercent: state.overheadPercent,
-        locale: lang,
       }),
     [
       state.mode,
@@ -63,9 +63,39 @@ export function VideoPage() {
       state.audioBitrateValue,
       state.audioBitrateUnit,
       state.overheadPercent,
-      lang,
     ],
   );
+  const dur = durationWords(t);
+  const approx = String(t("common.durationApprox"));
+  const solvedSizeText = `${formatDecimalSize(result.solvedSizeBytes)} / ${formatCompactSize(result.solvedSizeBytes)}`;
+  const directAnswer =
+    result.mode === "size"
+      ? `${approx} ${solvedSizeText}`
+      : result.mode === "duration"
+        ? formatDuration(result.solvedDurationSeconds, dur)
+        : `${approx} ${formatBitrate(result.solvedBitrateBps)}`;
+  const totalBitrateLine = String(t("video.secondaryTotal"))
+    .replace("{0}", formatBitrate(result.totalBps))
+    .replace("{1}", formatBitrate(result.totalBitrateWithOverhead));
+  const requiredBitrateLine = String(t("video.secondaryRequired"))
+    .replace("{0}", formatBitrate((result.displaySizeBytes * 8) / (result.displayDurationSeconds * result.overheadFactor)));
+  const secondaryLine =
+    result.mode === "bitrate"
+      ? result.displayDurationSeconds > 0
+        ? requiredBitrateLine
+        : String(t("video.secondaryNeedDuration"))
+      : totalBitrateLine;
+  const summaryLine =
+    result.mode === "bitrate"
+      ? String(t("video.summaries.bitrate"))
+        .replace("{0}", `${formatDecimalSize(result.displaySizeBytes)} / ${formatCompactSize(result.displaySizeBytes)}`)
+        .replace("{1}", formatDuration(result.displayDurationSeconds, dur))
+        .replace("{2}", formatBitrate(result.audioBps))
+        .replace("{3}", formatNumber(state.overheadPercent, 2))
+      : String(t(`video.summaries.${result.mode}`))
+        .replace("{0}", formatBitrate(result.videoBps))
+        .replace("{1}", formatBitrate(result.audioBps))
+        .replace("{2}", formatNumber(state.overheadPercent, 2));
 
   const shareUrl = buildShareUrl("/video", {
     mode: state.mode,
@@ -103,7 +133,7 @@ export function VideoPage() {
                   active={state.mode === target.value}
                   onClick={() => setState((current) => ({ ...current, mode: target.value, preset: "custom" }))}
                 >
-                  {target.label}
+                  {t(`video.targetLabels.${target.value}`)}
                 </ToggleChip>
               ))}
             </div>
@@ -140,7 +170,10 @@ export function VideoPage() {
                 value={state.durationUnit}
                 disabled={solvingDuration}
                 onChange={(value) => setState((current) => ({ ...current, durationUnit: value, preset: "custom" }))}
-                options={VIDEO_DURATION_OPTIONS}
+                options={VIDEO_DURATION_OPTIONS.map((unit) => ({
+                  value: unit.value,
+                  label: String(t(`video.durationUnitLabels.${unit.value}`)),
+                }))}
               />
             </div>
           </FieldRow>
@@ -216,26 +249,26 @@ export function VideoPage() {
                     }))
                   }
                 >
-                  {preset.label}
+                  {preset.labelKey ? t(preset.labelKey) : preset.label}
                 </ToggleChip>
               ))}
             </div>
           </div>
         </Panel>
 
-        <Panel title={t("video.panelAnswer.title")} subtitle={`${t("video.panelAnswer.subtitle")}${result.modeLabel}`} className="span-2">
+        <Panel title={t("video.panelAnswer.title")} subtitle={`${t("video.panelAnswer.subtitle")}${t(`video.modeLabels.${state.mode}`)}`} className="span-2">
           <div className="result-card">
             <div className="result-badge">{t("video.resultLabel")}</div>
-            <div className="result-line">{result.directAnswer}</div>
-            <div className="result-subline">{result.secondaryLine}</div>
-            {result.warning ? (
-              <div className="result-subline result-warning">{result.warning}</div>
+            <div className="result-line">{directAnswer}</div>
+            <div className="result-subline">{secondaryLine}</div>
+            {result.clampedToZero ? (
+              <div className="result-subline result-warning">{t("video.warningClamped")}</div>
             ) : null}
           </div>
 
           <div className="stat-row">
             <StatBlock label={t("video.statVideoBitrate")} value={formatBitrate(result.displayVideoBps)} />
-            <StatBlock label={t("video.statDuration")} value={formatDuration(result.displayDurationSeconds, lang)} />
+            <StatBlock label={t("video.statDuration")} value={formatDuration(result.displayDurationSeconds, dur)} />
             <StatBlock
               label={t("video.statFileSize")}
               value={`${formatDecimalSize(result.displaySizeBytes)} / ${formatCompactSize(result.displaySizeBytes)}`}
@@ -244,16 +277,16 @@ export function VideoPage() {
         </Panel>
 
         <Panel title={t("video.panelUnitExplain.title")} subtitle={t("video.panelUnitExplain.subtitle")}>
-          <InfoBox tone="blue" title={t("video.panelUnitExplain.title")} text={result.unitExplanation} />
-          <div className="note-copy">{result.summary}</div>
+          <InfoBox tone="blue" title={t("video.panelUnitExplain.title")} text={t("video.unitExplanation")} />
+          <div className="note-copy">{summaryLine}</div>
         </Panel>
 
         <Panel title={t("video.panelFormula.title")} subtitle={t("video.panelFormula.subtitle")}>
-          <FormulaBlock>{result.formula}</FormulaBlock>
+          <FormulaBlock>{t(`video.formulas.${state.mode}`)}</FormulaBlock>
         </Panel>
 
         <Panel title={t("video.panelReality.title")} subtitle={t("video.panelReality.subtitle")}>
-          <InfoBox tone="red" title={t("video.realityTitle")} text={result.realityNote} />
+          <InfoBox tone="red" title={t("video.realityTitle")} text={t(`video.realities.${state.mode}`)} />
         </Panel>
 
         <Panel title={t("video.panelExamples.title")} subtitle={t("video.panelExamples.subtitle")}>

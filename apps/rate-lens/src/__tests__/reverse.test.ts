@@ -13,14 +13,12 @@ describe('calcReverseRow', () => {
     expect(row.equivalentRate).toBeCloseTo(1.0, 10)
     expect(row.officialCostRatio).toBeCloseTo(25 / 180, 5)
     expect(row.verdict).toBe('cheaper')
-    expect(row.discountText).toBe('比官方便宜 86.1%')
   })
 
   it('Gate5 Case 2: GPT-5.5 cacheWrite ¥10 → 不适用', () => {
     const row = calcReverseRow(gpt55, 'cacheWrite', 10, ctx)
     expect(row.officialUSD).toBeNull()
     expect(row.verdict).toBe('na')
-    expect(row.discountText).toBe('不适用')
   })
 
   it('paid ¥0 → groupRate 0, cheaper', () => {
@@ -34,13 +32,12 @@ describe('calcReverseRow', () => {
     const row = calcReverseRow(opus, 'output', 1000, ctx)
     // 1000 / (25*7.2) = 5.56 → expensive
     expect(row.verdict).toBe('expensive')
-    expect(row.discountText).toContain('贵')
   })
 
   it('missing paid → empty row', () => {
     const row = calcReverseRow(opus, 'output', null, ctx)
     expect(row.groupRate).toBeNull()
-    expect(row.discountText).toBe('—')
+    expect(row.verdict).toBe('na')
   })
 })
 
@@ -80,7 +77,6 @@ describe('calcReverse', () => {
     const cacheRow = s.rows.find((r) => r.kind === 'cacheWrite')
     expect(cacheRow?.officialUSD).toBeNull()
     expect(cacheRow?.verdict).toBe('na')
-    expect(cacheRow?.discountText).toBe('不适用')
     // avg 只算 valid 行 (input)
     expect(s.avgGroupRate).not.toBeNull()
     expect(s.best?.kind).toBe('input')

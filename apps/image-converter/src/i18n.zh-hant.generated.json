@@ -11,6 +11,7 @@
     "label": "FormTran 功能頁面",
     "home": "文件首頁",
     "image": "圖片格式轉換",
+    "edit": "圖片編輯",
     "gif": "GIF 合成",
     "text": "文本與標記轉換",
     "data": "表格數據",
@@ -27,6 +28,10 @@
       "title": "圖片格式轉換隱私說明",
       "detail": "圖片、轉換結果和壓縮包只存在於當前瀏覽器內存，不會上傳；僅轉換偏好保存在本機，關閉頁面後不保留文件與文件名。"
     },
+    "edit": {
+      "title": "圖片編輯隱私說明",
+      "detail": "裁剪與拼接通過本地畫布完成：源圖、中間像素和輸出只存在於當前瀏覽器內存，不上傳、不寫入存儲；關閉頁面後不保留。"
+    },
     "gif": {
       "title": "GIF 合成隱私說明",
       "detail": "源圖片、逐幀像素與生成的 GIF 只在當前瀏覽器內存中處理，不上傳服務器；離開頁面後不會保存素材與動畫。"
@@ -37,7 +42,7 @@
     },
     "data": {
       "title": "表格數據隱私說明",
-      "detail": "CSV、TSV、XLSX 的讀取、預覽和導出只在瀏覽器內存中完成；不會上傳文件、文件名、工作表或單元格內容。"
+      "detail": "CSV、TSV、XLSX、JSON、YAML、XML 的讀取、預覽和導出只在瀏覽器內存中完成；不會上傳文件、文件名、工作表或單元格內容。"
     },
     "pdf": {
       "title": "PDF 工具隱私說明",
@@ -50,6 +55,108 @@
     "knowledge": {
       "title": "知識庫隱私說明",
       "detail": "本頁內容隨網站靜態提供，不讀取你的文件、不記錄閱讀行為，也不會為格式說明發起外部請求。"
+    }
+  },
+  "edit": {
+    "title": "圖片編輯",
+    "intro": "在本地畫布上裁剪或拼接圖片；所有像素都留在本機，結果進入統一結果隊列。",
+    "count": "{{count}} 張源圖",
+    "images": "源圖列表",
+    "imagesHintCrop": "每張圖都會按下方設置獨立裁剪。",
+    "imagesHintStitch": "按列表順序拼接；可在這裡調整順序前先回首頁整理。",
+    "add": "添加圖片",
+    "clear": "清空源圖",
+    "empty": "還沒有源圖；從文件首頁帶入或在此添加。",
+    "remove": "移除",
+    "settings": "編輯設置",
+    "settingsHint": "參數隻影響本次生成的結果，不改變源文件。",
+    "mode": {
+      "label": "選擇工具",
+      "crop": "批量裁剪",
+      "stitch": "拼接"
+    },
+    "needTwo": "拼接至少需要 2 張源圖。",
+    "running": "處理中…",
+    "run": "生成結果",
+    "summary": "已生成 {{ok}} 個結果，失敗 {{failed}} 個。",
+    "budget": "預算：單邊 ≤ 16384 px、總量 ≤ 8000 萬像素；拼接一次最多 30 張、間距 ≤ 200 px。",
+    "crop": {
+      "aspect": "比例預設",
+      "original": "原始",
+      "mode": "裁剪方式",
+      "modeAspect": "按比例與錨點",
+      "modeInset": "四邊內縮",
+      "horizontal": "水平位置",
+      "vertical": "垂直位置",
+      "inset": {
+        "top": "上",
+        "right": "右",
+        "bottom": "下",
+        "left": "左"
+      }
+    },
+    "stitch": {
+      "direction": "佈局方向",
+      "horizontal": "橫向",
+      "vertical": "縱向",
+      "grid": "網格",
+      "columns": "列數",
+      "spacing": "間距 (px)",
+      "alignment": "對齊方式"
+    },
+    "align": {
+      "start": "起始",
+      "center": "居中",
+      "end": "末尾"
+    },
+    "output": {
+      "format": "輸出格式",
+      "quality": "畫質",
+      "background": "背景色（JPEG）"
+    },
+    "errors": {
+      "noAccepted": "這些文件都不是本工具支持的圖片格式。",
+      "crop-empty": "裁剪參數會得到空結果：請降低內縮百分比或換一個比例預設。",
+      "stitch-empty": "沒有可拼接的源圖。",
+      "stitch-too-many": "拼接一次最多 30 張源圖。",
+      "image-too-large": "輸出尺寸超過瀏覽器安全上限（最長邊 16384 px 或 8000 萬像素）。",
+      "decode-failed": "部分圖片無法解碼，已跳過。",
+      "canvas-unavailable": "瀏覽器無法創建圖片畫布。",
+      "encode-unsupported": "當前瀏覽器不支持編碼為所選格式。",
+      "unknown": "處理時發生未知錯誤。"
+    }
+  },
+  "gifTools": {
+    "title": "GIF 源文件工具",
+    "intro": "讀取 GIF 的完整幀序列後本地處理；解碼、重編碼與導出全部留在瀏覽器內存。",
+    "load": "打開 .gif 文件",
+    "clear": "移除源文件",
+    "empty": "還沒有載入 GIF。",
+    "loaded": "{{frames}} 幀 · {{width}} × {{height}} · 約 {{seconds}} 秒",
+    "working": "處理中…",
+    "extractTitle": "拆幀為 PNG",
+    "extractDetail": "按播放順序把每一幀導出為獨立 PNG，進入結果隊列。",
+    "extractRun": "拆幀導出",
+    "speedTitle": "調整播放速度",
+    "speedDetail": "按倍率縮放幀延遲並重新編碼；畫面內容不變。",
+    "speedRun": "生成 {{factor}}× 速度",
+    "compressTitle": "有損壓縮",
+    "compressDetail": "縮小尺寸並可選抽幀後重編碼，用可解釋的參數換更小體積。",
+    "compressRun": "壓縮重編碼",
+    "scaleLabel": "目標寬度",
+    "frameStepLabel": "抽幀間隔",
+    "keepAll": "保留全部幀",
+    "errors": {
+      "gif-input-limit": "GIF 輸入限制為 64 MB。",
+      "gif-decode-failed": "無法解析這個 GIF，文件可能損壞或不是 GIF89a/GIF87a 編碼。",
+      "gif-empty": "這個 GIF 裡沒有可用幀。",
+      "gif-frame-count": "GIF 超過 120 幀安全上限。",
+      "gif-size-limit": "GIF 超出像素預算（單邊 4096 px、總量 1 億像素）。",
+      "gif-speed-factor": "速度倍率無效。",
+      "canvas-unavailable": "瀏覽器無法創建畫布。",
+      "encode-unsupported": "當前瀏覽器不支持該圖片編碼。",
+      "publish-limit": "部分結果超出結果隊列預算，未全部加入。",
+      "unknown": "處理 GIF 時發生未知錯誤。"
     }
   },
   "home": {
@@ -131,7 +238,7 @@
       "gif": "GIF 與動畫專項",
       "pdf": "頁面整理與提取",
       "text": "TXT · Markdown · HTML · Org · RST · AsciiDoc",
-      "data": "CSV · TSV · XLSX；JSON/YAML/XML 僅識別",
+      "data": "CSV · TSV · XLSX · JSON · YAML · XML 表格化互轉",
       "archive": "ZIP 內容與解壓安全",
       "unknown": "仍可查看基礎文件信息"
     },
@@ -181,11 +288,11 @@
       },
       "crop": {
         "title": "裁剪",
-        "detail": "可視裁剪、比例預設和批量邊界仍在實現計劃中。"
+        "detail": "按比例預設與對齊錨點批量裁剪，或按四邊百分比內縮；結果進入結果隊列。"
       },
       "stitch": {
         "title": "圖片拼接",
-        "detail": "橫向、縱向和網格佈局需要獨立畫布與內存預算。"
+        "detail": "橫向、縱向和網格佈局拼接多張圖片，可設間距、對齊與輸出格式。"
       },
       "favicon": {
         "title": "Favicon 生成器",
@@ -201,15 +308,15 @@
       },
       "extract": {
         "title": "GIF 拆幀",
-        "detail": "需要正確處理幀延遲、處置方式、局部幀與透明。"
+        "detail": "解析完整幀序列（含處置方式與局部幀合成），逐幀導出 PNG。"
       },
       "gifCompress": {
         "title": "GIF 壓縮",
-        "detail": "將在畫質、調色板、重複幀和體積之間提供可解釋預設。"
+        "detail": "縮小尺寸並可選抽幀後重編碼，用可解釋的參數換更小體積。"
       },
       "speed": {
         "title": "GIF 調速",
-        "detail": "規劃按倍率或目標時長調整，並處理播放器最短幀延遲。"
+        "detail": "按倍率縮放幀延遲並重新編碼；畫面內容不變。"
       },
       "video": {
         "title": "GIF 轉視頻",
@@ -603,17 +710,17 @@
   "data": {
     "title": "表格數據轉換",
     "intro": "CSV/TSV 是分隔文本，XLSX 是電子表格容器；這裡按表格語義讀取和轉換，不把它們混作壓縮包。",
-    "open": "打開 CSV / XLSX",
+    "open": "打開數據文件",
     "clear": "清空",
     "reading": "正在本地讀取…",
     "emptyTitle": "打開一份表格數據",
-    "emptyDetail": "支持 UTF-8 CSV、TSV 與常見 XLSX 工作表。JSON、YAML、XML 仍只在文件首頁識別，不會被錯誤套入表格解析。",
+    "emptyDetail": "支持 UTF-8 CSV、TSV、常見 XLSX 工作表，以及表格化讀取的 JSON / YAML / XML。",
     "loaded": "已讀取 {{rows}} 行 × {{columns}} 列",
     "exported": "已生成 {{format}}；可單獨下載或返回首頁查看任務結果",
     "summary": "{{rows}} 行 · {{columns}} 列 · {{cells}} 個單元格",
     "sheet": "工作表",
     "output": "輸出格式",
-    "headerRow": "JSON 使用第一行作為字段名",
+    "headerRow": "首行作為字段名（JSON / YAML / XML）",
     "formulaProtection": "導出 CSV/TSV 時防止單元格被表格軟件當作公式執行",
     "generate": "生成 {{format}}",
     "download": "下載 {{format}}",
@@ -626,14 +733,21 @@
     "csvBoundary": "CSV/TSV 按 UTF-8 與標準引號規則讀取；導出 XLSX 只保存單元格值，不附帶樣式或宏。",
     "xlsxBoundary": "XLSX 雖以 ZIP 為容器，但這裡按工作簿解析。不會運行公式、宏或外部鏈接，公式單元格只讀取文件內緩存值；日期格式、樣式、圖表和合並單元格不會保留。",
     "formulas": "檢測到 {{count}} 個公式，僅使用文件內緩存值。",
+    "structuredBoundary": "JSON/YAML/XML 按結構語義表格化：對象數組展開為記錄行，嵌套值轉為 JSON 字符串或點路徑列；XML 的屬性以 @ 列名保留，DOCTYPE/ENTITY 一律拒絕。",
     "outputs": {
       "csv": "逗號分隔文本",
       "tsv": "製表符分隔文本",
       "json": "數組或對象記錄",
+      "yaml": "縮進式鍵值結構，適合配置與人工編輯",
+      "xml": "帶字段元素的通用數據交換格式",
       "xlsx": "無宏的單工作表文件"
     },
     "errors": {
-      "table-unsupported": "僅支持 CSV、TSV 與 XLSX。",
+      "table-unsupported": "僅支持 CSV、TSV、XLSX、JSON、YAML 與 XML。",
+      "json-invalid": "JSON 解析失敗：請檢查語法（如尾隨逗號、單引號）。",
+      "yaml-invalid": "YAML 解析失敗：請檢查縮進與冒號後的空格。",
+      "xml-invalid": "XML 解析失敗：文檔不是合法的 XML。",
+      "structured-empty": "這份結構裡沒有可表格化的內容。",
       "table-empty": "表格文件為空。",
       "table-file-limit": "CSV/TSV 限制為 16 MB，XLSX 限制為 32 MB。",
       "table-invalid-text": "文本包含空字節，無法作為表格讀取。",

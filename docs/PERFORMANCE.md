@@ -7,12 +7,31 @@
 
 | App | JS files | JS raw | JS gzip | CSS raw | CSS gzip | Largest gzip asset |
 |---|---:|---:|---:|---:|---:|---|
-| Toolbox | 3 | 26.8k | 10.7k | 19.0k | 4.5k | index-BATTSDUr.js (8.2k) |
-| RateLens | 2 | 357.9k | 115.0k | 52.0k | 10.1k | index-CkVI7yhw.js (115.0k) |
-| ChronoSphere | 8 | 636.3k | 204.0k | 34.5k | 7.0k | TimezoneSelect-CY4gMSsn.js (122.8k) |
-| Monitor Choice | 2 | 101.5k | 34.3k | 50.8k | 8.8k | index-BbPbcUM8.js (34.3k) |
-| SaneUnits | 2 | 283.3k | 86.3k | 25.4k | 5.4k | index-Sdb4-aow.js (86.3k) |
-| FormTran | 4 | 927.7k | 339.4k | 89.8k | 15.1k | index-DgN5LhLc.js (177.3k) |
-| CryptoLab | 11 | 470.4k | 156.6k | 38.5k | 8.4k | index-cVWTbAVj.js (87.7k) |
-| Settings | 2 | 222.6k | 70.8k | 19.2k | 4.3k | index-CfAn8_ek.js (70.8k) |
-| **Total** | | | **1080.7k gzip** | | | |
+| Toolbox | 3 | 26.6k | 10.7k | 19.0k | 4.5k | index-CLM1kdRH.js (8.1k) |
+| RateLens | 3 | 356.8k | 114.7k | 52.0k | 10.1k | react-vendor-BHvPIBVU.js (58.9k) |
+| ChronoSphere | 12 | 640.1k | 205.4k | 34.2k | 7.0k | lunar-calendar-Cr5t-53W.js (97.4k) |
+| Monitor Choice | 2 | 101.4k | 34.3k | 50.8k | 8.8k | index-C8Wzw0t-.js (34.3k) |
+| SaneUnits | 3 | 287.4k | 87.0k | 25.2k | 5.4k | react-vendor-Bb048-hH.js (58.9k) |
+| FormTran | 5 | 947.6k | 344.9k | 90.8k | 15.2k | index-a3kbw8sJ.js (177.3k) |
+| CryptoLab | 11 | 470.4k | 156.6k | 38.5k | 8.4k | index-BFVqIzpN.js (87.7k) |
+| Settings | 2 | 222.6k | 70.8k | 19.2k | 4.3k | index-B5KVA722.js (70.8k) |
+| **Total** | | | **1088.1k gzip** | | | |
+
+## Load-path notes
+
+- **RateLens** splits `react-vendor` (react / react-dom / scheduler): first-party
+  code ships as a ~57k gzip chunk and no longer invalidates framework bytes on
+  every release.
+- **ChronoSphere** splits `react-vendor`, `luxon`, and `lunar-calendar`. The
+  timezone selector chunk drops from ~123k to 4.6k gzip; the lunar calendar
+  tables (~101k gzip) download only when the lunar page is opened.
+- **SaneUnits** and **FormTran** split `react-vendor` too (2026-08-26). Measured
+  real loading paths first: in both apps every heavy third-party parser
+  (pdf-lib, HEIC WASM) was already a lazy dynamic import, leaving react/react-dom
+  as the only large static dependency. First paint now loads SaneUnits app code
+  at ~29k gzip plus cached framework bytes, and FormTran app code at ~99k gzip;
+  framework chunks keep their cache identity across app-code releases.
+- Largest-single-asset is a weaker signal after splitting; judge by per-route
+  initial load (entry + react-vendor + route chunk + shared engine chunks).
+- Remaining known heavies are intentional lazy paths: pdf-lib (~177k gzip) and
+  the HEIC decoder glue/WASM load only when those formats are processed.

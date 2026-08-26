@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from "react";
 import { getLang, onChange, setLang as setCoreLang, type Lang } from "@toolbox/i18n/core";
+import type { DurationWords } from "./units";
 
 export type LanguageCode = "zh-CN" | "zh-Hant" | "en";
 
@@ -135,6 +136,16 @@ const TRANSLATIONS = {
           "内存容量大多按二进制口径理解，和磁盘标称不是同一套。",
         file: "文件大小最好和存储单位区分开，不然很容易把 MB 和 MiB 混掉。",
       },
+      scenarioLabels: {
+        drive: "硬盘 / SSD 厂商标称",
+        os: "操作系统显示",
+        memory: "内存容量",
+        file: "文件大小",
+      },
+      explainBinary: "你选的是二进制单位 {0}，操作系统和一些工具通常用它来显示容量。",
+      explainDecimal: "你选的是十进制单位 {0}，厂商标称容量通常按这套规则。",
+      realityNote:
+        "TB / GB 这类单位按十进制计量，TiB / GiB 这类单位按二进制计量；看起来少掉的容量，通常只是单位规则不同。",
       examples: {
         movie: "约 {0} 部 8GB 高清电影",
         photo: "约 {0} 张 4MB 照片",
@@ -182,6 +193,18 @@ const TRANSLATIONS = {
           "跨境和晚高峰更容易被链路拥塞、丢包和绕路拖慢。",
         custom: "自定义折扣适合你已经知道环境表现的情况。",
       },
+      scenarioLabels: {
+        "wired-lan": "有线局域网",
+        wifi: "Wi‑Fi",
+        public: "公网下载",
+        vps: "VPS / 良好公网",
+        vpn: "VPN / Tailscale",
+        crossborder: "跨境 / 晚高峰",
+        custom: "自定义",
+      },
+      realityNote:
+        "{0} 通常不是理论 100%：协议开销、磁盘速度、Wi‑Fi、VPN、服务端限速和链路拥塞都会拉低实际速度。",
+      effectiveLine: "按 {0}% 有效吞吐估算：{1}",
       examples: {
         movie: "一部 8GB 高清电影 → {0}",
         episode: "一集 1GB 1080p 剧集 → {0}",
@@ -223,6 +246,45 @@ const TRANSLATIONS = {
         min4k: "约 {0} 分钟 4K 视频（按此码率）",
         hourSize: "按此码率，1 小时视频约 {0}",
       },
+      targetLabels: {
+        size: "求文件大小",
+        duration: "求时长",
+        bitrate: "求码率",
+      },
+      modeLabels: {
+        size: "文件大小",
+        duration: "时长",
+        bitrate: "码率",
+      },
+      durationUnitLabels: {
+        s: "秒",
+        min: "分钟",
+        h: "小时",
+      },
+      presetLabels: {
+        surveillance24h: "监控 / 24h",
+      },
+      unitExplanation:
+        "Mbps / Kbps 是 bit 口径，MB / GB 是 byte 口径；音频码率和封装开销也会消耗最终空间。",
+      warningClamped: "当前文件大小和时长不足以覆盖音频与封装开销，视频码率已钳到 0。",
+      formulas: {
+        size: "文件大小 = (视频码率 + 音频码率) × 时长 × (1 + 封装开销) ÷ 8",
+        duration: "时长 = 文件大小 × 8 ÷ [(视频码率 + 音频码率) × (1 + 封装开销)]",
+        bitrate: "视频码率 = 文件大小 × 8 ÷ [时长 × (1 + 封装开销)] - 音频码率",
+      },
+      realities: {
+        size: "实际文件大小还会受编码效率、关键帧、字幕、章节、元数据和封装格式影响。",
+        duration: "实际可录时长会受编码效率、画质目标和设备峰值码率限制。",
+        bitrate: "实际视频码率会因编码器、场景复杂度和目标画质而波动，结果是工程估算，不是像素级真值。",
+      },
+      summaries: {
+        size: "视频 {0} + 音频 {1}，封装开销 {2}%",
+        duration: "视频 {0} + 音频 {1}，封装开销 {2}%",
+        bitrate: "文件 {0}，时长 {1}，音频 {2}，封装开销 {3}%",
+      },
+      secondaryTotal: "总码率：{0}，含封装后按 {1} 计",
+      secondaryRequired: "总需求码率：{0}（含音频前）",
+      secondaryNeedDuration: "请先填写有效的时长，才能反推码率。",
     },
     power: {
       title: "电费与 7x24 运行成本",
@@ -261,6 +323,20 @@ const TRANSLATIONS = {
         ac: "够一台 2000W 空调运行约 {0} 小时",
         led: "够一台 10W LED 灯亮约 {0} 天",
       },
+      currencyOptions: {
+        CNY: "CNY / 元",
+        USD: "USD / 美元",
+        EUR: "EUR / 欧元",
+      },
+      currencyShort: {
+        CNY: "元",
+        USD: "美元",
+        EUR: "欧元",
+      },
+      unitDays: "天",
+      directAnswer: "{0}W × {1}h × {2} {3}",
+      realityNote:
+        "W 是功率，kWh 是电量。电费按 kWh 计，不是按 W 计；月度这里按 30 天粗算。",
     },
     about: {
       title: "关于 SaneUnits",
@@ -297,6 +373,10 @@ const TRANSLATIONS = {
       copied: "已复制",
       copyFailed: "复制失败",
       share: "分享链接",
+      durationApprox: "约",
+      durationHr: "小时",
+      durationMin: "分钟",
+      durationSec: "秒",
     },
     sidebar: {
       note: "默认解释边界条件，不把理论值包装成现实值。",
@@ -445,6 +525,18 @@ const TRANSLATIONS = {
           "Memory capacity is usually understood in binary, separate from disk labeling.",
         file: "File sizes are best kept distinct from storage units to avoid MB/MiB confusion.",
       },
+      scenarioLabels: {
+        drive: "Drive / SSD manufacturer spec",
+        os: "Operating system display",
+        memory: "Memory capacity",
+        file: "File size",
+      },
+      explainBinary:
+        "You selected the binary unit {0}, which operating systems and tools commonly use to display capacity.",
+      explainDecimal:
+        "You selected the decimal unit {0}, which manufacturers typically use for advertised capacity.",
+      realityNote:
+        "TB/GB are decimal units; TiB/GiB are binary units. The \"missing\" capacity is usually just a difference in numbering systems.",
       examples: {
         movie: "~{0} 8GB HD movies",
         photo: "~{0} 4MB photos",
@@ -508,6 +600,18 @@ const TRANSLATIONS = {
         custom:
           "Custom discount for when you already know your environment's performance.",
       },
+      scenarioLabels: {
+        "wired-lan": "Wired LAN",
+        wifi: "Wi‑Fi",
+        public: "Public internet",
+        vps: "VPS / good public net",
+        vpn: "VPN / Tailscale",
+        crossborder: "Cross-border / peak hours",
+        custom: "Custom",
+      },
+      realityNote:
+        "{0} is typically not 100% theoretical: protocol overhead, disk speed, Wi‑Fi, VPN, server-side limits, and link congestion all reduce actual speed.",
+      effectiveLine: "At {0}% effective throughput: {1}",
       examples: {
         movie: "One 8GB HD movie → {0}",
         episode: "One 1GB 1080p episode → {0}",
@@ -561,6 +665,46 @@ const TRANSLATIONS = {
         min4k: "~{0} minutes of 4K video (at this bitrate)",
         hourSize: "At this bitrate, 1 hour of video ≈ {0}",
       },
+      targetLabels: {
+        size: "Solve File Size",
+        duration: "Solve Duration",
+        bitrate: "Solve Bitrate",
+      },
+      modeLabels: {
+        size: "File Size",
+        duration: "Duration",
+        bitrate: "Bitrate",
+      },
+      durationUnitLabels: {
+        s: "sec",
+        min: "min",
+        h: "hr",
+      },
+      presetLabels: {
+        surveillance24h: "Surveillance / 24h",
+      },
+      unitExplanation:
+        "Mbps/Kbps are bit-based; MB/GB are byte-based. Audio bitrate and container overhead also consume final space.",
+      warningClamped:
+        "File size and duration are too small to cover audio and container overhead — video bitrate clamped to 0.",
+      formulas: {
+        size: "File Size = (Video Bitrate + Audio Bitrate) × Duration × (1 + Overhead) ÷ 8",
+        duration: "Duration = File Size × 8 ÷ [(Video Bitrate + Audio Bitrate) × (1 + Overhead)]",
+        bitrate: "Video Bitrate = File Size × 8 ÷ [Duration × (1 + Overhead)] − Audio Bitrate",
+      },
+      realities: {
+        size: "Actual file size is also affected by encoding efficiency, keyframes, subtitles, chapters, metadata, and container format.",
+        duration: "Actual recordable duration is limited by encoding efficiency, quality targets, and device peak bitrate.",
+        bitrate: "Actual video bitrate varies with encoder, scene complexity, and target quality — result is an engineering estimate, not pixel-accurate truth.",
+      },
+      summaries: {
+        size: "Video {0} + Audio {1}, overhead {2}%",
+        duration: "Video {0} + Audio {1}, overhead {2}%",
+        bitrate: "File {0}, Duration {1}, Audio {2}, overhead {3}%",
+      },
+      secondaryTotal: "Total bitrate: {0}, with overhead: {1}",
+      secondaryRequired: "Required total bitrate: {0} (before audio)",
+      secondaryNeedDuration: "Please fill in a valid duration to calculate bitrate.",
     },
     power: {
       title: "Electricity Cost & Runtime",
@@ -614,6 +758,20 @@ const TRANSLATIONS = {
         ac: "Powers a 2000W air conditioner for ~{0} hours",
         led: "Powers a 10W LED bulb for ~{0} days",
       },
+      currencyOptions: {
+        CNY: "CNY (yuan)",
+        USD: "USD (dollar)",
+        EUR: "EUR (euro)",
+      },
+      currencyShort: {
+        CNY: "CNY",
+        USD: "USD",
+        EUR: "EUR",
+      },
+      unitDays: "days",
+      directAnswer: "{0}W × {1}h × {2} {3}",
+      realityNote:
+        "W is power, kWh is energy. Electricity is billed per kWh, not per W. Monthly estimates use 30 days.",
     },
     about: {
       title: "About SaneUnits",
@@ -653,6 +811,10 @@ const TRANSLATIONS = {
       copied: "Copied",
       copyFailed: "Copy Failed",
       share: "Share Link",
+      durationApprox: "~",
+      durationHr: "hr",
+      durationMin: "min",
+      durationSec: "sec",
     },
     sidebar: {
       note: "Explains boundary conditions by default — never packages theory as reality.",
@@ -708,12 +870,19 @@ export function resolveTranslation(
   return getNested(translations[lang as LanguageCode], key) ?? getNested(translations["zh-CN"], key) ?? key;
 }
 
+export function durationWords(t: (key: TranslationKey) => any): DurationWords {
+  return {
+    approx: String(t("common.durationApprox")),
+    hr: String(t("common.durationHr")),
+    min: String(t("common.durationMin")),
+    sec: String(t("common.durationSec")),
+  };
+}
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<LanguageCode>(() => coreToSaneUnits(getLang()));
 
-  useEffect(() => {
-    document.documentElement.lang = lang === "zh-CN" ? "zh-CN" : lang === "zh-Hant" ? "zh-TW" : "en";
-  }, [lang]);
+  // <html lang> is owned by @toolbox/i18n core (setLang/applyDocumentLang).
 
   useEffect(() => {
     const unsubscribe = onChange((coreLang) => {

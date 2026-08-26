@@ -4,7 +4,6 @@ import {
   parseNum,
   formatNumber,
   formatPercent,
-  formatDiscount,
   formatCNY,
   formatUSD,
   classifyVerdict,
@@ -67,17 +66,6 @@ describe('classifyVerdict', () => {
   it('uses tight band when provided', () => {
     expect(classifyVerdict(-0.01, 0.005)).toBe('cheaper')
     expect(classifyVerdict(0.001, 0.005)).toBe('flat')
-  })
-})
-
-describe('formatDiscount', () => {
-  it('returns 便宜/贵/持平 text and sign', () => {
-    expect(formatDiscount(-0.861).text).toBe('比官方便宜 86.1%')
-    expect(formatDiscount(-0.861).sign).toBe('cheaper')
-    expect(formatDiscount(0.25).text).toBe('比官方贵 25%')
-    expect(formatDiscount(0.25).sign).toBe('expensive')
-    expect(formatDiscount(0.001).text).toBe('与官方持平')
-    expect(formatDiscount(0.001).sign).toBe('flat')
   })
 })
 

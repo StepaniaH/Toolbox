@@ -8,6 +8,7 @@
     "test": "turbo test && node --test scripts/*.test.mjs",
     "test:browser": "pnpm -r --if-present run test:browser",
     "check:privacy": "node scripts/check-privacy.mjs",
+    "gen:zh-hant": "node scripts/gen-zh-hant.mjs",
     "check:contracts": "node scripts/check-contracts.mjs",
     "check:release": "node scripts/check-release.mjs",
     "check:licenses": "node scripts/check-licenses.mjs",

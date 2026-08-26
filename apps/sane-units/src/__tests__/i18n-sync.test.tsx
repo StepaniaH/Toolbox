@@ -27,7 +27,6 @@ function Probe() {
 describe('SaneUnits LanguageProvider — @toolbox/i18n core同步', () => {
   beforeEach(() => {
     localStorage.clear()
-    document.documentElement.lang = 'en'
     act(() => setCoreLang('zh'))
   })
 

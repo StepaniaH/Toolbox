@@ -12,8 +12,9 @@ import {
   tableSourceFormat,
   type TableDocument,
 } from "./lib/table-data";
+import { serializeXmlRows, serializeYamlRows } from "./lib/structured-data";
 
-type OutputFormat = "csv" | "tsv" | "json" | "xlsx";
+type OutputFormat = "csv" | "tsv" | "json" | "xlsx" | "yaml" | "xml";
 type DataResult = { blob: Blob; name: string };
 const PREVIEW_ROWS = 50;
 const PREVIEW_COLUMNS = 20;
@@ -68,6 +69,8 @@ export function DataWorkspace({ hidden, incoming, onOutput }: { hidden?: boolean
       { value: "csv" as const, label: "CSV", description: t("data.outputs.csv") },
       { value: "tsv" as const, label: "TSV", description: t("data.outputs.tsv") },
       { value: "json" as const, label: "JSON", description: t("data.outputs.json") },
+      { value: "yaml" as const, label: "YAML", description: t("data.outputs.yaml") },
+      { value: "xml" as const, label: "XML", description: t("data.outputs.xml") },
     ];
     return documentData?.format === "xlsx" ? base : [...base, { value: "xlsx" as const, label: "XLSX", description: t("data.outputs.xlsx") }];
   }, [documentData?.format, t]);
@@ -96,6 +99,8 @@ export function DataWorkspace({ hidden, incoming, onOutput }: { hidden?: boolean
       let blob: Blob;
       if (outputFormat === "xlsx") blob = await createXlsx(documentData.rows, baseName);
       else if (outputFormat === "json") blob = new Blob([serializeJson(documentData.rows, headerRow)], { type: "application/json;charset=utf-8" });
+      else if (outputFormat === "yaml") blob = new Blob([await serializeYamlRows(documentData.rows, headerRow)], { type: "application/yaml;charset=utf-8" });
+      else if (outputFormat === "xml") blob = new Blob([serializeXmlRows(documentData.rows, headerRow)], { type: "application/xml;charset=utf-8" });
       else {
         const delimiter = outputFormat === "tsv" ? "\t" : ",";
         const type = outputFormat === "tsv" ? "text/tab-separated-values;charset=utf-8" : "text/csv;charset=utf-8";
@@ -120,8 +125,8 @@ export function DataWorkspace({ hidden, incoming, onOutput }: { hidden?: boolean
 
   return <section className="family-page data-page" role="tabpanel" id="panel-data" aria-labelledby="tab-data" hidden={hidden}>
     <header className="family-header">
-      <div><span className="eyebrow">CSV · TSV · XLSX</span><h2>{t("data.title")}</h2><p>{t("data.intro")}</p></div>
-      <div className="family-actions"><FilePicker label={t("data.open")} accept=".csv,.tsv,.xlsx" onChange={onInput}/>{file && <button className="button secondary" type="button" onClick={clear}>{t("data.clear")}</button>}</div>
+      <div><span className="eyebrow">CSV · TSV · XLSX · JSON · YAML · XML</span><h2>{t("data.title")}</h2><p>{t("data.intro")}</p></div>
+      <div className="family-actions"><FilePicker label={t("data.open")} accept=".csv,.tsv,.xlsx,.json,.yaml,.yml,.xml" onChange={onInput}/>{file && <button className="button secondary" type="button" onClick={clear}>{t("data.clear")}</button>}</div>
     </header>
     {error && <p className="field-error" role="alert">{error}</p>}
     {!documentData ? <div className="family-empty"><span>TABLE DATA</span><h3>{busy ? t("data.reading") : t("data.emptyTitle")}</h3><p>{t("data.emptyDetail")}</p></div> : <>
@@ -132,12 +137,12 @@ export function DataWorkspace({ hidden, incoming, onOutput }: { hidden?: boolean
       <section className="data-controls">
         {documentData.sheetNames.length > 1 && <div><span className="field-label">{t("data.sheet")}</span><SelectMenu value={String(documentData.sheetIndex)} ariaLabel={t("data.sheet")} options={documentData.sheetNames.map((name, index) => ({ value: String(index), label: name }))} onChange={(value) => { if (file) void load(file, Number(value), false); }}/></div>}
         <div><span className="field-label">{t("data.output")}</span><SelectMenu value={outputFormat} ariaLabel={t("data.output")} options={outputOptions} onChange={(value) => { setOutputFormat(value); setResult(null); }}/></div>
-        {outputFormat === "json" && <label className="check-row"><input type="checkbox" checked={headerRow} onChange={(event) => { setHeaderRow(event.target.checked); setResult(null); }}/>{t("data.headerRow")}</label>}
+        {(outputFormat === "json" || outputFormat === "yaml" || outputFormat === "xml") && <label className="check-row"><input type="checkbox" checked={headerRow} onChange={(event) => { setHeaderRow(event.target.checked); setResult(null); }}/>{t("data.headerRow")}</label>}
         {(outputFormat === "csv" || outputFormat === "tsv") && <label className="check-row"><input type="checkbox" checked={formulaProtection} onChange={(event) => { setFormulaProtection(event.target.checked); setResult(null); }}/>{t("data.formulaProtection")}</label>}
         <button className="button primary" type="button" onClick={() => void generate()} disabled={busy}>{busy ? t("data.reading") : t("data.generate", { format: outputFormat.toUpperCase() })}</button>
       </section>
       {result && <section className="data-result" aria-live="polite"><div><span className="eyebrow">{t("data.result")}</span><strong>{result.name}</strong><small>{t("data.resultDetail", { size: formatBytes(result.blob.size) })}</small></div><button className="button secondary" type="button" onClick={() => triggerDownload(result.blob, result.name)}>{t("data.downloadResult")}</button></section>}
-      <p className="boundary-note">{t(documentData.format === "xlsx" ? "data.xlsxBoundary" : "data.csvBoundary")}{documentData.formulaCount ? ` ${t("data.formulas", { count: documentData.formulaCount })}` : ""}</p>
+      <p className="boundary-note">{t(documentData.format === "xlsx" ? "data.xlsxBoundary" : documentData.format === "csv" || documentData.format === "tsv" ? "data.csvBoundary" : "data.structuredBoundary")}{documentData.formulaCount ? ` ${t("data.formulas", { count: documentData.formulaCount })}` : ""}</p>
       <section className="data-preview">
         <header><div><h3>{t("data.preview")}</h3><p>{t("data.previewHint", { rows: Math.min(PREVIEW_ROWS, rows.length), columns: Math.min(PREVIEW_COLUMNS, columnCount) })}</p></div>{(rows.length > PREVIEW_ROWS || columnCount > PREVIEW_COLUMNS) && <span>{t("data.previewLimited")}</span>}</header>
         <div className="data-table-scroll"><table><tbody>{rows.slice(0, PREVIEW_ROWS).map((row, rowIndex) => <tr key={rowIndex}><th scope="row">{rowIndex + 1}</th>{Array.from({ length: Math.min(PREVIEW_COLUMNS, columnCount) }, (_, columnIndex) => <td key={columnIndex} title={row[columnIndex] ?? ""}>{row[columnIndex] ?? ""}</td>)}</tr>)}</tbody></table></div>

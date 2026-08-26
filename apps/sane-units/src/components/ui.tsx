@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getLang, intlLocale } from "@toolbox/i18n/core";
 import { useTranslation } from "../lib/i18n";
 import { parseNumber } from "../lib/persisted-url-state";
 
@@ -143,6 +144,6 @@ export function ShareLink({ url }: any) {
 export function formatExampleCount(n: number): string | null {
   if (!Number.isFinite(n) || n <= 0) return null;
   if (n < 0.5) return "< 1";
-  return Math.round(n).toLocaleString();
+  return Math.round(n).toLocaleString(intlLocale(getLang()));
 }
 

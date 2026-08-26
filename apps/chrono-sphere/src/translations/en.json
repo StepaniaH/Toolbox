@@ -40,6 +40,132 @@
       "europeAfrica": "Europe & Africa",
       "oceania": "Oceania",
       "utc": "Coordinated Universal Time"
+    },
+    "cities": {
+      "Asia/Shanghai": {
+        "country": "China",
+        "city": "Beijing / Shanghai (China Standard Time)"
+      },
+      "Asia/Hong_Kong": {
+        "country": "Hong Kong",
+        "city": "Hong Kong"
+      },
+      "Asia/Taipei": {
+        "country": "Taiwan",
+        "city": "Taipei"
+      },
+      "Asia/Macau": {
+        "country": "Macau",
+        "city": "Macau"
+      },
+      "Asia/Urumqi": {
+        "country": "China",
+        "city": "Urumqi (Xinjiang Time)"
+      },
+      "Asia/Tokyo": {
+        "country": "Japan",
+        "city": "Tokyo"
+      },
+      "Asia/Seoul": {
+        "country": "South Korea",
+        "city": "Seoul"
+      },
+      "Asia/Singapore": {
+        "country": "Singapore",
+        "city": "Singapore"
+      },
+      "Asia/Kolkata": {
+        "country": "India",
+        "city": "Kolkata"
+      },
+      "Asia/Dubai": {
+        "country": "United Arab Emirates",
+        "city": "Dubai"
+      },
+      "America/New_York": {
+        "country": "United States",
+        "city": "New York (Eastern Time)"
+      },
+      "America/Chicago": {
+        "country": "United States",
+        "city": "Chicago (Central Time)"
+      },
+      "America/Denver": {
+        "country": "United States",
+        "city": "Denver (Mountain Time)"
+      },
+      "America/Los_Angeles": {
+        "country": "United States",
+        "city": "Los Angeles (Pacific Time)"
+      },
+      "America/Anchorage": {
+        "country": "United States",
+        "city": "Anchorage (Alaska Time)"
+      },
+      "Pacific/Honolulu": {
+        "country": "United States",
+        "city": "Honolulu (Hawaii Time)"
+      },
+      "America/Toronto": {
+        "country": "Canada",
+        "city": "Toronto (Eastern Time)"
+      },
+      "America/Vancouver": {
+        "country": "Canada",
+        "city": "Vancouver (Pacific Time)"
+      },
+      "America/Sao_Paulo": {
+        "country": "Brazil",
+        "city": "Sao Paulo"
+      },
+      "Europe/London": {
+        "country": "United Kingdom",
+        "city": "London (GMT / BST)"
+      },
+      "Europe/Paris": {
+        "country": "France",
+        "city": "Paris (Central European Time)"
+      },
+      "Europe/Berlin": {
+        "country": "Germany",
+        "city": "Berlin (Central European Time)"
+      },
+      "Europe/Rome": {
+        "country": "Italy",
+        "city": "Rome (Central European Time)"
+      },
+      "Europe/Moscow": {
+        "country": "Russia",
+        "city": "Moscow"
+      },
+      "Africa/Johannesburg": {
+        "country": "South Africa",
+        "city": "Johannesburg"
+      },
+      "Africa/Cairo": {
+        "country": "Egypt",
+        "city": "Cairo"
+      },
+      "Australia/Sydney": {
+        "country": "Australia",
+        "city": "Sydney (Eastern Time)"
+      },
+      "Australia/Adelaide": {
+        "country": "Australia",
+        "city": "Adelaide (Central Time)"
+      },
+      "Australia/Perth": {
+        "country": "Australia",
+        "city": "Perth (Western Time)"
+      },
+      "Pacific/Auckland": {
+        "country": "New Zealand",
+        "city": "Auckland"
+      },
+      "UTC": {
+        "country": "Coordinated Universal Time",
+        "city": "Global (UTC)"
+      }
     }
   },
   "offset": {
@@ -125,7 +251,8 @@
     "lunarLabel": "Lunar",
     "zodiacLabel": "Zodiac: ",
     "jieQiLabel": "Solar term",
-    "festivalLabel": "Festival"
+    "festivalLabel": "Festival",
+    "yearSuffix": ""
   },
   "visualizer": {
     "title": "Range structure and key markers",

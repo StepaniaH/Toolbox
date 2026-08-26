@@ -36,6 +36,8 @@ GHSA-r28c-9q8g-f849 及 nanoid 生成器循环两则通告）。overrides 是全
 |---|---|---|
 | FormTran | `@discourse/heic` 1.0.0（Apache-2.0）；`pdf-lib` 1.17.1（MIT） | HEIC/HEIF 后备解码约 960 KB WASM；PDF 解析改写约 408 KB raw / 131 KB gzip；两者均仅按需同源加载，不访问远端服务，并分别受 64 MB 与 PDF 文件/总量/页数预算约束 |
 | CryptoLab | `qrcode` 1.5.4（MIT）、`jsqr` 1.4.0（Apache-2.0） | 本地生成/读取 Secure Share 二维码；不包含私钥、遥测或网络后备路径 |
+| FormTran（2026-08-26 评估新增） | `yaml` 2.9.0（ISC） | 表格工作台读写 YAML：解析限定 core schema、字符串化输出；与 pdf-lib 相同仅按需同源动态加载，不进入入口 chunk，无网络路径。JSON/XML 使用原生能力，未新增依赖 |
+| FormTran（2026-08-26 评估新增） | `gifuct-js` 2.1.2（MIT）；传递依赖 `js-binary-schema-parser` 2.0.3 | GIF 帧级解码（disposal 合成、局部帧拼合）：仅在 GIF 源文件工具使用时按需同源加载；受 64 MB 输入 / 120 帧 / 单边 4096 px / 总量 1 亿像素预算约束，无网络路径 |
 
 ## 三、升级规则
 
@@ -44,7 +46,7 @@ GHSA-r28c-9q8g-f849 及 nanoid 生成器循环两则通告）。overrides 是全
 3. React 与 React DOM 必须来自同一 catalog；Vite 与 React plugin 也必须来自同一 catalog。
 4. 修改版本只改 `pnpm-workspace.yaml`，随后用 `pnpm install` 更新根锁文件；不得手改 `pnpm-lock.yaml`。
 5. 审查锁文件是否仅包含目标依赖及其必要传递依赖；出现无关升级时停止并拆分。
-6. 构建器、CSS 处理器或运行时依赖升级即使单元测试通过，也要对受影响应用补浏览器 smoke；有视觉影响时执行 light/dark、zh/en、desktop/mobile 矩阵。
+6. 构建器、CSS 处理器或运行时依赖升级即使单元测试通过，也要对受影响应用补浏览器 smoke；有视觉影响时执行 light/dark、zh/zh-Hant/en、desktop/mobile 矩阵。
 7. 平台包契约升级先保持向后兼容并迁移一个消费者；破坏性变更留到独立的平台版本阶段。
 
 最小执行顺序：

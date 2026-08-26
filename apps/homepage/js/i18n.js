@@ -8,7 +8,7 @@ import {
   onChange,
   setLang as setCoreLang,
 } from "@toolbox/i18n/core";
-import zhHant from "./zh-hant.generated.json";
+import zhHant from "./zh-hant.generated.json" with { type: "json" };
 
 const i18n = {
   "zh-Hant": zhHant,
@@ -38,20 +38,25 @@ export function getLang() {
   return getCoreLang();
 }
 
-/* Register per-tool card strings from the manifest presentation contract. */
+/* Register per-tool card strings from the manifest presentation contract.
+   Manifest fields use the camelCase `zhHant`; UI language codes use `zh-Hant`. */
 export function registerCardStrings(tools) {
   for (const tool of tools) {
     const presentation = tool.presentation;
     if (!presentation) continue;
-    for (const lang of ["zh", "en"]) {
+    for (const lang of ["zh", "zh-Hant", "en"]) {
+      const field = lang === "zh-Hant" ? "zhHant" : lang;
       if (presentation.title) {
-        i18n[lang][`card.${tool.id}.title`] = presentation.title[lang];
+        i18n[lang][`card.${tool.id}.title`] = presentation.title[field];
       }
-      i18n[lang][`card.${tool.id}.subtitle`] = presentation.subtitle[lang];
-      i18n[lang][`card.${tool.id}.desc`] = presentation.description[lang];
+      i18n[lang][`card.${tool.id}.subtitle`] = presentation.subtitle[field];
+      i18n[lang][`card.${tool.id}.desc`] = presentation.description[field];
     }
   }
 }
+
+/* Exposed for tests; UI code goes through applyTranslations/setLang. */
+export const translations = i18n;
 
 function applyTranslations(lang) {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
@@ -60,21 +65,11 @@ function applyTranslations(lang) {
       el.textContent = i18n[lang][key];
     }
   });
-  // Update lang toggle button text
-  const toggle = document.getElementById("langToggle");
-  if (toggle) toggle.textContent = i18n[lang]["nav.lang"];
-  // Update HTML lang attr
-  document.documentElement.lang = lang === "en" ? "en" : lang === "zh-Hant" ? "zh-TW" : "zh-CN";
 }
 
 export function setLang(lang) {
   setCoreLang(lang);
   applyTranslations(lang);
-}
-
-export function toggleLang() {
-  const current = document.documentElement.lang.startsWith("zh") ? "zh" : "en";
-  setLang(current === "zh" ? "en" : "zh");
 }
 
 onChange(applyTranslations);

@@ -10,8 +10,8 @@ SaneUnits explains the WHY behind unit confusion — why a 4TB drive shows as 3.
 - **Network**: Bandwidth × file size → real-world transfer time
 - **Video**: Bitrate, duration, file size — solve for any one
 - **Power**: Watts × usage × electricity rate → annual cost
-- **Bilingual**: Chinese / English
-- **Light & Dark themes**: Catppuccin Latte & Frappe
+- **Trilingual**: Chinese (zh / zh-Hant) / English
+- **Theming via Settings**: dark/light mode plus Catppuccin / Gruvbox / Solarized families
 
 ## Philosophy
 

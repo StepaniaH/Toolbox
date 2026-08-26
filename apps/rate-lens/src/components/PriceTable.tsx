@@ -2,7 +2,7 @@ import { useTranslation } from '@toolbox/i18n/react'
 import { cn, formatCNY, formatNumber, formatUSD } from '@/lib/utils'
 import type { ModelPricing, PriceCell, PriceKind, Verdict } from '@/types'
 import { calcPriceCell } from '@/calc/forward'
-import { modelsByProvider } from '@/data/models'
+import { modelsByProvider, PRICING_SOURCES } from '@/data/models'
 
 interface PriceTableProps {
   provider: 'claude' | 'gpt'
@@ -72,6 +72,7 @@ function PriceCellView({ cell, groupRate, rechargeRatio }: {
 export function PriceTable({ provider, groupRate, rechargeRatio, rate }: PriceTableProps) {
   const { t } = useTranslation()
   const models = modelsByProvider(provider)
+  const source = PRICING_SOURCES[provider]
   const ctx = { groupRate, rechargeRatio, rate }
   const hasCtx = groupRate !== null && rechargeRatio !== null && rate !== null
 
@@ -107,8 +108,8 @@ export function PriceTable({ provider, groupRate, rechargeRatio, rate }: PriceTa
               >
                 <td className="sticky left-0 z-10 bg-card/80 px-3 py-2.5 font-medium text-fg backdrop-blur">
                   <div>{m.name}</div>
-                  {m.note && (
-                    <div className="text-[10px] text-yellow">{m.note}</div>
+                  {m.noteKey && (
+                    <div className="text-[10px] text-yellow">{t(`notes.${m.noteKey}`)}</div>
                   )}
                 </td>
                 <td className="tabular px-3 py-2.5 text-muted-foreground">
@@ -131,6 +132,19 @@ export function PriceTable({ provider, groupRate, rechargeRatio, rate }: PriceTa
           </tbody>
         </table>
       </div>
+
+      <footer className="flex flex-wrap items-center gap-x-2 px-4 py-2 text-xs text-faint">
+        <span>{t('priceTable.sourceLabel')}</span>
+        <a
+          className="underline decoration-line underline-offset-2 transition-colors hover:text-fg"
+          href={source.url}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {t(`priceTable.sourceName.${provider}`)}
+        </a>
+        <span>· {t('priceTable.checkedAt', { month: source.checkedAt })}</span>
+      </footer>
     </div>
   )
 }

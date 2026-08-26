@@ -5,6 +5,8 @@ import {
   STORAGE_UNIT_OPTIONS,
   calculateStorage,
   formatBytes,
+  formatCompactSize,
+  formatNumber,
   formatPercent,
 } from "../lib/units";
 import {
@@ -31,9 +33,16 @@ import {
 import { useTranslation } from "../lib/i18n";
 
 export function StoragePage() {
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
   const [state, setState] = useSyncedState(STATE_STORAGE_KEYS.storage, LEGACY_STATE_STORAGE_KEYS.storage, STORAGE_DEFAULTS, "/storage", decodeStorageState, encodeStorageState);
-  const result = useMemo(() => calculateStorage(state.value, state.unit, lang), [state.value, state.unit, lang]);
+  const result = useMemo(() => calculateStorage(state.value, state.unit), [state.value, state.unit]);
+  const binaryDisplay = formatCompactSize(result.exactBytes, 2);
+  const directAnswer = `${formatNumber(state.value, 6)} ${state.unit} = ${formatBytes(result.exactBytes)} bytes`;
+  const isBinaryUnit = state.unit.includes("i");
+  const scenarioOptions = STORAGE_SCENARIOS.map((scenario) => ({
+    value: scenario.value,
+    label: String(t(`storage.scenarioLabels.${scenario.value}`)),
+  }));
   const scenarioCopy = t(`storage.scenarios.${state.scenario}`) ?? t("storage.scenarios.drive");
   const shareUrl = buildShareUrl("/storage", {
     value: state.value,
@@ -71,7 +80,7 @@ export function StoragePage() {
             <SelectInput
               value={state.scenario}
               onChange={(value) => setState((current) => ({ ...current, scenario: value, preset: "custom" }))}
-              options={STORAGE_SCENARIOS}
+              options={scenarioOptions}
             />
           </FieldRow>
 
@@ -101,14 +110,14 @@ export function StoragePage() {
         <Panel title={t("storage.panelAnswer.title")} subtitle={t("storage.panelAnswer.subtitle")} className="span-2">
           <div className="result-card">
             <div className="result-badge">{t("storage.resultLabel")}</div>
-            <div className="result-line">{result.directAnswer}</div>
-            <div className="result-subline">{t("storage.resultBinaryDisplay")} {result.binaryDisplay}</div>
+            <div className="result-line">{directAnswer}</div>
+            <div className="result-subline">{t("storage.resultBinaryDisplay")} {binaryDisplay}</div>
             <div className="result-subline">{t("storage.resultDifference")}{formatPercent(result.differencePercent)}</div>
           </div>
 
           <div className="stat-row">
             <StatBlock label={t("storage.statExactBytes")} value={formatBytes(result.exactBytes)} />
-            <StatBlock label={t("storage.statBinaryDisplay")} value={result.binaryDisplay} />
+            <StatBlock label={t("storage.statBinaryDisplay")} value={binaryDisplay} />
             <StatBlock label={t("storage.statUnitDiff")} value={formatPercent(result.differencePercent)} />
           </div>
         </Panel>
@@ -117,7 +126,7 @@ export function StoragePage() {
           <InfoBox
             tone="blue"
             title={t("storage.panelUnitExplain.title")}
-            text={result.unitExplanation}
+            text={String(t(isBinaryUnit ? "storage.explainBinary" : "storage.explainDecimal")).replace("{0}", state.unit)}
           />
           <div className="note-copy">{scenarioCopy}</div>
         </Panel>
@@ -131,7 +140,7 @@ export function StoragePage() {
           <InfoBox
             tone="red"
             title={t("storage.realityTitle")}
-            text={result.realityNote}
+            text={String(t("storage.realityNote"))}
           />
         </Panel>
 

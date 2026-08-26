@@ -1,10 +1,12 @@
 # Toolbox
 
+[![CI & Manual Deploy](https://github.com/StepaniaH/Toolbox/actions/workflows/ci.yml/badge.svg)](https://github.com/StepaniaH/Toolbox/actions/workflows/ci.yml)
+
 A collection of privacy-first web tools. Core calculations run locally in your browser — no first-party backend, no tracking, and no cookies.
 
 > Privacy note: form inputs are not uploaded. RateLens automatically requests only the current USD/CNY rate from the disclosed public services; if both fail, it asks for manual input instead of substituting a hardcoded rate.
 
-**Live**: [toolbox.stepaniah.me](https://toolbox.stepaniah.me) · **Source**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox)
+**Live**: [toolbox.stepaniah.me](https://toolbox.stepaniah.me) · **Source**: [github.com/StepaniaH/Toolbox](https://github.com/StepaniaH/Toolbox) · **Screenshots**: [docs/screenshots/INDEX.md](./docs/screenshots/INDEX.md)
 
 ## Tools
 

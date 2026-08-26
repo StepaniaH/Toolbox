@@ -457,3 +457,44 @@
     text-align: left;
   }
 }
+
+/* Semantic replacements for formerly inline-styled markup. Declarations
+   are copied verbatim so rendering is byte-for-byte identical. */
+
+.size-legend .legend-dot-current { color: #8bd3ff; }
+.size-legend .legend-dot-compare { color: rgba(200, 200, 200, 0.5); }
+.size-legend .legend-dot-distance { color: #ff9a3c; }
+.size-legend .legend-dot-fov { color: rgba(100, 200, 100, 0.5); }
+
+.panel-section-card { padding: var(--space-lg); }
+.panel-section-title { font-size: 18px; font-weight: 700; margin-bottom: var(--space-md); }
+
+.panel-burnin-lead { margin: 0 0 16px; font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+.panel-list-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+
+.panel-check-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.panel-check-list li {
+  font-size: 14px;
+  color: var(--text-primary);
+  padding-left: 18px;
+  position: relative;
+  line-height: 1.6;
+}
+.panel-check-list li::before {
+  position: absolute;
+  left: 0;
+}
+.panel-check-list li::before { content: "✓"; color: var(--good-green); }
+.panel-risk-list { margin-bottom: 0; }
+.panel-risk-list li::before { content: "!"; color: var(--warn-yellow); }
+
+.refresh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.refresh-card { padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: rgba(255, 255, 255, 0.04); }
+.refresh-value { font-size: 22px; font-weight: 800; color: var(--accent-blue); font-variant-numeric: tabular-nums; }
+.refresh-use { font-size: 13px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }

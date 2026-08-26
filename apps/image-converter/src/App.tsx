@@ -14,6 +14,7 @@ import { FileHome } from "./FileHome";
 import { PdfWorkspace } from "./PdfWorkspace";
 import { ArchiveWorkspace } from "./ArchiveWorkspace";
 import { DataWorkspace } from "./DataWorkspace";
+import { EditWorkspace } from "./EditWorkspace";
 import { FilePicker } from "./FilePicker";
 import { SelectMenu } from "./SelectMenu";
 import { ACCEPT_ATTRIBUTE, convertImage, getFileExtension } from "./lib/convert";
@@ -46,7 +47,7 @@ const REGEX_PRESETS = [
   { id: "copy", pattern: "\\s*\\(\\d+\\)$", replacement: "", global: false, ignoreCase: true },
 ] as const;
 type StoredSettings = { conversion: ConversionSettings; rename: RenameSettings };
-type AppTab = "home" | "image" | "gif" | "text" | "data" | "pdf" | "archive" | "knowledge";
+type AppTab = "home" | "image" | "edit" | "gif" | "text" | "data" | "pdf" | "archive" | "knowledge";
 type NamePreview = { before: string; after: string; matched: boolean; groups: string[] };
 type DownloadMode = "files" | "zip";
 type ImportSummary = { accepted: number; rejected: number };
@@ -121,7 +122,8 @@ function AppSurface() {
   const [dragging, setDragging] = useState(false);
   const [running, setRunning] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTab>("home");
-  const [gifTransfer, setGifTransfer] = useState<{ id: number; files: File[] } | undefined>();
+  const [gifTransfer, setGifTransfer] = useState<{ id: number; files: File[]; intent?: "compose" | "extract" | "speed" | "compress" } | undefined>();
+  const [editTransfer, setEditTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [textTransfer, setTextTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [dataTransfer, setDataTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [pdfTransfer, setPdfTransfer] = useState<{ id: number; files: File[] } | undefined>();
@@ -248,6 +250,7 @@ function AppSurface() {
     setDragging(false);
     setRunning(false);
     setGifTransfer(undefined);
+    setEditTransfer(undefined);
     setTextTransfer(undefined);
     setDataTransfer(undefined);
     setPdfTransfer(undefined);
@@ -316,7 +319,8 @@ function AppSurface() {
     if (preset === "privacy") setSettings((current) => ({ ...current, keepSmallerOriginal: false }));
     addFiles(files); setWorkspaceContext({ count: files.length, tab: "image" }); setActiveTab("image");
   };
-  const openGif = (files: File[]) => { setGifTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "gif" }); setActiveTab("gif"); };
+  const openGif = (files: File[], intent?: "compose" | "extract" | "speed" | "compress") => { setGifTransfer({ id: Date.now(), files, intent }); setWorkspaceContext({ count: files.length, tab: "gif" }); setActiveTab("gif"); };
+  const openEdit = (files: File[]) => { setEditTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "edit" }); setActiveTab("edit"); };
   const openText = (files: File[]) => { setTextTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "text" }); setActiveTab("text"); };
   const openData = (files: File[]) => { setDataTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "data" }); setActiveTab("data"); };
   const openPdf = (files: File[]) => { setPdfTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "pdf" }); setActiveTab("pdf"); };
@@ -346,6 +350,7 @@ function AppSurface() {
             outputNotice={outputRejected ? t("outputs.publishLimit", { count: outputRejected }) : null}
             onOpenImage={openImages}
             onOpenGif={openGif}
+            onOpenEdit={openEdit}
             onOpenText={openText}
             onOpenData={openData}
             onOpenPdf={openPdf}
@@ -410,6 +415,7 @@ function AppSurface() {
               </div>
             </section>
           )}
+          <EditWorkspace key={`edit-${taskEpoch}`} hidden={activeTab !== "edit"} incoming={editTransfer} onOutput={publishOutputs}/>
           <GifComposer key={`gif-${taskEpoch}`} hidden={activeTab !== "gif"} incoming={gifTransfer} onOutput={publishOutputs}/>
           <TextMarkupConverter key={`text-${taskEpoch}`} hidden={activeTab !== "text"} incoming={textTransfer} onOutput={publishOutputs}/>
           <DataWorkspace key={`data-${taskEpoch}`} hidden={activeTab !== "data"} incoming={dataTransfer} onOutput={publishOutputs}/>
@@ -432,7 +438,7 @@ function WorkspaceReturnBar({ context, onReturn, onStay }: { context: WorkspaceC
 
 function AppTabs({ active, onChange }: { active: AppTab; onChange: (tab: AppTab) => void }) {
   const { t } = useTranslation();
-  const tabs: AppTab[] = ["home", "image", "gif", "text", "data", "pdf", "archive", "knowledge"];
+  const tabs: AppTab[] = ["home", "image", "edit", "gif", "text", "data", "pdf", "archive", "knowledge"];
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();

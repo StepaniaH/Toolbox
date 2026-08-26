@@ -69,7 +69,8 @@ test('monitor choice consumes shared runtimes instead of copied files', () => {
   for (const copy of ['nav-bar.css', 'nav-bar.js', 'toggle.js']) {
     assert.equal(existsSync(new URL(copy, appRoot)), false)
   }
-  assert.match(read('js/i18n.js'), /document\.documentElement\.lang/)
+  // <html lang> is owned by the shared i18n core; the app must not set it.
+  assert.doesNotMatch(read('js/i18n.js'), /documentElement\.lang\s*=/)
 })
 
 test('built monitor choice references emitted hashed assets', () => {

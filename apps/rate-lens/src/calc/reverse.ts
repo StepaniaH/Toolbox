@@ -6,7 +6,7 @@ import type {
   ReverseSummary,
   Verdict,
 } from '@/types'
-import { classifyVerdict, formatDiscount, safeDiv } from '@/lib/utils'
+import { classifyVerdict, safeDiv } from '@/lib/utils'
 import { fieldOf } from './forward'
 
 const ALL_KINDS: PriceKind[] = ['input', 'output', 'cacheWrite', 'cacheRead']
@@ -32,7 +32,6 @@ export function calcReverseRow(
     equivalentRate: null,
     officialCostRatio: null,
     verdict: 'na',
-    discountText: officialUSD === null ? '不适用' : '—',
   }
 
   if (
@@ -51,10 +50,6 @@ export function calcReverseRow(
     officialCostRatio === null ? null : officialCostRatio - 1,
     0.005,
   )
-  const discountText =
-    officialCostRatio === null
-      ? '—'
-      : formatDiscount(officialCostRatio - 1).text
 
   return {
     kind,
@@ -64,7 +59,6 @@ export function calcReverseRow(
     equivalentRate,
     officialCostRatio,
     verdict,
-    discountText,
   }
 }
 
