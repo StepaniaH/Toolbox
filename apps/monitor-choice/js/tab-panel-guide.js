@@ -88,24 +88,24 @@
     var isEn = I18n.getLocale() === 'en';
     var html = '';
 
-    html += '<p style="margin:0 0 16px;font-size:14px;color:var(--text-muted);line-height:1.7;">' + ((isEn && bi.causesEn) ? bi.causesEn : bi.causes) + '</p>';
+    html += '<p class="panel-burnin-lead">' + ((isEn && bi.causesEn) ? bi.causesEn : bi.causes) + '</p>';
 
     var mitigation = (isEn && bi.mitigationEn) ? bi.mitigationEn : bi.mitigation;
     if (mitigation && mitigation.length > 0) {
-      html += '<div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">' + I18n.t('panel.burnIn.mitigation') + '</div>';
-      html += '<ul style="list-style:none;margin:0 0 16px;padding:0;display:grid;gap:6px;">';
+      html += '<div class="panel-list-title">' + I18n.t('panel.burnIn.mitigation') + '</div>';
+      html += '<ul class="panel-check-list">';
       mitigation.forEach(function (m) {
-        html += '<li style="font-size:14px;color:var(--text-primary);padding-left:18px;position:relative;line-height:1.6;"><span style="position:absolute;left:0;color:var(--good-green);">✓</span>' + m + '</li>';
+        html += '<li>' + m + '</li>';
       });
       html += '</ul>';
     }
 
     var riskFactors = (isEn && bi.riskFactorsEn) ? bi.riskFactorsEn : bi.riskFactors;
     if (riskFactors && riskFactors.length > 0) {
-      html += '<div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">' + I18n.t('panel.burnIn.riskFactors') + '</div>';
-      html += '<ul style="list-style:none;margin:0;padding:0;display:grid;gap:6px;">';
+      html += '<div class="panel-list-title">' + I18n.t('panel.burnIn.riskFactors') + '</div>';
+      html += '<ul class="panel-check-list panel-risk-list">';
       riskFactors.forEach(function (r) {
-        html += '<li style="font-size:14px;color:var(--text-primary);padding-left:18px;position:relative;line-height:1.6;"><span style="position:absolute;left:0;color:var(--warn-yellow);">!</span>' + r + '</li>';
+        html += '<li>' + r + '</li>';
       });
       html += '</ul>';
     }
@@ -123,14 +123,14 @@
 
     var comparisons = PanelGuideData.refreshRate.comparisons || [];
     var isEn = I18n.getLocale() === 'en';
-    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">';
+    var html = '<div class="refresh-grid">';
 
     comparisons.forEach(function (c) {
       var label = (isEn && c.labelEn) ? c.labelEn : c.label;
       var useCase = (isEn && c.useCaseEn) ? c.useCaseEn : c.useCase;
-      html += '<div style="padding:16px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,0.04);">';
-      html += '<div style="font-size:22px;font-weight:800;color:var(--accent-blue);font-variant-numeric:tabular-nums;">' + label + '</div>';
-      html += '<div style="font-size:13px;color:var(--text-muted);margin-top:6px;line-height:1.5;">' + useCase + '</div>';
+      html += '<div class="refresh-card">';
+      html += '<div class="refresh-value">' + label + '</div>';
+      html += '<div class="refresh-use">' + useCase + '</div>';
       html += '</div>';
     });
 

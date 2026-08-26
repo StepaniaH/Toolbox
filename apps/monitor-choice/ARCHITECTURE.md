@@ -126,7 +126,7 @@ graph TD
 
 ### Tab 控制器
 
-所有 Tab 暴露 `{init(), destroy()}` 模式。`script.js` 在切换 Tab 时调用旧 Tab 的 `destroy()` 和新 Tab 的 `init()`，确保同一时间只有一个 Tab 活跃。
+所有 Tab 暴露 `{init(), destroy()}` 模式。`script.js` 在切换 Tab 时调用旧 Tab 的 `destroy()` 和新 Tab 的 `init()`，确保同一时间只有一个 Tab 活跃。 每个模块内部维护私有 `cleanups` 数组：任何 `addEventListener`、定时器或观察器都必须在注册处同步 `cleanups.push(removeFn)`，并在 `destroy()` 中统一执行；禁止跨模块直接持有其他 Tab 的 DOM 引用或监听器。
 
 - **tab-sharpness.js** — PPI/PPD 计算 + 清晰度仪表盘 Canvas + 文字对比模拟 Canvas。
 - **tab-size-view.js** — 尺寸/FOV/THX/SMPTE 统计 + 2D 对比 Canvas + 伪 3D 桌面场景 Canvas（含拖拽）。
