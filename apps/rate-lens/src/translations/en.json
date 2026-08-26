@@ -131,7 +131,13 @@
     "colOutput": "Output",
     "billedAsInput": "Billed as input",
     "pending": "Pending input",
-    "official": "Official"
+    "official": "Official",
+    "sourceLabel": "Official price source",
+    "sourceName": {
+      "claude": "Anthropic pricing page",
+      "gpt": "OpenAI pricing page"
+    },
+    "checkedAt": "Manually verified {{month}}; figures are static transcriptions — the app never fetches updates"
   },
   "reverse": {
     "referenceModel": "Reference model",

@@ -5,7 +5,24 @@ import {
   ALL_MODELS,
   modelsByProvider,
   findModelPricing,
+  PRICING_SOURCES,
 } from '@/data/models'
+
+describe('pricing provenance', () => {
+  it('every provider records an official https source and a YYYY-MM check date', () => {
+    for (const provider of ['claude', 'gpt'] as const) {
+      const source = PRICING_SOURCES[provider]
+      expect(source.url).toMatch(/^https:\/\/[a-z0-9.-]+/)
+      expect(source.checkedAt).toMatch(/^\d{4}-\d{2}$/)
+    }
+    expect(PRICING_SOURCES.claude.url).toContain('anthropic')
+    expect(PRICING_SOURCES.gpt.url).toContain('openai')
+  })
+
+  it('providers with models are exactly the providers with sources', () => {
+    expect(Object.keys(PRICING_SOURCES).sort()).toEqual([...new Set(ALL_MODELS.map((m) => m.provider))].sort())
+  })
+})
 
 describe('data integrity', () => {
   it('has 5 Claude and 6 GPT models', () => {

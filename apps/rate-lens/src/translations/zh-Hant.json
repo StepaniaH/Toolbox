@@ -131,7 +131,13 @@
     "colOutput": "輸出價",
     "billedAsInput": "按輸入價計費",
     "pending": "待輸入",
-    "official": "官方"
+    "official": "官方",
+    "sourceLabel": "官方價來源",
+    "sourceName": {
+      "claude": "Anthropic 定價頁",
+      "gpt": "OpenAI 定價頁"
+    },
+    "checkedAt": "人工核對於 {{month}}；數字為靜態轉抄，應用不聯網更新"
   },
   "reverse": {
     "referenceModel": "參照模型",

@@ -17,6 +17,15 @@ The app automatically requests the current USD/CNY rate from `open.er-api.com`, 
 
 The UI discloses this behavior before the action. Each endpoint has an eight-second timeout, and failures keep the local rate in use.
 
+### Pricing data provenance
+
+Model prices are manually transcribed from the official pricing pages only —
+Anthropic's published Claude pricing and OpenAI's published GPT/Codex pricing.
+Each provider records its source URL and the month of the last manual check in
+`src/data/models.ts` (`PRICING_SOURCES`), and the price table shows that source
+link and check date. Prices never update at runtime: no fetching, proxying, or
+telemetry is involved, and updates land as ordinary reviewed commits.
+
 ## Features
 
 - **Two calculation modes** with shared recharge/balance/exchange-rate inputs
@@ -53,7 +62,7 @@ pnpm --filter=@toolbox/rate-lens test
 src/
 ├── calc/          # forward.ts, reverse.ts — pure calculation logic
 ├── components/    # feature components + layout/ + ui/ (shadcn)
-├── data/          # models.ts — Claude & GPT/Codex pricing
+├── data/          # models.ts — Claude & GPT/Codex pricing + PRICING_SOURCES provenance
 ├── hooks/         # use-local-storage, use-exchange-rate
 ├── lib/           # utils.ts — cn, parseNum, formatters, classifyVerdict
 ├── types/         # TypeScript domain types

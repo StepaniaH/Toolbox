@@ -17,6 +17,13 @@ RateLens 是一个纯前端的 AI 模型 API 计费计算器，支持两种模�
 
 请求按钮旁会在操作前披露上述行为；每个端点有 8 秒超时，失败后继续使用本地值。
 
+### 价格数据溯源
+
+模型价格仅人工转抄自官方定价页（Anthropic 公开的 Claude 定价、OpenAI 公开的
+GPT/Codex 定价）。每家供应商在 `src/data/models.ts` 的 `PRICING_SOURCES` 中记录
+来源链接与最近人工核对年月，价格表底部会展示该来源与核对时间。价格不会在运行时
+更新：无请求、无代理、无遥测，更新一律以普通评审提交的形式进入仓库。
+
 ## 功能
 
 - **双计算模式**，充值 / 到账 / 汇率输入共享
@@ -53,7 +60,7 @@ pnpm --filter=@toolbox/rate-lens test
 src/
 ├── calc/          # forward.ts, reverse.ts — 纯计算逻辑
 ├── components/    # 功能组件 + layout/ + ui/ (shadcn)
-├── data/          # models.ts — Claude 与 GPT/Codex 定价数据
+├── data/          # models.ts — Claude 与 GPT/Codex 定价数据 + PRICING_SOURCES 溯源
 ├── hooks/         # use-local-storage, use-exchange-rate
 ├── lib/           # utils.ts — cn, parseNum, 格式化, classifyVerdict
 ├── types/         # TypeScript 领域类型

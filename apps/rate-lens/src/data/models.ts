@@ -1,8 +1,30 @@
 import type { ModelPricing, ModelProvider } from '@/types'
 
 /**
- * Anthropic Claude 系列 — 官方 API 定价 (2026-07).
- * 单位: USD / 1M tokens.
+ * 每家供应商的价格核对记录：数字全部为人工从官方定价页转抄，
+ * 不在运行时请求任何来源（无 fetch、无代理、无追踪）。
+ */
+export interface PricingSource {
+  /** 官方定价页（公开文档，仅作为 UI 展示链接） */
+  url: string
+  /** 最近一次人工核对年月（YYYY-MM），与表格内数字保持同步更新 */
+  checkedAt: string
+}
+
+export const PRICING_SOURCES: Record<ModelProvider, PricingSource> = {
+  claude: {
+    url: 'https://docs.anthropic.com/en/docs/about-claude/pricing',
+    checkedAt: '2026-07',
+  },
+  gpt: {
+    url: 'https://platform.openai.com/docs/pricing',
+    checkedAt: '2026-07',
+  },
+}
+
+/**
+ * Anthropic Claude 系列 — 官方 API 定价.
+ * 单位: USD / 1M tokens. 核对记录见 PRICING_SOURCES.claude.
  */
 export const CLAUDE_MODELS: ModelPricing[] = [
   {
@@ -59,9 +81,9 @@ export const CLAUDE_MODELS: ModelPricing[] = [
 ]
 
 /**
- * OpenAI GPT / Codex 系列 — 官方 API 定价 (2026-07).
+ * OpenAI GPT / Codex 系列 — 官方 API 定价.
  * GPT 系列无缓存写入项 (null); 缓存读取为输入价的 10%.
- * 单位: USD / 1M tokens.
+ * 单位: USD / 1M tokens. 核对记录见 PRICING_SOURCES.gpt.
  */
 export const GPT_MODELS: ModelPricing[] = [
   {
