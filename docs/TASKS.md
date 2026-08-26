@@ -118,8 +118,16 @@
 - [x] 图片编辑第一阶段（2026-08-26）：独立图片编辑 Tab 开放批量裁剪（比例预设+锚点对齐、
   四边百分比内缩）与拼接（横向/纵向/网格，间距与对齐），几何逻辑纯函数化并配单测；
   结果进入共享输出队列；smoke 覆盖真实裁剪流程。逐图可视裁剪仍留后续阶段。
-- [ ] 后续阶段：GIF 专项（拆帧/压缩/调速）、PDF 可视渲染/转图片、JSON/YAML/XML 数据和
-  其他压缩格式；每阶段独立测试、文档和本地提交，重型解析器需先通过依赖、内存与安全评估。
+- [x] 数据格式扩展阶段（2026-08-26，分支 newdev/next-round）：表格工作台按结构语义读取
+  JSON/YAML/XML（对象数组成记录行、XML 属性 @ 列、DOCTYPE/ENTITY 拒绝），任意来源可导出
+  CSV/TSV/JSON/YAML/XML/XLSX；`yaml` 2.9.0 经依赖评估按需加载（DEPENDENCIES 已记录）。
+- [x] GIF 专项第一阶段（2026-08-26，分支 newdev/next-round）：GIF 源文件工具开放拆帧 PNG、
+  0.25×–4× 调速重编码与有界有损压缩（25%–75% 宽度 + 可选抽帧）；解码经 `gifuct-js` 2.1.2
+  依赖评估按需加载，预算 64 MB / 120 帧 / 单边 4096 px / 总量 1 亿像素。
+- [x] PDF 可视渲染依赖与内存评估已记录于 apps/image-converter/docs/FILE_WORKBENCH.md；
+  实施排在 PDF 改写 worker 化之后。
+- [ ] 后续阶段：PDF 可视渲染/转图片实施和其他压缩格式；每阶段独立测试、文档和本地提交，
+  重型解析器需先通过依赖、内存与安全评估。
 
 ### P1.6 · CryptoLab 本地密码学工具 `✅ 已完成`
 
@@ -333,7 +341,9 @@ SaneUnits 拆分：App.tsx（约 1,400 行）已确认只含视图编排——�
   名；deep-link 刷新由 browser smoke 守护。
 - [x] RateLens 为模型价格记录公开来源与更新时间（2026-08-26）：`PRICING_SOURCES` 固定
   官方定价页链接与人工核对年月，价格表底部展示本地化来源行；运行时仍零请求、零代理。
-- [ ] Monitor Choice 继续减少 inline style，建立更清晰的渲染 lifecycle/cleanup 边界。
+- [x] Monitor Choice inline style 清零（2026-08-26）：tab-panel-guide 与 index.html 的
+  19 处内联样式全部迁入语义类，截图基线复拍验证 12 张逐字节一致；init()/destroy() 与
+  cleanups 约定补写进 ARCHITECTURE.md。
 
 ## P4 — 平台版本与体验补全
 
