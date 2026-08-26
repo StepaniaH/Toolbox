@@ -67,6 +67,7 @@ try {
 
   const homeTab = page.getByRole('tab', { name: /File home|文件首页/ })
   const workspaceTab = page.getByRole('tab', { name: /Image conversion|图片格式转换/ })
+  const editTab = page.getByRole('tab', { name: /Image editor|图片编辑/ })
   const gifTab = page.getByRole('tab', { name: /GIF composer|GIF 合成/ })
   const textTab = page.getByRole('tab', { name: /Text & markup|文本与标记转换/ })
   const dataTab = page.getByRole('tab', { name: /Table data|表格数据/ })
@@ -77,7 +78,7 @@ try {
   assert.equal(await page.locator('.unified-picker > summary').isVisible(), true)
   assert.equal(await page.locator('.unified-picker input[type=file]').count(), 2)
   const pickerHeights = []
-  for (const tab of [workspaceTab, gifTab, textTab, dataTab, pdfTab, archiveTab]) {
+  for (const tab of [workspaceTab, editTab, gifTab, textTab, dataTab, pdfTab, archiveTab]) {
     await tab.click()
     const picker = page.locator('main [role=tabpanel]:not([hidden]) .file-picker').first()
     assert.equal(await picker.isVisible(), true)
@@ -177,6 +178,21 @@ try {
   await page.waitForFunction(() => document.querySelector('.file-row')?.textContent.includes('2 × 2'))
   await page.locator('.image-info summary').click()
   assert.match(await page.locator('.image-info').textContent(), /4 px|4 pixels|4 像素/)
+
+  // Image editor: batch-crop the queued PNG through the dedicated tab and
+  // confirm the result lands in the shared output queue.
+  await homeTab.click()
+  const cropTool = page.locator('.tool-row').filter({ hasText: /Crop|裁剪/ })
+  assert.match(await cropTool.textContent(), /Available|可用/)
+  await cropTool.getByRole('button', { name: /Open tool|打开工具/ }).click()
+  assert.equal(await editTab.getAttribute('aria-selected'), 'true')
+  await page.locator('.edit-page .edit-source-list article').waitFor()
+  await page.locator('.edit-page').getByRole('button', { name: /Generate results|生成结果/ }).click()
+  await page.locator('.edit-page .home-notice').waitFor()
+  assert.match(await page.locator('.edit-page .home-notice').textContent(), /Generated 1 result|已生成 1 个结果/)
+  await homeTab.click()
+  assert.match(await page.locator('.output-desk').textContent(), /sample-crop\.png/)
+  await workspaceTab.click()
   assert.match(await page.locator('.tab-privacy').textContent(), /Image conversion privacy|图片格式转换隐私说明/)
   const uploadBox = await page.locator('.drop-zone').boundingBox()
   const queueBox = await page.locator('.queue-panel').boundingBox()

@@ -2,7 +2,7 @@
 
 A private, browser-only file workspace for conversion, compression, editing, splitting, merging, encoding, parsing, and inspection. Its file home identifies inputs and recommends relevant tools before any operation runs. No source content leaves the device.
 
-The expansion is staged. Image conversion (including local HEIC/HEIF decoding), GIF composition, text/markup conversion, CSV/TSV/XLSX table conversion, bounded PDF page operations, and bounded ZIP listing/extraction are available now. Image editing, GIF-specific processing, visual PDF rendering, and other archive formats stay closed until their own correctness and resource boundaries pass review. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
+The expansion is staged. Image conversion (including local HEIC/HEIF decoding), GIF composition, text/markup conversion, CSV/TSV/XLSX table conversion, bounded PDF page operations, bounded ZIP listing/extraction, and canvas-based image editing (batch crop, stitch) are available now. Visual per-image crop editing, GIF-specific processing, visual PDF rendering, and other archive formats stay closed until their own correctness and resource boundaries pass review. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
 
 ## File home
 
@@ -12,7 +12,7 @@ The expansion is staged. Image conversion (including local HEIC/HEIF decoding), 
 - Distinguishes ZIP-based document containers such as XLSX, DOCX, ODS, and EPUB from ordinary ZIP archives, so they are not offered to the archive extractor.
 - Groups the queue by file family and supports current-item, checked-item, whole-family, and all-item selection without flattening the page into a card wall.
 - Shows available, limited, and planned capabilities separately; no conversion or parser starts automatically.
-- Can hand compatible selection scopes into image conversion, GIF composition, text/markup conversion, table data, PDF page tools, or ZIP inspection, and generates image Data URLs locally up to 10 MB.
+- Can hand compatible selection scopes into image conversion, the image editor, GIF composition, text/markup conversion, table data, PDF page tools, or ZIP inspection, and generates image Data URLs locally up to 10 MB.
 - Provides a live task overview plus a separate item dialog. Safe raster images and bounded text are previewed directly; PDF, archives, SVG, HEIC, and other active formats remain metadata-only until opened in their dedicated workspace.
 - Keeps the home task in memory while a dedicated workspace is open and returns newly generated image, GIF, text, table, PDF, and extracted ZIP outputs to one shared result queue. “Clear task” resets the Home queue, shared results, and every routed workspace together.
 - Groups results by family and supports individual, checked, same-family, or all-result scope. Users can rename one result, apply `{name}` / `{index}` / `{family}` templates in bulk, preview safe raster or bounded text output, remove results, download up to 10 files directly, or export one family-grouped ZIP.
@@ -34,6 +34,14 @@ The expansion is staged. Image conversion (including local HEIC/HEIF decoding), 
 - Downloads can be emitted as direct files (one result directly, many separately) or as one ZIP archive.
 - Upload and queue cards share the first workspace row, with immediate accepted/skipped feedback after every selection.
 - A separate Knowledge Base tab covers images, animation, text markup, PDF, and archives with capability comparisons and safety boundaries.
+
+## Image editor
+
+- A dedicated tab receives still images from the file home or direct picks, with the same accepted-format list as conversion.
+- Batch crop offers aspect presets (original, 1:1, 4:3, 3:2, 16:9, 16:10, 9:16) with start/center/end anchor alignment, or percentage insets per side. Every image is cropped independently with identical settings.
+- Stitch combines 2–30 images horizontally, vertically, or as a grid in list order with 0–200 px spacing and start/center/end alignment; grid cells use per-column and per-row maximums so entries never overlap.
+- Output format is PNG, JPEG (with background fill), or WebP plus a quality control; results enter the shared output queue under the image family for renaming and export.
+- Geometry (crop rectangles and stitch layouts) is pure, unit-tested code; canvas budgets match the app-wide limits of 16,384 px per side and 80 megapixels per render.
 
 ## GIF composer
 
@@ -78,7 +86,7 @@ The knowledge base uses decision rows, expandable format references, and compari
 
 Files, identification prefixes, images, previews, conversions, parsed text, tables, PDFs, and ZIP files stay in browser memory and are never uploaded. The app makes no business network requests and includes no account, backend, telemetry, ads, cookies, tracking, or remote fonts. Only conversion preferences are stored in `localStorage` under `toolbox.image-converter.settings`; file bytes, filenames, and identification results are not persisted.
 
-The privacy notice sits below the active app tab. Image, GIF, text, PDF, archive, and knowledge pages each describe their actual local data flow.
+The privacy notice sits below the active app tab. Image conversion, the image editor, GIF, text, PDF, archive, and knowledge pages each describe their actual local data flow.
 
 The app works offline once its static assets are available. Unsupported browser codecs fail per file without modifying the original.
 
@@ -93,6 +101,7 @@ The app works offline once its static assets are available. Unsupported browser 
 - Native input decoding depends on the browser version; HEIC/HEIF also has a local WASM fallback shipped with the static app.
 - A rotated or flipped image is always re-encoded; FormTran never substitutes an unchanged smaller original for a requested transform.
 - GIF composition does not preserve source animation, per-frame transparency, disposal modes, or source-specific timing.
+- The image editor works on still images only; animated sources flatten to their first decoded frame. Stitching never rescales entries — differing sizes align inside per-column/per-row cells instead.
 - Markup conversion covers a practical common subset and is not a full CommonMark, Sphinx, Org Babel, or AsciiDoc processor.
 - Table conversion targets safe, inspectable values rather than Excel fidelity; it does not retain macros, formula logic, or workbook presentation.
 - PDF operations copy pages into new documents rather than editing sources. They are not a renderer, sanitizer, signature-preserving editor, or high-fidelity form/outlines workflow.

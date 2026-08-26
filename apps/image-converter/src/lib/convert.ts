@@ -92,6 +92,10 @@ export function isHeicInput(file: Pick<File, "name" | "size">): boolean {
   return ["heic", "heif"].includes(getFileExtension(file.name));
 }
 
+export async function normalizeImageBlob(file: File): Promise<Blob> {
+  return normalizedBlob(file);
+}
+
 async function decodeHeic(blob: Blob): Promise<{ drawable: Drawable; width: number; height: number; close: () => void }> {
   if (blob.size > MAX_HEIC_INPUT_BYTES) throw new Error("heic-file-limit");
   try {
@@ -141,6 +145,14 @@ async function decode(blob: Blob, extension: string): Promise<{ drawable: Drawab
     if (extension === "heic" || extension === "heif") return decodeHeic(blob);
     throw error;
   }
+}
+
+export async function decodeImageBlob(blob: Blob, extension: string) {
+  return decode(blob, extension);
+}
+
+export function encodeCanvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> {
+  return canvasToBlob(canvas, type, quality);
 }
 
 function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> {

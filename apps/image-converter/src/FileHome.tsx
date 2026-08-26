@@ -12,7 +12,7 @@ type HomeFile = { id: string; file: File; relativePath: string; identified: Iden
 type IncomingHomeFile = { file: File; relativePath: string };
 type ImagePreset = "default" | "web" | "transparent" | "privacy";
 type ToolStatus = "available" | "limited" | "planned";
-type Tool = { id: string; status: ToolStatus; action?: "image" | "gif" | "text" | "data" | "base64" | "pdf" | "archive" };
+type Tool = { id: string; status: ToolStatus; action?: "image" | "edit" | "gif" | "text" | "data" | "base64" | "pdf" | "archive" };
 
 const FAMILY_ORDER: FileFamily[] = ["image", "gif", "pdf", "text", "data", "archive", "unknown"];
 const DIRECT_IMAGE_FORMATS = new Set(["JPEG", "PNG", "WebP", "AVIF", "BMP", "SVG", "HEIC"]);
@@ -25,7 +25,8 @@ const TOOLS: Record<FileFamily, Tool[]> = {
     { id: "resize", status: "available", action: "image" }, { id: "info", status: "available" },
     { id: "metadata", status: "available", action: "image" }, { id: "base64", status: "available", action: "base64" },
     { id: "compose", status: "available", action: "gif" }, { id: "rotate", status: "available", action: "image" },
-    { id: "crop", status: "planned" }, { id: "stitch", status: "planned" }, { id: "favicon", status: "planned" }, { id: "watermark", status: "planned" },
+    { id: "crop", status: "available", action: "edit" }, { id: "stitch", status: "available", action: "edit" },
+    { id: "favicon", status: "planned" }, { id: "watermark", status: "planned" },
   ],
   gif: [
     { id: "firstFrame", status: "limited", action: "image" }, { id: "info", status: "available" },
@@ -53,7 +54,7 @@ const TOOLS: Record<FileFamily, Tool[]> = {
 };
 
 export function FileHome({
-  hidden, outputs = [], onOpenImage, onOpenGif, onOpenText, onOpenData, onOpenPdf, onOpenArchive,
+  hidden, outputs = [], onOpenImage, onOpenGif, onOpenEdit, onOpenText, onOpenData, onOpenPdf, onOpenArchive,
   outputNotice,
   onOutput = () => undefined, onRenameOutput = () => undefined, onBatchRenameOutputs = () => undefined,
   onRemoveOutput = () => undefined, onClearOutputs = () => undefined, onClearTask = () => undefined,
@@ -63,6 +64,7 @@ export function FileHome({
   outputNotice?: string | null;
   onOpenImage: (files: File[], preset: ImagePreset) => void;
   onOpenGif: (files: File[]) => void;
+  onOpenEdit: (files: File[]) => void;
   onOpenText: (files: File[]) => void;
   onOpenData: (files: File[]) => void;
   onOpenPdf: (files: File[]) => void;
@@ -167,6 +169,7 @@ export function FileHome({
     const scopedFiles = actionItems.map((item) => item.file);
     if (tool.action === "image") onOpenImage(scopedFiles, tool.id === "compress" ? "web" : tool.id === "metadata" ? "privacy" : "default");
     if (tool.action === "gif") onOpenGif(scopedFiles.length >= 2 ? scopedFiles : compatible("image"));
+    if (tool.action === "edit") onOpenEdit(scopedFiles);
     if (tool.action === "text") onOpenText(scopedFiles);
     if (tool.action === "data") onOpenData(scopedFiles.slice(0, 1));
     if (tool.action === "pdf") onOpenPdf(tool.id === "merge" && scopedFiles.length < 2 ? compatible("pdf") : scopedFiles);

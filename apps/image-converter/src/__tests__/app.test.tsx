@@ -57,17 +57,17 @@ describe("application shell", () => {
   it("exposes automatic routing plus manual family workspaces", () => {
     render(<App />);
     const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(8);
+    expect(tabs).toHaveLength(9);
     expect(tabs[0].getAttribute("aria-selected")).toBe("true");
-    fireEvent.click(tabs[7]);
-    expect(tabs[7].getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(tabs[8]);
+    expect(tabs[8].getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tabpanel").id).toBe("panel-knowledge");
     expect(screen.getByText(/Knowledge base privacy|知识库隐私说明/)).toBeTruthy();
   });
 
   it("uses an accessible theme-native format menu", () => {
     render(<App />);
-    fireEvent.click(screen.getAllByRole("tab")[3]);
+    fireEvent.click(screen.getAllByRole("tab")[4]);
     expect(screen.getByRole("heading", { name: /Open files or start|打开文件/ })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /Create blank document|新建空白文档/ }));
     const target = screen.getByLabelText(/Batch output format|批量输出格式/);
@@ -102,14 +102,14 @@ describe("application shell", () => {
 
     fireEvent.click(screen.getAllByRole("tab")[0]);
     fireEvent.click(within(container.querySelector<HTMLElement>(".home-file-panel")!).getByRole("button", { name: /Clear task|清空任务/ }));
-    fireEvent.click(screen.getAllByRole("tab")[5]);
+    fireEvent.click(screen.getAllByRole("tab")[6]);
     expect(container.querySelectorAll(".pdf-document-list > div")).toHaveLength(0);
   });
 
   it("opens PDF and ZIP families manually and reports local structure", async () => {
     render(<App />);
     const tabs = screen.getAllByRole("tab");
-    fireEvent.click(tabs[5]);
+    fireEvent.click(tabs[6]);
     const pdfDocument = await PDFDocument.create();
     pdfDocument.addPage([612, 792]);
     const pdf = new File([Uint8Array.from(await pdfDocument.save()).buffer], "notes.pdf", { type: "application/pdf" });
@@ -121,7 +121,7 @@ describe("application shell", () => {
     expect(screen.getByRole("heading", { name: /Task results|任务结果/ })).toBeTruthy();
     expect(screen.getAllByText("notes-extracted.pdf").length).toBeGreaterThan(0);
 
-    fireEvent.click(tabs[6]);
+    fireEvent.click(tabs[7]);
     const zipBlob = await createZip([{ name: "safe/notes.txt", blob: new Blob(["local"]) }]);
     const zip = new File([await readBlob(zipBlob)], "notes.zip", { type: "application/zip" });
     fireEvent.change(screen.getByLabelText(/Open ZIP|打开 ZIP/), { target: { files: [zip] } });
