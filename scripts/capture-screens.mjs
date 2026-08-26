@@ -16,6 +16,22 @@ const VIEWPORTS = {
 }
 const MODES = ['dark', 'light']
 const LANGS = ['zh', 'zh-Hant', 'en']
+const DEFAULT_FAMILY = 'catppuccin'
+
+// Theme families come from @toolbox/theme's contract. The default run
+// captures the catppuccin family only, so the committed baseline keeps its
+// existing names; pass --families to capture extra families on demand.
+const familyFlagIndex = process.argv.indexOf('--families')
+const FAMILIES = familyFlagIndex >= 0
+  ? (process.argv[familyFlagIndex + 1] ?? '').split(',').map((value) => value.trim()).filter(Boolean)
+  : []
+for (const family of FAMILIES) {
+  if (!['catppuccin', 'gruvbox', 'solarized'].includes(family)) {
+    console.error(`[screens] unknown theme family: ${family}`)
+    process.exit(1)
+  }
+}
+const ACTIVE_FAMILIES = FAMILIES.length ? FAMILIES : [DEFAULT_FAMILY]
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -91,25 +107,29 @@ async function main() {
       // manual fallback, which is deterministic by contract.
       await context.route(/^https?:\/\/(?!127\.0\.0\.1)/, (route) => route.abort())
 
-      for (const mode of MODES) {
-        for (const lang of LANGS) {
-          const page = await context.newPage()
-          await page.addInitScript(([themeMode, uiLang]) => {
-            localStorage.setItem('toolbox-theme', themeMode)
-            localStorage.setItem('toolbox-lang', uiLang)
-          }, [mode, lang])
-          await page.emulateMedia({ reducedMotion: 'reduce' })
+      for (const family of ACTIVE_FAMILIES) {
+        for (const mode of MODES) {
+          for (const lang of LANGS) {
+            const page = await context.newPage()
+            await page.addInitScript(([themeMode, uiLang, themeFamily]) => {
+              localStorage.setItem('toolbox-theme', themeMode)
+              localStorage.setItem('toolbox-lang', uiLang)
+              localStorage.setItem('toolbox-theme-family', themeFamily)
+            }, [mode, lang, family])
+            await page.emulateMedia({ reducedMotion: 'reduce' })
 
-          for (const entry of PAGES) {
-            const url = `http://127.0.0.1:${port}${entry.path}`
-            await page.goto(url, { waitUntil: 'networkidle' })
-            await page.evaluate(() => document.fonts.ready)
-            await page.waitForTimeout(450)
-            const name = `${entry.app}-${mode}-${lang}-${viewportName}.png`
-            await page.screenshot({ path: join(outputDir, name) })
-            captured += 1
+            for (const entry of PAGES) {
+              const url = `http://127.0.0.1:${port}${entry.path}`
+              await page.goto(url, { waitUntil: 'networkidle' })
+              await page.evaluate(() => document.fonts.ready)
+              await page.waitForTimeout(450)
+              const familySegment = family === DEFAULT_FAMILY ? '' : `-${family}`
+              const name = `${entry.app}${familySegment}-${mode}-${lang}-${viewportName}.png`
+              await page.screenshot({ path: join(outputDir, name) })
+              captured += 1
+            }
+            await page.close()
           }
-          await page.close()
         }
       }
       await context.close()
@@ -125,13 +145,13 @@ async function main() {
 
 Captured by \`pnpm shots\` (scripts/capture-screens.mjs) from the assembled
 production site with a fixed clock (${FIXED_TIME.toISOString()}), blocked
-cross-origin traffic, reduced motion, and seeded theme/language storage.
+cross-origin traffic, reduced motion, and seeded theme/language/family storage.
 
 Regenerate after intentional visual changes and review the diff before
 committing. Pixel diff thresholds are intentionally not enforced yet.
 
-Matrix: ${PAGES.length} pages × ${MODES.length} modes × ${LANGS.length} languages × ${Object.keys(VIEWPORTS).length} viewports.
-`,
+Matrix: ${PAGES.length} pages × ${ACTIVE_FAMILIES.length} theme famil${ACTIVE_FAMILIES.length === 1 ? 'y' : 'ies'} (${ACTIVE_FAMILIES.join(', ')}) × ${MODES.length} modes × ${LANGS.length} languages × ${Object.keys(VIEWPORTS).length} viewports.
+${FAMILIES.length ? `\nNon-default families are captured on demand via \`pnpm shots -- --families gruvbox,solarized\`; their files carry a \`-<family>\` name segment.\n` : '\nDefault run captures the catppuccin family only; use `--families` to add gruvbox/solarized passes without touching the committed baseline names.\n'}`,
   )
   console.log(`[screens] captured ${captured} screenshots into ${outputDir}`)
 }
