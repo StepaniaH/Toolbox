@@ -44,7 +44,7 @@ GHSA-r28c-9q8g-f849 及 nanoid 生成器循环两则通告）。overrides 是全
 3. React 与 React DOM 必须来自同一 catalog；Vite 与 React plugin 也必须来自同一 catalog。
 4. 修改版本只改 `pnpm-workspace.yaml`，随后用 `pnpm install` 更新根锁文件；不得手改 `pnpm-lock.yaml`。
 5. 审查锁文件是否仅包含目标依赖及其必要传递依赖；出现无关升级时停止并拆分。
-6. 构建器、CSS 处理器或运行时依赖升级即使单元测试通过，也要对受影响应用补浏览器 smoke；有视觉影响时执行 light/dark、zh/en、desktop/mobile 矩阵。
+6. 构建器、CSS 处理器或运行时依赖升级即使单元测试通过，也要对受影响应用补浏览器 smoke；有视觉影响时执行 light/dark、zh/zh-Hant/en、desktop/mobile 矩阵。
 7. 平台包契约升级先保持向后兼容并迁移一个消费者；破坏性变更留到独立的平台版本阶段。
 
 最小执行顺序：

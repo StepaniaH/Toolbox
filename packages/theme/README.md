@@ -1,6 +1,6 @@
 # @toolbox/theme
 
-Toolbox 的框架无关主题契约。当前 v1 提供 Catppuccin Frappé 深色与 Latte 浅色主题、共享语义 token、首屏 pre-paint 和 Vanilla runtime。
+Toolbox 的框架无关主题契约。当前契约 v2 提供三套双模式配色族（Catppuccin 默认、Gruvbox、Solarized）、共享语义 token、`data-theme-family` 族机制、首屏 pre-paint 和 Vanilla runtime。
 
 ## 使用
 

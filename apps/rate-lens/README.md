@@ -22,7 +22,7 @@ The UI discloses this behavior before the action. Each endpoint has an eight-sec
 - **Two calculation modes** with shared recharge/balance/exchange-rate inputs
 - **Live price table** for Claude (5 models) and GPT & Codex (6 models), with semantic pills (green = cheaper, yellow = flat, red = more expensive) and per-cell formulas
 - **Optional live exchange rate**, explicitly requested, with multi-endpoint fallback and manual override
-- **Catppuccin theme** — Frappe (dark) / Latte (light), persisted to `localStorage`, following the system when no preference is stored
+- **Theming via Settings** — semantic tokens from `@toolbox/theme`; dark/light mode and the palette family (Catppuccin / Gruvbox / Solarized) are chosen in the shared Settings app
 - **Responsive** across 375 / 768 / 1024 / 1440 breakpoints; price table scrolls horizontally on mobile
 - **Persistent state** — refresh the page and your inputs, mode, and price-table selection are restored
 - **Error boundary** at the root; graceful offline fallback for the exchange rate
@@ -34,7 +34,7 @@ The UI discloses this behavior before the action. Each endpoint has an eight-sec
 | Framework | React 19 + TypeScript 5.9 |
 | Build | Vite 7 |
 | Styling | Tailwind CSS v4 + shadcn/ui (new-york) |
-| Theme | Catppuccin Frappe / Latte (CSS custom properties) |
+| Theme | `@toolbox/theme` tokens (Tailwind/shadcn mapped to semantic aliases) |
 | Icons | lucide-react |
 | Tests | Vitest 3 + @testing-library/react + jsdom |
 
@@ -54,10 +54,10 @@ src/
 ├── calc/          # forward.ts, reverse.ts — pure calculation logic
 ├── components/    # feature components + layout/ + ui/ (shadcn)
 ├── data/          # models.ts — Claude & GPT/Codex pricing
-├── hooks/         # use-theme, use-local-storage, use-exchange-rate
+├── hooks/         # use-local-storage, use-exchange-rate
 ├── lib/           # utils.ts — cn, parseNum, formatters, classifyVerdict
 ├── types/         # TypeScript domain types
-└── __tests__/     # unit + render tests (9 files, 59 tests)
+└── __tests__/     # unit + render + translation-parity tests
 ```
 
 Repository tasks: [`../../docs/TASKS.md`](../../docs/TASKS.md) · Shared design contract: [`../../docs/DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md)
@@ -66,7 +66,8 @@ Repository tasks: [`../../docs/TASKS.md`](../../docs/TASKS.md) · Shared design 
 
 - `calc/` and `lib/` are covered by unit tests (formulas, edge cases, verdict classification)
 - Feature components (`ForwardCalculator`, `ReverseCalculator`, `App`) are covered by render tests using the same calc functions
-- `useLocalStorage` (persistence) and `useTheme` (dark/light toggle) are covered by hook tests
+- `useLocalStorage` (persistence) and `useExchangeRate` (fetch/fallback/manual override) are covered by hook tests
+- Translation catalogs are locked by a trilingual key-parity test (`__tests__/translations.test.ts`)
 
 ## License
 

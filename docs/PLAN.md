@@ -119,7 +119,7 @@ vX.Y.Z tag（版本准备提交保证三处版本一致）
   构建产物生成体积表并写入 `docs/PERFORMANCE.md`，CI 输出对照；超预算先说明后处理，
   不设不可解释的硬失败阈值。交互延迟与缓存行为待真实证据后再补测量。
 - 优先测量 RateLens 首包与 ChronoSphere timezone lazy chunk，再决定拆包或数据加载策略。
-- 维护 light/dark × zh/en × desktop/mobile × keyboard 的代表业务矩阵。
+- 维护 light/dark × zh/zh-Hant/en × desktop/mobile × keyboard 的代表业务矩阵。
 - 建立人工审核截图基线：`scripts/capture-screens.mjs` 以固定时钟、固定预览数据在
   1440/390 视口捕获 stable 应用关键页的 light/dark × zh/en 矩阵，基线入库存档；像素
   diff 阈值在基线经人工审核后再引入。

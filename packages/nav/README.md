@@ -4,7 +4,7 @@ Shared navigation bar for every Toolbox app. Both surfaces project the stable
 entries from `@toolbox/app-manifest` over the same CSS:
 
 - **`nav-bar.js`** — vanilla JS, auto-mounts into `<div id="toolbox-nav"></div>`. Used by the Vanilla apps (`homepage`, `monitor-choice`).
-- **`NavBar.tsx`** — React component, `<NavBar currentApp="rate-lens" />`. Used by the React apps (`rate-lens`, `chrono-sphere`, `sane-units`, `image-converter`, `crypto-lab`).
+- **`NavBar.tsx`** — React component, `<NavBar currentApp="rate-lens" />`. Used by the React apps (`rate-lens`, `chrono-sphere`, `sane-units`, `image-converter`, `crypto-lab`, `settings`).
 
 Both render the same layout:
 
@@ -26,7 +26,7 @@ Icon actions intentionally have no background box on pointer hover; hover uses c
 Tool headers wrap their manifest icon in `.toolbox-app-mark`: a canonical 40px
 square with a 12px radius, 15% accent surface, 24px icon and no border,
 gradient or shadow. The production browser contract checks this geometry and
-surface across all seven applications.
+surface across all eight applications.
 
 ## Tool list
 

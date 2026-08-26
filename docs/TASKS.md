@@ -1,6 +1,6 @@
 # Toolbox — 当前任务与进度
 
-> 最后更新：2026-08-25
+> 最后更新：2026-08-26
 >
 > 这里只保留当前与下一阶段工作。已发布结果见 [CHANGELOG.md](../CHANGELOG.md)，架构理由见
 > [PLAN.md](./PLAN.md)。不保存过程日志、聊天摘要、真实服务器或个人环境信息。
@@ -25,7 +25,7 @@
 - [x] CI 执行 `check:audit`（生产依赖、high 起报）；仅向 registry 提交依赖名与版本。
 - [x] 保持 Actions 固定 SHA、Node 24 兼容运行时、只读权限、Turborepo telemetry opt-out 和显式生产部署。
 
-### P0.2 · dev → main 晋级清单 `🔄 进行中`
+### P0.2 · dev → main 晋级清单 `✅ 已完成`
 
 - [x] CI 全绿：privacy/contracts/build/test/lint/browser。push 运行在 DST 扫描测试获得显式
   超时后连续全绿；v0.4.0 合并后的 push 运行再次全绿。
@@ -61,7 +61,7 @@
 - [x] 两个目标只允许从 `main` 手动选择发布，使用 `production` environment 和独立并发保护。
 - [x] 文档只公开正式站点域名；VPS 目标、端口、路径和 Cloudflare 凭据继续使用占位符或 Secrets。
 
-### P0.4 · 分支模型切换与 tag 发布流水线 `🔄 进行中`
+### P0.4 · 分支模型切换与 tag 发布流水线 `✅ 已完成`
 
 - [x] 删除远端 `dev`，远端只保留 `origin/main`；本地 `dev` 成为唯一开发分支。
 - [x] AGENTS / NEW_TOOL / RELEASE / skill 同步单线开发与 tag 发布模型。

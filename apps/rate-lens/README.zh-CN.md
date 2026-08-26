@@ -22,7 +22,7 @@ RateLens 是一个纯前端的 AI 模型 API 计费计算器，支持两种模�
 - **双计算模式**，充值 / 到账 / 汇率输入共享
 - **实时价格表**：Claude（5 款）与 GPT & Codex（6 款），语义化 pill（绿=便宜 / 黄=持平 / 红=贵）+ 每格计算公式
 - **可选实时汇率**，用户主动获取、多端点 fallback，支持随时手动覆盖
-- **Catppuccin 主题**：Frappe（深色）/ Latte（浅色），localStorage 持久化，未保存偏好时跟随系统
+- **主题走设置页** — 语义 token 来自 `@toolbox/theme`；深浅模式与配色族（Catppuccin / Gruvbox / Solarized）在共享设置应用中选择
 - **响应式**：375 / 768 / 1024 / 1440 四断点；移动端价格表横向滚动
 - **状态持久化**：刷新后输入值、模式、价格表选择自动恢复
 - **根级 ErrorBoundary**；汇率离线时回退默认值
@@ -34,7 +34,7 @@ RateLens 是一个纯前端的 AI 模型 API 计费计算器，支持两种模�
 | 框架 | React 19 + TypeScript 5.9 |
 | 构建 | Vite 7 |
 | 样式 | Tailwind CSS v4 + shadcn/ui (new-york) |
-| 主题 | Catppuccin Frappe / Latte（CSS 自定义属性） |
+| 主题 | `@toolbox/theme` token（Tailwind/shadcn 映射到语义别名） |
 | 图标 | lucide-react |
 | 测试 | Vitest 3 + @testing-library/react + jsdom |
 
@@ -54,10 +54,10 @@ src/
 ├── calc/          # forward.ts, reverse.ts — 纯计算逻辑
 ├── components/    # 功能组件 + layout/ + ui/ (shadcn)
 ├── data/          # models.ts — Claude 与 GPT/Codex 定价数据
-├── hooks/         # use-theme, use-local-storage, use-exchange-rate
+├── hooks/         # use-local-storage, use-exchange-rate
 ├── lib/           # utils.ts — cn, parseNum, 格式化, classifyVerdict
 ├── types/         # TypeScript 领域类型
-└── __tests__/     # 单元 + 渲染测试（9 文件，59 用例）
+└── __tests__/     # 单元 + 渲染 + 三语齐平测试
 ```
 
 全仓任务：[`../../docs/TASKS.md`](../../docs/TASKS.md) · 共享设计契约：[`../../docs/DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md)
@@ -66,7 +66,8 @@ src/
 
 - `calc/` 与 `lib/` 由单元测试覆盖（公式、边界、verdict 判定）
 - 功能组件（`ForwardCalculator`、`ReverseCalculator`、`App`）由渲染测试覆盖，复用同一套计算函数
-- `useLocalStorage`（持久化）与 `useTheme`（深/浅色切换）由 hook 测试覆盖
+- `useLocalStorage`（持久化）与 `useExchangeRate`（获取/回退/手动覆盖）由 hook 测试覆盖
+- 三语词表由键位齐平测试锁定（`__tests__/translations.test.ts`）
 
 ## 许可证
 
