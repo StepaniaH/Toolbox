@@ -5,5 +5,17 @@ export default defineConfig({
   base: process.env.NODE_ENV === "production" ? "/image-converter/" : "/",
   plugins: [react()],
   optimizeDeps: { include: ["react", "react-dom/client"] },
-  build: { outDir: "dist" },
+  build: {
+    outDir: "dist",
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules") || id.includes("@toolbox")) return;
+          if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) {
+            return "react-vendor";
+          }
+        },
+      },
+    },
+  },
 });
