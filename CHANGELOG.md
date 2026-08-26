@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.5.1 (2026-08-26)
 
 ### Added
 
@@ -12,6 +12,17 @@
   Choice (previously only three apps had them).
 - `check:contracts` now regenerates the zh-Hant catalogs in memory and fails on
   any drift; regenerate with `pnpm gen:zh-hant`.
+- FormTran gains an image editor tab: batch crop by aspect presets and anchors
+  or per-side insets, plus stitching in horizontal, vertical, or grid layouts
+  with spacing and alignment controls. Results join the shared output queue.
+- FormTran's table workspace reads JSON, YAML, and XML by structure (object
+  arrays become record rows; XML attributes are kept as `@` columns) and every
+  source can now export CSV, TSV, JSON, YAML, XML, or macro-free XLSX.
+- FormTran's GIF tab gains source-file tools: extract frames to PNG, rescale
+  playback speed by 0.25×–4×, or compress lossily via 25–75% scaling with
+  optional frame stepping.
+- RateLens shows each provider's official pricing page and the month of the
+  last manual transcription under its price table.
 
 ### Changed
 
@@ -21,10 +32,21 @@
 - RateLens ships its framework as a separate cacheable `react-vendor` chunk;
   ChronoSphere additionally splits `luxon` and the lunar calendar tables, so
   the timezone selector chunk shrinks from ~123k to ~5k gzip and lunar tables
-  load only on the lunar page.
+  load only on the lunar page. SaneUnits and FormTran now split `react-vendor`
+  too, cutting first-paint app code to ~29k and ~99k gzip respectively.
+- Monitor Choice replaces its remaining inline styles with semantic classes;
+  the screenshot baseline confirms pixel-identical rendering.
+- `pnpm shots --families gruvbox,solarized` captures non-default theme
+  families on demand without renaming the committed catppuccin baseline.
 
 ### Fixed
 
+- Fixed SaneUnits calculation results and option labels exposing simplified
+  Chinese text to Traditional Chinese users; all copy moved into the trilingual
+  catalogs and number formatting follows the shared locale contract.
+- Fixed ChronoSphere showing simplified city and country names in Traditional
+  Chinese; the timezone database is now catalog-driven across all three
+  languages, with search indexing simplified, traditional, and English terms.
 - Fixed Monitor Choice ignoring the shared Traditional Chinese setting because
   it expected an internal `zhHant` locale code; it now follows the shared
   language codes and no longer writes the shared storage key twice.
