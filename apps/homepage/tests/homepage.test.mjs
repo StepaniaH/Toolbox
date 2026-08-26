@@ -43,6 +43,8 @@ test('homepage renders every stable tool from the manifest presentation contract
       assert.ok(app.presentation.subtitle[lang], `${app.id} needs a ${lang} subtitle`)
       assert.ok(app.presentation.description[lang], `${app.id} needs a ${lang} description`)
     }
+    assert.ok(app.presentation.subtitle.zhHant, `${app.id} needs a zh-Hant subtitle`)
+    assert.ok(app.presentation.description.zhHant, `${app.id} needs a zh-Hant description`)
     assert.ok(app.presentation.badges.length > 0, `${app.id} needs card badges`)
   }
   assert.equal(

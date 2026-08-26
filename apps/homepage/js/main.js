@@ -3,7 +3,7 @@
    ========================================================================== */
 
 import "./platform.js";
-import { getLang, setLang, toggleLang, registerCardStrings } from "./i18n.js";
+import { getLang, setLang, registerCardStrings } from "./i18n.js";
 import { getStableApps } from "@toolbox/app-manifest";
 import { applyHomepagePrefs, readHomepagePrefs } from "@toolbox/prefs";
 import { autoMountToolboxFooters } from "@toolbox/nav/toolbox-footer.js";
@@ -69,8 +69,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // i18n
   setLang(getLang());
-  var langToggle = document.getElementById("langToggle");
-  if (langToggle) langToggle.addEventListener("click", toggleLang);
 
   // Theme — #themeToggle is wired by js/theme.js (delegates to window.ToolboxTheme).
 });
