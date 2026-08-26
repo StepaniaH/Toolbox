@@ -11,7 +11,8 @@ export interface ModelPricing {
   cacheWrite: number | null
   cacheRead: number
   output: number
-  note?: string
+  /** Translation key under `notes.*`; user-facing copy lives in catalogs. */
+  noteKey?: string
 }
 
 export interface ForwardInput {
@@ -54,7 +55,6 @@ export interface ReverseRowResult {
   equivalentRate: number | null
   officialCostRatio: number | null
   verdict: Verdict
-  discountText: string
 }
 
 export interface ReverseSummary {

@@ -13,14 +13,38 @@
     "title": "名词解释",
     "explanation": "为什么要算最终使用倍率？—— 平台显示的分组倍率会因充值比例（汇率加价）而被放大或缩小，换算成 1:1 等效倍率后才能与官方定价直接对比，判断是否划算。",
     "terms": {
-      "rechargeAmount": { "term": "充值金额", "desc": "实际花费的人民币金额" },
-      "arrivedAmount": { "term": "到账金额", "desc": "充值后到账的美元余额" },
-      "groupRate": { "term": "分组倍率", "desc": "平台对模型分组设置的计费倍数，越低扣费越少" },
-      "rechargeRatio": { "term": "充值比例", "desc": "充值金额 ÷ 到账金额，即每 1 美元实际成本" },
-      "officialCostRatio": { "term": "占官方成本", "desc": "实际成本相对于官网价的百分比" },
-      "inputOutput": { "term": "输入 / 输出", "desc": "输入 = 发给模型的内容，输出 = 模型回复，通常输出更贵" },
-      "cacheWriteRead": { "term": "缓存写入 / 读取", "desc": "写入 = 存储可复用内容，读取 = 复用内容，读取更便宜" },
-      "tokens": { "term": "1M tokens", "desc": "计费用量单位，约一百万个文本片段" }
+      "rechargeAmount": {
+        "term": "充值金额",
+        "desc": "实际花费的人民币金额"
+      },
+      "arrivedAmount": {
+        "term": "到账金额",
+        "desc": "充值后到账的美元余额"
+      },
+      "groupRate": {
+        "term": "分组倍率",
+        "desc": "平台对模型分组设置的计费倍数，越低扣费越少"
+      },
+      "rechargeRatio": {
+        "term": "充值比例",
+        "desc": "充值金额 ÷ 到账金额，即每 1 美元实际成本"
+      },
+      "officialCostRatio": {
+        "term": "占官方成本",
+        "desc": "实际成本相对于官网价的百分比"
+      },
+      "inputOutput": {
+        "term": "输入 / 输出",
+        "desc": "输入 = 发给模型的内容，输出 = 模型回复，通常输出更贵"
+      },
+      "cacheWriteRead": {
+        "term": "缓存写入 / 读取",
+        "desc": "写入 = 存储可复用内容，读取 = 复用内容，读取更便宜"
+      },
+      "tokens": {
+        "term": "1M tokens",
+        "desc": "计费用量单位，约一百万个文本片段"
+      }
     }
   },
   "mode": {
@@ -150,5 +174,8 @@
   },
   "app": {
     "clearPaid": "清空实付输入"
+  },
+  "notes": {
+    "sonnetPromo": "限时价至 2026-08-31，之后 $3 / $15"
   }
 }

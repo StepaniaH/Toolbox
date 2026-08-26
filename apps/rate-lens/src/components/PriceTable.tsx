@@ -107,8 +107,8 @@ export function PriceTable({ provider, groupRate, rechargeRatio, rate }: PriceTa
               >
                 <td className="sticky left-0 z-10 bg-card/80 px-3 py-2.5 font-medium text-fg backdrop-blur">
                   <div>{m.name}</div>
-                  {m.note && (
-                    <div className="text-[10px] text-yellow">{m.note}</div>
+                  {m.noteKey && (
+                    <div className="text-[10px] text-yellow">{t(`notes.${m.noteKey}`)}</div>
                   )}
                 </td>
                 <td className="tabular px-3 py-2.5 text-muted-foreground">

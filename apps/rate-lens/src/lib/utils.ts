@@ -44,20 +44,6 @@ export function classifyVerdict(
   return 'flat'
 }
 
-/** Format a signed percentage, e.g. "比官方便宜 12.3%" / "比官方贵 12.3%" / "与官方持平". */
-export function formatDiscount(ratio: number, digits = 1): {
-  text: string
-  sign: Verdict
-} {
-  const sign = classifyVerdict(ratio, 0.005)
-  if (!Number.isFinite(ratio)) return { text: '—', sign: 'na' }
-  if (sign === 'flat') return { text: '与官方持平', sign: 'flat' }
-  const pct = formatNumber(Math.abs(ratio) * 100, digits)
-  return sign === 'cheaper'
-    ? { text: `比官方便宜 ${pct}%`, sign: 'cheaper' }
-    : { text: `比官方贵 ${pct}%`, sign: 'expensive' }
-}
-
 /** Format a CNY price like "¥25" / "¥12.34". */
 export function formatCNY(value: number, digits = 2): string {
   if (!Number.isFinite(value)) return '—'

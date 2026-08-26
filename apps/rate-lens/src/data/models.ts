@@ -34,7 +34,7 @@ export const CLAUDE_MODELS: ModelPricing[] = [
     cacheWrite: 2.5,
     cacheRead: 0.2,
     output: 10,
-    note: '限时价至 2026-08-31，之后 $3 / $15',
+    noteKey: 'sonnetPromo',
   },
   {
     id: 'claude-sonnet-4.6',
