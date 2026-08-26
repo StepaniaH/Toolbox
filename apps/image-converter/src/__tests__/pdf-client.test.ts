@@ -1,6 +1,7 @@
 import { PDFDocument } from "pdf-lib";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cancelActivePdfJobs, runPdfJob } from "../lib/pdf-client";
+import { handlePdfJobRequest } from "../lib/pdf-engine";
+import { cancelActivePdfJobs, runPdfJob, setPdfInlineRunner } from "../lib/pdf-client";
 
 type FakeMessage = { data: unknown };
 
@@ -99,12 +100,23 @@ describe("pdf job client", () => {
     await expect(firstJob).resolves.toMatchObject({ pageCount: 1 });
   });
 
-  it("falls back to inline execution when Worker is unavailable", async () => {
+  it("falls back to an injected inline runner when Worker is unavailable", async () => {
     vi.stubGlobal("Worker", undefined);
-    const first = await makePdfBlob(1);
-    const second = await makePdfBlob(1);
-    const bytes = await runPdfJob<ArrayBuffer>({ id: "job-5", type: "merge", files: [first, second] });
-    const output = await PDFDocument.load(bytes as ArrayBuffer);
-    expect(output.getPageCount()).toBe(2);
+    setPdfInlineRunner(handlePdfJobRequest);
+    try {
+      const first = await makePdfBlob(1);
+      const second = await makePdfBlob(1);
+      const bytes = await runPdfJob<ArrayBuffer>({ id: "job-5", type: "merge", files: [first, second] });
+      const output = await PDFDocument.load(bytes as ArrayBuffer);
+      expect(output.getPageCount()).toBe(2);
+    } finally {
+      setPdfInlineRunner(null);
+    }
+  });
+
+  it("fails clearly when neither a worker nor an inline runner exists", async () => {
+    vi.stubGlobal("Worker", undefined);
+    const source = await makePdfBlob(1);
+    await expect(runPdfJob({ id: "job-6", type: "inspect", file: source })).rejects.toThrow("pdf-worker-failed");
   });
 });

@@ -1,7 +1,12 @@
-import {
-  handlePdfJobRequest,
-  type PdfJobProgress, type PdfJobRequest, type PdfJobResponse,
-} from "./pdf-engine";
+import type { PdfJobProgress, PdfJobRequest, PdfJobResponse } from "./pdf-engine";
+
+type PdfInlineRunner = (request: PdfJobRequest, onProgress?: PdfJobProgress) => Promise<PdfJobResponse>;
+
+let inlineRunner: PdfInlineRunner | null = null;
+
+export function setPdfInlineRunner(runner: PdfInlineRunner | null): void {
+  inlineRunner = runner;
+}
 
 type ActiveJob = { terminate: () => void };
 
@@ -17,7 +22,8 @@ export function runPdfJob<T>(request: PdfJobRequest, options?: { onProgress?: Pd
 }
 
 async function runInline<T>(request: PdfJobRequest, onProgress?: PdfJobProgress): Promise<T> {
-  return settlePdfResponse<T>(await handlePdfJobRequest(request, onProgress));
+  if (!inlineRunner) throw new Error("pdf-worker-failed");
+  return settlePdfResponse<T>(await inlineRunner(request, onProgress));
 }
 
 function runInWorker<T>(request: PdfJobRequest, onProgress?: PdfJobProgress): Promise<T> {

@@ -12,10 +12,10 @@
 | ChronoSphere | 12 | 640.1k | 205.4k | 34.2k | 7.0k | lunar-calendar-Cr5t-53W.js (97.4k) |
 | Monitor Choice | 2 | 100.6k | 34.0k | 52.0k | 9.0k | index-NMvXqNbh.js (34.0k) |
 | SaneUnits | 3 | 287.4k | 87.0k | 25.2k | 5.4k | react-vendor-Bb048-hH.js (58.9k) |
-| FormTran | 6 | 1068.5k | 382.7k | 91.7k | 15.4k | index-a3kbw8sJ.js (177.3k) |
+| FormTran | 7 | 1071.2k | 384.0k | 92.0k | 15.4k | index-BMQvB3Hj.js (177.3k) |
 | CryptoLab | 11 | 470.4k | 156.6k | 38.5k | 8.4k | index-D7G4CrIH.js (87.7k) |
 | Settings | 2 | 222.6k | 70.8k | 19.2k | 4.3k | index-BmDVrOpS.js (70.8k) |
-| **Total** | | | **1126.4k gzip** | | | |
+| **Total** | | | **1127.7k gzip** | | | |
 
 ## Load-path notes
 
@@ -39,3 +39,8 @@
   image editor (batch crop / stitch), GIF source tools, and JSON/YAML/XML
   tabulation shipped; entry-path bytes are unchanged because all three load
   behind their own workspace routes and dynamic imports.
+- FormTran's PDF worker round (2026-08-26) keeps totals nearly flat
+  (~382.7k → ~384.0k gzip): pdf-lib now loads only inside the 4.4 kB-glue module
+  worker when the first PDF job runs, and the main graph holds no copy of it.
+  The client deliberately has no import path back to the engine so rollup
+  cannot re-duplicate pdf-lib into the main graph.
