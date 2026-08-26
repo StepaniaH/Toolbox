@@ -188,9 +188,10 @@
 - [x] 七应用 production smoke 覆盖 1440/390px、zh/en、light/dark、代表业务页、共享壳与溢出。
 - [x] `pnpm shots` 以固定时钟、阻断跨域、reduced motion 捕获 8 页 × 2 主题 × 2 语言 ×
   2 视口共 64 张基线，存于 docs/screenshots 供人工审核。
+- [x] 主题族与 zh-Hant 纳入截图矩阵：zh-Hant 维度已随基线更新；主题族维度由
+  capture-screens 的 `--families` 参数按需捕获（2026-08-26），非默认族文件带 `-<family>`
+  名段，默认运行仍只产 catppuccin 基线、不改既有命名。
 - [ ] 维护者审核基线后决定像素 diff 阈值与执行时机。
-- [x] 主题族与 zh-Hant 纳入截图矩阵（zh-Hant 维度已随基线更新；主题族维度待
-  capture-screens 增加 family 参数）。
 
 ### P2.7 · Settings 设置应用 `✅ 已完成`
 
