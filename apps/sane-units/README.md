@@ -22,7 +22,7 @@ SaneUnits explains the WHY behind unit confusion — why a 4TB drive shows as 3.
 ## Tech Stack
 
 - React 19 + Vite 6
-- Plain CSS (Catppuccin theme)
+- Plain CSS with shared theme tokens (Catppuccin / Gruvbox / Solarized)
 - No backend, no accounts, no tracking
 
 ## License

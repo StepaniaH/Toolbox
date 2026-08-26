@@ -22,7 +22,7 @@ SaneUnits 解释单位混淆背后的原因——为什么 4TB 硬盘插上电�
 ## 技术栈
 
 - React 19 + Vite 6
-- 纯 CSS（Catppuccin 主题）
+- 纯 CSS，使用共享主题 token（Catppuccin / Gruvbox / Solarized）
 - 无后端、无账号、无追踪
 
 ## 许可证
