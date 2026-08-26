@@ -313,8 +313,10 @@
 - [x] 合成层第二轮：chrono-sphere 玻璃卡片/时区下拉移除 backdrop blur 并改不透明表面
   （含样式守卫测试）；sane-units 卡片网格降光晕（AGENTS 设计偏好的落地）。
 - [ ] 交互延迟与缓存行为的可解释基线。
-- [ ] FormTran 入口 chunk（177.3k gzip）与 SaneUnits 入口（86.2k gzip）的拆包评估，
-  先补真实加载路径测量。
+- [x] FormTran 与 SaneUnits 入口拆包评估（2026-08-26）：先补真实加载路径测量——两应用的
+  重型解析器（pdf-lib、HEIC WASM）本就是按需动态导入，入口里唯一的大静态依赖是 react 全家；
+  按 rate-lens 模式拆出 `react-vendor` 后，首屏应用码分别降到 ~99k / ~29k gzip，
+  框架字节获得跨版本缓存身份。基线与决策见 docs/PERFORMANCE.md。
 
 ### P3.3 · 结构性维护 `🔄 进行中`
 
@@ -329,8 +331,9 @@ SaneUnits 拆分：App.tsx（约 1,400 行）已确认只含视图编排——�
   decode/encode 对拆入 `pages/*.tsx`，App.tsx 收敛为壳层与路由映射（约 90 行）。
 - [x] 迁移为纯代码搬移：不改文案（含 NetworkPage 既有双语三元分支）、不改存储键与路由
   名；deep-link 刷新由 browser smoke 守护。
+- [x] RateLens 为模型价格记录公开来源与更新时间（2026-08-26）：`PRICING_SOURCES` 固定
+  官方定价页链接与人工核对年月，价格表底部展示本地化来源行；运行时仍零请求、零代理。
 - [ ] Monitor Choice 继续减少 inline style，建立更清晰的渲染 lifecycle/cleanup 边界。
-- [ ] RateLens 为模型价格记录公开来源与更新时间，不为更新引入追踪或隐式代理。
 
 ## P4 — 平台版本与体验补全
 
