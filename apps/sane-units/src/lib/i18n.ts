@@ -711,9 +711,7 @@ export function resolveTranslation(
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<LanguageCode>(() => coreToSaneUnits(getLang()));
 
-  useEffect(() => {
-    document.documentElement.lang = lang === "zh-CN" ? "zh-CN" : lang === "zh-Hant" ? "zh-TW" : "en";
-  }, [lang]);
+  // <html lang> is owned by @toolbox/i18n core (setLang/applyDocumentLang).
 
   useEffect(() => {
     const unsubscribe = onChange((coreLang) => {
