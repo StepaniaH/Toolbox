@@ -134,6 +134,13 @@ try {
   assert.equal(await page.locator('.data-preview td').filter({ hasText: 'Alice' }).count(), 1)
   assert.match(await page.locator('.boundary-note').textContent(), /cached (?:file )?values|缓存值/)
 
+  // Structured formats: JSON tabulates through the same workspace.
+  await page.locator('.data-page input[type=file]').setInputFiles({
+    name: 'records.json', mimeType: 'application/json', buffer: Buffer.from('[{"name":"Alice","amount":42},{"name":"Bob","amount":7}]'),
+  })
+  await page.waitForFunction(() => document.querySelectorAll('.data-preview tbody tr').length === 3)
+  assert.match(await page.locator('.boundary-note').textContent(), /JSON\/YAML\/XML/)
+
   const firstPdf = await PDFDocument.create()
   firstPdf.addPage([300, 400])
   firstPdf.addPage([500, 600])

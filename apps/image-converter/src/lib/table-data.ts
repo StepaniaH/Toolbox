@@ -1,7 +1,18 @@
 import { openZip, type OpenedZip, type ZipEntry } from "./zip-reader";
 import { createZip } from "./zip";
+import { parseJsonRecords, parseXmlRecords, parseYamlRecords } from "./structured-data";
+import {
+  ensureCellBudget, MAX_DELIMITED_FILE_BYTES, MAX_TABLE_CELL_CHARS,
+  MAX_TABLE_FILE_BYTES, uniqueHeaders, xmlEscape,
+} from "./table-core";
 
-export type TableSourceFormat = "csv" | "tsv" | "xlsx";
+export {
+  ensureCellBudget, MAX_DELIMITED_FILE_BYTES, MAX_TABLE_CELLS,
+  MAX_TABLE_CELL_CHARS, MAX_TABLE_COLUMNS, MAX_TABLE_FILE_BYTES, MAX_TABLE_ROWS,
+  uniqueHeaders, xmlEscape,
+} from "./table-core";
+
+export type TableSourceFormat = "csv" | "tsv" | "xlsx" | "json" | "yaml" | "xml";
 export type TableDocument = {
   format: TableSourceFormat;
   rows: string[][];
@@ -11,12 +22,6 @@ export type TableDocument = {
   formulaCount: number;
 };
 
-export const MAX_TABLE_FILE_BYTES = 32 * 1024 * 1024;
-export const MAX_DELIMITED_FILE_BYTES = 16 * 1024 * 1024;
-export const MAX_TABLE_ROWS = 20_000;
-export const MAX_TABLE_COLUMNS = 256;
-export const MAX_TABLE_CELLS = 250_000;
-export const MAX_TABLE_CELL_CHARS = 32_767;
 
 const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const XML_LIMITS = {
@@ -34,13 +39,10 @@ export function tableSourceFormat(name: string): TableSourceFormat | null {
   if (extension === "csv") return "csv";
   if (extension === "tsv") return "tsv";
   if (extension === "xlsx") return "xlsx";
+  if (extension === "json") return "json";
+  if (extension === "yaml" || extension === "yml") return "yaml";
+  if (extension === "xml") return "xml";
   return null;
-}
-
-function ensureCellBudget(rows: number, columns: number, cells: number): void {
-  if (rows > MAX_TABLE_ROWS) throw new Error("table-row-limit");
-  if (columns > MAX_TABLE_COLUMNS) throw new Error("table-column-limit");
-  if (cells > MAX_TABLE_CELLS) throw new Error("table-cell-limit");
 }
 
 function delimiterScore(text: string, delimiter: "," | "\t" | ";"): number {
@@ -131,28 +133,12 @@ export function serializeDelimited(rows: string[][], delimiter: "," | "\t", form
   return rows.map((row) => row.map((value) => quoteDelimited(formulaProtection ? protectFormula(value) : value, delimiter)).join(delimiter)).join("\r\n");
 }
 
-function uniqueHeaders(row: string[]): string[] {
-  const used = new Set<string>();
-  return row.map((value, index) => {
-    const base = value.trim() || `column_${index + 1}`;
-    let candidate = base;
-    let suffix = 2;
-    while (used.has(candidate)) { candidate = `${base}_${suffix}`; suffix += 1; }
-    used.add(candidate);
-    return candidate;
-  });
-}
-
 export function serializeJson(rows: string[][], firstRowIsHeader = true): string {
   if (!firstRowIsHeader) return JSON.stringify(rows, null, 2);
   const width = Math.max(0, ...rows.map((row) => row.length));
   const headers = uniqueHeaders(Array.from({ length: width }, (_, index) => rows[0]?.[index] ?? ""));
   const records = rows.slice(1).map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ""])));
   return JSON.stringify(records, null, 2);
-}
-
-function xmlEscape(value: string): string {
-  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 
 function columnName(index: number): string {
@@ -310,5 +296,8 @@ export async function readTableFile(file: File, sheetIndex = 0): Promise<TableDo
   if (file.size > MAX_TABLE_FILE_BYTES || (format !== "xlsx" && file.size > MAX_DELIMITED_FILE_BYTES)) throw new Error("table-file-limit");
   if (format === "xlsx") return readXlsx(file, sheetIndex);
   const text = typeof file.text === "function" ? await file.text() : await blobText(file);
+  if (format === "json") return { format, rows: parseJsonRecords(text), sheetNames: [], sheetIndex: 0, formulaCount: 0 };
+  if (format === "yaml") return { format, rows: await parseYamlRecords(text), sheetNames: [], sheetIndex: 0, formulaCount: 0 };
+  if (format === "xml") return { format, rows: parseXmlRecords(text), sheetNames: [], sheetIndex: 0, formulaCount: 0 };
   return parseDelimited(text, format === "tsv" ? "\t" : undefined);
 }

@@ -36,6 +36,7 @@ GHSA-r28c-9q8g-f849 及 nanoid 生成器循环两则通告）。overrides 是全
 |---|---|---|
 | FormTran | `@discourse/heic` 1.0.0（Apache-2.0）；`pdf-lib` 1.17.1（MIT） | HEIC/HEIF 后备解码约 960 KB WASM；PDF 解析改写约 408 KB raw / 131 KB gzip；两者均仅按需同源加载，不访问远端服务，并分别受 64 MB 与 PDF 文件/总量/页数预算约束 |
 | CryptoLab | `qrcode` 1.5.4（MIT）、`jsqr` 1.4.0（Apache-2.0） | 本地生成/读取 Secure Share 二维码；不包含私钥、遥测或网络后备路径 |
+| FormTran（2026-08-26 评估新增） | `yaml` 2.9.0（ISC） | 表格工作台读写 YAML：解析限定 core schema、字符串化输出；与 pdf-lib 相同仅按需同源动态加载，不进入入口 chunk，无网络路径。JSON/XML 使用原生能力，未新增依赖 |
 
 ## 三、升级规则
 

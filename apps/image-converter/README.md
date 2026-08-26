@@ -67,10 +67,13 @@ The knowledge base uses decision rows, expandable format references, and compari
 ## Table data converter
 
 - CSV/TSV is read as UTF-8 with standard quoting and delimiter detection; XLSX is read as a workbook instead of being sent to the ordinary ZIP extractor.
-- CSV/TSV can export CSV, TSV, JSON, or a macro-free single-sheet XLSX. XLSX can export CSV, TSV, or JSON.
+- JSON, YAML, and XML are tabulated by their structure: arrays of objects become record rows, other arrays become one row per item, plain objects become key/value rows, and XML repeated sibling elements become records with `@`-prefixed attribute columns. Nested values are kept as compact JSON strings or dot-path columns, so flattening never silently drops data.
+- CSV/TSV can export CSV, TSV, JSON, or a macro-free single-sheet XLSX. XLSX can export CSV, TSV, or JSON. Every accepted source can also export YAML and XML.
 - XLSX reads cell values and cached formula values only. It never runs formulas, macros, or external links and does not preserve date formatting, styles, charts, merged cells, or formulas.
 - CSV/TSV export protects against spreadsheet formula injection by default, with an explicit opt-out. JSON can use a de-duplicated first row as field names.
-- Limits are 16 MB for CSV/TSV, 32 MB for XLSX, 20,000 rows, 256 columns, 250,000 cells, and 32,767 characters per cell. Preview shows 50 rows by 20 columns while export uses all accepted data.
+- Exports cover CSV, TSV, JSON, YAML, XML, and macro-free single-sheet XLSX from any accepted source.
+- Limits are 16 MB for text formats (CSV/TSV/JSON/YAML/XML), 32 MB for XLSX, 20,000 rows, 256 columns, 250,000 cells, and 32,767 characters per cell. Preview shows 50 rows by 20 columns while export uses all accepted data.
+- The YAML reader/writer (`yaml` 2.9.0, ISC) is loaded lazily the same way pdf-lib is, only when a YAML source or export runs; it parses with the restricted core schema and never touches the network.
 
 ## PDF and ZIP workspaces
 
