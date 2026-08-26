@@ -8,7 +8,7 @@
   --yellow: var(--color-warning);
   --border: var(--color-border);
   --border-strong: var(--color-border-strong);
-  --shadow: 0 8px 22px color-mix(in srgb, var(--color-text) 7%, transparent);
+  --shadow: 0 3px 10px color-mix(in srgb, var(--color-text) 5%, transparent);
 }
 
 *,
@@ -232,7 +232,7 @@ h1 {
   min-width: 132px;
   padding: 12px 14px;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--color-bg-elevated) 72%, transparent);
+  background: var(--color-bg-elevated);
   border: 1px solid var(--border);
 }
 
@@ -260,7 +260,8 @@ h1 {
   padding: 16px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--color-bg-elevated) 72%, transparent);
+  /* Opaque surfaces keep big grids off the compositor blend path (P3.1). */
+  background: var(--color-bg-elevated);
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -275,7 +276,7 @@ h1 {
 .home-card:hover {
   transform: translateY(-1px);
   border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
-  background: color-mix(in srgb, var(--color-bg-muted) 74%, transparent);
+  background: var(--color-bg-muted);
 }
 
 .home-card-meta {
@@ -336,7 +337,7 @@ h1 {
   padding: 16px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--color-bg-elevated) 78%, transparent);
+  background: var(--color-bg-elevated);
   box-shadow: var(--shadow);
 }
 
