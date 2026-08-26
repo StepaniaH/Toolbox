@@ -61,9 +61,10 @@ browser smoke 中暴露。
 1. **三语必须完整接线。** `I18nProvider` 的 `translations` 类型要求 `zh`、`zh-Hant`、
    `en` 三个键同时存在；只传两语的记录无法通过编译。这是历史上「繁体渲染原始 key」
    事故的直接防线。
-2. **zh-Hant 是生成物，不手写。** 繁体词表一律由 `scripts/gen-zh-hant.mjs`
-   （OpenCC cn→tw，仅构建期）从简体源生成并提交。修改任何简体文案后必须重新运行该脚本；
-   生成文件出现手改内容视为缺陷。
+2. **zh-Hant 是生成物，不手写。** 繁体词表一律由 `pnpm gen:zh-hant`
+   （`scripts/gen-zh-hant.mjs`，OpenCC cn→tw，仅构建期）从简体源生成并提交。修改任何简体文案后必须重新运行该脚本；
+   生成文件出现手改内容视为缺陷。`pnpm check:contracts` 内置漂移守卫，提交内容与生成器
+   输出不一致时直接失败。
 3. **运行时回退链：zh-Hant → zh → key。** 即使某个繁体键缺失，UI 也只会短暂显示简体，
    永远不渲染原始 key。回退是兜底而非借口——缺失键仍会被规范 4 的测试拦截。
 4. **键位齐平必须有测试。** 应用在单元测试中调用 `assertTranslationParity({ zh, "zh-Hant": …, en })`，
