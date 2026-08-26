@@ -78,7 +78,8 @@ object URL；仅安全位图和最多 128 KiB 文本读取内容，PDF、XLSX �
 - 已有独立表格数据工作台：CSV/TSV 可转 CSV、TSV、JSON、无宏单表 XLSX；XLSX 可读取工作表并
   转 CSV、TSV、JSON。它只读取值与公式缓存值，不执行公式、宏或外部链接，也不承诺保留样式。
 - CSV/TSV 默认防御公式注入；数据预算为 CSV/TSV 16 MB、XLSX 32 MB、20,000 行、256 列、
-  250,000 单元格。JSON/YAML/XML 的解析、统计、对比和编码转换仍保持规划中。
+  250,000 单元格。JSON/YAML/XML 已按结构语义表格化，任意来源可导出 CSV/TSV/JSON/YAML/XML/
+  XLSX；统计、对比、语法错误定位与编码转换仍是后续候选。
 
 ### 压缩包
 

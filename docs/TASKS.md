@@ -352,7 +352,11 @@ SaneUnits 拆分：App.tsx（约 1,400 行）已确认只含视图编排——�
 - [ ] 用 Changesets 或等价机制定义 compatible/breaking、迁移期与受影响 app 清单。
 - [ ] 禁止 stable 应用在运行时加载未经该应用验证的“最新共享 UI”。
 
-### P4.2 · 统一错误与离线体验 `⏳ 待开始`
+### P4.2 · 统一错误与离线体验 `✅ 已完成`
 
-- [ ] 统一 favicon、404、顶层错误页和离线提示。
-- [ ] PWA/Service Worker 仅在路由和缓存失效策略明确后评估，不能以缓存旧工具换取表面速度。
+- [x] assemble 生成根级双语 404 页与 offline 页（内联主题、无外部资源），并为每个应用与
+  根输出统一 favicon（`scripts/assemble-static-site.mjs`）。
+- [x] 根级 `sw.js` 采用「哈希资产 cache-first、导航 network-first、离线回退页」策略，
+  只拦截同源 GET；缓存名绑定 `TOOLBOX_RELEASE`，activate 清理旧缓存；注册脚本由
+  assemble 注入，应用代码不感知。
+- [x] 后续仅在真实缓存失效证据出现时再评估策略变更；不为表面速度扩大缓存面。
