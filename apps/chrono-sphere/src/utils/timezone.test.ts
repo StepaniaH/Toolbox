@@ -159,3 +159,46 @@ describe('getFriendlyZoneLabel & getZoneShortLabel', () => {
     expect(getZoneShortLabel('Mars/Olympus', 'en')).toBe('Mars/Olympus');
   });
 });
+
+describe('city data is trilingual (catalog-driven)', () => {
+  const ZONES = ['Asia/Shanghai', 'America/New_York', 'Europe/London', 'UTC'];
+
+  it('every zone resolves non-empty country/city in all three locales', () => {
+    for (const locale of ['zh', 'zh-Hant', 'en'] as const) {
+      for (const tz of getAvailableTimezones(locale)) {
+        expect(tz.country.length, `${tz.value}.country (${locale})`).toBeGreaterThan(0);
+        expect(tz.city.length, `${tz.value}.city (${locale})`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('zh-Hant renders Traditional labels instead of simplified fallbacks', () => {
+    expect(getZoneShortLabel('America/New_York', 'zh-Hant')).toContain('美國');
+    expect(getZoneShortLabel('America/New_York', 'zh-Hant')).toContain('紐約');
+    expect(getAvailableTimezones('zh-Hant').find((t) => t.value === 'UTC')!.country).toBe('協調世界時');
+  });
+
+  it('searchText indexes simplified, traditional and english variants', () => {
+    const shanghai = getAvailableTimezones('en').find((t) => t.value === 'Asia/Shanghai')!;
+    expect(shanghai.searchText).toContain('中国');
+    expect(shanghai.searchText).toContain('中國');
+    expect(shanghai.searchText).toContain('china');
+  });
+
+  it('all three locales expose the identical zone value set', () => {
+    const values = (locale: 'zh' | 'zh-Hant' | 'en') =>
+      getAvailableTimezones(locale).map((t) => t.value).join('|');
+    expect(values('zh')).toBe(values('en'));
+    expect(values('zh')).toBe(values('zh-Hant'));
+  });
+
+  it('known zones keep distinct country/city copy per locale', () => {
+    for (const value of ZONES) {
+      const zh = getAvailableTimezones('zh').find((t) => t.value === value)!;
+      const hant = getAvailableTimezones('zh-Hant').find((t) => t.value === value)!;
+      const en = getAvailableTimezones('en').find((t) => t.value === value)!;
+      expect(hant.label).not.toBe(zh.label);
+      expect(en.label).not.toBe(hant.label);
+    }
+  });
+});

@@ -40,6 +40,132 @@
       "europeAfrica": "欧洲与非洲",
       "oceania": "大洋洲",
       "utc": "协调世界时"
+    },
+    "cities": {
+      "Asia/Shanghai": {
+        "country": "中国",
+        "city": "北京 / 上海（北京时间）"
+      },
+      "Asia/Hong_Kong": {
+        "country": "中国香港",
+        "city": "香港"
+      },
+      "Asia/Taipei": {
+        "country": "中国台湾",
+        "city": "台北"
+      },
+      "Asia/Macau": {
+        "country": "中国澳门",
+        "city": "澳门"
+      },
+      "Asia/Urumqi": {
+        "country": "中国",
+        "city": "乌鲁木齐（新疆时间）"
+      },
+      "Asia/Tokyo": {
+        "country": "日本",
+        "city": "东京"
+      },
+      "Asia/Seoul": {
+        "country": "韩国",
+        "city": "首尔"
+      },
+      "Asia/Singapore": {
+        "country": "新加坡",
+        "city": "新加坡"
+      },
+      "Asia/Kolkata": {
+        "country": "印度",
+        "city": "加尔各答"
+      },
+      "Asia/Dubai": {
+        "country": "阿联酋",
+        "city": "迪拜"
+      },
+      "America/New_York": {
+        "country": "美国",
+        "city": "纽约（东部时间）"
+      },
+      "America/Chicago": {
+        "country": "美国",
+        "city": "芝加哥（中部时间）"
+      },
+      "America/Denver": {
+        "country": "美国",
+        "city": "丹佛（山地时间）"
+      },
+      "America/Los_Angeles": {
+        "country": "美国",
+        "city": "洛杉矶（太平洋时间）"
+      },
+      "America/Anchorage": {
+        "country": "美国",
+        "city": "安克雷奇（阿拉斯加时间）"
+      },
+      "Pacific/Honolulu": {
+        "country": "美国",
+        "city": "檀香山 / 火奴鲁鲁（夏威夷时间）"
+      },
+      "America/Toronto": {
+        "country": "加拿大",
+        "city": "多伦多（东部时间）"
+      },
+      "America/Vancouver": {
+        "country": "加拿大",
+        "city": "温哥华（太平洋时间）"
+      },
+      "America/Sao_Paulo": {
+        "country": "巴西",
+        "city": "圣保罗"
+      },
+      "Europe/London": {
+        "country": "英国",
+        "city": "伦敦（格林威治 / 夏令时）"
+      },
+      "Europe/Paris": {
+        "country": "法国",
+        "city": "巴黎（中欧时间）"
+      },
+      "Europe/Berlin": {
+        "country": "德国",
+        "city": "柏林（中欧时间）"
+      },
+      "Europe/Rome": {
+        "country": "意大利",
+        "city": "罗马（中欧时间）"
+      },
+      "Europe/Moscow": {
+        "country": "俄罗斯",
+        "city": "莫斯科"
+      },
+      "Africa/Johannesburg": {
+        "country": "南非",
+        "city": "约翰内斯堡"
+      },
+      "Africa/Cairo": {
+        "country": "埃及",
+        "city": "开罗"
+      },
+      "Australia/Sydney": {
+        "country": "澳大利亚",
+        "city": "悉尼（东部时间）"
+      },
+      "Australia/Adelaide": {
+        "country": "澳大利亚",
+        "city": "阿德莱德（中部时间）"
+      },
+      "Australia/Perth": {
+        "country": "澳大利亚",
+        "city": "珀斯（西部时间）"
+      },
+      "Pacific/Auckland": {
+        "country": "新西兰",
+        "city": "奥克兰"
+      },
+      "UTC": {
+        "country": "协调世界时",
+        "city": "全球（UTC）"
+      }
     }
   },
   "offset": {
