@@ -175,6 +175,10 @@
 - [x] NEW_TOOL 明确分级门禁：单应用任务默认只跑该应用 build/test/lint/browser +
   privacy/contracts/release；共享包、跨应用或发布改动才要求全仓 browser。
 - [x] INDEX 的测试数量改为不易腐朽的表述（记录基线日期与命令，不再声称实时数字）。
+- [x] 2026-08-26 开源卫生轮：补根 `LICENSE`、`SECURITY.md`、`CONTRIBUTING.md`，README 加
+  CI badge 与截图基线链接，清理 FUNDING 模板注释；修正 v0.4.0 平台迁移遗留的约 8 处
+  过期 README 陈述（rate-lens hooks/主题/测试计数、sane-units 双语声明、theme v1 引言、
+  nav 七应用计数、chrono-sphere 独立仓库来源与部署章节）。
 
 ### P2.4 · 视觉回归基线 `🔄 进行中`
 
@@ -264,6 +268,26 @@
   繁体原始 key 泄漏守卫（zh-TW 断言 + 键名前缀禁令）。
 - [x] 规范落盘：packages/i18n/README.md 八条工程规范 + DESIGN_SYSTEM 语言契约红线。
 
+### P2.14 · 本地化门禁补全与残留修复 `✅ 已完成`
+
+2026-08-26 审计驱动的补齐轮：
+
+- [x] `gen-zh-hant.mjs` 重构为可导入模块并接入 `check:contracts` 漂移守卫：提交内容与
+  生成器输出不一致即失败；新增根脚本 `pnpm gen:zh-hant`。
+- [x] homepage 注册 manifest zhHant 卡片文案（此前繁体用户看到简体卡片），删除死代码
+  `toggleLang`/`langToggle` 与重复 html lang 写入，新增三语齐平测试。
+- [x] monitor-choice 修复共享语言码不识别（内部只认 `zhHant`，设置页切繁体无效）；
+  不再重复写共享 storage 键；新增齐平与语言码归一测试。
+- [x] sane-units / image-converter 补 `assertTranslationParity` 门禁（词表本身三语齐平）；
+  sane-units 移除 app 层 html lang 副作用。
+- [x] chrono-sphere 的 Luxon locale 全部走 `intlLocale`（此前繁体固定拿 zh-CN 格式），
+  农历年后缀入词表；rate-lens 模型限时价 note 迁入词表、删除 calc 层死文案
+  `formatDiscount`/`discountText`。
+- [ ] 跟进（独立任务）：sane-units `lib/units.ts` 约 40 处内联双语句子与选项 label
+  （storage/network/video/power 场景）迁移到词表——生产环境繁体界面已确认暴露简体标签；
+  同轮处理 `Intl.NumberFormat("zh-CN")` 与无 locale 的 `toLocaleString`。
+- [ ] 跟进（独立任务）：chrono-sphere `utils/timezone.ts` 城市/国家二元数据模型扩展为三语。
+
 ## P3 — 性能与可维护性
 
 ### P3.1 · 合成层第一轮优化 `✅ 已完成`
@@ -276,9 +300,14 @@
 
 - [x] `measure-perf` 从构建产物生成 raw/gzip 体积表与最大 chunk，写入
   docs/PERFORMANCE.md 基线；CI 在 build 后输出报告（仅报告，不做硬阈值）。
-- [ ] 优先核对 ChronoSphere timezone lazy chunk（122.8k gzip）与 RateLens 首包
-  （113.6k gzip）的真实加载/缓存，再决定拆包策略。
+- [x] 2026-08-26 拆包轮：RateLens 拆出 `react-vendor`；chrono-sphere 拆出
+  react/luxon/lunar-calendar——TimezoneSelect chunk 从 ~123k 降到 4.6k gzip，农历表
+  仅农历页加载；基线与决策记录见 docs/PERFORMANCE.md。
+- [x] 合成层第二轮：chrono-sphere 玻璃卡片/时区下拉移除 backdrop blur 并改不透明表面
+  （含样式守卫测试）；sane-units 卡片网格降光晕（AGENTS 设计偏好的落地）。
 - [ ] 交互延迟与缓存行为的可解释基线。
+- [ ] FormTran 入口 chunk（177.3k gzip）与 SaneUnits 入口（86.2k gzip）的拆包评估，
+  先补真实加载路径测量。
 
 ### P3.3 · 结构性维护 `🔄 进行中`
 

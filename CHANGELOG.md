@@ -1,5 +1,38 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added a root `LICENSE`, a `SECURITY.md` disclosure policy, and a
+  `CONTRIBUTING.md` contributor guide.
+- Homepage card copy now registers Traditional Chinese from the manifest and a
+  trilingual parity test locks the catalogs.
+- Added trilingual catalog-parity gates to SaneUnits, FormTran, and Monitor
+  Choice (previously only three apps had them).
+- `check:contracts` now regenerates the zh-Hant catalogs in memory and fails on
+  any drift; regenerate with `pnpm gen:zh-hant`.
+
+### Changed
+
+- ChronoSphere panels and the SaneUnits card grid use opaque surfaces with
+  reduced shadows instead of frosted-glass blur, cutting composited repaints
+  while scrolling.
+- RateLens ships its framework as a separate cacheable `react-vendor` chunk;
+  ChronoSphere additionally splits `luxon` and the lunar calendar tables, so
+  the timezone selector chunk shrinks from ~123k to ~5k gzip and lunar tables
+  load only on the lunar page.
+
+### Fixed
+
+- Fixed Monitor Choice ignoring the shared Traditional Chinese setting because
+  it expected an internal `zhHant` locale code; it now follows the shared
+  language codes and no longer writes the shared storage key twice.
+- Fixed ChronoSphere date formatting forcing zh-CN conventions for Traditional
+  Chinese users by routing Luxon locales through `intlLocale()`.
+- Moved RateLens's limited-time pricing note into the translation catalogs and
+  removed unused bilingual verdict text from the calculation layer.
+
 ## v0.5.0 (2026-08-26)
 
 ### Changed
