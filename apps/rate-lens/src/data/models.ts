@@ -2,7 +2,7 @@ import type { ModelPricing, ModelProvider } from '@/types'
 
 /**
  * 每家供应商的价格核对记录：数字全部为人工从官方定价页转抄，
- * 不在运行时请求任何来源（无 fetch、无代理、无追踪）。
+ * 运行时不发起任何网络请求（无自动更新、无代理、无遥测）。
  */
 export interface PricingSource {
   /** 官方定价页（公开文档，仅作为 UI 展示链接） */
