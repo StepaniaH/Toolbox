@@ -122,7 +122,7 @@ function AppSurface() {
   const [dragging, setDragging] = useState(false);
   const [running, setRunning] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTab>("home");
-  const [gifTransfer, setGifTransfer] = useState<{ id: number; files: File[] } | undefined>();
+  const [gifTransfer, setGifTransfer] = useState<{ id: number; files: File[]; intent?: "compose" | "extract" | "speed" | "compress" } | undefined>();
   const [editTransfer, setEditTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [textTransfer, setTextTransfer] = useState<{ id: number; files: File[] } | undefined>();
   const [dataTransfer, setDataTransfer] = useState<{ id: number; files: File[] } | undefined>();
@@ -319,7 +319,7 @@ function AppSurface() {
     if (preset === "privacy") setSettings((current) => ({ ...current, keepSmallerOriginal: false }));
     addFiles(files); setWorkspaceContext({ count: files.length, tab: "image" }); setActiveTab("image");
   };
-  const openGif = (files: File[]) => { setGifTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "gif" }); setActiveTab("gif"); };
+  const openGif = (files: File[], intent?: "compose" | "extract" | "speed" | "compress") => { setGifTransfer({ id: Date.now(), files, intent }); setWorkspaceContext({ count: files.length, tab: "gif" }); setActiveTab("gif"); };
   const openEdit = (files: File[]) => { setEditTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "edit" }); setActiveTab("edit"); };
   const openText = (files: File[]) => { setTextTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "text" }); setActiveTab("text"); };
   const openData = (files: File[]) => { setDataTransfer({ id: Date.now(), files }); setWorkspaceContext({ count: files.length, tab: "data" }); setActiveTab("data"); };

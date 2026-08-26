@@ -811,6 +811,20 @@ legend, .field-label { display: flex; align-items: center; gap: 6px; margin-bott
 }
 
 .edit-budget { margin: 4px 0 0; color: var(--color-text-muted); font-size: .72rem; line-height: 1.5; }
+.gif-tools { display: grid; gap: 14px; padding: 20px 0; }
+.gif-tools-body { display: grid; grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(200px, 1fr)); gap: 12px; align-items: start; }
+.gif-tools-source { display: grid; gap: 8px; padding: 12px; border: 1px dashed var(--color-border); border-radius: var(--radius-md); }
+.gif-tools-info { margin: 0; color: var(--color-text-muted); font-size: .78rem; line-height: 1.5; }
+.gif-tool-card { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-muted, transparent); }
+.gif-tool-card header p { margin: 4px 0 0; color: var(--color-text-muted); font-size: .74rem; line-height: 1.45; }
+.gif-tool-card .button { justify-self: start; }
+.gif-tools-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 1024px) {
+  .gif-tools-body { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .gif-tools-body { grid-template-columns: 1fr; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }

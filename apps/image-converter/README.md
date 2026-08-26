@@ -2,7 +2,7 @@
 
 A private, browser-only file workspace for conversion, compression, editing, splitting, merging, encoding, parsing, and inspection. Its file home identifies inputs and recommends relevant tools before any operation runs. No source content leaves the device.
 
-The expansion is staged. Image conversion (including local HEIC/HEIF decoding), GIF composition, text/markup conversion, CSV/TSV/XLSX table conversion, bounded PDF page operations, bounded ZIP listing/extraction, and canvas-based image editing (batch crop, stitch) are available now. Visual per-image crop editing, GIF-specific processing, visual PDF rendering, and other archive formats stay closed until their own correctness and resource boundaries pass review. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
+The expansion is staged. Image conversion (including local HEIC/HEIF decoding), GIF composition plus GIF source tools (frame extraction, speed changes, bounded lossy compression), text/markup conversion, CSV/TSV/XLSX/JSON/YAML/XML table conversion, bounded PDF page operations, bounded ZIP listing/extraction, and canvas-based image editing (batch crop, stitch) are available now. Visual per-image crop editing, visual PDF rendering, and other archive formats stay closed until their own correctness and resource boundaries pass review. Recognition never implies that the current browser can fully decode or edit a format. See [the file workbench architecture](./docs/FILE_WORKBENCH.md).
 
 ## File home
 
@@ -49,6 +49,7 @@ The expansion is staged. Image conversion (including local HEIC/HEIF decoding), 
 - Clear the whole frame queue or remove/reorder individual frames.
 - Fit frames proportionally into a shared canvas, choose dimensions, delay, loop count, and letterbox color.
 - Encode GIF89a entirely in the browser, then preview and download the result.
+- GIF source tools decode an existing animation with full disposal and partial-frame compositing: extract every frame as PNG, rescale frame delays by 0.25×–4× with re-encoding, or lossy-compress by shrinking to 25–75% width and optionally keeping every 1/2 or 1/3 frame. Budgets: 64 MB input, 120 frames, 4096 px sides, 100M total pixels; decoding uses `gifuct-js` 2.1.2 (MIT) loaded lazily from the same origin.
 - The dependency-free encoder uses a fixed 3-3-2 256-color palette. It is intended for simple short animation; photographs and gradients can show banding.
 - The workload is limited to 4096 pixels per side and 100 million frame-pixels to reduce tab crashes.
 

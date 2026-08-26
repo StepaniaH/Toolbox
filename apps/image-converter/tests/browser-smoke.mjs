@@ -359,6 +359,23 @@ try {
   assert.equal(bottomPixel[3], 255)
   assert.equal(Math.max(...bottomPixel.slice(0, 3)) > 150 && Math.min(...bottomPixel.slice(0, 3)) < 80, true)
   assert.equal(await page.getByRole('button', { name: /Download GIF|下载 GIF/ }).isVisible(), true)
+
+  // GIF source tools: feed the generated animation back in and extract frames.
+  const generatedGif = await page.locator('.gif-result img').evaluate(async (image) => {
+    const response = await fetch(image.src)
+    return new Uint8Array(await response.arrayBuffer())
+  })
+  await page.locator('.gif-tools input[type=file]').setInputFiles({
+    name: 'formtran-animation.gif', mimeType: 'image/gif', buffer: Buffer.from(generatedGif),
+  })
+  await page.waitForFunction(() => /frames|帧/.test(document.querySelector('.gif-tools-info')?.textContent ?? ''))
+  await page.getByRole('button', { name: /Extract frames|拆帧导出/ }).click()
+  await page.waitForFunction(() => document.querySelector('.output-desk')?.textContent.includes('formtran-animation-frame-01.png'))
+  await homeTab.click()
+  assert.match(await page.locator('.output-desk').textContent(), /frame-01\.png/)
+  assert.match(await page.locator('.output-desk').textContent(), /frame-02\.png/)
+  await gifTab.click()
+
   await page.locator('.gif-page').getByRole('button', { name: /^Clear$|^清空$/ }).click()
   assert.equal(await page.locator('.frame-strip article').count(), 0)
   assert.equal(await page.locator('.gif-result').count(), 0)

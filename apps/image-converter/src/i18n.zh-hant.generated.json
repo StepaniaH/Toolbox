@@ -42,7 +42,7 @@
     },
     "data": {
       "title": "表格數據隱私說明",
-      "detail": "CSV、TSV、XLSX 的讀取、預覽和導出只在瀏覽器內存中完成；不會上傳文件、文件名、工作表或單元格內容。"
+      "detail": "CSV、TSV、XLSX、JSON、YAML、XML 的讀取、預覽和導出只在瀏覽器內存中完成；不會上傳文件、文件名、工作表或單元格內容。"
     },
     "pdf": {
       "title": "PDF 工具隱私說明",
@@ -124,6 +124,39 @@
       "canvas-unavailable": "瀏覽器無法創建圖片畫布。",
       "encode-unsupported": "當前瀏覽器不支持編碼為所選格式。",
       "unknown": "處理時發生未知錯誤。"
+    }
+  },
+  "gifTools": {
+    "title": "GIF 源文件工具",
+    "intro": "讀取 GIF 的完整幀序列後本地處理；解碼、重編碼與導出全部留在瀏覽器內存。",
+    "load": "打開 .gif 文件",
+    "clear": "移除源文件",
+    "empty": "還沒有載入 GIF。",
+    "loaded": "{{frames}} 幀 · {{width}} × {{height}} · 約 {{seconds}} 秒",
+    "working": "處理中…",
+    "extractTitle": "拆幀為 PNG",
+    "extractDetail": "按播放順序把每一幀導出為獨立 PNG，進入結果隊列。",
+    "extractRun": "拆幀導出",
+    "speedTitle": "調整播放速度",
+    "speedDetail": "按倍率縮放幀延遲並重新編碼；畫面內容不變。",
+    "speedRun": "生成 {{factor}}× 速度",
+    "compressTitle": "有損壓縮",
+    "compressDetail": "縮小尺寸並可選抽幀後重編碼，用可解釋的參數換更小體積。",
+    "compressRun": "壓縮重編碼",
+    "scaleLabel": "目標寬度",
+    "frameStepLabel": "抽幀間隔",
+    "keepAll": "保留全部幀",
+    "errors": {
+      "gif-input-limit": "GIF 輸入限制為 64 MB。",
+      "gif-decode-failed": "無法解析這個 GIF，文件可能損壞或不是 GIF89a/GIF87a 編碼。",
+      "gif-empty": "這個 GIF 裡沒有可用幀。",
+      "gif-frame-count": "GIF 超過 120 幀安全上限。",
+      "gif-size-limit": "GIF 超出像素預算（單邊 4096 px、總量 1 億像素）。",
+      "gif-speed-factor": "速度倍率無效。",
+      "canvas-unavailable": "瀏覽器無法創建畫布。",
+      "encode-unsupported": "當前瀏覽器不支持該圖片編碼。",
+      "publish-limit": "部分結果超出結果隊列預算，未全部加入。",
+      "unknown": "處理 GIF 時發生未知錯誤。"
     }
   },
   "home": {
@@ -275,15 +308,15 @@
       },
       "extract": {
         "title": "GIF 拆幀",
-        "detail": "需要正確處理幀延遲、處置方式、局部幀與透明。"
+        "detail": "解析完整幀序列（含處置方式與局部幀合成），逐幀導出 PNG。"
       },
       "gifCompress": {
         "title": "GIF 壓縮",
-        "detail": "將在畫質、調色板、重複幀和體積之間提供可解釋預設。"
+        "detail": "縮小尺寸並可選抽幀後重編碼，用可解釋的參數換更小體積。"
       },
       "speed": {
         "title": "GIF 調速",
-        "detail": "規劃按倍率或目標時長調整，並處理播放器最短幀延遲。"
+        "detail": "按倍率縮放幀延遲並重新編碼；畫面內容不變。"
       },
       "video": {
         "title": "GIF 轉視頻",

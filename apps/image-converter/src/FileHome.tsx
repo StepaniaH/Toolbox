@@ -11,6 +11,7 @@ import type { OutputDraft, TaskOutput } from "./lib/output-registry";
 type HomeFile = { id: string; file: File; relativePath: string; identified: IdentifiedFile | null; error?: string };
 type IncomingHomeFile = { file: File; relativePath: string };
 type ImagePreset = "default" | "web" | "transparent" | "privacy";
+type GifIntent = "compose" | "extract" | "speed" | "compress";
 type ToolStatus = "available" | "limited" | "planned";
 type Tool = { id: string; status: ToolStatus; action?: "image" | "edit" | "gif" | "text" | "data" | "base64" | "pdf" | "archive" };
 
@@ -30,7 +31,7 @@ const TOOLS: Record<FileFamily, Tool[]> = {
   ],
   gif: [
     { id: "firstFrame", status: "limited", action: "image" }, { id: "info", status: "available" },
-    { id: "extract", status: "planned" }, { id: "gifCompress", status: "planned" }, { id: "speed", status: "planned" },
+    { id: "extract", status: "available", action: "gif" }, { id: "gifCompress", status: "available", action: "gif" }, { id: "speed", status: "available", action: "gif" },
     { id: "crop", status: "planned" }, { id: "resize", status: "planned" }, { id: "video", status: "planned" }, { id: "animated", status: "planned" },
   ],
   text: [
@@ -63,7 +64,7 @@ export function FileHome({
   outputs?: TaskOutput[];
   outputNotice?: string | null;
   onOpenImage: (files: File[], preset: ImagePreset) => void;
-  onOpenGif: (files: File[]) => void;
+  onOpenGif: (files: File[], intent?: GifIntent) => void;
   onOpenEdit: (files: File[]) => void;
   onOpenText: (files: File[]) => void;
   onOpenData: (files: File[]) => void;
@@ -168,7 +169,11 @@ export function FileHome({
     if (!selected || tool.status === "planned") return;
     const scopedFiles = actionItems.map((item) => item.file);
     if (tool.action === "image") onOpenImage(scopedFiles, tool.id === "compress" ? "web" : tool.id === "metadata" ? "privacy" : "default");
-    if (tool.action === "gif") onOpenGif(scopedFiles.length >= 2 ? scopedFiles : compatible("image"));
+    if (tool.action === "gif") {
+      const intent: GifIntent = tool.id === "extract" ? "extract" : tool.id === "speed" ? "speed" : tool.id === "gifCompress" ? "compress" : "compose";
+      const files = intent === "compose" && scopedFiles.length < 2 ? compatible("image") : scopedFiles;
+      onOpenGif(files, intent);
+    }
     if (tool.action === "edit") onOpenEdit(scopedFiles);
     if (tool.action === "text") onOpenText(scopedFiles);
     if (tool.action === "data") onOpenData(scopedFiles.slice(0, 1));
